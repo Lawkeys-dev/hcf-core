@@ -397,6 +397,21 @@ public final class AbilityModule {
         }
     }
 
+    /** Every cooldown of a player's ends at once: each ability's, each Pocket Bard set's, the shared one. */
+    public void resetCooldowns(UUID playerId) {
+        cooldowns.forget(playerId);
+    }
+
+    /** The shared cooldown of a player's ends at once; each ability's own runs on. */
+    public void resetGlobalCooldown(UUID playerId) {
+        cooldowns.clear(playerId, GLOBAL_COOLDOWN);
+    }
+
+    /** One ability's cooldown of a player's ends at once. */
+    public void resetCooldown(UUID playerId, Ability ability) {
+        cooldowns.clear(playerId, ability.id());
+    }
+
     /**
      * Whether an ability waits for, and starts, the shared cooldown. Not the Pocket
      * Bard: it only hands out a set, whose items have a cooldown each.

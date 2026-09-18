@@ -1216,6 +1216,11 @@ abilities:
   turned: "&aYou turned &f%player% &aaround."
   turned-victim: "&c%player% &cturned you around."
   gave: "&aGave &f%amount% %ability% &ato &f%player%&a."
+  # /ability reset: %which% is reset-all, reset-global, or an ability's name.
+  reset: "&aReset &f%player%&a's cooldown: %which%&a."
+  reset-target: "&aYour ability cooldown was reset: %which%&a."
+  reset-all: "&fevery one"
+  reset-global: "&fthe shared one"
   unknown: "&cNo ability named '%ability%'."
   list: "&7Abilities: &f%abilities%"
   list-empty: "&7No ability is configured."

@@ -288,8 +288,8 @@ commands:
     usage: /<command> [kit|layout <kit> [reset]|create|delete|give|resetcooldown]
   ability:
     aliases: [abilities, partneritems]
-    description: The partner items and your cooldowns; staff hand them out with /ability give.
-    usage: /<command> [list|give <player> <ability> [amount]]
+    description: The partner items and your cooldowns; staff hand them out with /ability give and reset cooldowns with /ability reset.
+    usage: /<command> [list|give <player> <ability> [amount]|reset <player> [all|global|<ability>]]
   dyes:
     aliases: [dyecolors]
     description: Which colour of a dyed class set gives its arrows which effect.
@@ -414,7 +414,7 @@ permissions:
     description: Apply and remove custom enchants, and give custom enchant books.
     default: op
   hcfcore.ability.admin:
-    description: Hand out partner items with /ability give.
+    description: Hand out partner items with /ability give, and reset a player's ability cooldowns with /ability reset.
     default: op
   hcfcore.limiter.bypass:
     description: Place blocks in claims beyond limiters.yml's claim-blocks limits, while /staffbuild is on.

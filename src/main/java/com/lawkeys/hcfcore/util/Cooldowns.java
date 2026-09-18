@@ -53,6 +53,14 @@ public final class Cooldowns {
         return true;
     }
 
+    /** Ends one wait of a player's at once. */
+    public void clear(UUID playerId, String key) {
+        Map<String, Long> waits = until.get(playerId);
+        if (waits != null) {
+            waits.remove(key);
+        }
+    }
+
     public void forget(UUID playerId) {
         until.remove(playerId);
     }

@@ -1,6 +1,6 @@
 # Abilities (partner items)
 
-*Configured in [`abilities.yml`](../reference/configuration/abilities.md). Commands: `/ability`, `/ability give`.*
+*Configured in [`abilities.yml`](../reference/configuration/abilities.md). Commands: `/ability`, `/ability give`, `/ability reset`.*
 
 A partner item is an item that **does something when it is used**: right-clicked, thrown, hit with, shot from, or reeled in. What it does is its **type**, built into the plugin; which ones a server runs, and every value they read, are `abilities.yml`'s. The plugin ships 43 — several share a type, such as the four that only give effects.
 
@@ -9,6 +9,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | `/ability` | A menu of every ability, with your cooldown on each | everyone |
 | `/ability list` | The abilities, in chat | everyone |
 | `/ability give <player> <ability> [amount]` | Hand one out — from the console too: a killstreak, a redeem code, a store | `hcfcore.ability.admin` |
+| `/ability reset <player> [all\|global\|<ability>]` | End a player's cooldowns: `all` (the default) — every ability's, every Pocket Bard set's and the shared one; `global` — the shared one only; an ability's id — that one only | `hcfcore.ability.admin` |
 
 ## Shared rules
 
