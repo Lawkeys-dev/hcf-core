@@ -142,6 +142,16 @@ Gradle needs a JDK 17 or later to run, and provisions the Java 25 toolchain it c
 
 GitHub Actions runs the same build on every push to `main` and on every pull request.
 
+## Versioning
+
+HCFCore follows [Semantic Versioning](https://semver.org/), and **every commit on `main` is a version**:
+
+1. Bump `version` in `build.gradle.kts` — **minor** (`0.x.0`) for a feature or a change in how something plays, **patch** (`0.x.y`) for new default values, a fix, or documentation alone.
+2. Add the version's section at the top of [`CHANGELOG.md`](CHANGELOG.md), with the link at the bottom. Say what an operator must do when an existing file needs a change: configuration files are never rewritten.
+3. Commit, tag `v<version>` on that commit, and push both. The release workflow builds the tag, refuses a tag that does not match `build.gradle.kts` or has no changelog section, and publishes the jar with the notes.
+
+The project is in **pre-release**: versions below `1.0.0` are published as pre-releases, and a minor version may still change a setting's name or meaning. `1.0.0` is the first release.
+
 ## Pull requests
 
 - Branch from `main`, one topic per pull request, and target `main`.

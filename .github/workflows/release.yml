@@ -1,0 +1,66 @@
+# Publish a release for every version tag.
+#
+# Every commit on main is a version (CHANGELOG.md): its build.gradle.kts carries
+# the version, and the commit is tagged v<version>. This builds that tag's jar,
+# refuses a tag that does not match the version the jar would carry, and
+# publishes the release with the jar and the version's CHANGELOG.md section. A
+# version below 1.0.0, or with a suffix (1.1.0-rc.1), is marked a pre-release.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the tag
+        uses: actions/checkout@v7
+
+      # Paper 26.2 requires JDK 25 (CONTRIBUTING.md section 2).
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Check the tag matches the plugin's version
+        id: version
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' build.gradle.kts)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match build.gradle.kts version $version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Build and test
+        run: ./gradlew build --no-daemon --stacktrace
+
+      # The notes are this version's section of CHANGELOG.md, heading excluded.
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::CHANGELOG.md has no section for $VERSION"
+            exit 1
+          fi
+          prerelease=""
+          case "$VERSION" in
+            0.*|*-*) prerelease="--prerelease" ;;
+          esac
+          gh release create "$GITHUB_REF_NAME" build/libs/*.jar \
+            --title "HCFCore $VERSION" --notes-file notes.md --verify-tag $prerelease

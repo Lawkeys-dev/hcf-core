@@ -110,6 +110,7 @@ nav:
       - Setting up a map: getting-started/setup-guide.md
       - Game modes: getting-started/game-modes.md
       - Upgrading: getting-started/upgrading.md
+      - Changelog: changelog.md
   - How the game works:
       - gameplay/index.md
       - Teams: gameplay/teams.md

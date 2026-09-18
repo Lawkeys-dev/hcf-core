@@ -10,9 +10,9 @@ One installation drives one server. There is no synchronisation between servers 
 
 ## Getting the jar
 
-=== "Download a build"
+=== "Download a release"
 
-    Every push to `main` is built by GitHub Actions. Open the [latest successful run](https://github.com/Lawkeys-dev/hcf-core/actions/workflows/build.yml?query=branch%3Amain+is%3Asuccess) and download the `hcfcore-jar` artifact (kept for 7 days). Tagged versions, once published, are on the [releases page](https://github.com/Lawkeys-dev/hcf-core/releases).
+    Every version is on the [releases page](https://github.com/Lawkeys-dev/hcf-core/releases), with its jar — `hcf-core-<version>.jar` — and what changed ([Changelog](../changelog.md)). HCFCore is in **pre-release** (`0.x`) until `1.0.0`: GitHub marks those versions *Pre-release*, and the newest one is the one to take.
 
 === "Build it yourself"
 

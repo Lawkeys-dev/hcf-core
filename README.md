@@ -40,7 +40,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 2. Claim spawn, set the warzone, move the example events onto your map, create your kits — [Setting up a map](https://lawkeys-dev.github.io/hcf-core/getting-started/setup-guide/).
 3. Switch to MySQL for production, and open the map with `/sotw start`.
 
-**Getting the jar**: download the `hcfcore-jar` artifact of the latest [successful build](https://github.com/Lawkeys-dev/hcf-core/actions/workflows/build.yml?query=branch%3Amain+is%3Asuccess), or build it:
+**Getting the jar**: download it from the [releases](https://github.com/Lawkeys-dev/hcf-core/releases) — every version, with what changed in [`CHANGELOG.md`](CHANGELOG.md); HCFCore is in pre-release (`0.x`) until `1.0.0` — or build it:
 
 ```bash
 git clone https://github.com/Lawkeys-dev/hcf-core.git

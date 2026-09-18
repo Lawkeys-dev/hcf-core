@@ -4,13 +4,13 @@ For plugins that react to HCFCore: listen to its events, read its teams, and rea
 
 ## Depending on HCFCore
 
-HCFCore is not published to a Maven repository yet. Build the jar ([Installation](../getting-started/installation.md#getting-the-jar)) and compile against it, without shading it:
+HCFCore is not published to a Maven repository yet. Download the jar of a [release](https://github.com/Lawkeys-dev/hcf-core/releases) and compile against it, without shading it. Until `1.0.0` a minor version may change the API: pin the version you build against.
 
 ```kotlin
 // build.gradle.kts of your plugin
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
-    compileOnly(files("libs/hcf-core-0.1.0-SNAPSHOT.jar"))
+    compileOnly(files("libs/hcf-core-0.13.2.jar"))
 }
 ```
 
