@@ -18,6 +18,7 @@ Every example on this page is **taken from the shipped `abilities.yml`**. Change
 | `global.cooldown-seconds` | `10` | A wait after any ability before the next one, whichever it is |
 | `global.hits-within-seconds` | `10` | Most time between two hits counted towards `hits-required`; longer and the count starts over |
 | `global.menu-title` | `&dAbilities` | `/ability`'s menu |
+| `global.disabled-in.safezone` | `true` | No ability in a safe zone (spawn) |
 | `global.disabled-in.citadel` | `true` | No ability on a Citadel's claim |
 | `global.disabled-in.events` | `true` | No ability in the zone of a running KOTH, Citadel or Conquest |
 | `global.disabled-in.nether` · `end` | `true` | No ability in the Nether, the End |
@@ -292,7 +293,7 @@ Fires `projectiles` eggs scattered in a cone `spread` degrees wide, as a shotgun
 
 #### `sun`
 
-Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per-player` for each enemy caught (at most `max-players`) and is blinded - and burns, with `fire-seconds`. Used by a right-click.
+Fireworks burst around you; every player within `radius` - the user and teammates too, with `hits-everyone` - takes `damage-hearts-per-player` for each player caught (at most `max-players`) and is blinded - and burns, with `fire-seconds`. Used by a right-click.
 
 | Key | Default | What it does |
 |---|---|---|
@@ -302,6 +303,7 @@ Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per
 | `fire-seconds` | `0` | Seconds on fire; `0` for none |
 | `blindness-seconds` | `2` | Seconds of Blindness |
 | `fireworks` | `6` | Fireworks bursting around the user: only a sight |
+| `hits-everyone` | `true` | The user and teammates are caught and counted too; `false` for enemies only |
 
 #### `hit-effects`
 

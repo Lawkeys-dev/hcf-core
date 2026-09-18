@@ -51,6 +51,7 @@ public final class AbilityConfig {
         Map<String, ?> disabled = map(global.get("disabled-in"), "global.disabled-in");
         AbilitySettings.DisabledIn d = defaults.disabledIn();
         AbilitySettings.DisabledIn disabledIn = new AbilitySettings.DisabledIn(
+                bool(disabled.get("safezone"), d.safezone(), "global.disabled-in.safezone"),
                 bool(disabled.get("citadel"), d.citadel(), "global.disabled-in.citadel"),
                 bool(disabled.get("events"), d.events(), "global.disabled-in.events"),
                 bool(disabled.get("nether"), d.nether(), "global.disabled-in.nether"),

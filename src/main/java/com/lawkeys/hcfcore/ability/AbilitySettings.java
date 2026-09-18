@@ -17,7 +17,8 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
                               String pocketBardTitle, int pocketBardSize, List<PocketBardItem> pocketBard) {
 
     /** Where abilities are refused. */
-    public record DisabledIn(boolean citadel, boolean events, boolean nether, boolean end, boolean warzone) {
+    public record DisabledIn(boolean safezone, boolean citadel, boolean events, boolean nether, boolean end,
+                             boolean warzone) {
     }
 
     public AbilitySettings {
@@ -29,7 +30,7 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
     }
 
     public static AbilitySettings defaults() {
-        return new AbilitySettings(true, 10, 10, "&dAbilities", new DisabledIn(true, true, true, true, false),
+        return new AbilitySettings(true, 10, 10, "&dAbilities", new DisabledIn(true, true, true, true, true, false),
                 List.of(), "&dPocket Bard", 9, List.of());
     }
 

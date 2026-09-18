@@ -449,6 +449,10 @@ public final class AbilityModule {
                 && claims.getManager().isWarzone(ClaimModule.toChunk(location))) {
             return true;
         }
+        if (rules.safezone() && claims != null && claims.getManager() != null
+                && claims.getManager().getOwner(ClaimModule.toChunk(location)).map(Team::isSafeZone).orElse(false)) {
+            return true;
+        }
         if (events != null && rules.citadel() && events.citadelAt(location).isPresent()) {
             return true;
         }
@@ -671,14 +675,17 @@ public final class AbilityModule {
             });
             firework.detonate();
         }
-        List<Player> caught = enemiesAround(player, center, radius);
+        List<Player> caught = p.bool("hits-everyone") ? everyoneAround(player, center, radius)
+                : enemiesAround(player, center, radius);
         double damage = AbilityRules.sunDamage(caught.size(), (int) p.whole("max-players"),
                 p.decimal("damage-hearts-per-player"));
         for (Player enemy : caught) {
             trueDamage(enemy, player, damage);
             enemy.setFireTicks((int) Math.max(enemy.getFireTicks(), p.whole("fire-seconds") * 20));
             apply(enemy, List.of(new AbilityEffect("blindness", 1, (int) p.whole("blindness-seconds"))));
-            lang.send(enemy, AbilityMessages.AREA_HIT, "player", player.getName(), "ability", display(ability));
+            if (!enemy.equals(player)) {
+                lang.send(enemy, AbilityMessages.AREA_HIT, "player", player.getName(), "ability", display(ability));
+            }
         }
         lang.send(player, AbilityMessages.AREA_USED, "ability", display(ability), "count", String.valueOf(caught.size()));
     }
@@ -1546,6 +1553,18 @@ public final class AbilityModule {
         for (Player other : user.getWorld().getPlayers()) {
             if (!other.equals(user) && other.getLocation().distanceSquared(center) <= radius * radius
                     && (pvp == null || pvp.judgeHarm(user, other).isEmpty())) {
+                out.add(other);
+            }
+        }
+        return out;
+    }
+
+    /** Everybody within {@code radius}, the user and teammates included - but nobody SOTW or a safe zone keeps safe. */
+    private List<Player> everyoneAround(Player user, Location center, double radius) {
+        List<Player> out = new ArrayList<>();
+        for (Player other : user.getWorld().getPlayers()) {
+            if (other.getLocation().distanceSquared(center) <= radius * radius
+                    && (other.equals(user) || pvp == null || pvp.judgeHarmAnySide(user, other).isEmpty())) {
                 out.add(other);
             }
         }

@@ -287,7 +287,7 @@ commands:
     description: Take a kit; staff create them from their own inventory.
     usage: /<command> [kit|layout <kit> [reset]|create|delete|give|resetcooldown]
   ability:
-    aliases: [abilities, partneritems]
+    aliases: [partneritems]
     description: The partner items and your cooldowns; staff hand them out with /ability give and reset cooldowns with /ability reset.
     usage: /<command> [list|give <player> <ability> [amount]|reset <player> [all|global|<ability>]]
   dyes:
