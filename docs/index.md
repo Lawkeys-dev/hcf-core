@@ -106,7 +106,7 @@ hide:
     All data lives in memory and is written to SQLite or MySQL in the background. The main thread never waits on a query, and nobody gets in before every load has finished — a half-loaded server stays closed.
 
 !!! success "Tested rules"
-    Every rule engine is plain Java, covered by more than 1,000 unit tests — including real round trips on SQLite and checks against MySQL's reserved words — and tried in game on Paper 26.2 with SQLite, MySQL 8.4, LuckPerms, Vault and Lunar Client — the newest modules still on their way there.
+    Every rule engine is plain Java, covered by more than 1,000 unit tests — including real round trips on SQLite and checks against MySQL's reserved words — and tried in game on Paper 26.2 with SQLite, MySQL 8.4, LuckPerms, Vault and Lunar Client.
 
 !!! success "Open and extensible"
     MIT licensed, with public Bukkit events for other plugins to react to teams, alliances and raids. No required dependency: Vault, LuckPerms and Apollo are used only when present.
@@ -143,4 +143,4 @@ hide:
     [:octicons-arrow-right-24: Before opening](getting-started/setup-guide.md#12-before-opening)
 
 !!! warning "Pre-release"
-    HCFCore compiles against the real Paper 26.2 API, its unit tests pass in CI, and it has been tried in game module by module — except the newest: classes, classic combat, effect caps and effect commands await theirs — but it has not yet run a production map under load. Read the code, and test it on your own setup before deploying it to a server you care about.
+    HCFCore compiles against the real Paper 26.2 API, its unit tests pass in CI, and it has been tried in game module by module — but it has not yet run a production map under load. Read the code, and test it on your own setup before deploying it to a server you care about.

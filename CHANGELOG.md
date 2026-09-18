@@ -6,6 +6,12 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-18
+
+Everyday commands, and the fixes of a first round of in-game tests: classes, the Bard, classic combat, effect commands.
+
+*Tried in game on Paper 26.2 with two players, except the damage a sword block takes off, which awaits a two-player test.*
+
 ### Added
 - **Everyday commands**, as an essentials plugin gives them: `/clearinventory` (`/ci`, `/clearinv`), `/feed` (`/eat`), `/fly`, `/god`, `/flyspeed`, `/walkspeed`, `/hat`, `/suicide`, `/extinguish` (`/ext`), `/workbench` (`/wb`, `/craft`), `/anvil`, `/enderchest` (`/ec`, `/echest`), `/i` (`/giveitem`), `/tphere` (`/s`), `/tppos`, `/gmc`, `/gms`, `/gma`, `/gmsp`, `/day`, `/night`, `/sun`, `/rain`. One permission each, `hcfcore.general.<command>`, and `.others` to act on another player; operators by default. `/tpa`, `/home`, `/back` and `/near` are left out on purpose.
 - A test reads every shipped YAML file with the parser the server uses: a file that does not parse fails the build.
@@ -73,7 +79,8 @@ Classes and events.
 ### Added
 - First public version: teams, territory and DTR, combat and deathbans, lives, capture events (KOTH, Citadel, Conquest, Kill the King), Mountains, SOTW/EOTW/Purge, economy with Vault, kits and abilities, custom enchants and limiters, moderation tools, scoreboard and chat, holograms, redeem codes, the Lunar Client integration, and this documentation.
 
-[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.5.0
 [0.4.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.2.0

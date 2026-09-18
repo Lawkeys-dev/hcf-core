@@ -63,14 +63,14 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1023 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1024 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Status
 
-**Pre-release.** HCFCore compiles against the real Paper 26.2 API and its unit tests pass in CI. It has been tried in game module by module on a local Paper 26.2 server — SQLite and MySQL 8.4, LuckPerms, Vault, Lunar Client through Apollo, kitmap mode — except the newest (classes, classic combat, effect caps and effect commands), which await theirs; it has not yet run a production map under load. Test it on your own setup before deploying it to a server you care about, and please [report](https://github.com/Lawkeys-dev/hcf-core/issues) what you find.
+**Pre-release.** HCFCore compiles against the real Paper 26.2 API and its unit tests pass in CI. It has been tried in game module by module on a local Paper 26.2 server — SQLite and MySQL 8.4, LuckPerms, Vault, Lunar Client through Apollo, kitmap mode — classes, classic combat, effect caps and effect commands included, with two players; only the damage a sword block takes off awaits its test. It has not yet run a production map under load. Test it on your own setup before deploying it to a server you care about, and please [report](https://github.com/Lawkeys-dev/hcf-core/issues) what you find.
 
 ## Contributing
 
