@@ -348,7 +348,8 @@ abilities:
   # --8<-- [start:pumpkin-reaper]
   # Hit a Diamond with it: a 50% chance their helmet is swapped for a pumpkin,
   # which cannot be taken off, for 10 seconds. The helmet comes back after -
-  # and drops as itself if they die meanwhile. The hoe stays: 5 uses.
+  # and drops as itself if they die meanwhile. The hoe stays: 10 uses, spent
+  # only when it works.
   pumpkin-reaper:
     type: pumpkin
     material: DIAMOND_HOE
@@ -357,7 +358,7 @@ abilities:
       - "&7Hit a Diamond with this item: 50% chance"
       - "&7their helmet becomes a pumpkin for 10 seconds."
     cooldown-seconds: 30
-    uses: 5
+    uses: 10
     chance: 50
     seconds: 10
     classes: [diamond]         # the classes it works on; [] for anybody
@@ -425,7 +426,7 @@ abilities:
 
   # --8<-- [start:nausea-axe]
   # Hit a player with it: a 50% chance of Nausea for 10 seconds. The axe stays:
-  # 5 uses.
+  # 10 uses, spent only when it works.
   nausea-axe:
     type: hit-effects
     material: IRON_AXE
@@ -434,7 +435,7 @@ abilities:
       - "&7Hit a player with this item: 50% chance"
       - "&7to give them Nausea for 10 seconds."
     cooldown-seconds: 45
-    uses: 5
+    uses: 10
     chance: 50
     effects:
       - {effect: nausea, level: 1, seconds: 10}

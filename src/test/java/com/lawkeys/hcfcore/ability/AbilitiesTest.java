@@ -66,8 +66,8 @@ class AbilitiesTest {
             assertTrue(settings.disabledIn().citadel());
             assertFalse(settings.disabledIn().warzone());
             assertFalse(settings.ability("grappling-hook").orElseThrow().consume(), "the rod stays");
-            assertEquals(5, settings.ability("pumpkin-reaper").orElseThrow().uses(), "the hoe stays, for 5 uses");
-            assertEquals(5, settings.ability("nausea-axe").orElseThrow().uses());
+            assertEquals(10, settings.ability("pumpkin-reaper").orElseThrow().uses(), "the hoe stays, for 10 uses");
+            assertEquals(10, settings.ability("nausea-axe").orElseThrow().uses());
             assertEquals(5, settings.ability("portable-archer").orElseThrow().uses());
             assertEquals(0, settings.ability("thunderbolt").orElseThrow().uses(), "consumed, not counted");
             assertEquals(List.of("diamond"), settings.ability("pumpkin-reaper").orElseThrow().params().strings("classes"));

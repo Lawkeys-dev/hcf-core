@@ -36,7 +36,7 @@ Each block under `abilities:` is one ability; its key is its id — stored on th
 | `enchantments` | none | On the item itself: `{infinity: 1}` |
 | `cooldown-seconds` | `0` | Wait before this ability can be used again |
 | `consume` | `true` | One is taken from the stack when it is used |
-| `uses` | `0` (`5` for `portable-archer`) | Above 0 the item stays instead, and its durability bar counts the uses left: one per use, none for a hit or a shot; it breaks after the last |
+| `uses` | `0` (`5` for `portable-archer`) | Above 0 the item stays instead, and its durability bar counts the uses left: one per use that works, none for a hit, a shot or a missed chance; it breaks after the last |
 | `enabled` | `true` | `false` leaves it out |
 
 An effect is written `{effect: strength, level: 2, seconds: 8}` — level `1` is level I. A key a type does not read is reported in the console; an ability that cannot work — no type, an unknown item, a thrown type that is not thrown — is left out, with a warning.
@@ -310,7 +310,7 @@ Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per
 | Key | Default | What it does |
 |---|---|---|
 | `hits-required` | `1` | Hits on the same player it takes, `global.hits-within-seconds` apart at most |
-| `chance` | `100` | Percent chance; a miss spends it all the same |
+| `chance` | `100` | Percent chance; a miss starts the cooldown, and keeps the item and its uses |
 | `effects` | as shipped | Effects for the player hit |
 
 #### `pumpkin`
@@ -320,7 +320,7 @@ A hit: `chance`% that the player hit - in one of `classes` - has their helmet sw
 | Key | Default | What it does |
 |---|---|---|
 | `hits-required` | `1` | Hits on the same player it takes |
-| `chance` | `50` | Percent chance; a miss spends it all the same |
+| `chance` | `50` | Percent chance; a miss starts the cooldown, and keeps the item and its uses |
 | `seconds` | `10` | How long the pumpkin stays |
 | `classes` | `[diamond]` | The classes it works on, by id; `[]` for anybody |
 
@@ -331,7 +331,7 @@ A hit: `chance`% that the weapon of the player hit swaps places with another ite
 | Key | Default | What it does |
 |---|---|---|
 | `hits-required` | `1` | Hits on the same player it takes |
-| `chance` | `50` | Percent chance; a miss spends it all the same |
+| `chance` | `50` | Percent chance; a miss starts the cooldown, and keeps the item and its uses |
 
 #### `scramble`
 

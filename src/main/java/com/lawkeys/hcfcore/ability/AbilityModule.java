@@ -1059,20 +1059,28 @@ public final class AbilityModule {
             return;
         }
         hits.reset(attacker.getUniqueId(), ability.id());
-        if (!landHit(attacker, victim, ability, now)) {
+        HitOutcome outcome = landHit(attacker, victim, ability, now);
+        if (outcome == HitOutcome.REFUSED) {
             return;
         }
         started(attacker, ability, now);
-        consume(attacker, ability, held);
+        if (outcome == HitOutcome.LANDED) {
+            consume(attacker, ability, held);
+        }
     }
 
-    /**
-     * What a hit ability does to the player hit. A chance missed still spends it;
-     * a player it cannot work on - not in its class, no helmet - does not.
-     *
-     * @return whether the ability is spent
-     */
-    private boolean landHit(Player attacker, Player victim, Ability ability, long now) {
+    /** What became of a hit ability: nothing, a chance missed, or done. */
+    private enum HitOutcome {
+        /** It cannot work on that player - not in its class, no helmet: nothing starts. */
+        REFUSED,
+        /** Its chance missed: the cooldown starts, the item and its uses are kept. */
+        MISSED,
+        /** It worked: cooldown, and one use or one item spent. */
+        LANDED
+    }
+
+    /** What a hit ability does to the player hit. */
+    private HitOutcome landHit(Player attacker, Player victim, Ability ability, long now) {
         AbilityParams p = ability.params();
         ThreadLocalRandom random = ThreadLocalRandom.current();
         String name = display(ability);
@@ -1082,7 +1090,7 @@ public final class AbilityModule {
                 chaos.put(victim.getUniqueId(), new Chaos(attacker.getUniqueId(), now + seconds * 1000L, p.decimal("chance")));
                 lang.send(attacker, AbilityMessages.CHAOS_APPLIED, "player", victim.getName(), "seconds", String.valueOf(seconds));
                 lang.send(victim, AbilityMessages.CHAOS_RECEIVED, "player", attacker.getName());
-                return true;
+                return HitOutcome.LANDED;
             }
             case ANTI_BUILD -> {
                 long seconds = p.whole("seconds");
@@ -1090,7 +1098,7 @@ public final class AbilityModule {
                 apply(attacker, p.effects("user-effects"));
                 lang.send(attacker, AbilityMessages.ANTI_BUILD_APPLIED, "player", victim.getName(),
                         "seconds", String.valueOf(seconds));
-                return true;
+                return HitOutcome.LANDED;
             }
             case THORNS -> {
                 long seconds = p.whole("seconds");
@@ -1101,7 +1109,7 @@ public final class AbilityModule {
                         "seconds", String.valueOf(seconds));
                 lang.send(victim, AbilityMessages.THORNS_RECEIVED, "player", attacker.getName(), "percent", percent,
                         "seconds", String.valueOf(seconds));
-                return true;
+                return HitOutcome.LANDED;
             }
             case PUMPKIN -> {
                 List<String> allowed = p.strings("classes").stream().map(c -> c.toLowerCase(Locale.ROOT)).toList();
@@ -1111,28 +1119,28 @@ public final class AbilityModule {
                     if (!inClass) {
                         lang.send(attacker, AbilityMessages.WRONG_CLASS, "ability", name,
                                 "classes", String.join(", ", p.strings("classes")));
-                        return false;
+                        return HitOutcome.REFUSED;
                     }
                 }
                 ItemStack helmet = victim.getInventory().getHelmet();
                 if (helmet == null || helmet.isEmpty() || pumpkins.containsKey(victim.getUniqueId())) {
                     lang.send(attacker, AbilityMessages.NO_HELMET, "ability", name, "player", victim.getName());
-                    return false;
+                    return HitOutcome.REFUSED;
                 }
                 if (missed(attacker, victim, ability, random)) {
-                    return true;
+                    return HitOutcome.MISSED;
                 }
                 pumpkin(victim, helmet, p.whole("seconds"));
             }
             case HIT_EFFECTS -> {
                 if (missed(attacker, victim, ability, random)) {
-                    return true;
+                    return HitOutcome.MISSED;
                 }
                 apply(victim, p.effects("effects"));
             }
             case DISARM -> {
                 if (missed(attacker, victim, ability, random)) {
-                    return true;
+                    return HitOutcome.MISSED;
                 }
                 disarm(victim, random);
             }
@@ -1169,12 +1177,12 @@ public final class AbilityModule {
                 });
             }
             default -> {
-                return false;
+                return HitOutcome.REFUSED;
             }
         }
         lang.send(attacker, AbilityMessages.APPLIED, "ability", name, "player", victim.getName());
         lang.send(victim, AbilityMessages.RECEIVED, "ability", name, "player", attacker.getName());
-        return true;
+        return HitOutcome.LANDED;
     }
 
     /** Rolls an ability's {@code chance}: {@code true}, and told, when it misses. */

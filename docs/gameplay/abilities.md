@@ -22,7 +22,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 - **An enemy is only reached if you could hit them**: never a teammate, nobody on a safe zone, nobody during SOTW, an ally only in an event area — the rules of a blow ([Combat](combat.md)). A teleport to a player who has since stepped onto a safe zone is cancelled.
 - **Nothing is spent on a refusal**: on cooldown, in a refused zone, no target — the item stays, and no cooldown starts.
 - An ability item is never placed as a block — a Crafting Chaos stays a crafting table in hand.
-- Most are used up — one taken from the stack. Some stay: the Grappling Hook for good, and those with `uses` — the Pumpkin Reaper, the Nausea Axe, the Portable Archer — until their durability bar, which counts the uses left, runs out. Hits and shots do not wear them.
+- Most are used up — one taken from the stack. Some stay: the Grappling Hook for good, and those with `uses` — the Pumpkin Reaper and the Nausea Axe (10), the Portable Archer (5) — until their durability bar, which counts the uses left, runs out. Hits and shots do not wear them, nor a chance that misses.
 - Lunar Client players see each cooldown as an icon ([Integrations](../server/integrations.md)).
 
 ## The 42 abilities
@@ -47,12 +47,12 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Belch Bomb | slime ball | right-click | Slowness II and Blindness II for every enemy within 8 blocks, 6 s |
 | Anti Trap Star | nether star | right-click | Teleport to the last player who hit **you** (10 s), 3 s later — out of a trap |
 | Rose Thorn | rose bush | a hit with it | 10 s: 30% of the damage that player deals you goes back to them |
-| Pumpkin Reaper | diamond hoe | a hit with it | On a Diamond: 50% that their helmet becomes a pumpkin for 10 s. Kept: 5 uses |
+| Pumpkin Reaper | diamond hoe | a hit with it | On a Diamond: 50% that their helmet becomes a pumpkin for 10 s. Kept: 10 uses |
 | Hulk Smash | piston | right-click | Every enemy within 10 blocks thrown about 6 blocks up |
 | Sticky Web | cobweb | right-click | No fall damage for 10 s |
 | Med Kit | glistering melon | right-click | Regeneration III and Absorption V for 10 s |
 | Grappling Hook | fishing rod | reeling in | Fly to where the hook is stuck, from the ground or mid-air; no fall damage while in hand. Kept after use |
-| Nausea Axe | iron axe | a hit with it | 50%: Nausea for 10 s. Kept: 5 uses |
+| Nausea Axe | iron axe | a hit with it | 50%: Nausea for 10 s. Kept: 10 uses |
 | Bunny Hop | rabbit's foot | right-click | Speed III and Jump Boost IV for 10 s |
 | Ice Berg | blue ice | 3 hits with it | Slowness III for 5 s |
 | Antidote | milk bucket | right-click | Takes off your negative effects only |
@@ -72,7 +72,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Lucky Bard | golden carrot | right-click | Heads: Strength II, Speed II, Regeneration II — tails: Slowness II, Weakness I, Poison I — 8 s |
 | Disarmer Wand | breeze rod | a hit with it | 50%: their weapon swaps places with another item of their inventory |
 
-"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`) — 10 for the two stars. A chance that misses still spends the item and starts its cooldown: a Nausea Axe cannot be tried again at once. Every value in this table is a setting — the pages below quote each ability as shipped.
+"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`) — 10 for the two stars. A chance that misses starts the cooldown — a Nausea Axe cannot be tried again at once — but keeps the item and its uses: only a success spends them. Every value in this table is a setting — the pages below quote each ability as shipped.
 
 ## Right-click
 
