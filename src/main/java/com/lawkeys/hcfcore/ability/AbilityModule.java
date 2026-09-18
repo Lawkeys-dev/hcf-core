@@ -634,13 +634,16 @@ public final class AbilityModule {
         consume(player, ability, item);
     }
 
-    /** Eggs in a fan, and the user pushed back. */
+    /** Eggs scattered in a cone, as a shotgun's pellets, and the user pushed back. */
     private void shotgun(Player player, Ability ability) {
         AbilityParams p = ability.params();
         Location eye = player.getEyeLocation();
-        for (double turn : AbilityRules.fan((int) p.whole("projectiles"), p.decimal("spread"))) {
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        for (long i = 0; i < p.whole("projectiles"); i++) {
+            double[] turn = AbilityRules.pellet(p.decimal("spread"), random.nextDouble(), random.nextDouble());
             Location aim = eye.clone();
-            aim.setYaw(eye.getYaw() + (float) turn);
+            aim.setYaw(eye.getYaw() + (float) turn[0]);
+            aim.setPitch((float) Math.max(-90.0, Math.min(90.0, eye.getPitch() + turn[1])));
             Egg egg = player.launchProjectile(Egg.class, aim.getDirection().multiply(p.decimal("speed")));
             egg.getPersistentDataContainer().set(projectileKey, PersistentDataType.STRING, ability.id());
         }

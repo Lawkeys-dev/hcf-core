@@ -22,7 +22,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 - **An enemy is only reached if you could hit them**: never a teammate, nobody on a safe zone, nobody during SOTW, an ally only in an event area — the rules of a blow ([Combat](combat.md)). A teleport to a player who has since stepped onto a safe zone is cancelled.
 - **Nothing is spent on a refusal**: on cooldown, in a refused zone, no target — the item stays, and no cooldown starts.
 - An ability item is never placed as a block — a Crafting Chaos stays a crafting table in hand.
-- Most are used up — one taken from the stack. Some stay: the Grappling Hook for good, and those with `uses` — the Pumpkin Reaper and the Nausea Axe (10), the Portable Archer (5) — until their durability bar, which counts the uses left, runs out. Hits and shots do not wear them, nor a chance that misses.
+- Most are used up — one taken from the stack. Some stay: the Grappling Hook for good, and those with `uses` — the Olympia (30), the Pumpkin Reaper and the Nausea Axe (10), the Portable Archer (5) — until their durability bar, which counts the uses left, runs out. Hits and shots do not wear them, nor a chance that misses.
 - Lunar Client players see each cooldown as an icon ([Integrations](../server/integrations.md)).
 
 ## The 42 abilities
@@ -56,7 +56,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Bunny Hop | rabbit's foot | right-click | Speed III and Jump Boost IV for 10 s |
 | Ice Berg | blue ice | 3 hits with it | Slowness III for 5 s |
 | Antidote | milk bucket | right-click | Takes off your negative effects only |
-| Golden Head | golden apple | right-click | Eaten at once: Regeneration II 10 s, Absorption 2 minutes |
+| Golden Head | golden apple | right-click | Eaten at once: Regeneration II 10 s, Absorption II 2 minutes |
 | Grabber | tripwire hook | a hit with it | Pulls the player hit towards you |
 | Poisonous Potato | poisonous potato | 3 hits with it | Slowness II, Poison II and Nausea for 10 s |
 | Fake Pearl | ender pearl | throwing it | Flies as a pearl, teleports nobody |
@@ -65,9 +65,9 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Anti-Build Bone | bone | 3 hits with it | For 15 s they cannot build, break, or open chests, doors, gates, trapdoors, buttons, levers |
 | Rotten Egg | egg | throwing it | The player hit: Slowness and Poison for 10 s |
 | Rage Strength | nether wart | right-click | Strength II for 8 s |
-| Olympia | iron horse armour | right-click | A shotgun: 10 burning eggs, half a heart each; the recoil pushes you back |
+| Olympia | iron horse armour | right-click | A shotgun: 10 burning eggs scattered in a cone, 2.5 hearts if all hit; the recoil pushes you back. Kept: 30 shots |
 | Baguette | bread | 3 hits with it | Hunger that drains 14 food points over 10 s — time to eat |
-| Sun | sunflower | right-click | Enemies within 8 blocks: 0.9 heart for each enemy caught (9 at most), burning 5 s, blind 2 s |
+| Sun | sunflower | right-click | Enemies within 8 blocks: 0.9 heart for each enemy caught (9 at most), blind 2 s |
 | Scrambler | blaze rod | 3 hits with it | Shuffles their hotbar |
 | Lucky Bard | golden carrot | right-click | Heads: Strength II, Speed II, Regeneration II — tails: Slowness II, Weakness I, Poison I — 8 s |
 | Disarmer Wand | breeze rod | a hit with it | 50%: their weapon swaps places with another item of their inventory |
@@ -236,7 +236,7 @@ After a hit, the game makes a player untouchable for 10 ticks. For the Combo Fis
 --8<-- "src/main/resources/abilities.yml:olympia"
 ```
 
-The eggs hatch nothing. Each one that hits a player you could hit sets them on fire and takes its damage through armour. The recoil pushes you away from where you aim: aimed at the ground, it throws you up.
+The eggs scatter in a cone, as a shotgun's pellets, and hatch nothing. Each one that hits a player you could hit sets them on fire and takes its quarter heart through armour: 2.5 hearts if all ten hit, fire aside. The Olympia stays for 30 shots, its durability bar counting them. The recoil pushes you away from where you aim: aimed at the ground, it throws you up.
 
 ### Sun
 

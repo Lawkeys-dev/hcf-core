@@ -279,27 +279,27 @@ For `seconds`, the players you hit can be hit again after `hit-delay-ticks`, not
 
 #### `shotgun`
 
-Fires `projectiles` eggs in a fan `spread` degrees wide; each sets the player it hits on fire and deals `damage-hearts`; you are pushed back by `recoil`. Used by a right-click.
+Fires `projectiles` eggs scattered in a cone `spread` degrees wide, as a shotgun's pellets; each sets the player it hits on fire and deals `damage-hearts`; you are pushed back by `recoil`. Used by a right-click.
 
 | Key | Default | What it does |
 |---|---|---|
 | `projectiles` | `10` | Eggs per shot |
-| `spread` | `10` | Degrees from the leftmost egg to the rightmost |
+| `spread` | `10` | Degrees: the width of the cone the eggs scatter in |
 | `speed` | `1.5` | How fast the eggs fly |
-| `damage-hearts` | `0.5` | Hearts an egg takes, through armour |
+| `damage-hearts` | `0.25` | Hearts an egg takes, through armour: all of them together, `projectiles` × this at most |
 | `fire-seconds` | `10` | Seconds on fire |
 | `recoil` | `1.0` | How hard the user is pushed back; `0` for none |
 
 #### `sun`
 
-Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per-player` for each enemy caught (at most `max-players`), burns and is blinded. Used by a right-click.
+Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per-player` for each enemy caught (at most `max-players`) and is blinded - and burns, with `fire-seconds`. Used by a right-click.
 
 | Key | Default | What it does |
 |---|---|---|
 | `radius` | `8` | Blocks around the user it reaches |
 | `damage-hearts-per-player` | `0.9` | Hearts, through armour, per enemy caught |
 | `max-players` | `10` | Enemies counted at most |
-| `fire-seconds` | `5` | Seconds on fire |
+| `fire-seconds` | `0` | Seconds on fire; `0` for none |
 | `blindness-seconds` | `2` | Seconds of Blindness |
 | `fireworks` | `6` | Fireworks bursting around the user: only a sight |
 

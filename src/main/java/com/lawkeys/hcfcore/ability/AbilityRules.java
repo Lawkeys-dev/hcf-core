@@ -83,14 +83,17 @@ public final class AbilityRules {
         return Math.min(Math.max(0, caught), Math.max(0, maxPlayers)) * heartsPerPlayer * 2.0;
     }
 
-    /** Shotgun: each projectile's turn from where the player looks, spread evenly across the fan. */
-    public static double[] fan(int projectiles, double spreadDegrees) {
-        int count = Math.max(1, projectiles);
-        double[] out = new double[count];
-        for (int i = 0; i < count; i++) {
-            out[i] = count == 1 ? 0.0 : -spreadDegrees / 2.0 + spreadDegrees * i / (count - 1);
-        }
-        return out;
+    /**
+     * Shotgun: one pellet's turn from where the player looks - somewhere in a cone
+     * {@code spreadDegrees} wide, evenly over its disc, as a shotgun scatters.
+     *
+     * @param u, v from 0 (inclusive) to 1 (exclusive), at random
+     * @return {yaw, pitch} in degrees
+     */
+    public static double[] pellet(double spreadDegrees, double u, double v) {
+        double radius = spreadDegrees / 2.0 * Math.sqrt(u);
+        double angle = 2.0 * Math.PI * v;
+        return new double[] {radius * Math.cos(angle), radius * Math.sin(angle)};
     }
 
     /**

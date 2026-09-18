@@ -104,19 +104,19 @@ public enum AbilityType {
     COMBO_FISH(Trigger.RIGHT_CLICK,
             Param.whole("seconds", 5), Param.whole("hit-delay-ticks", 2)),
     /**
-     * Fires {@code projectiles} eggs in a fan {@code spread} degrees wide: each sets the
+     * Fires {@code projectiles} eggs scattered in a cone {@code spread} degrees wide: each sets the
      * player it hits on fire and deals {@code damage-hearts}; you are pushed back by {@code recoil}.
      */
     SHOTGUN(Trigger.RIGHT_CLICK,
             Param.whole("projectiles", 10), Param.decimal("spread", 10), Param.decimal("speed", 1.5),
-            Param.decimal("damage-hearts", 0.5), Param.whole("fire-seconds", 10), Param.decimal("recoil", 1.0)),
+            Param.decimal("damage-hearts", 0.25), Param.whole("fire-seconds", 10), Param.decimal("recoil", 1.0)),
     /**
      * Fireworks burst around you; every enemy within {@code radius} takes {@code damage-hearts-per-player}
-     * for each enemy caught (at most {@code max-players}), burns and is blinded.
+     * for each enemy caught (at most {@code max-players}), is blinded - and burns, with {@code fire-seconds}.
      */
     SUN(Trigger.RIGHT_CLICK,
             Param.decimal("radius", 8), Param.decimal("damage-hearts-per-player", 0.9), Param.whole("max-players", 10),
-            Param.whole("fire-seconds", 5), Param.whole("blindness-seconds", 2), Param.whole("fireworks", 6)),
+            Param.whole("fire-seconds", 0), Param.whole("blindness-seconds", 2), Param.whole("fireworks", 6)),
     /** {@code hits-required} hits: {@code chance}% to give the player hit {@code effects}. */
     HIT_EFFECTS(Trigger.HIT,
             Param.whole("hits-required", 1), Param.decimal("chance", 100),

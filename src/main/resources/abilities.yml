@@ -484,18 +484,18 @@ abilities:
   # --8<-- [end:antidote]
 
   # --8<-- [start:golden-head]
-  # Eaten at once: Regeneration II for 10 seconds and Absorption I for 2 minutes.
+  # Eaten at once: Regeneration II for 10 seconds and Absorption II for 2 minutes.
   golden-head:
     type: effects
     material: GOLDEN_APPLE
     name: "&6&lGolden Head"
     lore:
       - "&7Right click to eat it at once: Regeneration II"
-      - "&7for 10 seconds and Absorption for 2 minutes."
-    cooldown-seconds: 60
+      - "&7for 10 seconds and Absorption II for 2 minutes."
+    cooldown-seconds: 30
     effects:
       - {effect: regeneration, level: 2, seconds: 10}
-      - {effect: absorption, level: 1, seconds: 120}
+      - {effect: absorption, level: 2, seconds: 120}
   # --8<-- [end:golden-head]
 
   # --8<-- [start:grabber]
@@ -619,9 +619,10 @@ abilities:
   # --8<-- [end:rage-strength]
 
   # --8<-- [start:olympia]
-  # A shotgun: 10 burning eggs in a fan 10 degrees wide. Each one that hits a
-  # player deals half a heart through armour and sets them on fire for 10
-  # seconds. The shot pushes you back - aim down to jump.
+  # A shotgun: 10 burning eggs scattered in a cone 10 degrees wide. Each one that
+  # hits a player deals a quarter of a heart through armour - 2.5 hearts if all
+  # ten do - and sets them on fire for 10 seconds. The shot pushes you back - aim
+  # down to jump. It stays: 30 shots.
   olympia:
     type: shotgun
     material: IRON_HORSE_ARMOR
@@ -630,10 +631,11 @@ abilities:
       - "&7A shotgun that fires incendiary eggs."
       - "&7The recoil pushes you back."
     cooldown-seconds: 15
+    uses: 30
     projectiles: 10
-    spread: 10                 # degrees, from the leftmost egg to the rightmost
+    spread: 10                 # degrees: the width of the cone the eggs scatter in
     speed: 1.5                 # how fast the eggs fly
-    damage-hearts: 0.5
+    damage-hearts: 0.25        # per egg: 10 eggs, 2.5 hearts at most
     fire-seconds: 10
     recoil: 1.0
   # --8<-- [end:olympia]
@@ -656,8 +658,8 @@ abilities:
 
   # --8<-- [start:sun]
   # Fireworks burst around you. Every enemy within 8 blocks takes 0.9 heart
-  # through armour for each enemy caught - 9 hearts with 10 or more - burns for
-  # 5 seconds and is blinded for 2.
+  # through armour for each enemy caught - 9 hearts with 10 or more - and is
+  # blinded for 2 seconds.
   sun:
     type: sun
     material: SUNFLOWER
@@ -669,7 +671,7 @@ abilities:
     radius: 8
     damage-hearts-per-player: 0.9
     max-players: 10
-    fire-seconds: 5
+    fire-seconds: 0            # seconds on fire; 0 for none
     blindness-seconds: 2
     fireworks: 6               # how many burst around you: only a sight
   # --8<-- [end:sun]

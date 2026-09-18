@@ -184,9 +184,16 @@ class AbilitiesTest {
         }
 
         @Test
-        void aShotgunFanIsSpreadEvenly() {
-            assertArrayEquals(new double[] {-5, -2.5, 0, 2.5, 5}, AbilityRules.fan(5, 10), 1e-9);
-            assertArrayEquals(new double[] {0}, AbilityRules.fan(1, 10), 1e-9, "one straight ahead");
+        void aShotgunPelletStaysInItsCone() {
+            assertArrayEquals(new double[] {0, 0}, AbilityRules.pellet(10, 0, 0.3), 1e-9, "the centre");
+            assertArrayEquals(new double[] {5, 0}, AbilityRules.pellet(10, 0.9999999999, 0), 1e-6, "the edge, to the side");
+            assertArrayEquals(new double[] {0, 5}, AbilityRules.pellet(10, 0.9999999999, 0.25), 1e-6, "the edge, up or down");
+            for (double u = 0; u < 1; u += 0.1) {
+                for (double v = 0; v < 1; v += 0.1) {
+                    double[] turn = AbilityRules.pellet(10, u, v);
+                    assertTrue(Math.hypot(turn[0], turn[1]) <= 5 + 1e-9);
+                }
+            }
         }
 
         @Test
