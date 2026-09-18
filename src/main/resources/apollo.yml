@@ -11,14 +11,20 @@
 #
 # Changes take effect on /hcf reload: everything sent is taken back and sent
 # again as this file now says.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:general]
 enabled: true
 
 # How often everything is brought up to date, in ticks (20 = one second). Only
 # what changed is sent, except teammates' positions, which move.
 update-ticks: 10
+# --8<-- [end:general]
 
+# --8<-- [start:waypoints]
 # Waypoints on the map and in the world. Names come from lang/en.yml
 # (apollo.waypoint.*); capture events use their own display names.
 waypoints:
@@ -34,14 +40,18 @@ waypoints:
     rally: "#FFFF55"
     focus: "#FF55FF"
     event: "#FFAA00"
+# --8<-- [end:waypoints]
 
+# --8<-- [start:team-view]
 # Teammates marked above their heads and on the minimap. Beyond tracking-range
 # blocks, where the client no longer has them, their position and name are sent.
 team-view:
   enabled: true
   marker-color: "#55FF55"
   tracking-range: 48
+# --8<-- [end:team-view]
 
+# --8<-- [start:cooldowns]
 # Timers shown as Lunar cooldown icons: the combat tag, a running countdown
 # (/spawn, /logout, /team hq, /team stuck...) and ability cooldowns (each shows
 # its own item). Icons are item names, as the server spells materials.
@@ -52,7 +62,9 @@ cooldowns:
   warmups: true
   warmup-icon: CLOCK
   abilities: true
+# --8<-- [end:cooldowns]
 
+# --8<-- [start:nametags]
 # The nametag above each player: a team line (left out for a player with no team)
 # and a name line. %color% is the colour for how their team relates to yours;
 # %team%, %dtr% and %player% are what they say. A focused player - or a member of
@@ -67,3 +79,4 @@ nametags:
     enemy: "&c"
     focus: "&d"
     neutral: "&f"
+# --8<-- [end:nametags]

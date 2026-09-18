@@ -13,8 +13,12 @@
 #
 # A deathban until the end of the map - EOTW's - can never be bought back: EOTW
 # is final.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:general]
 enabled: true
 
 # How many lives a player who has never had any starts with. Lives usually come
@@ -29,3 +33,4 @@ use-on-login: true
 
 # Whether players may give each other lives with /lives send.
 allow-send: true
+# --8<-- [end:general]

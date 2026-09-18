@@ -11,8 +11,12 @@
 # Whether that owner is currently PROTECTED is a separate, live question
 # answered by their DTR. Nothing here can make a raid transfer land - a raid
 # only opens the pillage window described under "protection" below.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:enabled]
 # Turning this off stops all claiming and all territory protection: nobody
 # claims, staff included, and every territory - player land, server land such
 # as spawn, and the warzone - can be built on, broken and blown up.
@@ -21,7 +25,9 @@
 # it was. PvP on safe zones is not territory protection: pvp.yml has its own
 # switch for it (safe-zones.enabled).
 enabled: true
+# --8<-- [end:enabled]
 
+# --8<-- [start:limits]
 limits:
   # Chunks every team may claim regardless of its size.
   base: 16
@@ -33,7 +39,9 @@ limits:
   # "/team claim 8" from swallowing a chunk of the map in one keystroke.
   # Staff overrides are exempt. 0 = no cap.
   max-per-command: 64
+# --8<-- [end:limits]
 
+# --8<-- [start:placement]
 placement:
   # New chunks must touch the team's existing territory in that world. A team
   # may still open a brand new territory in a world it holds nothing in.
@@ -43,7 +51,9 @@ placement:
   minimum-distance-to-others: 2
   # Whether unclaiming may split a team's territory into disconnected pieces.
   allow-disconnecting: false
+# --8<-- [end:placement]
 
+# --8<-- [start:protection]
 protection:
   # Allies may build inside the team's territory.
   allow-ally-build: false
@@ -64,7 +74,9 @@ protection:
   # would be a guess. So a RAIDABLE team's territory still blows up, which is
   # exactly what the pillage window is for, and a protected team's does not.
   block-explosions: true
+# --8<-- [end:protection]
 
+# --8<-- [start:homes]
 homes:
   # HQ and the secondary base (/team sethq, /team hq, /team setbase, /team base).
   enabled: true
@@ -74,21 +86,27 @@ homes:
   # the block cancels it, and a combat tag refuses it at the start and again at
   # the end. 0 teleports at once. 10 is a common HCF value, not a rule.
   warmup-seconds: 10
+# --8<-- [end:homes]
 
+# --8<-- [start:stuck]
 stuck:
   # Countdown before /team stuck moves a player to the nearest free land, with
   # the same cancelling rules as above. It is the one way out of a base short of
   # breaking it, so without a countdown it is a free exit from any trap - and from
   # any raid. 60 is a common HCF value, not a rule.
   warmup-seconds: 60
+# --8<-- [end:stuck]
 
+# --8<-- [start:claimable-worlds]
 # Worlds where claiming is allowed. Leave the list empty to allow every world.
 # Example:
 #   claimable-worlds:
 #     - world
 #     - world_nether
 claimable-worlds: []
+# --8<-- [end:claimable-worlds]
 
+# --8<-- [start:required-roles]
 # Minimum role required for each claim action. One of: leader, co-leader, member.
 # An unrecognised value falls back to "leader" and is reported in the console.
 required-roles:
@@ -99,10 +117,12 @@ required-roles:
   # so nobody can camp in it until SOTW ends. Allies included. Every lock lapses
   # when SOTW ends, and a restart releases them (a SOTW is hours, not a map).
   lock-claim: co-leader
+# --8<-- [end:required-roles]
 
 # ---------------------------------------------------------------------------
 # Warzone
 # ---------------------------------------------------------------------------
+# --8<-- [start:warzone]
 # Server land around each world's centre: players fight there, no player team
 # can claim it, and - unless allowed below - nobody builds on it.
 #
@@ -142,3 +162,4 @@ warzone:
   #       center-x: 0
   #       center-z: 0
   worlds:
+# --8<-- [end:warzone]

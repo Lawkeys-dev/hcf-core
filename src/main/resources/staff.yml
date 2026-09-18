@@ -3,14 +3,20 @@
 #
 # Everything here can be changed without restarting: /hcf reload re-reads this
 # file and the new values apply at once, including the toolbar.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:enabled]
 # Turns the whole module off: no staff mode, no vanish, no staff channel, and the
 # commands answer that the module is disabled. Anybody already in staff mode when
 # you reload keeps their toolbar until they leave it - their real inventory is
 # still held in the database, and /staff gives it back.
 enabled: true
+# --8<-- [end:enabled]
 
+# --8<-- [start:staff-mode]
 staff-mode:
   # Entering staff mode hides you from players who cannot see vanished staff.
   vanish: true
@@ -24,6 +30,7 @@ staff-mode:
   # Tell other staff when somebody enters or leaves the mode.
   announce: true
 
+  # --8<-- [start:toolbar]
   # The toolbar, by inventory slot. 0-8 is the hotbar; 0-35 is the whole
   # inventory. Two items cannot share a slot - the first one wins and the second
   # is reported in the console.
@@ -81,20 +88,27 @@ staff-mode:
       lore:
         - "&7Gives your own items back."
       command: "staff"
+  # --8<-- [end:toolbar]
+# --8<-- [end:staff-mode]
 
+# --8<-- [start:vanish]
 vanish:
   # Also remove vanished staff from the player list, not only from sight.
   hide-from-tab: true
   # Who can still see vanished staff. Give this to your senior ranks so they are
   # not invisible to each other; nobody holds it by default, operators included.
   see-permission: "hcfcore.staff.vanish.see"
+# --8<-- [end:vanish]
 
+# --8<-- [start:staff-chat]
 staff-chat:
   enabled: true
   # %player% is who spoke, %message% is what they said. Their own & codes only
   # work with hcfcore.chat.color.
   format: "&9[SC] &b%player%&7: &f%message%"
+# --8<-- [end:staff-chat]
 
+# --8<-- [start:broadcast]
 broadcast:
   # %message% is the text given to /broadcast; its & codes only work with
   # hcfcore.chat.color.
@@ -104,7 +118,9 @@ broadcast:
   # the screen. Chat height differs between clients, hence the setting. Staff are
   # skipped: they usually need to read whatever caused the clear.
   clear-chat-lines: 100
+# --8<-- [end:broadcast]
 
+# --8<-- [start:freeze]
 freeze:
   enabled: true
   # Commands a frozen player may still run, without the slash. A check is a
@@ -129,7 +145,9 @@ freeze:
   # How often to remind a frozen player that they are held, in seconds.
   # 0 tells them once and then leaves them alone.
   reminder-seconds: 10
+# --8<-- [end:freeze]
 
+# --8<-- [start:invsee]
 invsee:
   enabled: true
   # Read-only for everybody; hcfcore.staff.invsee.edit is needed on top of the
@@ -139,13 +157,17 @@ invsee:
   #
   # The window shows the 36 storage slots - that is what a player inventory is.
   # Armour and the off-hand are printed as a line of text instead.
+# --8<-- [end:invsee]
 
+# --8<-- [start:last-inventory]
 last-inventory:
   enabled: true
   # How many deaths to keep per player. Each row is a whole inventory, so this is
   # the difference between an archive and a table that grows for ever.
   keep: 3
+# --8<-- [end:last-inventory]
 
+# --8<-- [start:tickets]
 tickets:
   # /report <player> <reason> and /request <message>. They share one queue,
   # because they are the same act with a different word on the front: somebody
@@ -160,7 +182,9 @@ tickets:
   # How long one player waits between raising tickets. Without it, one person can
   # fill the queue faster than staff can read it.
   cooldown-seconds: 60
+# --8<-- [end:tickets]
 
+# --8<-- [start:strikes]
 # Strikes punish a TEAM for what one of its members did - a member banned for
 # cheating, typically. Staff strike a team by its name, or by a member's name,
 # which also records the member:
@@ -176,6 +200,7 @@ strikes:
   # How long a strike counts towards the ladder below. 0 means for the whole map.
   valid-seconds: 0
 
+  # --8<-- [start:strike-ladder]
   # What each number of ACTIVE strikes costs the team. A rung fires at exactly its
   # count - a team reaching 3 was already sanctioned at 1 and 2 on the way. Each
   # rung takes any of:
@@ -192,3 +217,5 @@ strikes:
       points-loss-percent: 50
     3:
       disband: true
+  # --8<-- [end:strike-ladder]
+# --8<-- [end:strikes]

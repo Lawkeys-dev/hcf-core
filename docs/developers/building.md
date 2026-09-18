@@ -61,4 +61,15 @@ python3 -m venv .venv
 .venv/bin/mkdocs serve
 ```
 
-then open <http://127.0.0.1:8000>. The configuration reference embeds the shipped YAML files straight from `src/main/resources/`, so it never goes stale. Whoever changes a command, a permission, a setting or a placeholder updates `docs/` in the same commit.
+then open <http://127.0.0.1:8000>.
+
+**Examples come from the shipped files.** The configuration reference and the guides quote `src/main/resources/*.yml` directly, never a copy, so the documentation cannot drift from what the plugin installs. A whole file is included with `--8<-- "src/main/resources/pvp.yml"`; a part of it through a **named section**, delimited in the YAML by two comments:
+
+```yaml
+# --8<-- [start:loot-protection]
+loot-protection:
+  enabled: true
+# --8<-- [end:loot-protection]
+```
+
+and quoted in a page with `--8<-- "src/main/resources/pvp.yml:loot-protection"`. The markers are removed from what the page shows, and the indentation of a nested section is taken away. When you edit a configuration file, keep its markers around the blocks they frame; `mkdocs build --strict` fails on a section that no longer exists. Whoever changes a command, a permission, a setting or a placeholder updates `docs/` in the same commit.

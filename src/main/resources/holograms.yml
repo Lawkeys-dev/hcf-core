@@ -23,9 +23,14 @@
 #
 # The displays are never saved into the world: the database is the only copy, so
 # nothing is left floating after a crash or a delete.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
 enabled: true
 
+# --8<-- [start:refresh]
 # How often leaderboard lines are redrawn. Holograms without one never are.
 refresh-seconds: 10
+# --8<-- [end:refresh]

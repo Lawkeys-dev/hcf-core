@@ -13,8 +13,13 @@
 `permission-tiers` lists permission nodes with their ban length in seconds. **The shortest one a player holds wins**, so granting a rank is always a reduction, never accidentally a punishment. Only the nodes listed there are checked, so an unrelated wildcard cannot silently shorten a ban. Add your own freely — they need not be declared anywhere else:
 
 ```yaml title="pvp.yml"
+--8<-- "src/main/resources/pvp.yml:deathban"
+```
+
+Your own tiers go under `permission-tiers`, next to the shipped one:
+
+```yaml title="pvp.yml — your own tiers"
 deathban:
-  duration-seconds: 3600
   permission-tiers:
     hcfcore.deathban.tier.short: 900
     myserver.rank.vip: 1800

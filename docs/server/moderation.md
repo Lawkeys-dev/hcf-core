@@ -30,7 +30,15 @@ Each slot of `staff-mode.items` is an item that runs a command. The shipped bar:
 | 7 | Vanish (lime dye) | `vanish` |
 | 8 | Leave Staff Mode (barrier) | `staff` |
 
-```yaml title="staff.yml"
+??? example "The toolbar as shipped in `staff.yml`"
+
+    ```yaml
+    --8<-- "src/main/resources/staff.yml:toolbar"
+    ```
+
+Adding a slot — here, the last deaths of the player clicked:
+
+```yaml title="staff.yml — a slot of your own"
 staff-mode:
   items:
     4:
@@ -147,15 +155,7 @@ Striking a player's name strikes their team and records the member. Every strike
 Each number of **active** strikes triggers its rung of the ladder — exactly at its count:
 
 ```yaml title="staff.yml"
-strikes:
-  valid-seconds: 0          # how long a strike counts; 0 = the whole map
-  ladder:
-    1:
-      points-loss-percent: 50
-    2:
-      points-loss-percent: 50
-    3:
-      disband: true
+--8<-- "src/main/resources/staff.yml:strikes"
 ```
 
 A rung can take any of `points-loss-percent`, `disband: true` (as by `/team forcedisband`), and `commands` (console commands with `%team%` and `%strikes%`). The shipped ladder is an example: half the team's points at the first and second strike, disbanded at the third.

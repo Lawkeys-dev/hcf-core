@@ -9,8 +9,12 @@
 # Nodes are DATA, not code. A second mountain is a block of YAML under "nodes:".
 #
 # Changes take effect on /hcf reload.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:general]
 enabled: true
 
 # How often the refill schedule is examined, in seconds. Nothing counts down per
@@ -44,6 +48,7 @@ apply-physics: false
 # resource. They can mine their way out of a full mountain either way; this
 # decides whether a refill can kill somebody. Spectators are never counted.
 skip-occupied-blocks: true
+# --8<-- [end:general]
 
 nodes:
 
@@ -51,9 +56,11 @@ nodes:
   # Glowstone Mountain: the classic. Glowstone is the bottleneck resource for
   # level II potions, so a refill reliably pulls every team onto the same rock.
   # ------------------------------------------------------------------
+  # --8<-- [start:glowstone-mountain]
   glowstone-mountain:
     display-name: "&eGlowstone Mountain"
 
+    # --8<-- [start:node-region]
     # The region is the box between the two corners, bounds included. Write the
     # corners in whichever order you walked them - they are normalised on load.
     # Keep it to the mountain itself: every position inside is examined on each
@@ -67,7 +74,9 @@ nodes:
       x: 70
       y: 80
       z: 70
+    # --8<-- [end:node-region]
 
+    # --8<-- [start:node-blocks]
     # What the refill puts back. Two shapes are accepted:
     #
     #   blocks: [GLOWSTONE, NETHERRACK]     <- a plain list, all equally likely
@@ -83,7 +92,9 @@ nodes:
     blocks:
       GLOWSTONE: 1
       NETHERRACK: 4
+    # --8<-- [end:node-blocks]
 
+    # --8<-- [start:node-replace]
     # Which blocks a refill may overwrite.
     #   air    - refill what players mined out. This is what you normally want.
     #   blocks - extra block names the refill may also replace, for repairing a
@@ -93,7 +104,9 @@ nodes:
     replace:
       air: true
       blocks: []
+    # --8<-- [end:node-replace]
 
+    # --8<-- [start:node-refill]
     # When it refills. The two sources are merged, and both may be used.
     #
     #   interval-seconds - every N seconds, ANCHORED TO LOCAL MIDNIGHT. 14400
@@ -128,7 +141,9 @@ nodes:
     # an established map the region already holds its blocks, and a fill on every
     # restart is a needless pass over tens of thousands of positions.
     fill-on-start: false
+    # --8<-- [end:node-refill]
 
+    # --8<-- [start:node-protection]
     protection:
       # No building inside the region: no towering over the mountain, no walling
       # it off, no lava buckets. The same goes for what no player places by hand:
@@ -154,12 +169,15 @@ nodes:
       # refused the netherrack blows it up instead, and after a few days there is
       # no mountain left for the refill to fill.
       prevent-explosions: true
+    # --8<-- [end:node-protection]
+  # --8<-- [end:glowstone-mountain]
 
   # ------------------------------------------------------------------
   # Ore Mountain: the same mechanic, a different palette. No code of its own -
   # which is the point of family B being data too.
   # Staff-only until you give it a schedule.
   # ------------------------------------------------------------------
+  # --8<-- [start:ore-mountain]
   ore-mountain:
     display-name: "&bOre Mountain"
     world: world
@@ -191,3 +209,4 @@ nodes:
       break-policy: PALETTE_ONLY
       prevent-claim: true
       prevent-explosions: true
+  # --8<-- [end:ore-mountain]

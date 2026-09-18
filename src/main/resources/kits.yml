@@ -1,7 +1,12 @@
 # ---------------------------------------------------------------------------
 # kits.yml - kits, partner items and refill signs
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
+# --8<-- [start:enabled]
 enabled: true
+# --8<-- [end:enabled]
 
 # Kits are NOT defined here. They are created in game with
 #   /kit create <id> [cooldown-seconds] [permission]
@@ -17,6 +22,7 @@ enabled: true
 #   /kit resetcooldown <player> [kit]
 #   /kit layout <kit> [reset]  arrange a kit's items (players; see layout-editor)
 
+# --8<-- [start:giving]
 # Whether taking a kit clears the inventory first. True is the kitmap behaviour
 # (you get exactly the kit). False adds to what you carry and drops the overflow
 # at your feet rather than eating it.
@@ -29,7 +35,9 @@ clear-before-giving: true
 # dropped when staff re-create the kit with other items - its slots would no longer
 # hold what was arranged. The editor shows copies that cannot leave it.
 layout-editor: true
+# --8<-- [end:giving]
 
+# --8<-- [start:refill-signs]
 refill-signs:
   # Click a sign to get a kit - the kitmap standard. Write a sign whose first
   # line is [Kit] and whose second is the kit id.
@@ -40,6 +48,7 @@ refill-signs:
   # has no cooldown, and the sign still must not be clickable sixty times a
   # second.
   cooldown-seconds: 3
+# --8<-- [end:refill-signs]
 
 # ---------------------------------------------------------------------------
 # Partner items / abilities
@@ -65,4 +74,6 @@ refill-signs:
 # Hand them out with /kit ability <player> <id> [amount], or from a killstreak
 # reward, or from any other plugin that can run a command.
 # ---------------------------------------------------------------------------
+# --8<-- [start:abilities]
 abilities: {}
+# --8<-- [end:abilities]

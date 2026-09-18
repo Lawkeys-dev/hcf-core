@@ -8,8 +8,12 @@
 # Changes take effect on /hcf reload - no server restart needed.
 #
 # Convention used throughout this file: a limit of 0 means "no limit".
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:names]
 names:
   min-length: 3
   max-length: 16
@@ -25,7 +29,9 @@ names:
     - "wilderness"
     - "staff"
     - "admin"
+# --8<-- [end:names]
 
+# --8<-- [start:membership]
 # Maximum members per team. 0 = unlimited.
 max-members: 20
 # Maximum simultaneous co-leaders. 0 = unlimited.
@@ -42,12 +48,14 @@ disband-on-last-member-leave: true
 # Role the outgoing leader drops to after handing over leadership.
 # One of: leader, co-leader, member.
 role-after-leadership-transfer: co-leader
+# --8<-- [end:membership]
 
 # ---------------------------------------------------------------------------
 # Minimum role required for each action. One of: leader, co-leader, member.
 # An unrecognised value falls back to "leader" (the safest option) and is
 # reported in the console.
 # ---------------------------------------------------------------------------
+# --8<-- [start:required-roles]
 required-roles:
   disband: leader
   rename: leader
@@ -63,28 +71,38 @@ required-roles:
   rally: co-leader
   bank-deposit: member
   bank-withdraw: leader
+# --8<-- [end:required-roles]
 
+# --8<-- [start:alliances]
 alliances:
   enabled: true
   # Maximum allied teams per team. 0 = unlimited.
   max-allies: 1
+# --8<-- [end:alliances]
 
+# --8<-- [start:focus]
 focus:
   enabled: true
   # Maximum simultaneous focus targets (teams and players combined). 0 = unlimited.
   max-targets: 0
+# --8<-- [end:focus]
 
+# --8<-- [start:rally]
 rally:
   enabled: true
   # How long a rally point stays active, in seconds. 0 = until cleared manually.
   duration-seconds: 300
+# --8<-- [end:rally]
 
+# --8<-- [start:bank]
 bank:
   # Turning this off rejects every deposit/withdraw on a team bank.
   # Money moves between a player's balance and the bank with /team deposit and
   # /team withdraw; turning the economy off in economy.yml disables those too.
   enabled: true
+# --8<-- [end:bank]
 
+# --8<-- [start:points]
 points:
   # Points a newly created team starts with.
   starting: 0
@@ -105,7 +123,9 @@ points:
   per-conquest-win: 0
   # To the team of the player who wins Kill the King.
   per-king-win: 0
+# --8<-- [end:points]
 
+# --8<-- [start:koth]
 koth:
   # Cap on how many KOTH captures count toward a team's ranking. 0 = uncapped.
   # How many points a capture is worth, and where the cap belongs, is a balance
@@ -115,3 +135,4 @@ koth:
   points-per-capture: 0
   # Counted captures are reset by staff with /team resetkoth - at the start of a
   # map, or of whatever ranking period the server runs.
+# --8<-- [end:koth]

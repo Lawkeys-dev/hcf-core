@@ -13,12 +13,18 @@
 # back protected. That is the usual HCF behaviour.
 #
 # The defaults below are the long-standing HCF scale. Tune to taste.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:enabled]
 # Turning this off means no team is ever raidable: claims stay permanently
 # protected, and deaths cost nothing.
 enabled: true
+# --8<-- [end:enabled]
 
+# --8<-- [start:maximum]
 maximum:
   # DTR every team has regardless of size.
   base: 0.0
@@ -29,7 +35,9 @@ maximum:
   # Hard ceiling whatever the member count. 0 = uncapped.
   # The default 6.6 is 1.1 x 6, the classic "six-man cap".
   cap: 6.6
+# --8<-- [end:maximum]
 
+# --8<-- [start:loss]
 # DTR lost per member death.
 loss-per-death: 1.0
 
@@ -37,7 +45,9 @@ loss-per-death: 1.0
 # zero or negative, otherwise no team could ever become raidable. A deeper floor
 # means a heavily-farmed team takes proportionally longer to close its base.
 minimum: -5.0
+# --8<-- [end:loss]
 
+# --8<-- [start:regeneration]
 regeneration:
   # How long regeneration is frozen after a death. The default is 45 minutes:
   # long enough that a raid has time to happen.
@@ -51,7 +61,9 @@ regeneration:
   # Regeneration is stepwise, not continuous: a partial interval grants nothing,
   # so what players see matches what the server advertises.
   interval-seconds: 180
+# --8<-- [end:regeneration]
 
+# --8<-- [start:announcements]
 announcements:
   # Tell the team how much DTR a member's death cost.
   on-death: true
@@ -64,3 +76,4 @@ announcements:
   # punctual; it never makes protection late. Becoming raidable is caused by a
   # death and is announced immediately, whatever this value.
   poll-seconds: 60
+# --8<-- [end:announcements]

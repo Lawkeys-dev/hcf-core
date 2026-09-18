@@ -21,17 +21,8 @@ Starting and stopping needs `hcfcore.events.admin`. Ids are shared by every kind
 
 *King of the Hill.* A team must **hold the zone alone** for the capture time — **10 minutes** for the example (`capture-seconds: 600`).
 
-```yaml
-events:
-  koth:
-    display-name: "&6KOTH"
-    world: world
-    corner-1: {x: 100, y: 60, z: 100}
-    corner-2: {x: 115, y: 90, z: 115}
-    capture-seconds: 600
-    contest-policy: RESET
-    schedule: ["18:00", "21:00"]
-    reward-commands: []   # console commands; %team% and %event% are filled in
+```yaml title="events.yml — the shipped KOTH"
+--8<-- "src/main/resources/events.yml:koth"
 ```
 
 The zone is the box between the two corners, bounds included, written in any order.
@@ -62,24 +53,8 @@ A Citadel has **two zones**:
 | **The zone to hold** | The box the team must hold alone, exactly as for a KOTH | `world`, `corner-1`, `corner-2` in `events.yml` |
 | **The Citadel** | A large area around it, where the restrictions below apply | Server land: a server team's claim, named by `claim` |
 
-```yaml title="events.yml"
-citadels:
-  citadel:
-    display-name: "&5Citadel"
-    world: world
-    corner-1: {x: -200, y: 60, z: -200}     # the zone to hold
-    corner-2: {x: -185, y: 90, z: -185}
-    capture-seconds: 1800
-    contest-policy: RESET
-    schedule: []
-    reward-commands: []
-    claim: Citadel                          # the server team whose land is the Citadel
-    restrictions:
-      ender-pearls: true
-      partner-items: true
-      chorus-fruit: true
-      elytra: true
-      riptide: true
+```yaml title="events.yml — the shipped Citadel"
+--8<-- "src/main/resources/events.yml:citadel"
 ```
 
 Create the Citadel's land once, around the zone to hold:
@@ -109,21 +84,8 @@ On the Citadel's land, **at all times** — whether the event runs or not:
 
 The classic HCF Conquest: several zones — four in the example, *Red*, *Blue*, *Green* and *Yellow* — captured **at the same time**.
 
-```yaml
-conquest:
-  conquest:
-    display-name: "&6Conquest"
-    world: world
-    capture-seconds: 30
-    points-per-capture: 1
-    points-to-win: 250
-    death-penalty: 20
-    zones:
-      red:
-        display-name: "&cRed"
-        corner-1: {x: 300, y: 60, z: 300}
-        corner-2: {x: 306, y: 70, z: 306}
-      # ...
+```yaml title="events.yml — the shipped Conquest"
+--8<-- "src/main/resources/events.yml:conquest"
 ```
 
 - Each zone is captured like a small KOTH: held alone by one team, frozen while contested, reset or paused when lost — on a short timer (**30 seconds**).

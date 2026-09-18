@@ -22,12 +22,18 @@
 # goes down before then.
 #
 # Changes take effect on /hcf reload.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:time-zone]
 # Time zone the dates below are written in. "system" follows the host clock;
 # prefer naming it ("Europe/Paris") so moving hosts does not shift the map.
 time-zone: "system"
+# --8<-- [end:time-zone]
 
+# --8<-- [start:sotw]
 sotw:
   # How long a SOTW lasts: a scheduled one, and /sotw start without a duration.
   duration-seconds: 7200
@@ -41,7 +47,9 @@ sotw:
 
   # Remaining-time marks to broadcast, in seconds.
   announce-at-seconds: [3600, 1800, 600, 300, 60, 10]
+# --8<-- [end:sotw]
 
+# --8<-- [start:eotw]
 eotw:
   # Date and time at which EOTW starts by itself ("yyyy-MM-dd HH:mm"). Empty:
   # only staff start it. If a SOTW is running at that time, EOTW waits for its
@@ -53,7 +61,9 @@ eotw:
   # left from an earlier map and ignored, so a fresh map never opens straight
   # into EOTW. Start it with /eotw start instead.
   start-window-seconds: 3600
+# --8<-- [end:eotw]
 
+# --8<-- [start:purge]
 purge:
   # The Purge: a window during which EVERY team is raidable,
   # whatever its DTR - a temporary EOTW, without EOTW's closed claims or its bans
@@ -71,3 +81,4 @@ purge:
   # Empty on purpose: when a server purges is its own call.
   #   schedule: ["20:00"]
   schedule: []
+# --8<-- [end:purge]

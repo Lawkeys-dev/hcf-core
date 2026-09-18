@@ -4,17 +4,45 @@ The economy: starting balance, ceiling, currency, and `/pay`.
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/economy.md)
 
-## What matters
+Every example on this page is **taken from the shipped `economy.yml`**. Changes apply with `/hcf reload`.
 
-- Players start with 100.
-- `maximum-balance: 0` means no ceiling; a credit that would cross one is refused, never clamped.
-- `enabled: false` also disables the team bank commands, and Vault reports the economy as disabled.
+## Balances
 
-Changes apply with `/hcf reload`.
+```yaml title="economy.yml"
+--8<-- "src/main/resources/economy.yml:general"
+```
 
-## The shipped file
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | Balances, `/pay`, `/eco` and the team bank commands; Vault reports the economy disabled when off |
+| `starting-balance` | `100.0` | What a player starts with |
+| `maximum-balance` | `0.0` | A ceiling per account; `0` for none. A credit over it is refused, never clamped |
 
-This is `plugins/HCFCore/economy.yml` as the plugin writes it on the first start. Every comment is part of the reference. [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/economy.yml).
+## Currency
+
+```yaml title="economy.yml"
+--8<-- "src/main/resources/economy.yml:currency"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `symbol` | `$` | Shown before an amount: `$1,234.50` |
+| `singular`, `plural` | `dollar`, `dollars` | Used where an amount is named |
+
+## /pay
+
+```yaml title="economy.yml"
+--8<-- "src/main/resources/economy.yml:pay"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | `/pay`, on its own |
+| `minimum-amount` | `1.0` | The smallest transfer |
+
+## The whole shipped file
+
+[View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/economy.yml).
 
 <div class="hcf-shipped" markdown>
 

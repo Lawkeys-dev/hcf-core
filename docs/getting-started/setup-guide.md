@@ -95,17 +95,11 @@ Claim it in squares along its length. `/team setzone <team> <safe|combat>` switc
 
 In `events.yml`, each event under `events:` is a zone — a `world` and two corners, in any order — with a capture time, a contest policy and optional daily times:
 
-```yaml
-events:
-  koth:
-    display-name: "&6KOTH"
-    world: world
-    corner-1: {x: 100, y: 60, z: 100}
-    corner-2: {x: 115, y: 90, z: 115}
-    capture-seconds: 600
-    schedule: ["18:00", "21:00"]
-    reward-commands: []   # console commands; %team% and %event% are filled in
+```yaml title="events.yml — the shipped KOTH"
+--8<-- "src/main/resources/events.yml:koth"
 ```
+
+It ships with no `schedule`: give it daily times, for instance `schedule: ["18:00", "21:00"]`.
 
 Stand at each corner and read your coordinates with ++f3++. A **Citadel** (`citadels:` section) is a longer KOTH whose zone stands inside a claimed Citadel that refuses pearls, partner items, chorus fruit, elytra and Riptide: create its land with `/team createsystem Citadel combat` and `/team forceclaim Citadel <radius>` around the zone ([Capture events](../gameplay/events.md#citadel)). A **Conquest** (`conquest:` section) is several zones held at once for points; **Kill the King** (`kill-the-king:` section) needs the warzone of its world, and a world without a bedrock ceiling — not the Nether.
 

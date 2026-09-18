@@ -3,12 +3,18 @@
 # ---------------------------------------------------------------------------
 # Deathban, combat tag, strength nerf, safe zones, loot protection and
 # anti-logout. Changes take effect on /hcf reload.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:enabled]
 # Turning this off disables the whole module: no deathbans, no combat tags, no
 # combat tweaks.
 enabled: true
+# --8<-- [end:enabled]
 
+# --8<-- [start:deathban]
 deathban:
   # Keep a player out of the server for a while after they die.
   enabled: true
@@ -25,7 +31,9 @@ deathban:
   # cannot be read at the login - the connection carries a profile, not a player -
   # so granting it to somebody who is already banned does not let them back in.
   # Clear that ban with /pvp lift <player>, which works from the console.
+# --8<-- [end:deathban]
 
+# --8<-- [start:combat-tag]
 combat-tag:
   enabled: true
   # How long a hit keeps a player in combat.
@@ -39,7 +47,9 @@ combat-tag:
   kill-on-logout: true
   # Refuse plugin teleports (such as /team hq) while tagged.
   block-teleport: true
+# --8<-- [end:combat-tag]
 
+# --8<-- [start:strength-nerf]
 strength-nerf:
   # The historic HCF nerf of Strength potions.
   enabled: true
@@ -58,7 +68,9 @@ strength-nerf:
   # (An "effect-names" list used to follow here, for servers whose API spelled
   # the Strength effect differently. It is read through Paper's STRENGTH constant
   # now, verified in the 26.2 sources, and the list is ignored if still present.)
+# --8<-- [end:strength-nerf]
 
+# --8<-- [start:knockback]
 knockback:
   # Scale knockback. Off by default: this changes the feel of combat, so it
   # should be a deliberate choice rather than something a server inherits.
@@ -70,7 +82,9 @@ knockback:
   # 1.0 is vanilla.
   horizontal: 1.0
   vertical: 1.0
+# --8<-- [end:knockback]
 
+# --8<-- [start:attack-speed]
 attack-speed:
   # Every player's attack-speed attribute. Off by default: like knockback, this
   # changes how combat feels, so it should be a deliberate choice.
@@ -86,7 +100,9 @@ attack-speed:
   # removing the plugin, leaves nobody with a changed attribute.
   enabled: false
   value: 4.0
+# --8<-- [end:attack-speed]
 
+# --8<-- [start:safe-zones]
 safe-zones:
   # Disable PvP on the land of server teams created as SAFE zones - spawn,
   # typically. Server teams created as COMBAT zones (warzone, roads, event
@@ -95,7 +111,9 @@ safe-zones:
   # and /team setzone <name> <safe|combat> switches one later.
   # Turning this off makes every server team fightable, whatever its kind.
   enabled: true
+# --8<-- [end:safe-zones]
 
+# --8<-- [start:loot-protection]
 # Anticlean - loot protection. For a few seconds after a kill, what the dead player
 # drops can be picked up only by the killer (and, with team-shares, the killer's
 # team): no other player, no mob, no hopper. Then it is ordinary loot. A death with
@@ -105,7 +123,9 @@ loot-protection:
   enabled: true
   seconds: 10
   team-shares: true
+# --8<-- [end:loot-protection]
 
+# --8<-- [start:friendly-fire]
 # Hits between players on the same side. The default rule:
 # teammates never hurt each other, and allies only inside an event area - a running
 # KOTH, Citadel or Conquest zone, or a hit on or by the King during Kill the King -
@@ -116,3 +136,4 @@ friendly-fire:
   teammates: false
   # Where can allies hurt each other? ALWAYS, EVENT_AREAS or NEVER.
   allies: EVENT_AREAS
+# --8<-- [end:friendly-fire]

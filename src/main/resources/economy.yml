@@ -9,8 +9,12 @@
 # a deliberate concession - the Vault Economy interface this module has to expose
 # is itself double-based, so anything else would mean converting on every call and
 # losing the same precision at the boundary (checked against VaultAPI 1.7).
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:general]
 # Turning this off disables balances, /pay, /eco and the team bank commands.
 enabled: true
 
@@ -22,17 +26,22 @@ starting-balance: 100.0
 # A credit that would cross it is refused rather than clamped, so money is never
 # silently destroyed.
 maximum-balance: 0.0
+# --8<-- [end:general]
 
+# --8<-- [start:currency]
 currency:
   # Shown before an amount: $1,234.50
   symbol: "$"
   # Used when the amount is named rather than symbolised: "1 dollar", "2 dollars".
   singular: "dollar"
   plural: "dollars"
+# --8<-- [end:currency]
 
+# --8<-- [start:pay]
 pay:
   # Player-to-player transfers (/pay). Can be turned off without disabling the
   # rest of the economy.
   enabled: true
   # Smallest transfer allowed, to stop 0.01 spam.
   minimum-amount: 1.0
+# --8<-- [end:pay]

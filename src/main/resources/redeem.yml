@@ -16,11 +16,16 @@
 #
 # Every player can redeem a given code once. max-uses caps how many players can
 # redeem it in all: 1 for a single-use code, unlimited for an open giveaway.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
 enabled: true
 
+# --8<-- [start:failed-attempt]
 # After a failed attempt - no such code, already used, all used up - how long a
 # player waits before the next one. Without it, codes could be found by trying
 # names as fast as chat allows.
 failed-attempt-cooldown-seconds: 3
+# --8<-- [end:failed-attempt]

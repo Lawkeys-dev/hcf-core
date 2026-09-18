@@ -34,10 +34,14 @@
 #
 # An effect enchant never overrides a stronger effect from elsewhere: a Speed II
 # potion is not cut down to a Speed I boot.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
 enabled: true
 
+# --8<-- [start:enchants]
 enchants:
 
   fire-resistance:
@@ -47,12 +51,14 @@ enchants:
     max-level: 1
     applies-to: [armor]
 
+  # --8<-- [start:effect-enchant]
   speed:
     name: "&bSpeed"
     type: effect
     effect: speed
     max-level: 2
     applies-to: [boots]
+  # --8<-- [end:effect-enchant]
 
   jump-boost:
     name: "&aJump Boost"
@@ -75,13 +81,16 @@ enchants:
     max-level: 1
     applies-to: [chestplate]
 
+  # --8<-- [start:hellforged]
   hellforged:
     name: "&cHellforged"
     type: hellforged
     max-level: 4
     applies-to: [armor]
     repair-per-level: 1
+  # --8<-- [end:hellforged]
 
+  # --8<-- [start:implanted]
   implanted:
     name: "&2Implanted"
     type: implanted
@@ -89,7 +98,9 @@ enchants:
     applies-to: [helmet]
     food-per-level: 1
     interval-seconds: 10
+  # --8<-- [end:implanted]
 
+  # --8<-- [start:recover]
   recover:
     name: "&dRecover"
     type: recover
@@ -98,9 +109,13 @@ enchants:
     below-health: 8
     regeneration-seconds: 5
     cooldown-seconds: 60
+  # --8<-- [end:recover]
 
+  # --8<-- [start:autosmelt]
   autosmelt:
     name: "&6Autosmelt"
     type: autosmelt
     max-level: 1
     applies-to: [pickaxe]
+  # --8<-- [end:autosmelt]
+# --8<-- [end:enchants]

@@ -9,8 +9,12 @@
 # items and the other ways out.
 #
 # Changes take effect on /hcf reload.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:general]
 enabled: true
 
 # How often the server samples who is standing in a running zone. 1 second is
@@ -35,10 +39,12 @@ announce-contests: true
 #   false - teams can capture around them
 # A teamless player can never HOLD a zone either way: capturing is a team act.
 teamless-players-contest: true
+# --8<-- [end:general]
 
 # Two teams that are ALLIED still contest each other: capture is strictly per
 # team, for Conquest and KTK as well.
 
+# --8<-- [start:zone-holograms]
 # A hologram above each capture zone - KOTH, Citadel, every Conquest zone - for as
 # long as the zone is configured: while its event runs, the time left and who
 # holds it; otherwise, when it runs next. Texts in lang/en.yml (events.hologram).
@@ -47,12 +53,14 @@ zone-holograms:
   enabled: true
   # Blocks above the top of the zone.
   height: 3.0
+# --8<-- [end:zone-holograms]
 
 events:
 
   # ------------------------------------------------------------------
   # A classic KOTH: hold the zone for 10 uninterrupted minutes.
   # ------------------------------------------------------------------
+  # --8<-- [start:koth]
   koth:
     display-name: "&6KOTH"
 
@@ -111,6 +119,7 @@ events:
     # The capture itself is always counted through the team module, which owns
     # the points-per-capture scale and the cap (see teams.yml, "koth").
     reward-commands: []
+  # --8<-- [end:koth]
 
 # ---------------------------------------------------------------------------
 # Citadel
@@ -137,6 +146,7 @@ events:
 
 citadels:
 
+  # --8<-- [start:citadel]
   citadel:
     display-name: "&5Citadel"
 
@@ -159,6 +169,7 @@ citadels:
     schedule: []
     reward-commands: []
 
+    # --8<-- [start:citadel-claim]
     # The server team whose land is the Citadel.
     claim: Citadel
 
@@ -174,6 +185,8 @@ citadels:
       elytra: true
       # Launching with a Riptide trident inside.
       riptide: true
+    # --8<-- [end:citadel-claim]
+  # --8<-- [end:citadel]
 
 # ---------------------------------------------------------------------------
 # Kill the King
@@ -206,6 +219,7 @@ citadels:
 
 kill-the-king:
 
+  # --8<-- [start:ktk]
   ktk:
     display-name: "&4Kill the King"
     world: world
@@ -227,6 +241,7 @@ kill-the-king:
     # Remaining-time marks to broadcast, in seconds.
     announce-at-seconds: [900, 300, 60, 10]
 
+    # --8<-- [start:ktk-penalty]
     # What leaving the warzone costs. The count starts over each time the King
     # comes back in.
     outside-penalty:
@@ -240,7 +255,9 @@ kill-the-king:
       wither-start-level: 1
       wither-step-seconds: 10
       wither-max-level: 5
+    # --8<-- [end:ktk-penalty]
 
+    # --8<-- [start:ktk-kit]
     # The King's kit. Materials and enchantments use the server's names
     # (minecraft:protection, or just protection). A name the server does not
     # know is reported at load and left out; the rest of the kit stands.
@@ -270,6 +287,7 @@ kill-the-king:
       effects:
         speed: 2
         resistance: 1
+    # --8<-- [end:ktk-kit]
 
     # Local times of day at which it starts by itself (time-zone above). Empty:
     # only staff start it, with /events start ktk.
@@ -278,6 +296,7 @@ kill-the-king:
     # Console commands run for the winner - the killer, or the King.
     # Placeholders: %player%, %event%.
     reward-commands: []
+  # --8<-- [end:ktk]
 
 # ---------------------------------------------------------------------------
 # Conquest
@@ -304,6 +323,7 @@ kill-the-king:
 
 conquest:
 
+  # --8<-- [start:conquest]
   conquest:
     display-name: "&6Conquest"
     world: world
@@ -329,6 +349,7 @@ conquest:
     # Console commands run for the winner. Placeholders: %team%, %event%.
     reward-commands: []
 
+    # --8<-- [start:conquest-zones]
     zones:
       red:
         display-name: "&cRed"
@@ -346,3 +367,5 @@ conquest:
         display-name: "&eYellow"
         corner-1: {x: 340, y: 60, z: 340}
         corner-2: {x: 346, y: 70, z: 346}
+    # --8<-- [end:conquest-zones]
+  # --8<-- [end:conquest]

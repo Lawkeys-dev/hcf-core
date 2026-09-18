@@ -1,8 +1,12 @@
 # ---------------------------------------------------------------------------
 # killstreaks.yml - rewards for consecutive kills
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 enabled: true
 
+# --8<-- [start:rewards]
 # EMPTY ON PURPOSE. The reward table is entirely yours, and inventing one would
 # be deciding your gameplay - the same reason points-per-capture defaults to 0 in
 # teams.yml.
@@ -27,3 +31,4 @@ enabled: true
 # A streak is reset by dying, and is stored - so it survives a restart, and
 # cannot be farmed by waiting for one.
 rewards: {}
+# --8<-- [end:rewards]

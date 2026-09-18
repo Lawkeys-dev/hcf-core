@@ -7,8 +7,7 @@
 The public chat line is a template:
 
 ```yaml title="chat.yml"
-format: "%kills%%prefix%&f%player%%suffix%&7: &f%message%"
-kills-format: "&7[&c%value%&7]&r "
+--8<-- "src/main/resources/chat.yml:format"
 ```
 
 which renders as the historic HCF format — **`[50] Rank Player: message`**:
@@ -46,17 +45,8 @@ Team and ally lines are also written to the console and the server log, with the
 
 A flicker-free sidebar, redrawn once a second (`update-ticks: 20`). **The board is a list of template lines** in `ui.yml`, top to bottom:
 
-```yaml title="ui.yml"
-scoreboard:
-  title: "&c&lHCF"
-  lines:
-    - "&7&m----------------"
-    - "&cTeam: &f%team%"
-    - "&cDTR: %dtr_coloured%"
-    - "&cKills: &f%kills%"
-    - "%combat_line%"
-    - "%event_line%"
-    - "&7&m----------------"
+```yaml title="ui.yml — the shipped rows"
+--8<-- "src/main/resources/ui.yml:scoreboard-lines"
 ```
 
 **A line whose placeholders all come out empty is dropped** rather than left blank. That is how conditional lines work: `%combat_line%` is empty outside combat, so the line simply is not there — and why a server that does not run a module needs no edits: its placeholders are just empty. A scoreboard shows **15 lines at most**; the console warns when more than 15 of yours are always shown.
@@ -68,13 +58,10 @@ Every placeholder is listed in [Placeholders](../reference/placeholders.md#score
 A header and a footer around the player list, with the same placeholders. **Off by default** — the vanilla list is fine, and a header nobody asked for is one more thing to switch off.
 
 ```yaml title="ui.yml"
-tablist:
-  enabled: true
-  header:
-    - "&c&lHCF"
-  footer:
-    - "&7%online% online"
+--8<-- "src/main/resources/ui.yml:tablist"
 ```
+
+Set `enabled: true` to show it.
 
 ## Statistics and leaderboards
 

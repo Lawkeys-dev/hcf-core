@@ -39,16 +39,11 @@ A **book is dragged onto an item** in the inventory, with the anvil's rule: a hi
 Which levels a map allows — Protection I or II, Sharpness I or II, no Strength II — is **the** defining choice of an HCF map. **Both lists ship empty.**
 
 ```yaml title="limiters.yml"
-enchantments:
-  caps:
-    protection: 2
-    sharpness: 2
-    power: 3
-    fire_aspect: 0        # 0 forbids it
-potions:
-  caps:
-    strength: 1
-    invisibility: 0
+--8<-- "src/main/resources/limiters.yml:enchantments"
+```
+
+```yaml title="limiters.yml"
+--8<-- "src/main/resources/limiters.yml:potions"
 ```
 
 **Enchantments** are capped:
@@ -66,12 +61,7 @@ potions:
 The most of a block a team's whole territory may hold — against lag machines and abuse. Placing one more there is refused. **Ships empty:**
 
 ```yaml title="limiters.yml"
-claim-blocks:
-  enabled: true
-  limits:
-    HOPPER: 64
-    SPAWNER: 8
-    REDSTONE_WIRE: 256
+--8<-- "src/main/resources/limiters.yml:claim-blocks"
 ```
 
 - `/team limits` (alias `blocks`) shows your team's usage.

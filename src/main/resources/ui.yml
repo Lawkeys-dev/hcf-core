@@ -2,8 +2,12 @@
 # ui.yml - the scoreboard and tab list
 #
 # /hcf reload rebuilds every board at once.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:scoreboard]
 scoreboard:
   enabled: true
   # How often the board is redrawn, in ticks. 20 is once a second, which is as
@@ -12,6 +16,7 @@ scoreboard:
   update-ticks: 20
   title: "&c&lHCF"
 
+  # --8<-- [start:scoreboard-lines]
   # The rows, top to bottom. A scoreboard shows at most 15; anything past that is
   # never drawn, and you are told so in the console.
   #
@@ -75,7 +80,10 @@ scoreboard:
     - "%timer_2%"
     - "%timer_3%"
     - "&7&m----------------"
+  # --8<-- [end:scoreboard-lines]
+# --8<-- [end:scoreboard]
 
+# --8<-- [start:tablist]
 tablist:
   # Off by default: the vanilla player list is perfectly good, and a header nobody
   # asked for is the kind of thing an operator notices and has to go turn off.
@@ -84,3 +92,4 @@ tablist:
     - "&c&lHCF"
   footer:
     - "&7%online% online"
+# --8<-- [end:tablist]

@@ -11,15 +11,10 @@ Times are read in the file's `time-zone` — `"system"` follows the host's clock
 A line of advice every few minutes:
 
 ```yaml title="schedule.yml"
-tips:
-  enabled: true
-  interval-seconds: 300        # at least 10
-  order: random                # or in-order
-  prefix: "&8[&eTip&8] &7"
-  messages:
-    - "Type &f/team help &7to see every team command."
-    - "&f/events &7lists what is running and what is coming."
+--8<-- "src/main/resources/schedule.yml:tips"
 ```
+
+Set `enabled: true` to start them.
 
 In `random` order, the same tip never shows twice running. Players can switch tips off for themselves with `/settings`.
 
@@ -28,14 +23,7 @@ In `random` order, the same tip never shows twice running. Players can switch ti
 Announcements and console commands at fixed times, every day:
 
 ```yaml title="schedule.yml"
-schedules:
-  evening-koth:
-    times: ["17:55", "20:55"]
-    broadcast: "&6A KOTH starts in 5 minutes!"
-  nightly-restart-warning:
-    times: ["03:55"]
-    broadcast: "&cThe server restarts in 5 minutes."
-    commands: []
+--8<-- "src/main/resources/schedule.yml:schedules"
 ```
 
 Each entry needs at least one time and a broadcast or a command. A time that passed while the server was off is not replayed.
@@ -54,12 +42,7 @@ Countdowns staff start by hand, shown on everyone's scoreboard (`%timer_1%` to `
 Starting and stopping needs `hcfcore.schedule.admin`. A name described in `schedule.yml` gets its label, and can say and do something when it ends:
 
 ```yaml title="schedule.yml"
-timers:
-  double-points:
-    label: "&dDouble Points"
-    end-broadcast: "&dDouble points are over."
-    end-commands:
-      - "some-command %timer%"
+--8<-- "src/main/resources/schedule.yml:timers"
 ```
 
 Any other name works too, with the label typed in the command. A running timer is not restarted by mistake. Timers live in memory: a restart ends them. The name `keyall` belongs to `/keyall`.
@@ -74,11 +57,7 @@ Any other name works too, with the label typed in the command. A running timer i
 ```
 
 ```yaml title="schedule.yml"
-key-all:
-  commands:
-    - "crates key give %player% vote 1"
-  broadcast: "&6&lKEY-ALL! &7%count% players received a key."
-  label: "&6Key-All"
+--8<-- "src/main/resources/schedule.yml:key-all"
 ```
 
 **HCFCore has no crates**: point the commands at your crate plugin, economy or kits. With no command configured, `/keyall` refuses rather than announcing a key-all that gives nothing. Needs `hcfcore.schedule.admin`.

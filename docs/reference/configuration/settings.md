@@ -4,15 +4,27 @@ Which settings players can switch for themselves, and what `/cobble` leaves on t
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/interface.md#player-settings)
 
-## What matters
+Every example on this page is **taken from the shipped `settings.yml`**. Changes apply with `/hcf reload`. `enabled: true` at the top switches the module.
 
-- Remove a setting from `offered` to take it away: it is then on for everybody.
+## Offered settings
 
-Changes apply with `/hcf reload`.
+```yaml title="settings.yml"
+--8<-- "src/main/resources/settings.yml:offered"
+```
 
-## The shipped file
+The switches players get, in menu order: `scoreboard`, `private-messages`, `tips`, `cobblestone`. Removing one takes it away — it is then on for everybody.
 
-This is `plugins/HCFCore/settings.yml` as the plugin writes it on the first start. Every comment is part of the reference. [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/settings.yml).
+## Cobblestone
+
+```yaml title="settings.yml"
+--8<-- "src/main/resources/settings.yml:cobblestone"
+```
+
+`materials`: what the cobblestone switch leaves on the ground.
+
+## The whole shipped file
+
+[View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/settings.yml).
 
 <div class="hcf-shipped" markdown>
 

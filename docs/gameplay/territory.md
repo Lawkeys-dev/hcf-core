@@ -106,13 +106,8 @@ Either way, only staff build or interact on server land — **kit refill signs e
 
 The square around each listed world's centre, set in `claims.yml`:
 
-```yaml
-warzone:
-  worlds:
-    world:
-      radius: 800
-    world_nether:
-      radius: 250
+```yaml title="claims.yml"
+--8<-- "src/main/resources/claims.yml:warzone"
 ```
 
 - Fighting allowed, no player claims.

@@ -13,10 +13,14 @@
 #
 # Given with /crowbar give <player> [amount] - from staff, a kit, a redeem code
 # or a crate plugin's reward command.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
 enabled: true
 
+# --8<-- [start:item]
 item:
   material: GOLDEN_HOE
   name: "&6&lCrowbar"
@@ -25,7 +29,9 @@ item:
     - "&7Right-click an End portal frame to take it out."
     - "&7Only in the wilderness or your own claim."
     - "&7Uses left: &f%uses%"
+# --8<-- [end:item]
 
+# --8<-- [start:limits]
 # How many frames one crowbar takes out before it breaks. 0 is no limit.
 uses: 0
 
@@ -35,3 +41,4 @@ cooldown-seconds: 0
 # Money one use costs, taken from the economy module. 0 is free. Nothing is
 # taken for a refused use.
 cost: 0
+# --8<-- [end:limits]

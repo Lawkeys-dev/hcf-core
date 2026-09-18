@@ -57,16 +57,7 @@ The sign has its own anti-spam wait (`refill-signs.cooldown-seconds`, 3), **sepa
 An ability is an item that **runs console commands when right-clicked**, with a cooldown. It is the one shape that can express any partner item — the plugin does not need to know what yours do. **The list ships empty.**
 
 ```yaml title="kits.yml"
-abilities:
-  switcher:
-    material: ENDER_PEARL
-    name: "&5&lSwitcher"
-    lore:
-      - "&7Swaps places with whoever you hit."
-    cooldown-seconds: 15
-    consume: true          # take one from the stack when used
-    commands:
-      - "some-command %player%"
+--8<-- "src/main/resources/kits.yml:abilities"
 ```
 
 - Hand them out with `/kit ability <player> <id> [amount]`, a killstreak reward, a redeem code, or any plugin that can run a command.
@@ -82,13 +73,5 @@ A **streak** counts a player's kills since their last death. It is stored, so it
 Rewards fire at **exactly** their streak — a player reaching 10 was already given 3 and 5 on the way up. They are console commands, with an optional broadcast; `%player%` and `%streak%` are filled in. **The table ships empty:**
 
 ```yaml title="killstreaks.yml"
-rewards:
-  5:
-    broadcast: "&c%player% &7is on a &f%streak% &7killstreak!"
-    commands:
-      - "kit give %player% streak5"
-  10:
-    broadcast: "&4%player% &7is on &f%streak%&7! Somebody stop them."
-    commands:
-      - "kit ability %player% switcher 1"
+--8<-- "src/main/resources/killstreaks.yml:rewards"
 ```

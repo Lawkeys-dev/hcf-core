@@ -6,15 +6,21 @@
 #
 # NOTHING HERE SHIPS SWITCHED ON: tips are off, and every list is empty. What a
 # server announces, and what its keys are, belong to it.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
 enabled: true
 
+# --8<-- [start:time-zone]
 # Time zone the schedule times below are read in. "system" follows the host
 # clock; prefer naming one (for example "Europe/Paris") so a host move does not
 # shift every announcement.
 time-zone: "system"
+# --8<-- [end:time-zone]
 
+# --8<-- [start:tips]
 tips:
   # A line of advice every so often. Off by default: a message nobody asked for,
   # every few minutes, is something an operator has to go and turn off.
@@ -29,7 +35,9 @@ tips:
     - "Type &f/team help &7to see every team command."
     - "&f/events &7lists what is running and what is coming."
     - "&f/stats &7and &f/leaderboard &7show how you are doing."
+# --8<-- [end:tips]
 
+# --8<-- [start:schedules]
 # Announcements and commands at fixed times, every day. Each entry needs at least
 # one time and a broadcast or a command; commands run from the console.
 #
@@ -42,7 +50,9 @@ tips:
 #       times: ["03:55"]
 #       broadcast: "&cThe server restarts in 5 minutes."
 schedules: {}
+# --8<-- [end:schedules]
 
+# --8<-- [start:timers]
 # Countdowns started with /timer start <name> <duration> [label]. They show on
 # the scoreboard (%timer_1% to %timer_3% in ui.yml) and end with a line in chat.
 # A name listed here gets its label, and can say and do something when it ends.
@@ -57,7 +67,9 @@ schedules: {}
 #
 # Timers live in memory: a restart ends them.
 timers: {}
+# --8<-- [end:timers]
 
+# --8<-- [start:key-all]
 key-all:
   # /keyall runs these commands once for every player online, from the console
   # (%player% is filled in). This plugin has no crates: point them at whatever
@@ -71,3 +83,4 @@ key-all:
   broadcast: "&6&lKEY-ALL! &7%count% players received a key."
   # The label of the countdown /keyall <duration> starts.
   label: "&6Key-All"
+# --8<-- [end:key-all]

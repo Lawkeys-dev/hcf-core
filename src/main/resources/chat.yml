@@ -2,13 +2,19 @@
 # chat.yml - the public chat format
 #
 # /hcf reload applies changes at once.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:enabled]
 # Turn this off to leave chat exactly as the server renders it, prefix and kill
 # count included. Team and ally chat routing is unaffected - /team chat keeps
 # working either way.
 enabled: true
+# --8<-- [end:enabled]
 
+# --8<-- [start:format]
 # The line everybody sees. Placeholders:
 #
 #   %player%    the player's name
@@ -31,7 +37,9 @@ format: "%kills%%prefix%&f%player%%suffix%&7: &f%message%"
 # no risk to the rest of the line. The trailing &r stops the prefix inheriting
 # the bracket colour.
 kills-format: "&7[&c%value%&7]&r "
+# --8<-- [end:format]
 
+# --8<-- [start:range-blocks]
 # How far a public message carries, in blocks. 0 is the whole server, which is
 # the normal HCF setting; anything else makes chat local. The console always
 # receives the message either way - local chat that staff cannot read in the log
@@ -41,8 +49,11 @@ kills-format: "&7[&c%value%&7]&r "
 # where Paper forbids reading the world. Somebody who joined in the last half
 # second hears everything until the next copy.
 range-blocks: 0
+# --8<-- [end:range-blocks]
 
+# --8<-- [start:log-team-chat]
 # Write team and ally chat to the console and the server log, as public chat
 # already is, with the team's name: a conversation staff cannot read back is a
 # moderation problem (lang/en.yml, team.chat.log, is the line's format).
 log-team-chat: true
+# --8<-- [end:log-team-chat]

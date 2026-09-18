@@ -4,16 +4,35 @@ The crowbar that takes End portal frames out: its item, uses, cooldown and cost.
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/items.md#crowbar)
 
-## What matters
+Every example on this page is **taken from the shipped `crowbar.yml`**. Changes apply with `/hcf reload`. `enabled: true` at the top switches the module.
 
-- Ships neutral: unlimited uses, no cooldown, no cost.
-- `%uses%` in the lore shows the uses left.
+## The item
 
-Changes apply with `/hcf reload`.
+```yaml title="crowbar.yml"
+--8<-- "src/main/resources/crowbar.yml:item"
+```
 
-## The shipped file
+| Key | As shipped | What it does |
+|---|---|---|
+| `material` | `GOLDEN_HOE` | The item |
+| `name` | `&6&lCrowbar` | Its name |
+| `lore` | three lines | Its lines; `%uses%` is the uses left |
 
-This is `plugins/HCFCore/crowbar.yml` as the plugin writes it on the first start. Every comment is part of the reference. [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/crowbar.yml).
+## Uses, cooldown and cost
+
+```yaml title="crowbar.yml"
+--8<-- "src/main/resources/crowbar.yml:limits"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `uses` | `0` | Frames one crowbar takes out before it breaks; `0` no limit |
+| `cooldown-seconds` | `0` | Wait between two uses |
+| `cost` | `0` | Money one use costs; nothing is taken for a refused use |
+
+## The whole shipped file
+
+[View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/crowbar.yml).
 
 <div class="hcf-shipped" markdown>
 

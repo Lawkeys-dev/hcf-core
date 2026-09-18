@@ -2,12 +2,18 @@
 # Server-wide settings: language, game mode and storage. Every module has its own
 # file next to this one, and every gameplay value lives in those files - nothing is
 # hardcoded in the plugin. Documentation: https://lawkeys-dev.github.io/hcf-core/
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 
+# --8<-- [start:language]
 # Language of the messages: lang/<language>.yml in this folder. The plugin ships
 # English (en); to translate, copy lang/en.yml to lang/<code>.yml, translate it and
 # set its code here.
 language: en
+# --8<-- [end:language]
 
+# --8<-- [start:kitmap-mode]
 # Determines which game mode this server instance runs.
 # - false (default): full HCF mode, all systems enabled (Lives system, DTR, claims...).
 # - true: Kitmap mode. Modules that don't apply to Kitmap - today, the Lives
@@ -16,7 +22,9 @@ language: en
 #   pvp.yml, for instance).
 # Read at startup only: changing it needs a restart, not /hcf reload.
 kitmap-mode: false
+# --8<-- [end:kitmap-mode]
 
+# --8<-- [start:storage]
 # This whole section is read at startup only: changing it needs a restart, not
 # /hcf reload. Switching type starts from an empty database - nothing copies the
 # data from one to the other.
@@ -29,6 +37,7 @@ storage:
   # 0 disables the periodic save, leaving only the shutdown one - not recommended,
   # since a crash would then lose everything since startup.
   save-interval-seconds: 300
+  # --8<-- [start:storage-mysql]
   mysql:
     host: localhost
     port: 3306
@@ -50,6 +59,8 @@ storage:
     # allowPublicKeyRetrieval: true.
     properties:
       sslMode: PREFERRED
+  # --8<-- [end:storage-mysql]
+# --8<-- [end:storage]
 
 # Modules and integrations are not switched here. Each module has its own
 # "enabled:" at the top of its own file (kits.yml, redeem.yml, crowbar.yml,

@@ -4,15 +4,21 @@ Holograms: how often leaderboard lines are redrawn. The holograms themselves are
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../server/holograms.md)
 
-## What matters
+Every example on this page is **taken from the shipped `holograms.yml`**. Changes apply with `/hcf reload`. `enabled: true` at the top switches the module; the zone holograms of `events.yml` need it too.
 
-- Zone holograms above capture events are configured in `events.yml`, and need this module enabled.
+## Refresh
 
-Changes apply with `/hcf reload`.
+```yaml title="holograms.yml"
+--8<-- "src/main/resources/holograms.yml:refresh"
+```
 
-## The shipped file
+| Key | As shipped | What it does |
+|---|---|---|
+| `refresh-seconds` | `10` | How often lines with a leaderboard are redrawn; the others never are |
 
-This is `plugins/HCFCore/holograms.yml` as the plugin writes it on the first start. Every comment is part of the reference. [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/holograms.yml).
+## The whole shipped file
+
+[View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/holograms.yml).
 
 <div class="hcf-shipped" markdown>
 

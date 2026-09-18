@@ -4,10 +4,14 @@
 # /settings opens a menu; /settings <setting> [on|off] and /settings list do the
 # same by typing; /cobble is the classic shortcut for the cobblestone switch.
 # Choices are stored, so they survive restarts. /hcf reload applies changes.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
 enabled: true
 
+# --8<-- [start:offered]
 # Which switches players get, in menu order. Remove one to take it away: it is
 # then on for everybody, whatever they had chosen.
 #
@@ -23,9 +27,12 @@ offered:
   - private-messages
   - tips
   - cobblestone
+# --8<-- [end:offered]
 
+# --8<-- [start:cobblestone]
 cobblestone:
   # What the cobblestone switch leaves on the ground.
   materials:
     - COBBLESTONE
     - COBBLED_DEEPSLATE
+# --8<-- [end:cobblestone]

@@ -4,16 +4,24 @@ Lives, the way back from a deathban. **HCF mode only**: this file is not used in
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/deathbans-and-lives.md#lives)
 
-## What matters
+Every example on this page is **taken from the shipped `lives.yml`**. Changes apply with `/hcf reload`.
 
-- Players start with 0 lives: they come from staff, a redeem code or a store.
-- `use-on-login` lets a banned player spend their own life by trying to join.
+## Settings
 
-Changes apply with `/hcf reload`.
+```yaml title="lives.yml"
+--8<-- "src/main/resources/lives.yml:general"
+```
 
-## The shipped file
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | Lives at all |
+| `starting-lives` | `0` | Lives a new player starts with; they come from staff, redeem codes or a store |
+| `use-on-login` | `true` | A banned player who joins holding a life spends it and comes in |
+| `allow-send` | `true` | `/lives send` |
 
-This is `plugins/HCFCore/lives.yml` as the plugin writes it on the first start. Every comment is part of the reference. [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/lives.yml).
+## The whole shipped file
+
+[View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/lives.yml).
 
 <div class="hcf-shipped" markdown>
 

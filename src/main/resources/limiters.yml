@@ -2,10 +2,14 @@
 # limiters.yml - enchantment and potion limits
 #
 # /hcf reload applies changes at once, including to what players already carry.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
 enabled: true
 
+# --8<-- [start:enchantments]
 enchantments:
   # The highest level each enchantment may reach. 0 forbids it entirely. Anything
   # not listed keeps vanilla's levels.
@@ -36,7 +40,9 @@ enchantments:
   # Enchanted books are left as they are - they only give their levels through an
   # anvil, which caps them.
   fix-existing-items: true
+# --8<-- [end:enchantments]
 
+# --8<-- [start:potions]
 potions:
   # The highest level each effect may be applied at FROM A POTION - drunk,
   # splashed, a lingering cloud, a tipped arrow. 0 forbids it. Anything not
@@ -52,6 +58,7 @@ potions:
   #     strength: 1
   #     invisibility: 0
   caps: {}
+# --8<-- [end:potions]
 
 # ---------------------------------------------------------------------------
 # Blocks per claim: the most of a block a team's whole territory may hold -
@@ -74,6 +81,8 @@ potions:
 #       SPAWNER: 8
 #       REDSTONE_WIRE: 256
 # ---------------------------------------------------------------------------
+# --8<-- [start:claim-blocks]
 claim-blocks:
   enabled: true
   limits: {}
+# --8<-- [end:claim-blocks]

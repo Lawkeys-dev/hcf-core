@@ -3,8 +3,7 @@
 The same plugin drives two game modes. Each server runs one of them: an HCF server and a kitmap server are two installations, each with its own data.
 
 ```yaml title="config.yml"
-# false (default): HCF. true: Kitmap.
-kitmap-mode: false
+--8<-- "src/main/resources/config.yml:kitmap-mode"
 ```
 
 `kitmap-mode` is read **at startup only**: changing it needs a restart, not `/hcf reload` — modules that never started cannot appear in the middle of a session.

@@ -4,9 +4,15 @@
 # Nothing here is HCF-specific. Turn the whole module off if your server already
 # runs an essentials plugin that provides these - most do, and two plugins
 # fighting over /spawn helps nobody.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
+# --8<-- [start:enabled]
 enabled: true
+# --8<-- [end:enabled]
 
+# --8<-- [start:spawn]
 spawn:
   enabled: true
   # Which world's spawn point /spawn uses. Leave empty for the player's current
@@ -16,16 +22,23 @@ spawn:
   # of a fight; the combat tag already refuses it, but a server running without
   # combat tags still wants this. 0 teleports immediately.
   warmup-seconds: 5
+# --8<-- [end:spawn]
 
+# --8<-- [start:logout]
 # /logout is a countdown for the same reason, from the other side: closing the
 # client mid-fight is how a player escapes one, and the combat tag answers that by
 # killing them - so a way to leave that is visibly not an escape has to exist.
 # Any damage or movement cancels it. 0 disconnects immediately.
 logout-seconds: 30
+# --8<-- [end:logout]
 
+# --8<-- [start:rename]
 # Longest name /rename accepts, so nobody writes a book into an item name.
 rename-max-length: 32
+# --8<-- [end:rename]
 
+# --8<-- [start:private-messages]
 # /msg, /reply, /togglepm and /ignore. Ignore lists last for the session only:
 # a stored one would be a social graph nobody would think to clear.
 private-messages: true
+# --8<-- [end:private-messages]

@@ -109,7 +109,7 @@ Each of these comes from a real defect. The rules for listeners are detailed in 
 **Method**
 
 - Where a value is a balance decision for the server, the mechanism is the deliverable: values, scales and lists ship empty or neutral, and nothing is presented as a decision.
-- Whoever changes a command, a permission, a setting or a placeholder updates `docs/` in the same commit.
+- Whoever changes a command, a permission, a setting or a placeholder updates `docs/` in the same commit. Configuration examples in `docs/` are quoted from the shipped files through named sections (`# --8<-- [start:name]` ... `# --8<-- [end:name]`): keep those markers when editing a file.
 - A test whose name promises more than its assertion is worse than no test: for a key rule, check that removing the rule makes the test fail.
 
 ## Reviewing a change

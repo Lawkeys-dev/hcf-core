@@ -13,21 +13,11 @@ Refills also appear in `/events`, next to the capture events.
 
 ## Defining one
 
-```yaml
-nodes:
-  glowstone-mountain:
-    display-name: "&eGlowstone Mountain"
-    world: world_nether
-    corner-1: {x: 40, y: 40, z: 40}
-    corner-2: {x: 70, y: 80, z: 70}
-    blocks:
-      GLOWSTONE: 1
-      NETHERRACK: 4
-    refill:
-      interval-seconds: 14400
-      times: []
-    announce-before-seconds: [300, 60]
+```yaml title="resourcenodes.yml — the shipped Glowstone Mountain"
+--8<-- "src/main/resources/resourcenodes.yml:glowstone-mountain"
 ```
+
+It ships with `interval-seconds: 0`, refilled only by staff: set `interval-seconds: 14400` for every four hours once the region is on your mountain.
 
 - **The region** is the box between the two corners, bounds included, in any order. Keep it to the mountain itself: every position inside is examined on each refill.
 - **The palette** is weighted: `GLOWSTONE: 1` beside `NETHERRACK: 4` means one block in five is glowstone. Weights are relative — nothing has to add up to 100. A plain list (`blocks: [GLOWSTONE, NETHERRACK]`) gives equal weights. An unknown block name is reported at startup and skipped, never guessed.
