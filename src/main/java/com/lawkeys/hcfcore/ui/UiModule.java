@@ -26,6 +26,7 @@ import com.lawkeys.hcfcore.ui.scoreboard.PlayerBoard;
 import com.lawkeys.hcfcore.util.Durations;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -224,6 +225,7 @@ public final class UiModule {
     private void renderEvents(LineRenderer out) {
         String eventLine = "";
         String kingLine = "";
+        String kingLocationLine = "";
         if (events != null && events.getManager() != null) {
             Optional<RunningEvent> closest = events.getManager().getActiveEvents().stream()
                     .min(Comparator.comparingLong(RunningEvent::getRemainingMillis));
@@ -241,9 +243,18 @@ public final class UiModule {
                 kingLine = lang.get(UiMessages.KING_LINE,
                         "time", Durations.formatWithSeconds(king.getManager().getRemainingSeconds()),
                         "player", crowned == null ? "?" : crowned.getName());
+                // Where the King is, redrawn with the board: the chat says it only once a minute.
+                if (crowned != null) {
+                    Location at = crowned.getLocation();
+                    kingLocationLine = lang.get(UiMessages.KING_LOCATION_LINE,
+                            "x", String.valueOf(at.getBlockX()), "y", String.valueOf(at.getBlockY()),
+                            "z", String.valueOf(at.getBlockZ()),
+                            "world", at.getWorld() == null ? "" : at.getWorld().getName());
+                }
             }
         }
-        out.with("%event_line%", eventLine).with("%king_line%", kingLine);
+        out.with("%event_line%", eventLine).with("%king_line%", kingLine)
+                .with("%king_location_line%", kingLocationLine);
         renderConquest(out);
     }
 

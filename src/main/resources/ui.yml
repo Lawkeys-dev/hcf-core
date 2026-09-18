@@ -37,6 +37,7 @@ scoreboard:
   #   %phase_line%    SOTW/EOTW row, empty when neither runs
   #   %event_line%    the running KOTH/Citadel closest to being captured
   #   %king_line%     the King and their time left, during Kill the King
+  #   %king_location_line%  where the King is, during Kill the King
   #   %conquest_line% the running Conquest's leader and points
   #   %conquest_zone_1% to %conquest_zone_4%   each Conquest zone's countdown
   #   %timer_1% %timer_2% %timer_3%   the custom timers (/timer, /keyall), the
@@ -64,6 +65,7 @@ scoreboard:
     - "%phase_line%"
     - "%event_line%"
     - "%king_line%"
+    - "%king_location_line%"
     - "%conquest_line%"
     - "%conquest_zone_1%"
     - "%conquest_zone_2%"

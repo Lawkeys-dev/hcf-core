@@ -48,7 +48,7 @@ class KingEventManagerTest {
     private static KingEventDefinition definition(long durationSeconds, int minimumPlayers,
                                                   List<Long> marks, List<LocalTime> schedule) {
         return new KingEventDefinition("ktk", "&4Kill the King", "world", durationSeconds, minimumPlayers,
-                marks, schedule, 20L, new OutsidePenalty(3L, 2.0, 1, 10L, 3), KingKit.empty(), List.of());
+                marks, schedule, 60L, new OutsidePenalty(3L, 2.0, 1, 10L, 3), KingKit.empty(), List.of());
     }
 
     private KingEventDefinition ktk() {

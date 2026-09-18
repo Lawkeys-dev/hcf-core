@@ -180,8 +180,9 @@ citadels:
 # ---------------------------------------------------------------------------
 # A random online player is drawn as King, stripped of their items (they are kept
 # safe and given back at the end), equipped with the kit below and sent to a
-# random spot in the warzone. The King's position goes to chat every
-# coordinates-interval-ticks. The King wins if still alive when the time runs
+# random spot in the warzone. The King's position is on every scoreboard
+# (%king_location_line% in ui.yml), a waypoint for Lunar Client players, and in
+# chat every announce-interval-seconds with the King's health. The King wins if still alive when the time runs
 # out; otherwise whoever kills the King wins - unless that player is on the
 # King's team. Any other death (withered, fall, lava...) or a logout ends the event with
 # no winner.
@@ -217,9 +218,11 @@ kill-the-king:
     # by waiting.
     minimum-players: 2
 
-    # How often the King's position is put in chat, in ticks (20 ticks = 1 s).
-    # 0 turns it off.
-    coordinates-interval-ticks: 20
+    # How often the King's position and health (as a percentage) go to chat, in
+    # seconds. 0 turns it off. The position is on the scoreboard all along -
+    # %king_location_line% in ui.yml, redrawn with the board (every 20 ticks) -
+    # and a waypoint for Lunar Client players.
+    announce-interval-seconds: 60
 
     # Remaining-time marks to broadcast, in seconds.
     announce-at-seconds: [900, 300, 60, 10]

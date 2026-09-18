@@ -81,6 +81,9 @@ Anyone of another team in the zone freezes the countdown — allies included, an
 **Pearls or partner items still work in the Citadel.**
 The restrictions hold on the land of the server team named by the Citadel's `claim` in `events.yml`: create it (`/team createsystem Citadel combat`) and claim the area (`/team forceclaim Citadel <radius>`). `/team here` shows who owns the chunk you stand in. The console warns when a Citadel starts without its claim. A Citadel written under `events:` rather than `citadels:` — as in files from before Citadels had a section of their own — is a plain KOTH with no restrictions: move it.
 
+**The King's coordinates are not on the scoreboard.**
+They are the `%king_location_line%` row of `ui.yml`, added after `%king_line%` in the shipped file. A `ui.yml` written before it does not have the row: add it. The chat gives the position and the King's health once a minute (`announce-interval-seconds` in `events.yml`).
+
 **Kill the King is called off.**
 The announcement says why: fewer than `minimum-players` eligible players online (survival or adventure mode, without `hcfcore.events.king.exempt`), no warzone in the event's world (`claims.yml`, `warzone.worlds`), or no safe spot found in it. The world cannot be one with a bedrock ceiling, such as the Nether.
 

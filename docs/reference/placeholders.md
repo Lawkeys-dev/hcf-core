@@ -28,6 +28,7 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 | `%phase_line%` | SOTW with its time left, EOTW, or the Purge with its time left; empty when none runs |
 | `%event_line%` | The running KOTH or Citadel closest to being captured, with its time left |
 | `%king_line%` | The King and the time left, during Kill the King |
+| `%king_location_line%` | Where the King is, during Kill the King — redrawn with the board |
 | `%conquest_line%` | The running Conquest's leading team and its points |
 | `%conquest_zone_1%` … `%conquest_zone_4%` | Each Conquest zone's countdown |
 | `%class%` | Your class's name; empty in none |

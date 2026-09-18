@@ -140,7 +140,7 @@ A random player becomes the King. Everyone else hunts them.
 
 1. **The draw.** A random online player in survival or adventure mode becomes the King — at least **2** such players must be online (`minimum-players`), and players with `hcfcore.events.king.exempt` are never drawn.
 2. **The crowning.** The King's items are **put aside in the database** and given back at the end. They receive the King's kit and effects (configurable: diamond armour, a sword, golden apples, pearls, Speed II and Resistance I in the example).
-3. **The hunt.** They are sent to a random spot in the **warzone** of the event's world, on the surface, off claimed land. **Their coordinates are announced every second** (`coordinates-interval-ticks`).
+3. **The hunt.** They are sent to a random spot in the **warzone** of the event's world, on the surface, off claimed land. **Everybody can find them**: their position is on every scoreboard, redrawn every second (`%king_location_line%`), Lunar Client players see a waypoint on them, and **once a minute** the chat says where the King is and **how much health they have left**, as a percentage (`announce-interval-seconds`, `60`; `0` turns the chat line off).
 
 **The arena is the warzone** set in `claims.yml` — a world without a warzone cannot run the event, and the world must not have a bedrock ceiling (not the Nether).
 
@@ -161,7 +161,7 @@ While King, a player:
 
 Reward commands run with `%player%` (the King or the killer) and `%event%`. What drops at the King's death is the kit, and it is ordinary loot. Their own items come back: at once if they survive or the event is stopped, at respawn if they die, at their next login if they leave or the server goes down.
 
-The scoreboard shows `%king_line%`: the King and the time left.
+The scoreboard shows `%king_line%` — the King and the time left — and `%king_location_line%` — where the King is.
 
 !!! tip "Called off?"
     The announcement says why: not enough eligible players online, no warzone in the event's world, or no safe spot found in it.

@@ -11,6 +11,7 @@ public final class UiMessages {
     public static final String COMBAT_LINE = "ui.scoreboard.combat-line";
     public static final String TIMER_LINE = "ui.scoreboard.timer-line";
     public static final String KING_LINE = "ui.scoreboard.king-line";
+    public static final String KING_LOCATION_LINE = "ui.scoreboard.king-location-line";
     public static final String FOCUS_LINE = "ui.scoreboard.focus-line";
     public static final String RALLY_LINE = "ui.scoreboard.rally-line";
     public static final String PHASE_SOTW = "ui.scoreboard.phase-sotw";

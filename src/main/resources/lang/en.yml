@@ -498,7 +498,8 @@ events:
   # %king% is the King, %player% the winner, %event% the event's display name.
   king:
     crowned: "&6%king% &eis the King in &f%event%&e! &7Kill the King within &f%time% &7- or the King wins."
-    coordinates: "&6%king% &7is at &f%x%&7, &f%y%&7, &f%z% &8(%world%) &7- &f%time% &7left"
+    # In chat every announce-interval-seconds (events.yml); %health% is a percentage.
+    coordinates: "&6%king% &7is at &f%x%&7, &f%y%&7, &f%z% &8(%world%) &7with &c%health%% &7health - &f%time% &7left"
     progress: "&e%event%&7: &f%king% &7has &f%time% &7left to survive."
     survived: "&6%king% &esurvived &f%event% &eand wins it!"
     killed: "&c%player% &ekilled the King &6%king% &eand wins &f%event%&e!"
@@ -803,6 +804,7 @@ ui:
     # The running KOTH or Citadel closest to being captured; %event% carries its own colours.
     event-line: "%event%&7: &f%time%"
     king-line: "&6King &f%player%&7: &f%time%"
+    king-location-line: "&6At &f%x%&7, &f%y%&7, &f%z%"
     # The running Conquest: the leading team, then one row per zone.
     conquest-line: "%event%&7: &f%team% %points%&7/&f%target%"
     conquest-zone: "%zone%&7: &f%time%"

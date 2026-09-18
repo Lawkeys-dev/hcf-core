@@ -19,6 +19,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -642,9 +644,15 @@ public final class KingEventController {
         }
     }
 
+    /**
+     * Where the King is and how much health they have left, in chat every
+     * {@code announce-interval-seconds}. The position is on every scoreboard all
+     * along ({@code %king_location_line%}) and, for Lunar Client players, a waypoint:
+     * a chat line every second, as it used to be, flooded the chat for half an hour.
+     */
     private void startCoordinates(KingEventDefinition definition) {
         stopCoordinates();
-        long period = definition.coordinatesIntervalTicks();
+        long period = definition.announceIntervalSeconds() * 20L;
         if (period <= 0) {
             return;
         }
@@ -663,13 +671,15 @@ public final class KingEventController {
             placeholders.put("z", String.valueOf(at.getBlockZ()));
             placeholders.put("world", at.getWorld() == null ? "" : at.getWorld().getName());
             placeholders.put("time", Durations.format(manager.getRemainingSeconds()));
-            // Chat only, not the console: a line every second for half an hour
-            // would bury everything else in the log.
+            AttributeInstance maximum = king.getAttribute(Attribute.MAX_HEALTH);
+            placeholders.put("health", String.valueOf(KingHealth.percent(king.getHealth(),
+                    maximum == null ? 0.0 : maximum.getValue())));
             String message = lang.get(KingMessages.COORDINATES, placeholders);
             if (!message.isEmpty()) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     player.sendMessage(message);
                 }
+                Bukkit.getConsoleSender().sendMessage(message);
             }
         }, period, period);
     }

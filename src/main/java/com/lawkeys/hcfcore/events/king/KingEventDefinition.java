@@ -25,7 +25,9 @@ import java.util.Objects;
  *                                 drawn; below that the event is called off
  * @param announceAtSeconds        remaining-time marks to broadcast
  * @param schedule                 local times of day at which it starts by itself
- * @param coordinatesIntervalTicks how often the King's position goes to chat
+ * @param announceIntervalSeconds  how often the King's position and health go to
+ *                                 chat; {@code 0} for never. The position is on the
+ *                                 scoreboard all along ({@code %king_location_line%})
  * @param penalty                  what leaving the warzone costs the King
  * @param kit                      what the King is given for the reign
  * @param rewardCommands           console commands run for the winner, with
@@ -40,7 +42,7 @@ public record KingEventDefinition(String id,
                                   int minimumPlayers,
                                   List<Long> announceAtSeconds,
                                   List<LocalTime> schedule,
-                                  long coordinatesIntervalTicks,
+                                  long announceIntervalSeconds,
                                   OutsidePenalty penalty,
                                   KingKit kit,
                                   List<String> rewardCommands) {
@@ -60,8 +62,8 @@ public record KingEventDefinition(String id,
         if (minimumPlayers < 1) {
             throw new IllegalArgumentException("minimumPlayers must be at least 1 for event " + id);
         }
-        if (coordinatesIntervalTicks < 0) {
-            throw new IllegalArgumentException("coordinatesIntervalTicks cannot be negative for event " + id);
+        if (announceIntervalSeconds < 0) {
+            throw new IllegalArgumentException("announceIntervalSeconds cannot be negative for event " + id);
         }
     }
 }

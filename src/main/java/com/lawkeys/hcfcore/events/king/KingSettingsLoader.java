@@ -93,10 +93,18 @@ public final class KingSettingsLoader {
             warn.accept("kill-the-king '" + id + "': minimum-players must be at least 1; using 2.");
             minimumPlayers = 2;
         }
-        long coordinatesTicks = entry.getLong("coordinates-interval-ticks", 20L);
-        if (coordinatesTicks < 0) {
-            warn.accept("kill-the-king '" + id + "': coordinates-interval-ticks cannot be negative; using 20.");
-            coordinatesTicks = 20L;
+        long announceSeconds = Durations.capSeconds(entry.getLong("announce-interval-seconds", 60L),
+                "kill-the-king." + id + ".announce-interval-seconds", warn);
+        if (announceSeconds < 0) {
+            warn.accept("kill-the-king '" + id + "': announce-interval-seconds cannot be negative; using 60.");
+            announceSeconds = 60L;
+        }
+        if (entry.contains("coordinates-interval-ticks")) {
+            // Files written before the position moved to the scoreboard: a chat line every
+            // second flooded it. Said once per load, so the operator knows it does nothing.
+            warn.accept("kill-the-king '" + id + "': coordinates-interval-ticks is no longer used - the King's"
+                    + " position is on the scoreboard (%king_location_line% in ui.yml), and in chat every"
+                    + " announce-interval-seconds (60 by default). It can be deleted.");
         }
         String displayName = entry.getString("display-name", id);
         if (displayName == null || displayName.isBlank()) {
@@ -110,7 +118,7 @@ public final class KingSettingsLoader {
                 minimumPlayers,
                 EventSettingsLoader.loadMarks(entry.getLongList("announce-at-seconds"), id, warn),
                 EventSettingsLoader.loadSchedule(entry.getStringList("schedule"), id, warn),
-                coordinatesTicks,
+                announceSeconds,
                 loadPenalty(entry.getConfigurationSection("outside-penalty"), id, warn),
                 loadKit(entry.getConfigurationSection("kit"), id, warn),
                 EventSettingsLoader.nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn));
