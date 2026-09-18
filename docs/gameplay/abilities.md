@@ -131,7 +131,7 @@ Back to where you stood when you threw the pearl — undoing it.
 --8<-- "src/main/resources/abilities.yml:pocket-bard-items"
 ```
 
-Right-clicking opens the menu; **nothing is spent until a set is picked**. The items it gives work as a Bard's burst: a right-click gives their effect to the teammates within 20 blocks and to you, and uses one up. They have no cooldown of their own.
+Right-clicking opens the menu; **nothing is spent until a set is picked**. The items it gives work as a Bard's burst: a right-click gives their effect to the teammates within 20 blocks and to you, and uses one up. They have no cooldown of their own, and in a Bard's hand they are never taken for the class's own items.
 
 ### Berserk
 

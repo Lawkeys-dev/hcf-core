@@ -407,6 +407,11 @@ public final class ClassModule {
         if (active.isEmpty() || active.get().heldEffects().isEmpty()) {
             return;
         }
+        // An item of this plugin's own - a Pocket Bard's blaze powder, a partner item -
+        // is its module's, not the class's: holding it gives no class effect.
+        if (item != null && isPluginItem(item)) {
+            return;
+        }
         HeldEffect held = active.get().heldEffects().get(name(item));
         if (held == null || blockedBySafeZone(player)) {
             return;
