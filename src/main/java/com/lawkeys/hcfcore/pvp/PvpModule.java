@@ -336,7 +336,7 @@ public final class PvpModule {
         if (claims != null) {
             claims.setTeleportGuard(playerId -> {
                 Player player = Bukkit.getPlayer(playerId);
-                return player != null && blockTeleportIfTagged(player);
+                return player != null && (blockTeleportIfTagged(player) || blockTeleportForPearl(player));
             });
         }
 
@@ -605,6 +605,26 @@ public final class PvpModule {
         }
         lang.send(player, PvpMessages.TAG_BLOCKS_TELEPORT,
                 "time", formatDuration(combatTags.getRemainingSeconds(player.getUniqueId())));
+        return true;
+    }
+
+    /**
+     * The pearl cooldown's part of the teleport guard: no {@code /spawn}, {@code /team hq}
+     * or the like until it is over, with {@code ender-pearl-cooldown.block-teleport} -
+     * a pearl out of a fight is not followed by a command out of it.
+     *
+     * @return whether it refuses, the player having been told
+     */
+    public boolean blockTeleportForPearl(Player player) {
+        PvpSettings.EnderPearlRules rules = settings.enderPearl();
+        if (!rules.enabled() || !rules.blockTeleport()) {
+            return false;
+        }
+        long left = pearlSecondsLeft(player.getUniqueId());
+        if (left <= 0) {
+            return false;
+        }
+        lang.send(player, PvpMessages.PEARL_BLOCKS_TELEPORT, "time", formatDuration(left));
         return true;
     }
 

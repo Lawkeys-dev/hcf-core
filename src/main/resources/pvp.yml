@@ -60,6 +60,9 @@ ender-pearl-cooldown:
   show-on-item: true
   # A death ends it.
   clear-on-death: true
+  # Refuse plugin teleports (/spawn, /team hq, /team stuck, /top, /world) until
+  # it is over: a pearl out of a fight is not followed by a command out of it.
+  block-teleport: true
 # --8<-- [end:ender-pearl-cooldown]
 
 # --8<-- [start:strength-nerf]

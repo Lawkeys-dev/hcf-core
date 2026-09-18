@@ -361,6 +361,7 @@ pvp:
   # The ender pearl cooldown (pvp.yml, ender-pearl-cooldown).
   pearl:
     cooldown: "&cYou cannot throw an ender pearl for &f%time%&c."
+    blocks-teleport: "&cYou cannot teleport until your ender pearl cooldown is over (&f%time% &cleft)."
 
   tag:
     tagged: "&cYou are now in combat for &f%seconds%s&c. You cannot teleport or log out safely."

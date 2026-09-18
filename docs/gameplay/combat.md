@@ -22,7 +22,7 @@ The tag is **not saved**: it lasts a few dozen seconds, and making it survive a 
 
 ## Ender pearl cooldown
 
-A pearl thrown means **15 seconds before the next** (`ender-pearl-cooldown` in `pvp.yml`). A pearl thrown meanwhile is refused and stays in hand. The wait shows on the scoreboard, on the pearls in the hotbar, and as a Lunar Client icon; a death ends it, a logout does not. A partner item's Fake Pearl has its own cooldown and never starts this one ([Abilities](abilities.md)).
+A pearl thrown means **15 seconds before the next** (`ender-pearl-cooldown` in `pvp.yml`). A pearl thrown meanwhile is refused and stays in hand. The wait shows on the scoreboard, on the pearls in the hotbar, and as a Lunar Client icon; a death ends it, a logout does not. Until it is over, **teleport commands are refused** as in combat — `/spawn`, `/team hq`, `/team stuck`, `/top`, `/world` (`block-teleport`): a pearl out of a fight is not followed by a command out of it. A countdown already running is refused at its end. A partner item's Fake Pearl has its own cooldown and never starts this one ([Abilities](abilities.md)).
 
 ## Combat logging
 

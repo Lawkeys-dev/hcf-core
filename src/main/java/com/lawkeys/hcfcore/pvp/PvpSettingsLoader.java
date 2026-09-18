@@ -96,7 +96,8 @@ public final class PvpSettingsLoader {
                 section.getBoolean("enabled", defaults.enabled()),
                 Math.max(0L, Durations.capSeconds(section.getLong("seconds", defaults.seconds()), "seconds", warn)),
                 section.getBoolean("show-on-item", defaults.showOnItem()),
-                section.getBoolean("clear-on-death", defaults.clearOnDeath()));
+                section.getBoolean("clear-on-death", defaults.clearOnDeath()),
+                section.getBoolean("block-teleport", defaults.blockTeleport()));
     }
 
     private static PvpSettings.StrengthRules loadStrength(ConfigurationSection section,

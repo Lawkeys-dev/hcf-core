@@ -11,6 +11,7 @@ public final class PvpMessages {
 
     // Ender pearl cooldown
     public static final String PEARL_COOLDOWN = "pvp.pearl.cooldown";
+    public static final String PEARL_BLOCKS_TELEPORT = "pvp.pearl.blocks-teleport";
 
     // Combat tag
     public static final String TAGGED = "pvp.tag.tagged";

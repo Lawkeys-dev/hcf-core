@@ -52,6 +52,7 @@ Every example on this page is **taken from the shipped `pvp.yml`**. Changes appl
 | `seconds` | `15` | The wait between two pearls |
 | `show-on-item` | `true` | The pearls in the hotbar are greyed out for the wait, as the game shows its own |
 | `clear-on-death` | `true` | A death ends it |
+| `block-teleport` | `true` | Refuse plugin teleports (`/spawn`, `/team hq`, `/team stuck`, `/top`, `/world`) until it is over |
 
 ## Strength nerf
 

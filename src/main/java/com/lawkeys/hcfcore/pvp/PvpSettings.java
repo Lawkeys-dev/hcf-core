@@ -116,10 +116,12 @@ public record PvpSettings(
     /**
      * The HCF ender pearl cooldown: a wait between two pearls.
      *
-     * @param showOnItem   the pearls in the hotbar show the wait as the game shows its own
-     * @param clearOnDeath a death ends it
+     * @param showOnItem    the pearls in the hotbar show the wait as the game shows its own
+     * @param clearOnDeath  a death ends it
+     * @param blockTeleport refuse plugin teleports (such as {@code /team hq}) until it is over
      */
-    public record EnderPearlRules(boolean enabled, long seconds, boolean showOnItem, boolean clearOnDeath) {
+    public record EnderPearlRules(boolean enabled, long seconds, boolean showOnItem, boolean clearOnDeath,
+                                  boolean blockTeleport) {
     }
 
     /**
@@ -154,6 +156,6 @@ public record PvpSettings(
                 new SafeZoneRules(true),
                 new LootProtectionRules(true, 10L, true),
                 new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS),
-                new EnderPearlRules(true, 15L, true, true));
+                new EnderPearlRules(true, 15L, true, true, true));
     }
 }
