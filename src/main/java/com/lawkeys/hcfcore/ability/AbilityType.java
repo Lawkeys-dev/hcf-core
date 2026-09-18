@@ -157,7 +157,7 @@ public enum AbilityType {
      * no fall damage while it is in hand, with {@code no-fall-while-held}.
      */
     GRAPPLING_HOOK(Trigger.FISH,
-            Param.decimal("pull", 1.0), Param.decimal("lift", 0.5), Param.decimal("max-speed", 4.0),
+            Param.decimal("pull", 1.0), Param.decimal("lift", 0.4), Param.decimal("max-speed", 4.0),
             Param.bool("no-fall-while-held", true));
 
     /** How an ability is used. */
