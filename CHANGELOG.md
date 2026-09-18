@@ -6,6 +6,9 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+### Documentation
+- The documentation reviewed for consistency: effect caps and commands in every summary, the `classes` messages, effect commands in their own FEATURES section, and which modules still await their in-game test.
+
 ## [0.4.0] - 2026-09-18
 
 Potions, effects and the Bard.

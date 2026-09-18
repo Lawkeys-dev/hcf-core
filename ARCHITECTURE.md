@@ -43,7 +43,7 @@ hcf-core/
 │   ├── kit/                            # kits, layouts, refill signs, abilities
 │   ├── killstreak/                     # rewards, plugged into stats/
 │   ├── enchant/                        # custom enchants (effect, Hellforged, Implanted, Recover, Autosmelt), books
-│   ├── limiter/                        # enchantment and potion caps, blocks per claim
+│   ├── limiter/                        # enchantment, potion and effect caps, blocks per claim
 │   ├── general/                        # utility commands
 │   ├── schedule/                       # tips, scheduled announcements, custom timers, key-all
 │   ├── settings/                       # player settings (/settings, /cobble)

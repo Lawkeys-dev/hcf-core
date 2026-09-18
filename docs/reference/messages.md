@@ -50,6 +50,7 @@ Keys follow `<module>.<context>.<message>`, fully nested — a `team:` section h
 | `enchants` | custom enchants |
 | `apollo` | Lunar Client waypoint names |
 | `limiter` | caps and block limits |
+| `classes` | classes, energy, the archer tag, backstabs, `/class`, `/dyes` |
 | `effect-commands` | `/speed` and the other effect commands |
 
 The full shipped file is on [GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/lang/en.yml).

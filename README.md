@@ -69,7 +69,7 @@ The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`F
 
 ## Status
 
-**Pre-release.** HCFCore compiles against the real Paper 26.2 API and its unit tests pass in CI. It has been tried in game module by module on a local Paper 26.2 server — SQLite and MySQL 8.4, LuckPerms, Vault, Lunar Client through Apollo, kitmap mode — but it has not yet run a production map under load. Test it on your own setup before deploying it to a server you care about, and please [report](https://github.com/Lawkeys-dev/hcf-core/issues) what you find.
+**Pre-release.** HCFCore compiles against the real Paper 26.2 API and its unit tests pass in CI. It has been tried in game module by module on a local Paper 26.2 server — SQLite and MySQL 8.4, LuckPerms, Vault, Lunar Client through Apollo, kitmap mode — except the newest (classes, classic combat, effect caps and effect commands), which await theirs; it has not yet run a production map under load. Test it on your own setup before deploying it to a server you care about, and please [report](https://github.com/Lawkeys-dev/hcf-core/issues) what you find.
 
 ## Contributing
 
