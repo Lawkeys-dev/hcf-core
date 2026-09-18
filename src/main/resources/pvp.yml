@@ -49,6 +49,19 @@ combat-tag:
   block-teleport: true
 # --8<-- [end:combat-tag]
 
+# --8<-- [start:ender-pearl-cooldown]
+# The HCF pearl cooldown: a wait between two ender pearls, shown on the
+# scoreboard (%pearl_line%) and on Lunar Client. A partner item's Fake Pearl
+# has its own and never starts this one.
+ender-pearl-cooldown:
+  enabled: true
+  seconds: 15
+  # The pearls in the hotbar show the wait, greyed out as the game shows its own.
+  show-on-item: true
+  # A death ends it.
+  clear-on-death: true
+# --8<-- [end:ender-pearl-cooldown]
+
 # --8<-- [start:strength-nerf]
 strength-nerf:
   # The historic HCF nerf of Strength potions.

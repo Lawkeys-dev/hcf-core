@@ -16,6 +16,7 @@ Every example on this page is **taken from the shipped `abilities.yml`**. Change
 |---|---|---|
 | `global.enabled` | `true` | The module at all |
 | `global.cooldown-seconds` | `10` | A wait after any ability before the next one, whichever it is |
+| `global.hits-within-seconds` | `10` | Most time between two hits counted towards `hits-required`; longer and the count starts over |
 | `global.menu-title` | `&dAbilities` | `/ability`'s menu |
 | `global.disabled-in.citadel` | `true` | No ability on a Citadel's claim |
 | `global.disabled-in.events` | `true` | No ability in the zone of a running KOTH, Citadel or Conquest |
@@ -103,7 +104,7 @@ Thrown: where it lands, teammates get `team-effects`, enemies `enemy-effects`. U
 
 | Key | Default | What it does |
 |---|---|---|
-| `hits-required` | `3` | Hits on the same player it takes, 10 s apart at most |
+| `hits-required` | `3` | Hits on the same player it takes, `global.hits-within-seconds` apart at most |
 | `chance` | `20` | Percent chance per hit |
 | `seconds` | `10` | How long it runs |
 
@@ -132,7 +133,7 @@ Teleports, after `delay-seconds`, to the last player you hit (within `hit-within
 
 | Key | Default | What it does |
 |---|---|---|
-| `hits-required` | `3` | Hits on the same player it takes, 10 s apart at most |
+| `hits-required` | `3` | Hits on the same player it takes, `global.hits-within-seconds` apart at most |
 | `seconds` | `15` | How long it runs |
 | `blocked-blocks` | as shipped | Blocks that may not be used: a block's name, or a family's end (`FENCE_GATE`) |
 | `user-effects` | as shipped | Effects for the user |
@@ -275,6 +276,7 @@ Throws every enemy within `radius` in the air. Used by a right-click.
 |---|---|---|
 | `radius` | `10` | Blocks around the user it reaches |
 | `height` | `2` | How high: `1` is about 3 blocks |
+| `push` | `0.3` | How far away from the user, as well as up |
 
 #### `combo-fish`
 
@@ -293,6 +295,7 @@ Fires `projectiles` eggs in a fan `spread` degrees wide; each sets the player it
 |---|---|---|
 | `projectiles` | `10` | Eggs per shot |
 | `spread` | `10` | Degrees from the leftmost egg to the rightmost |
+| `speed` | `1.5` | How fast the eggs fly |
 | `damage-hearts` | `0.5` | Hearts an egg takes, through armour |
 | `fire-seconds` | `10` | Seconds on fire |
 | `recoil` | `1.0` | How hard the user is pushed back; `0` for none |
@@ -308,6 +311,7 @@ Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per
 | `max-players` | `10` | Enemies counted at most |
 | `fire-seconds` | `5` | Seconds on fire |
 | `blindness-seconds` | `2` | Seconds of Blindness |
+| `fireworks` | `6` | Fireworks bursting around the user: only a sight |
 
 #### `hit-effects`
 
@@ -315,7 +319,7 @@ Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per
 
 | Key | Default | What it does |
 |---|---|---|
-| `hits-required` | `1` | Hits on the same player it takes, 10 s apart at most |
+| `hits-required` | `1` | Hits on the same player it takes, `global.hits-within-seconds` apart at most |
 | `chance` | `100` | Percent chance; a miss spends it all the same |
 | `effects` | as shipped | Effects for the player hit |
 
@@ -345,7 +349,7 @@ A hit: `chance`% that the weapon of the player hit swaps places with another ite
 
 | Key | Default | What it does |
 |---|---|---|
-| `hits-required` | `3` | Hits on the same player it takes, 10 s apart at most |
+| `hits-required` | `3` | Hits on the same player it takes, `global.hits-within-seconds` apart at most |
 
 #### `starve`
 
@@ -353,7 +357,7 @@ A hit: `chance`% that the weapon of the player hit swaps places with another ite
 
 | Key | Default | What it does |
 |---|---|---|
-| `hits-required` | `3` | Hits on the same player it takes, 10 s apart at most |
+| `hits-required` | `3` | Hits on the same player it takes, `global.hits-within-seconds` apart at most |
 | `food-left` | `6` | Hunger left, of 20 |
 
 #### `grab`
@@ -364,6 +368,7 @@ A hit: the player hit is pulled towards you. Used by hitting a player with it.
 |---|---|---|
 | `hits-required` | `1` | Hits on the same player it takes |
 | `pull` | `1.0` | How hard: stronger above 1, weaker below |
+| `max-speed` | `4.0` | The fastest the pull carries a player, in blocks a tick |
 
 #### `thorns`
 
@@ -385,7 +390,7 @@ Thrown: the player it hits gets `effects`. Used by throwing it.
 
 #### `fake-pearl`
 
-An ender pearl that flies as one and teleports nobody. Used by throwing it. It reads nothing of its own.
+An ender pearl that flies as one and teleports nobody. Used by throwing it. It reads nothing of its own; its `cooldown-seconds` also greys out the fake pearls in the hotbar, a cooldown group of their own that leaves real pearls ready.
 
 #### `grappling-hook`
 
@@ -394,6 +399,7 @@ A fishing rod: reeling in a hook stuck in a block pulls you to it. Used by reeli
 | Key | Default | What it does |
 |---|---|---|
 | `pull` | `1.0` | How hard: stronger above 1, weaker below |
+| `max-speed` | `4.0` | The fastest the pull carries a player, in blocks a tick |
 | `no-fall-while-held` | `true` | No fall damage while it is in hand |
 
 ## Pocket Bard's sets

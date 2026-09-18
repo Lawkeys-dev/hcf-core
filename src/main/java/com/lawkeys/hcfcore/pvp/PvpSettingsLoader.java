@@ -37,7 +37,8 @@ public final class PvpSettingsLoader {
                 loadAttackSpeed(section.getConfigurationSection("attack-speed"), defaults.attackSpeed(), warn),
                 loadSafeZones(section.getConfigurationSection("safe-zones"), defaults.safeZones()),
                 loadLootProtection(section.getConfigurationSection("loot-protection"), defaults.lootProtection()),
-                loadFriendlyFire(section.getConfigurationSection("friendly-fire"), defaults.friendlyFire(), warn));
+                loadFriendlyFire(section.getConfigurationSection("friendly-fire"), defaults.friendlyFire(), warn),
+                loadEnderPearl(section.getConfigurationSection("ender-pearl-cooldown"), defaults.enderPearl(), warn));
     }
 
     private static PvpSettings.DeathbanRules loadDeathban(ConfigurationSection section,
@@ -84,6 +85,18 @@ public final class PvpSettingsLoader {
                 section.getBoolean("tag-attacker", defaults.tagAttacker()),
                 section.getBoolean("kill-on-logout", defaults.killOnLogout()),
                 section.getBoolean("block-teleport", defaults.blockTeleport()));
+    }
+
+    private static PvpSettings.EnderPearlRules loadEnderPearl(ConfigurationSection section,
+                                                             PvpSettings.EnderPearlRules defaults, Consumer<String> warn) {
+        if (section == null) {
+            return defaults;
+        }
+        return new PvpSettings.EnderPearlRules(
+                section.getBoolean("enabled", defaults.enabled()),
+                Math.max(0L, Durations.capSeconds(section.getLong("seconds", defaults.seconds()), "seconds", warn)),
+                section.getBoolean("show-on-item", defaults.showOnItem()),
+                section.getBoolean("clear-on-death", defaults.clearOnDeath()));
     }
 
     private static PvpSettings.StrengthRules loadStrength(ConfigurationSection section,

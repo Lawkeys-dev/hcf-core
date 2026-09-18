@@ -394,9 +394,15 @@ public final class UiModule {
     private void renderCombat(LineRenderer out, Player player, long now) {
         if (pvp == null || pvp.getCombatTags() == null) {
             out.with("%combat%", "").with("%combat_line%", "")
+                    .with("%pearl%", "").with("%pearl_line%", "")
                     .with("%deathban%", "").with("%deathban_line%", "");
             return;
         }
+        long pearlSeconds = pvp.pearlSecondsLeft(player.getUniqueId());
+        out.with("%pearl%", pearlSeconds > 0 ? Durations.formatWithSeconds(pearlSeconds) : "");
+        out.with("%pearl_line%", pearlSeconds > 0
+                ? lang.get(UiMessages.PEARL_LINE, "time", Durations.formatWithSeconds(pearlSeconds))
+                : "");
         long tagSeconds = pvp.getCombatTags().getRemainingSeconds(player.getUniqueId());
         out.with("%combat%", tagSeconds > 0 ? Durations.formatWithSeconds(tagSeconds) : "");
         out.with("%combat_line%", tagSeconds > 0

@@ -85,12 +85,8 @@ public final class AbilityModule {
     private static final String PROJECTILE_KEY = "ability_projectile";
     private static final String FIREWORK_KEY = "ability_firework";
     private static final String PUMPKIN_KEY = "ability_pumpkin";
-    /** The fastest a pull carries a player, in blocks a tick. */
-    private static final double MAX_PULL = 4.0;
     private static final String GLOBAL_COOLDOWN = "*";
     public static final String ADMIN_PERMISSION = "hcfcore.ability.admin";
-    /** Hits counted towards {@code hits-required} must come this close together. */
-    private static final long HIT_WINDOW_MILLIS = 10_000L;
 
     /** A player who hit another, and when. */
     private record Hit(UUID attacker, long at) {
@@ -325,8 +321,8 @@ public final class AbilityModule {
             item.setData(DataComponentTypes.DAMAGE, 0);
         }
         if (ability.type() == AbilityType.FAKE_PEARL) {
-            // Its own cooldown group: throwing it does not hold back the real pearls.
-            item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(1.0f)
+            // Its own cooldown group, as long as its own cooldown: the real pearls are not held back.
+            item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown((float) Math.max(1L, ability.cooldownSeconds()))
                     .cooldownGroup(new NamespacedKey(plugin, "fake_pearl")).build());
         }
         if (ability.type() == AbilityType.GRAPPLING_HOOK) {
@@ -601,7 +597,7 @@ public final class AbilityModule {
                 double up = AbilityRules.launchSpeed(p.decimal("height"));
                 for (Player enemy : reached) {
                     Vector away = enemy.getLocation().toVector().subtract(player.getLocation().toVector()).setY(0);
-                    Vector push = away.lengthSquared() < 1e-6 ? new Vector() : away.normalize().multiply(0.3);
+                    Vector push = away.lengthSquared() < 1e-6 ? new Vector() : away.normalize().multiply(p.decimal("push"));
                     enemy.setVelocity(push.setY(up));
                     lang.send(enemy, AbilityMessages.AREA_HIT, "player", player.getName(), "ability", display(ability));
                 }
@@ -633,7 +629,7 @@ public final class AbilityModule {
         for (double turn : AbilityRules.fan((int) p.whole("projectiles"), p.decimal("spread"))) {
             Location aim = eye.clone();
             aim.setYaw(eye.getYaw() + (float) turn);
-            Egg egg = player.launchProjectile(Egg.class, aim.getDirection().multiply(1.5));
+            Egg egg = player.launchProjectile(Egg.class, aim.getDirection().multiply(p.decimal("speed")));
             egg.getPersistentDataContainer().set(projectileKey, PersistentDataType.STRING, ability.id());
         }
         player.setVelocity(player.getVelocity().add(eye.getDirection().multiply(-p.decimal("recoil"))));
@@ -648,7 +644,7 @@ public final class AbilityModule {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         FireworkEffect burst = FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE)
                 .withColor(Color.YELLOW, Color.ORANGE).withFade(Color.RED).withFlicker().build();
-        for (int i = 0; i < 6; i++) {
+        for (long i = 0; i < p.whole("fireworks"); i++) {
             Location at = center.clone().add(random.nextDouble(-radius / 2, radius / 2), 1.5 + random.nextDouble(2),
                     random.nextDouble(-radius / 2, radius / 2));
             Firework firework = center.getWorld().spawn(at, Firework.class, spawned -> {
@@ -897,7 +893,7 @@ public final class AbilityModule {
             return;
         }
         double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
-                to.getZ() - from.getZ(), ability.params().decimal("pull"), MAX_PULL);
+                to.getZ() - from.getZ(), ability.params().decimal("pull"), ability.params().decimal("max-speed"));
         player.setVelocity(new Vector(v[0], v[1], v[2]));
         started(player, ability, now);
     }
@@ -1016,7 +1012,8 @@ public final class AbilityModule {
         AbilityParams p = ability.params();
         // The gate is asked on the first hit of a count.
         long required = Math.max(1, p.whole("hits-required"));
-        int count = hits.hit(attacker.getUniqueId(), ability.id(), victim.getUniqueId(), now, HIT_WINDOW_MILLIS);
+        int count = hits.hit(attacker.getUniqueId(), ability.id(), victim.getUniqueId(), now,
+                settings.hitsWithinSeconds() * 1000L);
         if (count == 1 && !mayUse(attacker, ability, now)) {
             hits.reset(attacker.getUniqueId(), ability.id());
             return;
@@ -1121,6 +1118,7 @@ public final class AbilityModule {
             }
             case GRAB -> {
                 double pull = p.decimal("pull");
+                double maxSpeed = p.decimal("max-speed");
                 // After the hit's own knockback, which would undo it.
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (!victim.isOnline() || !attacker.isOnline() || !victim.getWorld().equals(attacker.getWorld())) {
@@ -1129,7 +1127,7 @@ public final class AbilityModule {
                     Location from = victim.getLocation();
                     Location to = attacker.getLocation();
                     double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
-                            to.getZ() - from.getZ(), pull, MAX_PULL);
+                            to.getZ() - from.getZ(), pull, maxSpeed);
                     victim.setVelocity(new Vector(v[0], v[1], v[2]));
                 });
             }

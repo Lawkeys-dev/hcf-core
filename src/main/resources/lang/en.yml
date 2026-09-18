@@ -358,6 +358,10 @@ pvp:
     no-offhand: "&cThere is no off-hand in classic combat."
     no-shield: "&cShields do not work in classic combat - block with your sword."
 
+  # The ender pearl cooldown (pvp.yml, ender-pearl-cooldown).
+  pearl:
+    cooldown: "&cYou cannot throw an ender pearl for &f%time%&c."
+
   tag:
     tagged: "&cYou are now in combat for &f%seconds%s&c. You cannot teleport or log out safely."
     expired: "&aYou are no longer in combat."
@@ -799,6 +803,7 @@ ui:
     no-team: "&7None"
     dtr-raidable: "&4(raidable)"
     combat-line: "&cCombat: &f%time%"
+    pearl-line: "&eEnderpearl: &f%time%"
     # %target% is a player's or a team's name; the rally row gives block coordinates.
     focus-line: "&dFocus&7: &f%target%"
     rally-line: "&eRally&7: &f%x%, %y%, %z%"

@@ -308,6 +308,7 @@ public final class HCFCore extends JavaPlugin {
         this.abilityModule.enable();
         // A Citadel refuses partner items: events/ asks this module what one is.
         this.eventModule.setPartnerItems(this.abilityModule::isPartnerItem);
+        this.pvpModule.setPearlExempt(this.abilityModule::isPartnerItem);
 
         // /speed and the like: an effect until death (effect-commands.yml).
         this.effectCommandModule = new EffectCommandModule(this, this.langManager,

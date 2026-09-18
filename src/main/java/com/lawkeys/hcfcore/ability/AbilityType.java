@@ -101,9 +101,9 @@ public enum AbilityType {
     /** Launches you up - {@code height} 1 is about 3 blocks - with no fall damage for {@code no-fall-seconds}. */
     ROCKET(Trigger.RIGHT_CLICK,
             Param.decimal("height", 3.5), Param.whole("no-fall-seconds", 6)),
-    /** Throws every enemy within {@code radius} in the air - {@code height} 1 is about 3 blocks. */
+    /** Throws every enemy within {@code radius} in the air - {@code height} 1 is about 3 blocks - and {@code push} away. */
     HULK_SMASH(Trigger.RIGHT_CLICK,
-            Param.decimal("radius", 10), Param.decimal("height", 2)),
+            Param.decimal("radius", 10), Param.decimal("height", 2), Param.decimal("push", 0.3)),
     /** For {@code seconds}, the players you hit can be hit again after {@code hit-delay-ticks}, not the game's 10. */
     COMBO_FISH(Trigger.RIGHT_CLICK,
             Param.whole("seconds", 5), Param.whole("hit-delay-ticks", 2)),
@@ -112,15 +112,15 @@ public enum AbilityType {
      * player it hits on fire and deals {@code damage-hearts}; you are pushed back by {@code recoil}.
      */
     SHOTGUN(Trigger.RIGHT_CLICK,
-            Param.whole("projectiles", 10), Param.decimal("spread", 10), Param.decimal("damage-hearts", 0.5),
-            Param.whole("fire-seconds", 10), Param.decimal("recoil", 1.0)),
+            Param.whole("projectiles", 10), Param.decimal("spread", 10), Param.decimal("speed", 1.5),
+            Param.decimal("damage-hearts", 0.5), Param.whole("fire-seconds", 10), Param.decimal("recoil", 1.0)),
     /**
      * Fireworks burst around you; every enemy within {@code radius} takes {@code damage-hearts-per-player}
      * for each enemy caught (at most {@code max-players}), burns and is blinded.
      */
     SUN(Trigger.RIGHT_CLICK,
             Param.decimal("radius", 8), Param.decimal("damage-hearts-per-player", 0.9), Param.whole("max-players", 10),
-            Param.whole("fire-seconds", 5), Param.whole("blindness-seconds", 2)),
+            Param.whole("fire-seconds", 5), Param.whole("blindness-seconds", 2), Param.whole("fireworks", 6)),
     /** {@code hits-required} hits: {@code chance}% to give the player hit {@code effects}. */
     HIT_EFFECTS(Trigger.HIT,
             Param.whole("hits-required", 1), Param.decimal("chance", 100),
@@ -143,7 +143,7 @@ public enum AbilityType {
             Param.whole("hits-required", 3), Param.whole("food-left", 6)),
     /** A hit: the player hit is pulled towards you, by {@code pull}. */
     GRAB(Trigger.HIT,
-            Param.whole("hits-required", 1), Param.decimal("pull", 1.0)),
+            Param.whole("hits-required", 1), Param.decimal("pull", 1.0), Param.decimal("max-speed", 4.0)),
     /** A hit: for {@code seconds}, {@code reflect-percent}% of the damage that player deals you goes back to them. */
     THORNS(Trigger.HIT,
             Param.whole("hits-required", 1), Param.whole("seconds", 10), Param.decimal("reflect-percent", 30)),
@@ -157,7 +157,7 @@ public enum AbilityType {
      * no fall damage while it is in hand, with {@code no-fall-while-held}.
      */
     GRAPPLING_HOOK(Trigger.FISH,
-            Param.decimal("pull", 1.0), Param.bool("no-fall-while-held", true));
+            Param.decimal("pull", 1.0), Param.decimal("max-speed", 4.0), Param.bool("no-fall-while-held", true));
 
     /** How an ability is used. */
     public enum Trigger {

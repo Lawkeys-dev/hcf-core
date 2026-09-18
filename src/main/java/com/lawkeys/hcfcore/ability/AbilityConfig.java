@@ -91,6 +91,7 @@ public final class AbilityConfig {
         return new AbilitySettings(
                 bool(global.get("enabled"), defaults.enabled(), "global.enabled"),
                 whole(global.get("cooldown-seconds"), defaults.globalCooldownSeconds(), "global.cooldown-seconds"),
+                whole(global.get("hits-within-seconds"), defaults.hitsWithinSeconds(), "global.hits-within-seconds"),
                 text(global.get("menu-title"), defaults.menuTitle()),
                 disabledIn, abilities,
                 text(pocket.get("menu-title"), defaults.pocketBardTitle()), menuSize, pocketItems);

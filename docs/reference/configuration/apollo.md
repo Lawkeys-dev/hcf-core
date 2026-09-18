@@ -55,6 +55,7 @@ Every example on this page is **taken from the shipped `apollo.yml`**. Changes a
 | `combat-tag`, `combat-tag-icon` | `true`, `DIAMOND_SWORD` | The combat tag, and its icon |
 | `warmups`, `warmup-icon` | `true`, `CLOCK` | Running countdowns (`/spawn`, `/team hq`...) |
 | `abilities` | `true` | Partner item cooldowns, each with its own item |
+| `ender-pearl`, `ender-pearl-icon` | `true`, `ENDER_PEARL` | The ender pearl cooldown, and its icon |
 
 ## Nametags
 

@@ -13,6 +13,8 @@ import com.lawkeys.hcfcore.pvp.listener.AttackSpeedListener;
 import com.lawkeys.hcfcore.pvp.listener.CombatListener;
 import com.lawkeys.hcfcore.pvp.listener.DeathbanListener;
 import com.lawkeys.hcfcore.pvp.listener.LootProtectionListener;
+import com.lawkeys.hcfcore.pvp.listener.PearlListener;
+import com.lawkeys.hcfcore.util.Cooldowns;
 import com.lawkeys.hcfcore.pvp.legacy.CombatMode;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatListener;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatLoader;
@@ -25,6 +27,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -34,6 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 
 /**
@@ -66,6 +70,11 @@ public final class PvpModule {
     private volatile LegacyCombatSettings legacy = LegacyCombatSettings.defaults();
     private LegacyCombatListener legacyListener;
     private BukkitTask legacyTask;
+
+    /** The HCF ender pearl cooldown, memory only: key {@code "pearl"}. */
+    private final Cooldowns pearls = new Cooldowns();
+    /** Pearls that are not pearls to the cooldown: a partner item's Fake Pearl. */
+    private volatile Predicate<ItemStack> pearlExempt = item -> false;
 
     private DeathbanManager deathbans;
     private CombatTagManager combatTags;
@@ -113,6 +122,32 @@ public final class PvpModule {
 
     public CombatTagManager getCombatTags() {
         return combatTags;
+    }
+
+    public Cooldowns getPearlCooldowns() {
+        return pearls;
+    }
+
+    /** @return whole seconds before this player may throw an ender pearl again, or {@code 0} */
+    public long pearlSecondsLeft(UUID playerId) {
+        return pearls.remaining(playerId, PearlListener.KEY, System.currentTimeMillis());
+    }
+
+    /** Ends a player's pearl cooldown at once. */
+    public void resetPearl(UUID playerId) {
+        pearls.forget(playerId);
+    }
+
+    public Predicate<ItemStack> getPearlExempt() {
+        return pearlExempt;
+    }
+
+    /**
+     * Installs which pearls the cooldown ignores. Called by the {@code ability/}
+     * module at startup: a Fake Pearl has its own cooldown.
+     */
+    public void setPearlExempt(Predicate<ItemStack> exempt) {
+        this.pearlExempt = Objects.requireNonNull(exempt, "exempt");
     }
 
     public CombatProtection getProtection() {
@@ -309,6 +344,7 @@ public final class PvpModule {
         plugin.getServer().getPluginManager().registerEvents(new DeathbanListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new AttackSpeedListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new LootProtectionListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PearlListener(this), plugin);
         this.legacyListener = new LegacyCombatListener(this);
         plugin.getServer().getPluginManager().registerEvents(legacyListener, plugin);
         // Twice a second: 1.7 regeneration, and the swords in hand kept able to block

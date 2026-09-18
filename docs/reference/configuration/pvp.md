@@ -40,6 +40,19 @@ Every example on this page is **taken from the shipped `pvp.yml`**. Changes appl
 | `kill-on-logout` | `true` | A tagged player who logs out dies |
 | `block-teleport` | `true` | Refuse plugin teleports (`/team hq`, `/spawn`...) while tagged |
 
+## Ender pearl cooldown
+
+```yaml title="pvp.yml"
+--8<-- "src/main/resources/pvp.yml:ender-pearl-cooldown"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | The pearl cooldown at all |
+| `seconds` | `15` | The wait between two pearls |
+| `show-on-item` | `true` | The pearls in the hotbar are greyed out for the wait, as the game shows its own |
+| `clear-on-death` | `true` | A death ends it |
+
 ## Strength nerf
 
 ```yaml title="pvp.yml"

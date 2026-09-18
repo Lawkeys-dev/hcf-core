@@ -55,6 +55,7 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
                         "&cStreak: &f%killstreak%",
                         "&cBalance: &a$%balance%",
                         "%combat_line%",
+                        "%pearl_line%",
                         "%phase_line%",
                         "%event_line%",
                         "&7&m----------------")),

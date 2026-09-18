@@ -20,6 +20,10 @@ A bed or respawn anchor set off in the wrong dimension is credited to nobody. Ev
 
 The tag is **not saved**: it lasts a few dozen seconds, and making it survive a restart would punish players for the server being down.
 
+## Ender pearl cooldown
+
+A pearl thrown means **15 seconds before the next** (`ender-pearl-cooldown` in `pvp.yml`). A pearl thrown meanwhile is refused and stays in hand. The wait shows on the scoreboard, on the pearls in the hotbar, and as a Lunar Client icon; a death ends it, a logout does not. A partner item's Fake Pearl has its own cooldown and never starts this one ([Abilities](abilities.md)).
+
 ## Combat logging
 
 **Logging out while tagged kills the player** (`kill-on-logout`). That death counts like any other: deathban, DTR lost, drops on the ground.

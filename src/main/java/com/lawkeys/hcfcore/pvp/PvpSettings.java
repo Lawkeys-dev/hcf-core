@@ -19,7 +19,8 @@ public record PvpSettings(
         AttackSpeedRules attackSpeed,
         SafeZoneRules safeZones,
         LootProtectionRules lootProtection,
-        FriendlyFireRules friendlyFire) {
+        FriendlyFireRules friendlyFire,
+        EnderPearlRules enderPearl) {
 
     public PvpSettings {
         Objects.requireNonNull(deathban, "deathban");
@@ -30,6 +31,7 @@ public record PvpSettings(
         Objects.requireNonNull(safeZones, "safeZones");
         Objects.requireNonNull(lootProtection, "lootProtection");
         Objects.requireNonNull(friendlyFire, "friendlyFire");
+        Objects.requireNonNull(enderPearl, "enderPearl");
     }
 
     /**
@@ -112,6 +114,15 @@ public record PvpSettings(
     }
 
     /**
+     * The HCF ender pearl cooldown: a wait between two pearls.
+     *
+     * @param showOnItem   the pearls in the hotbar show the wait as the game shows its own
+     * @param clearOnDeath a death ends it
+     */
+    public record EnderPearlRules(boolean enabled, long seconds, boolean showOnItem, boolean clearOnDeath) {
+    }
+
+    /**
      * Resolves a deathban length from the permission nodes a player holds.
      *
      * @param heldPermissions the tier nodes the player has
@@ -142,6 +153,7 @@ public record PvpSettings(
                 new AttackSpeedRules(false, 4.0),
                 new SafeZoneRules(true),
                 new LootProtectionRules(true, 10L, true),
-                new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS));
+                new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS),
+                new EnderPearlRules(true, 15L, true, true));
     }
 }

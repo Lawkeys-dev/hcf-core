@@ -335,7 +335,7 @@ final class ApolloBridge implements LunarBridge, Listener {
     // Cooldowns
     // ------------------------------------------------------------------
 
-    /** The combat tag, a running countdown ({@code /spawn}, {@code /team hq}...) and ability cooldowns. */
+    /** The combat tag, the pearl cooldown, a running countdown ({@code /spawn}, {@code /team hq}...) and ability cooldowns. */
     private void cooldowns(Player viewer, ApolloPlayer apollo, Viewer state, LunarSettings.Cooldowns rules, long now) {
         UUID id = viewer.getUniqueId();
         Map<String, CooldownSpec> wanted = new LinkedHashMap<>();
@@ -343,6 +343,12 @@ final class ApolloBridge implements LunarBridge, Listener {
             long left = sources.pvp().getCombatTags().getRemainingSeconds(id);
             if (left > 0) {
                 wanted.put("hcf-combat-tag", new CooldownSpec(now + left * 1000L, rules.combatTagIcon()));
+            }
+        }
+        if (rules.enderPearl()) {
+            long left = sources.pvp().pearlSecondsLeft(id);
+            if (left > 0) {
+                wanted.put("hcf-ender-pearl", new CooldownSpec(now + left * 1000L, rules.enderPearlIcon()));
             }
         }
         if (rules.warmups()) {

@@ -399,13 +399,13 @@ class PvpTest {
     private PvpSettings withDeathban(PvpSettings.DeathbanRules deathban) {
         return new PvpSettings(settings.enabled(), deathban, settings.combatTag(),
                 settings.strength(), settings.knockback(), settings.attackSpeed(), settings.safeZones(),
-                settings.lootProtection(), settings.friendlyFire());
+                settings.lootProtection(), settings.friendlyFire(), settings.enderPearl());
     }
 
     private PvpSettings withCombatTag(PvpSettings.CombatTagRules combatTag) {
         return new PvpSettings(settings.enabled(), settings.deathban(), combatTag,
                 settings.strength(), settings.knockback(), settings.attackSpeed(), settings.safeZones(),
-                settings.lootProtection(), settings.friendlyFire());
+                settings.lootProtection(), settings.friendlyFire(), settings.enderPearl());
     }
 
     // --- test double ------------------------------------------------------

@@ -37,6 +37,7 @@ scoreboard:
   #   %focus_line%    who your team is focusing (online players first, then teams)
   #   %rally_line%    your team's rally point, while it lasts
   #   %combat%        combat tag left        %combat_line%   a whole ready-made row
+  #   %pearl%         ender pearl cooldown   %pearl_line%    a whole ready-made row
   #   %deathban% %deathban_line%   always empty: a deathbanned player is not online to
   #                   read a board. Kept so a file that lists them still renders.
   #   %phase_line%    SOTW/EOTW row, empty when neither runs
@@ -64,6 +65,7 @@ scoreboard:
     - "%focus_line%"
     - "%rally_line%"
     - "%combat_line%"
+    - "%pearl_line%"
     - "%class_line%"
     - "%class_energy_line%"
     - "%archer_tag_line%"

@@ -32,9 +32,9 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
     public record TeamView(boolean enabled, int markerColor, double trackingRange) {
     }
 
-    /** @param combatTagIcon, warmupIcon item names, as {@code Material} spells them */
+    /** @param combatTagIcon, warmupIcon, enderPearlIcon item names, as {@code Material} spells them */
     public record Cooldowns(boolean enabled, boolean combatTag, String combatTagIcon, boolean warmups,
-                            String warmupIcon, boolean abilities) {
+                            String warmupIcon, boolean abilities, boolean enderPearl, String enderPearlIcon) {
     }
 
     public record Nametags(boolean enabled, NametagStyle style) {
@@ -46,7 +46,7 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
                 new Waypoints(true, true, true, true, true, true,
                         0x55FF55, 0x00AA00, 0xFFFF55, 0xFF55FF, 0xFFAA00),
                 new TeamView(true, 0x55FF55, 48.0),
-                new Cooldowns(true, true, "DIAMOND_SWORD", true, "CLOCK", true),
+                new Cooldowns(true, true, "DIAMOND_SWORD", true, "CLOCK", true, true, "ENDER_PEARL"),
                 new Nametags(true, new NametagStyle("%color%%team% &7| &e%dtr%", "%color%%player%", Map.of(
                         NametagStyle.Relation.SELF, "&a",
                         NametagStyle.Relation.ALLY, "&9",

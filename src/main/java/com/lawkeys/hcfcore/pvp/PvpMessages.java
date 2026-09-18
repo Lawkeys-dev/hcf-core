@@ -9,6 +9,9 @@ public final class PvpMessages {
     private PvpMessages() {
     }
 
+    // Ender pearl cooldown
+    public static final String PEARL_COOLDOWN = "pvp.pearl.cooldown";
+
     // Combat tag
     public static final String TAGGED = "pvp.tag.tagged";
     public static final String TAG_EXPIRED = "pvp.tag.expired";

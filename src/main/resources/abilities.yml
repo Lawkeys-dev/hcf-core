@@ -35,6 +35,9 @@ global:
   enabled: true
   # A wait after using any ability before the next one, whichever it is.
   cooldown-seconds: 10
+  # An ability that takes several hits (hits-required) counts them on the same
+  # player, this many seconds apart at most; longer, and the count starts over.
+  hits-within-seconds: 10
   # The title of /ability's menu.
   menu-title: "&dAbilities"
   # Where no ability works: a Citadel's claim, the zone of a running event
@@ -53,7 +56,7 @@ abilities:
   switcher:
     type: switcher
     material: SNOWBALL          # SNOWBALL or EGG: it is thrown
-    name: "&d&lSwitcher"
+    name: "&b&lSwitcher"
     lore:
       - "&7Throw this snowball at a player to switch"
       - "&7positions with them, max range of 8 blocks."
@@ -67,7 +70,7 @@ abilities:
   thunderbolt:
     type: thunderbolt
     material: GOLD_INGOT
-    name: "&d&lThunderbolt"
+    name: "&e&lThunderbolt"
     lore:
       - "&7Right click this item and for the next"
       - "&710 seconds you have a chance to strike"
@@ -84,7 +87,7 @@ abilities:
   combo:
     type: combo
     material: BOWL
-    name: "&d&lCombo Ability"
+    name: "&3&lCombo Ability"
     lore:
       - "&7Right click this item and for the next 10 seconds"
       - "&7each hit you get will give you a second of strength"
@@ -100,7 +103,7 @@ abilities:
   lucky-mode:
     type: lucky-mode
     material: YELLOW_DYE
-    name: "&d&lLucky Mode"
+    name: "&a&lLucky Mode"
     lore:
       - "&7Right click this item and for the"
       - "&7next 10 seconds you will be given a damage"
@@ -117,7 +120,7 @@ abilities:
   rage-ball:
     type: rage-ball
     material: EGG               # SNOWBALL or EGG: it is thrown
-    name: "&d&lRage Ball"
+    name: "&c&lRage Ball"
     lore:
       - "&7Throw this and when it lands every player"
       - "&7in a radius of 8 blocks will be given effects:"
@@ -139,7 +142,7 @@ abilities:
   crafting-chaos:
     type: crafting-chaos
     material: CRAFTING_TABLE
-    name: "&d&lCrafting Chaos"
+    name: "&6&lCrafting Chaos"
     lore:
       - "&7Hit a player with this item and have"
       - "&7a chance of putting them in a"
@@ -156,7 +159,7 @@ abilities:
   focus-mode:
     type: focus-mode
     material: GOLD_NUGGET
-    name: "&d&lFocus Mode"
+    name: "&9&lFocus Mode"
     lore:
       - "&7Right click this item and the last person"
       - "&7who hit you will take 25% more damage."
@@ -172,7 +175,7 @@ abilities:
   ninja:
     type: ninja
     material: NETHER_STAR
-    name: "&d&lNinja Ability"
+    name: "&8&lNinja Ability"
     lore:
       - "&7Right click this item to teleport to"
       - "&7the last person you hit in 3s."
@@ -187,7 +190,7 @@ abilities:
   portable-archer:
     type: portable-archer
     material: BOW
-    name: "&d&lPortable Archer"
+    name: "&2&lPortable Archer"
     lore:
       - "&7Shoot someone with this bow"
       - "&7to archer tag them for 10s."
@@ -203,7 +206,7 @@ abilities:
   invisibility:
     type: invisibility
     material: INK_SAC
-    name: "&d&lInvisibility"
+    name: "&7&lInvisibility"
     lore:
       - "&7Right click this item and you will be"
       - "&7turned invisible even with armor on."
@@ -219,7 +222,7 @@ abilities:
   time-warp:
     type: time-warp
     material: FEATHER
-    name: "&d&lTime Warp"
+    name: "&5&lTime Warp"
     lore:
       - "&7Right click this item to teleport to"
       - "&7your last pearl location in 2 seconds."
@@ -235,7 +238,7 @@ abilities:
   pocket-bard:
     type: pocket-bard
     material: ORANGE_DYE
-    name: "&d&lPocket Bard"
+    name: "&6&lPocket Bard"
     lore:
       - "&7Right click this item to open the"
       - "&7portable bard selection."
@@ -247,7 +250,7 @@ abilities:
   berserk:
     type: berserk
     material: RED_DYE
-    name: "&d&lBerserk"
+    name: "&4&lBerserk"
     lore:
       - "&7Right click this item to receive godly"
       - "&7effects but you are unable to pot for 8s"
@@ -282,7 +285,7 @@ abilities:
   switch-stick:
     type: switch-stick
     material: STICK
-    name: "&d&lSwitch Stick"
+    name: "&e&lSwitch Stick"
     lore:
       - "&7Right click this item to start a 10 second"
       - "&7period where you are able to turn around the"
@@ -298,7 +301,7 @@ abilities:
   belch-bomb:
     type: belch-bomb
     material: SLIME_BALL
-    name: "&d&lBelch Bomb"
+    name: "&2&lBelch Bomb"
     lore:
       - "&7Right click this item to give all enemies in a"
       - "&7radius of 8 blocks slowness and blindness."
@@ -315,7 +318,7 @@ abilities:
   anti-trap-star:
     type: anti-trap-star
     material: NETHER_STAR
-    name: "&d&lAnti Trap Star"
+    name: "&f&lAnti Trap Star"
     lore:
       - "&7Right click this item to teleport to the last"
       - "&7person who hit you in 3s."
@@ -384,6 +387,7 @@ abilities:
     cooldown-seconds: 30
     radius: 10
     height: 2                  # 1 is about 3 blocks
+    push: 0.3                  # how far away from you, as well as up
   # --8<-- [end:hulk-smash]
 
   # --8<-- [start:sticky-web]
@@ -426,6 +430,7 @@ abilities:
     cooldown-seconds: 15
     consume: false
     pull: 1.0                  # stronger above 1, weaker below
+    max-speed: 4.0             # the fastest it carries you, in blocks a tick
     no-fall-while-held: true
   # --8<-- [end:grappling-hook]
 
@@ -512,6 +517,7 @@ abilities:
       - "&7them towards you."
     cooldown-seconds: 15
     pull: 1.0                  # stronger above 1, weaker below
+    max-speed: 4.0             # the fastest it carries them, in blocks a tick
   # --8<-- [end:grabber]
 
   # --8<-- [start:potato]
@@ -634,6 +640,7 @@ abilities:
     cooldown-seconds: 15
     projectiles: 10
     spread: 10                 # degrees, from the leftmost egg to the rightmost
+    speed: 1.5                 # how fast the eggs fly
     damage-hearts: 0.5
     fire-seconds: 10
     recoil: 1.0
@@ -670,6 +677,7 @@ abilities:
     max-players: 10
     fire-seconds: 5
     blindness-seconds: 2
+    fireworks: 6               # how many burst around you: only a sight
   # --8<-- [end:sun]
 
   # --8<-- [start:scrambler]

@@ -52,9 +52,10 @@ team-view:
 # --8<-- [end:team-view]
 
 # --8<-- [start:cooldowns]
-# Timers shown as Lunar cooldown icons: the combat tag, a running countdown
-# (/spawn, /logout, /team hq, /team stuck...) and ability cooldowns (each shows
-# its own item). Icons are item names, as the server spells materials.
+# Timers shown as Lunar cooldown icons: the combat tag, the ender pearl cooldown,
+# a running countdown (/spawn, /logout, /team hq, /team stuck...) and ability
+# cooldowns (each shows its own item). Icons are item names, as the server
+# spells materials.
 cooldowns:
   enabled: true
   combat-tag: true
@@ -62,6 +63,8 @@ cooldowns:
   warmups: true
   warmup-icon: CLOCK
   abilities: true
+  ender-pearl: true
+  ender-pearl-icon: ENDER_PEARL
 # --8<-- [end:cooldowns]
 
 # --8<-- [start:nametags]
