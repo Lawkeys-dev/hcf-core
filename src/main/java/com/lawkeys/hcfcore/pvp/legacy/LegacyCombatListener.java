@@ -2,6 +2,7 @@ package com.lawkeys.hcfcore.pvp.legacy;
 
 import com.lawkeys.hcfcore.pvp.PvpMessages;
 import com.lawkeys.hcfcore.pvp.PvpModule;
+import com.lawkeys.hcfcore.pvp.PvpSettings;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings.Apple;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings.AppleEffect;
 import com.lawkeys.hcfcore.util.RefusalThrottle;
@@ -122,32 +123,76 @@ public final class LegacyCombatListener implements Listener {
     }
 
     /**
-     * A critical hit by 1.7's rules - sprinting included, which the modern game
-     * refuses. After the rules of combat and Strength ({@code HIGH}), since a
-     * critical multiplies the whole hit.
+     * A critical hit by 1.7's rules on a mob - sprinting included, which the modern
+     * game refuses. A blow on a player is rebuilt whole by {@link #rebuildMelee}.
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onCritical(EntityDamageByEntityEvent event) {
         if (event.isCritical() || !(event.getDamager() instanceof Player attacker)
-                || !(event.getEntity() instanceof LivingEntity victim)
+                || !(event.getEntity() instanceof LivingEntity victim) || victim instanceof Player
                 || event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
             return;
         }
         Optional<LegacyCombatSettings> settings = classic().filter(c -> c.criticals().enabled());
-        if (settings.isEmpty()) {
-            return;
+        if (settings.isPresent() && fallingHit(attacker)) {
+            event.setDamage(event.getDamage() * settings.get().criticals().multiplier());
+            critParticles(victim);
         }
-        // Standing is read from the block under the feet, not from Player#isOnGround,
-        // which Paper deprecates: it is what the client claims.
+    }
+
+    /**
+     * A player's blow on a player, rebuilt the 1.7 way ({@link LegacyMath#rebuildHit}):
+     * the weapon's damage, Strength (1.7's multiplier, else the HCF nerf or the
+     * modern bonus), a critical by 1.7's rules, then Sharpness. Called by the combat
+     * listener where Strength has always been adjusted. A mace is left as the modern
+     * game hits: its fall bonus is no weapon damage 1.7 knew.
+     *
+     * @return the blow's damage
+     */
+    public static double rebuildMelee(EntityDamageByEntityEvent event, Player attacker, int strengthLevel,
+                                      LegacyCombatSettings classic, PvpSettings.StrengthRules nerf) {
+        ItemStack weapon = attacker.getInventory().getItemInMainHand();
+        if (weapon.getType() == Material.MACE) {
+            return event.getDamage();
+        }
+        LegacyMath.StrengthRule strength;
+        if (classic.strength().enabled()) {
+            strength = new LegacyMath.StrengthRule(true, classic.strength().perLevel());
+        } else if (nerf.enabled()) {
+            strength = new LegacyMath.StrengthRule(false, nerf.nerfedBonusPerLevel());
+        } else {
+            strength = new LegacyMath.StrengthRule(false, nerf.vanillaBonusPerLevel());
+        }
+        boolean legacyCritical = classic.criticals().enabled() && !event.isCritical() && fallingHit(attacker);
+        boolean critical = event.isCritical() || legacyCritical;
+        double multiplier = classic.criticals().enabled() ? classic.criticals().multiplier() : LegacyMath.MODERN_CRITICAL;
+        java.util.OptionalDouble sharpness = classic.enchantments().enabled()
+                ? java.util.OptionalDouble.of(classic.enchantments().sharpnessPerLevel())
+                : java.util.OptionalDouble.empty();
+        if (legacyCritical) {
+            critParticles(event.getEntity());
+        }
+        return LegacyMath.rebuildHit(event.getDamage(), event.isCritical(), strengthLevel,
+                nerf.vanillaBonusPerLevel(), strength, critical, multiplier,
+                weapon.getEnchantmentLevel(Enchantment.SHARPNESS), sharpness);
+    }
+
+    /**
+     * Whether a blow is critical by 1.7's rules: falling, not standing, climbing,
+     * swimming, blind or riding - sprinting or not. Standing is read from the block
+     * under the feet, not from Player#isOnGround, which Paper deprecates: it is what
+     * the client claims.
+     */
+    private static boolean fallingHit(Player attacker) {
         boolean standing = attacker.getLocation().subtract(0, 0.05, 0).getBlock().isCollidable();
-        boolean critical = LegacyMath.isCritical(attacker.getFallDistance(), standing,
+        return LegacyMath.isCritical(attacker.getFallDistance(), standing,
                 attacker.isClimbing(), attacker.isInWater(), attacker.hasPotionEffect(PotionEffectType.BLINDNESS),
                 attacker.isInsideVehicle());
-        if (critical) {
-            event.setDamage(event.getDamage() * settings.get().criticals().multiplier());
-            Location at = victim.getLocation().add(0, victim.getHeight() / 2, 0);
-            victim.getWorld().spawnParticle(Particle.CRIT, at, 12, 0.3, 0.4, 0.3, 0.1);
-        }
+    }
+
+    private static void critParticles(org.bukkit.entity.Entity victim) {
+        Location at = victim.getLocation().add(0, victim.getHeight() / 2, 0);
+        victim.getWorld().spawnParticle(Particle.CRIT, at, 12, 0.3, 0.4, 0.3, 0.1);
     }
 
     // ------------------------------------------------------------------

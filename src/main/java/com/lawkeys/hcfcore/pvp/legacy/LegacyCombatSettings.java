@@ -17,6 +17,7 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
                                    boolean noSweepAttacks,
                                    Criticals criticals,
                                    WeaponDamage weaponDamage,
+                                   Enchantments enchantments,
                                    SwordBlocking swordBlocking,
                                    Knockback knockback,
                                    boolean disableOffhand,
@@ -32,6 +33,7 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
         Objects.requireNonNull(attackCooldown, "attackCooldown");
         Objects.requireNonNull(criticals, "criticals");
         Objects.requireNonNull(weaponDamage, "weaponDamage");
+        Objects.requireNonNull(enchantments, "enchantments");
         Objects.requireNonNull(swordBlocking, "swordBlocking");
         Objects.requireNonNull(knockback, "knockback");
         Objects.requireNonNull(potions, "potions");
@@ -66,6 +68,14 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
             Double value = damage.get(item.toLowerCase(java.util.Locale.ROOT));
             return value == null ? java.util.OptionalDouble.empty() : java.util.OptionalDouble.of(value);
         }
+    }
+
+    /**
+     * 1.7.10 Sharpness: {@code sharpnessPerLevel} per level, added after a critical
+     * hit and Strength, which never multiply it - then as now. The other combat
+     * enchantments already play as in 1.7.
+     */
+    public record Enchantments(boolean enabled, double sharpnessPerLevel) {
     }
 
     /**
@@ -164,6 +174,7 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
                 true,
                 new Criticals(true, 1.5),
                 new WeaponDamage(true, weaponDamage17()),
+                new Enchantments(true, 1.25),
                 new SwordBlocking(true, -0.5, 0.5),
                 new Knockback(true, 2.0, 0.4, 0.4, 0.4, 0.5, 0.1),
                 true,

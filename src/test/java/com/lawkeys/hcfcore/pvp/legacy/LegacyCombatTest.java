@@ -100,22 +100,76 @@ class LegacyCombatTest {
     }
 
     @Nested
-    class Strength {
+    class Hits {
+
+        private static final LegacyMath.StrengthRule OLD_STRENGTH = new LegacyMath.StrengthRule(true, 1.3);
+        private static final java.util.OptionalDouble OLD_SHARPNESS = java.util.OptionalDouble.of(1.25);
+        private static final java.util.OptionalDouble MODERN_SHARPNESS = java.util.OptionalDouble.empty();
+
+        /** A blow rebuilt with 1.7 Strength and Sharpness, a critical multiplying by 1.5. */
+        private double rebuild(double damage, boolean modernCritical, int strength, boolean critical, int sharpness) {
+            return LegacyMath.rebuildHit(damage, modernCritical, strength, 3.0, OLD_STRENGTH, critical, 1.5,
+                    sharpness, OLD_SHARPNESS);
+        }
 
         @Test
         void strengthOneIsPlusOneHundredAndThirtyPercent() {
             // A 10-damage hit under the modern Strength I (+3): 7 without it, times 2.3.
-            assertEquals(16.1, LegacyMath.strength(10, 1, 3.0, 1.3), EPSILON);
+            assertEquals(16.1, rebuild(10, false, 1, false, 0), EPSILON);
         }
 
         @Test
         void strengthTwoIsPlusTwoHundredAndSixtyPercent() {
-            assertEquals((13 - 6) * 3.6, LegacyMath.strength(13, 2, 3.0, 1.3), EPSILON);
+            assertEquals((13 - 6) * 3.6, rebuild(13, false, 2, false, 0), EPSILON);
         }
 
         @Test
-        void noStrengthChangesNothing() {
-            assertEquals(7.0, LegacyMath.strength(7, 0, 3.0, 1.3), EPSILON);
+        void aPlainHitIsLeftAsItIs() {
+            assertEquals(7.0, rebuild(7, false, 0, false, 0), EPSILON);
+        }
+
+        @Test
+        void theModernSharpnessIsOneAndAHalfPerLevelAbove() {
+            assertEquals(0.0, LegacyMath.modernSharpness(0));
+            assertEquals(1.0, LegacyMath.modernSharpness(1));
+            assertEquals(3.0, LegacyMath.modernSharpness(5));
+        }
+
+        @Test
+        void sharpnessFiveIsSixAndAQuarter() {
+            // A diamond sword at 8 with the modern Sharpness V (+3): 8 + 1.25 x 5.
+            assertEquals(14.25, rebuild(11, false, 0, false, 5), EPSILON);
+        }
+
+        @Test
+        void aCriticalNeverMultipliesSharpness() {
+            // Modern: 8 x 1.5 + 3. The old game: 8 x 1.5 + 6.25.
+            assertEquals(18.25, rebuild(15, true, 0, true, 5), EPSILON);
+        }
+
+        @Test
+        void aSprintCriticalMultipliesTheWeaponOnly() {
+            // Not critical for the modern game (sprinting), critical by 1.7's rules.
+            assertEquals(18.25, rebuild(11, false, 0, true, 5), EPSILON);
+        }
+
+        @Test
+        void strengthCriticalAndSharpnessTogether() {
+            // Modern: (8 + 3) x 1.5 + 3 = 19.5. The old game: 8 x 2.3 x 1.5 + 6.25.
+            assertEquals(8 * 2.3 * 1.5 + 6.25, rebuild(19.5, true, 1, true, 5), EPSILON);
+        }
+
+        @Test
+        void sharpnessSwitchedOffKeepsTheModernBonus() {
+            assertEquals(11.0, LegacyMath.rebuildHit(11, false, 0, 3.0, OLD_STRENGTH, false, 1.5, 5,
+                    MODERN_SHARPNESS), EPSILON);
+        }
+
+        @Test
+        void theNerfAddsItsFlatBonusInsteadOfTheModernOne() {
+            // 8 + the modern Strength I (+3); nerfed to +1.5.
+            assertEquals(9.5, LegacyMath.rebuildHit(11, false, 1, 3.0, new LegacyMath.StrengthRule(false, 1.5),
+                    false, 1.5, 0, OLD_SHARPNESS), EPSILON);
         }
     }
 

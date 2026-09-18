@@ -202,9 +202,20 @@ legacy-combat:
       netherite_shovel: 6
   # --8<-- [end:legacy-weapons]
 
+  # --8<-- [start:legacy-enchantments]
+  # 1.7 Sharpness: +1.25 damage per level (Sharpness V: +6.25), where the modern
+  # game gives 1 at level I and 0.5 per level above (V: +3). Then as now, it is
+  # added last: a critical hit or Strength never multiplies it. The other combat
+  # enchantments already play as in 1.7 (Power, Punch, Fire Aspect, Flame;
+  # Knockback through the knockback below).
+  enchantments:
+    enabled: true
+    sharpness-per-level: 1.25
+  # --8<-- [end:legacy-enchantments]
+
   # --8<-- [start:legacy-criticals]
   # A critical hit while falling - sprinting included, which the modern game
-  # refuses. Hits the modern game already counts as critical are left as they are.
+  # refuses. It multiplies the weapon's damage and Strength, never Sharpness.
   critical-hits:
     enabled: true
     multiplier: 1.5

@@ -1,7 +1,7 @@
 package com.lawkeys.hcfcore.pvp.listener;
 
 import com.lawkeys.hcfcore.pvp.CombatMath;
-import com.lawkeys.hcfcore.pvp.legacy.LegacyMath;
+import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatListener;
 import com.lawkeys.hcfcore.pvp.PvpMessages;
 import com.lawkeys.hcfcore.pvp.PvpModule;
 import com.lawkeys.hcfcore.pvp.PvpModule.Refusal;
@@ -19,6 +19,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.potion.PotionEffect;
@@ -73,13 +74,20 @@ public final class CombatListener implements Listener {
             return;
         }
 
-        // 2. Strength: 1.7's +130% per level in classic combat, else the HCF nerf.
-        // Both adjust the damage the server already computed.
+        // 2. The blow's damage. Only a blow: Strength never counted in an arrow's
+        // damage, nor the modern Sharpness bonus, and neither may be taken out of it.
+        if (!(event.getDamager() instanceof Player)
+                || event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+            return;
+        }
         int strengthLevel = strengthLevel(attacker);
-        var classic = module.classicCombat().filter(legacy -> legacy.strength().enabled());
-        if (strengthLevel > 0 && classic.isPresent()) {
-            event.setDamage(LegacyMath.strength(event.getDamage(), strengthLevel,
-                    settings.strength().vanillaBonusPerLevel(), classic.get().strength().perLevel()));
+        var classic = module.classicCombat();
+        if (classic.isPresent()) {
+            // Classic combat rebuilds the blow the 1.7 way - weapon, Strength,
+            // critical, Sharpness - here, before the classes multiply the whole
+            // (HIGHEST): an archer tag adds to the 1.7 hit.
+            event.setDamage(LegacyCombatListener.rebuildMelee(event, attacker, strengthLevel, classic.get(),
+                    settings.strength()));
         } else if (strengthLevel > 0 && settings.strength().enabled()) {
             event.setDamage(CombatMath.nerfStrength(event.getDamage(), strengthLevel,
                     settings.strength()));

@@ -52,13 +52,30 @@ Netherite did not exist in 1.7: it is one step above diamond, as each material w
 
 The damage is put on the weapon itself while it is held, so **the tooltip shows it** ("+7 Attack Damage" on a diamond sword, on top of the player's 1, as 1.7 showed it), and critical hits, Strength and Sharpness count from it. A weapon whose attributes a kit or another plugin set on purpose is left alone. The weapon goes back to its modern damage as soon as classic combat or the part is switched off.
 
+## Enchantments
+
+```yaml title="pvp.yml"
+--8<-- "src/main/resources/pvp.yml:legacy-enchantments"
+```
+
+**Sharpness gives its 1.7 bonus**: 1.25 per level, where the modern game gives 1 at level I and 0.5 per level above.
+
+| Sharpness | I | II | III | IV | V |
+|---|---|---|---|---|---|
+| 1.7 | +1.25 | +2.5 | +3.75 | +5 | +6.25 |
+| Modern | +1 | +1.5 | +2 | +2.5 | +3 |
+
+Then as now, Sharpness is added **last**: a critical hit or Strength multiplies the weapon's damage, never the Sharpness bonus. A diamond sword with Sharpness V deals 8 + 6.25 = 14.25, and 8 × 1.5 + 6.25 = 18.25 on a critical hit — before armour.
+
+The other combat enchantments already play as in 1.7 — checked against the current game's data: Power (+0.5 per level, +0.5), Punch, Fire Aspect (4 seconds per level) and Flame. Knockback goes through the [knockback](#knockback) above.
+
 ## Critical hits
 
 ```yaml title="pvp.yml"
 --8<-- "src/main/resources/pvp.yml:legacy-criticals"
 ```
 
-In 1.7, a hit while falling was critical — **sprinting included**. The modern game refuses a critical while sprinting; classic combat gives it, multiplied by `multiplier`, with its particles. A hit the modern game already counts as critical is left as it is.
+In 1.7, a hit while falling was critical — **sprinting included**. The modern game refuses a critical while sprinting; classic combat gives it, multiplied by `multiplier`, with its particles. A critical multiplies the weapon's damage and Strength, not Sharpness, as in 1.7.
 
 ## Sword blocking
 
@@ -136,7 +153,9 @@ In 1.7, a rod's hook hitting a player was a hit of no damage: it knocked them ba
 
 ## What stays modern
 
-The armour formula and the Sharpness bonus stay as the current game has them. The armour formula of 1.7 could only be reproduced through an API Paper has deprecated.
+The armour formula and Protection stay as the current game has them: the 1.7 ones could only be reproduced through an API Paper has deprecated. Protection is close anyway: in full Protection IV, the modern game takes 64% off a hit; 1.7 took a random 40 to 80%, 60% on average.
+
+A mace hits as the modern game has it: its fall bonus was no weapon of 1.7.
 
 !!! warning "Removing the plugin"
     A sword's blocking and a weapon's 1.7 damage are set on the item. Switching classic combat off, or disabling the plugin, takes them back from the items **held by the players online** — and from any item as soon as it is held again while the plugin runs. An item lying in a chest or in an offline player's inventory when the plugin is removed keeps them.

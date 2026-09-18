@@ -76,18 +76,57 @@ public final class LegacyMath {
         return fallDistance > 0 && !onGround && !climbing && !inWater && !blind && !riding;
     }
 
+    /** The modern critical hit's multiplier (26.2, {@code Player#attack}: {@code 1.5f}). */
+    public static final double MODERN_CRITICAL = 1.5;
+
     /**
-     * A hit under Strength, the 1.7.10 way: the modern flat bonus taken back out,
-     * then the whole multiplied by {@code 1 + perLevel * level} - Strength I was +130%.
-     *
-     * @param vanillaBonusPerLevel what the modern game added per level (pvp.yml)
+     * The modern Sharpness bonus: 1 at level I, 0.5 per level above
+     * (26.2, {@code data/minecraft/enchantment/sharpness.json}).
      */
-    public static double strength(double damage, int level, double vanillaBonusPerLevel, double perLevel) {
-        if (level <= 0) {
-            return damage;
+    public static double modernSharpness(int level) {
+        return level <= 0 ? 0.0 : 1.0 + 0.5 * (level - 1);
+    }
+
+    /**
+     * How Strength counts in a rebuilt hit: 1.7's multiplier of the weapon's damage
+     * ({@code multiply}), or a flat bonus per level - the modern game's, or the HCF
+     * nerf's.
+     */
+    public record StrengthRule(boolean multiply, double perLevel) {
+    }
+
+    /**
+     * A melee hit rebuilt the 1.7.10 way from the one the modern game computed.
+     *
+     * <p>The modern game deals {@code (attack + vanilla Strength) x critical +
+     * enchantment} (26.2, {@code Player#attack}: the critical multiplies the attack
+     * alone, the enchantment's bonus is added after it); with no attack cooldown the
+     * attack-strength scale is 1. That is taken apart, then put back together as 1.7
+     * did: the weapon, Strength by {@code strength}, the critical by
+     * {@code critical}, and Sharpness last - 1.7's {@code sharpnessPerLevel} per
+     * level, or the modern bonus when empty.
+     *
+     * @param damage             the hit the modern game computed
+     * @param modernCritical     whether the modern game counted it critical
+     * @param vanillaStrength    what the modern game adds per Strength level (pvp.yml)
+     * @param sharpnessPerLevel  1.7's Sharpness per level, or empty to keep the modern bonus
+     */
+    public static double rebuildHit(double damage, boolean modernCritical, int strengthLevel,
+                                    double vanillaStrength, StrengthRule strength,
+                                    boolean critical, double criticalMultiplier,
+                                    int sharpness, java.util.OptionalDouble sharpnessPerLevel) {
+        double modernEnchant = modernSharpness(sharpness);
+        double attack = Math.max(0.0, (damage - modernEnchant) / (modernCritical ? MODERN_CRITICAL : 1.0));
+        int level = Math.max(0, strengthLevel);
+        double weapon = Math.max(0.0, attack - vanillaStrength * level);
+        double hit = strength.multiply() ? weapon * (1.0 + strength.perLevel() * level)
+                : weapon + strength.perLevel() * level;
+        if (critical) {
+            hit *= criticalMultiplier;
         }
-        double base = Math.max(0.0, damage - vanillaBonusPerLevel * level);
-        return base * (1.0 + perLevel * level);
+        double enchant = sharpnessPerLevel.isPresent() ? sharpnessPerLevel.getAsDouble() * Math.max(0, sharpness)
+                : modernEnchant;
+        return hit + enchant;
     }
 
     /**

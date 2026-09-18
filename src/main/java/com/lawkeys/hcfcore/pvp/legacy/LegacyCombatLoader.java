@@ -27,6 +27,7 @@ public final class LegacyCombatLoader {
         ConfigurationSection cooldown = section.getConfigurationSection("attack-cooldown");
         ConfigurationSection crits = section.getConfigurationSection("critical-hits");
         ConfigurationSection weapons = section.getConfigurationSection("weapon-damage");
+        ConfigurationSection enchantments = section.getConfigurationSection("enchantments");
         ConfigurationSection blocking = section.getConfigurationSection("sword-blocking");
         ConfigurationSection knockback = section.getConfigurationSection("knockback");
         ConfigurationSection potions = section.getConfigurationSection("thrown-potions");
@@ -46,6 +47,10 @@ public final class LegacyCombatLoader {
                         bool(crits, "enabled", d.criticals().enabled()),
                         positive(crits, "multiplier", d.criticals().multiplier(), "critical-hits", warn)),
                 readWeapons(weapons, d.weaponDamage(), warn),
+                new LegacyCombatSettings.Enchantments(
+                        bool(enchantments, "enabled", d.enchantments().enabled()),
+                        Math.max(0.0, number(enchantments, "sharpness-per-level",
+                                d.enchantments().sharpnessPerLevel()))),
                 new LegacyCombatSettings.SwordBlocking(
                         bool(blocking, "enabled", d.swordBlocking().enabled()),
                         number(blocking, "base", d.swordBlocking().base()),

@@ -58,7 +58,7 @@ For **10 seconds** after a kill, what the dead player dropped can be picked up *
 
 ## Strength nerf
 
-Strength potions give less than vanilla (`strength-nerf`): the plugin subtracts vanilla's bonus per level and adds its own, **1.5** by default.
+Strength potions give less than vanilla (`strength-nerf`): the plugin subtracts vanilla's bonus per level and adds its own, **1.5** by default. Only on a blow: an arrow's damage never had Strength in it.
 
 !!! warning "Check `vanilla-bonus-per-level` for your version"
     Vanilla's bonus is a setting (`3.0` shipped), not a constant: Mojang has changed the formula before, and the value for the targeted version could not be confirmed in official documentation. Verify it for your Minecraft version and correct it in `pvp.yml` — no recompile needed.

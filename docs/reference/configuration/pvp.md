@@ -115,6 +115,8 @@ Used only while `config.yml` says `combat: classic`. Every value ships at what 1
 | `no-sweep-attacks` | `true` | Refuse the sweep attack's damage and push |
 | `weapon-damage.enabled` | `true` | Weapons deal their 1.7 damage |
 | `weapon-damage.damage` | 1.7 values | Item → damage, the player's own point included (`diamond_sword: 8`, `diamond_axe: 7`). An item not listed keeps its modern damage |
+| `enchantments.enabled` | `true` | 1.7 Sharpness |
+| `enchantments.sharpness-per-level` | `1.25` | Sharpness's bonus per level, added after a critical hit and Strength |
 | `critical-hits.enabled` | `true` | A critical while falling, sprinting included |
 | `critical-hits.multiplier` | `1.5` | What a critical multiplies the hit by |
 | `sword-blocking.enabled` | `true` | Right-click with a sword to block |
