@@ -23,7 +23,7 @@ Every number below is a setting, and you can [create your own classes](#creating
 
 ## How a class turns on
 
-1. Put on the whole set. You are told *"the class turns on in 10s"*, and the scoreboard counts down (`%class_line%`).
+1. Put on the whole set. The scoreboard counts the warmup down (`%class_line%`) — there, not in chat.
 2. When the warmup ends, the class is on: its effects apply, its items work.
 3. Take any piece off — or swap to another set — and the class is off at once. A new set starts a new warmup.
 
@@ -51,12 +51,12 @@ Full **gold** armour. The Bard is the team's support.
 
 **Always**: Speed II, Regeneration I, Resistance II.
 
-**Holding an item** buffs every teammate within **20 blocks** — the Bard included — for as long as it stays in hand, and **8 seconds** after it is put away or a teammate leaves the range.
+**Holding an item** buffs every teammate within **20 blocks** — the Bard included — for as long as it stays in hand, and **8 seconds** after it is put away or a teammate leaves the range. **Scrolling through the items works**: the effect comes the moment an item is in hand, and is renewed four times a second (`held-effect-interval-ticks`), so a Bard can give three effects or more in one sweep of the wheel.
 
 | Hold | Teammates get |
 |---|---|
 | Sugar | Speed II |
-| Blaze Powder | Strength I |
+| Blaze Powder | Strength I — **not for the Bard** |
 | Iron Ingot | Resistance I |
 | Ghast Tear | Regeneration I |
 | Feather | Jump Boost II |
@@ -75,8 +75,9 @@ Full **gold** armour. The Bard is the team's support.
 
 Magma Cream and Gunpowder have no burst.
 
-**Energy** fills by **1 per second** up to **100** while the class is on, and starts at 0 each time it turns on. The scoreboard shows it (`%class_energy_line%`).
+**Energy** fills by **1 per second** up to **100** while the class is on, and starts at 0 each time it turns on. The scoreboard shows it (`%class_energy_line%`), and a burst says what it cost and what is left: *Used Speed III (-20 energy, 45/100 left)*.
 
+- Every effect reaches the Bard too, **except the Strength of a held blaze powder**: the team gets it, the Bard does not (`include-self: false`). The blaze powder burst, Strength II, reaches the Bard like the team.
 - Bard effects reach the Bard's **team only**, not allies — `targets: team-and-allies` changes that.
 - To make the Bard the **only source of Strength**, forbid Strength potions: `strength: 0` under `potions.caps` in `limiters.yml` ([potion caps](items.md#enchantment-potion-and-effect-caps)). A Bard's effects are not potions: the potion cap never touches them. To cap an effect **whatever gives it** — a Bard's Resistance included — use `effects.caps` ([effect caps](items.md#effect-caps)).
 - A click effect of your own with `targets: enemies` — a Wither on a spider eye, say — reaches only enemies the Bard could hit: not on a safe zone, not during SOTW, never a teammate, and an ally only in an event area — the same rules as a blow ([Combat](combat.md#friendly-fire)).

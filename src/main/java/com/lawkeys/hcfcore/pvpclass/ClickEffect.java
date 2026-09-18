@@ -9,9 +9,10 @@ import java.util.Objects;
  * @param energyCost      energy spent; {@code 0} for a class without energy
  * @param cooldownSeconds wait before this item can be used again; {@code 0} for none
  * @param consume         whether one item is taken from the stack
+ * @param includeSelf     whether the user gets it too, for a team target
  */
 public record ClickEffect(ClassEffect effect, ClassTarget target, double radius,
-                          int energyCost, long cooldownSeconds, boolean consume) {
+                          int energyCost, long cooldownSeconds, boolean consume, boolean includeSelf) {
 
     public ClickEffect {
         Objects.requireNonNull(effect, "effect");

@@ -22,7 +22,7 @@ class ClassesTest {
             "GOLDEN_HELMET", "GOLDEN_CHESTPLATE", "GOLDEN_LEGGINGS", "GOLDEN_BOOTS",
             "LEATHER_HELMET", "LEATHER_CHESTPLATE", "LEATHER_LEGGINGS", "LEATHER_BOOTS",
             "CHAINMAIL_HELMET", "CHAINMAIL_CHESTPLATE", "CHAINMAIL_LEGGINGS", "CHAINMAIL_BOOTS",
-            "SUGAR", "SPIDER_EYE", "GOLDEN_SWORD", "FEATHER");
+            "SUGAR", "SPIDER_EYE", "GOLDEN_SWORD", "FEATHER", "BLAZE_POWDER");
     private static final Set<String> EFFECTS = Set.of("speed", "strength", "resistance", "wither", "jump_boost",
             "poison");
     /** The game's colours for a few dyes, as Paper's DyeColor#getColor gives them. */
@@ -132,6 +132,52 @@ class ClassesTest {
             root.put("warmup-seconds", "ten");
             assertEquals(10, config.parse(root).warmupSeconds());
             assertEquals(1, warnings.size());
+        }
+
+        @Test
+        void aTeamEffectReachesItsUserUnlessLeftOut() {
+            Map<String, Object> bard = new LinkedHashMap<>();
+            bard.put("armor", armor("GOLDEN"));
+            bard.put("held-effects", Map.of(
+                    "BLAZE_POWDER", Map.of("effect", "strength", "level", 1, "targets", "team", "include-self", false),
+                    "SUGAR", Map.of("effect", "speed", "level", 2, "targets", "team")));
+            bard.put("click-effects", Map.of(
+                    "BLAZE_POWDER", Map.of("effect", "strength", "level", 2, "targets", "team")));
+            PvpClass loaded = config.parse(root(Map.of("bard", bard))).find("bard").orElseThrow();
+            assertFalse(loaded.heldEffects().get("BLAZE_POWDER").includeSelf(), "Strength to the team only");
+            assertTrue(loaded.heldEffects().get("SUGAR").includeSelf(), "the Bard gets it too by default");
+            assertTrue(loaded.clickEffects().get("BLAZE_POWDER").includeSelf(), "the burst reaches the Bard");
+            assertTrue(warnings.isEmpty());
+        }
+
+        @Test
+        void onlyATeamEffectCanLeaveItsUserOut() {
+            Map<String, Object> rogue = new LinkedHashMap<>();
+            rogue.put("armor", armor("CHAINMAIL"));
+            rogue.put("click-effects", Map.of("FEATHER",
+                    Map.of("effect", "jump_boost", "level", 5, "targets", "self", "include-self", false)));
+            PvpClass loaded = config.parse(root(Map.of("rogue", rogue))).find("rogue").orElseThrow();
+            assertTrue(loaded.clickEffects().get("FEATHER").includeSelf());
+            assertEquals(1, warnings.size());
+        }
+
+        @Test
+        void heldEffectsAreRenewedFourTimesASecondUnlessSetOtherwise() {
+            assertEquals(5, config.parse(root(Map.of("bard", bard()))).heldIntervalTicks());
+            Map<String, Object> root = root(Map.of("bard", bard()));
+            root.put("held-effect-interval-ticks", 10);
+            assertEquals(10, config.parse(root).heldIntervalTicks());
+            assertTrue(warnings.isEmpty());
+        }
+
+        @Test
+        void aHeldIntervalOutsideOneToTwentyTicksIsReported() {
+            for (Object bad : List.of(0, 21, 2.5, "fast")) {
+                Map<String, Object> root = root(Map.of("bard", bard()));
+                root.put("held-effect-interval-ticks", bad);
+                assertEquals(5, config.parse(root).heldIntervalTicks(), "for " + bad);
+            }
+            assertEquals(4, warnings.size());
         }
 
         @Test

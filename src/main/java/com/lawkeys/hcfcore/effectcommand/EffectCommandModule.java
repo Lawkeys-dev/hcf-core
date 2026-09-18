@@ -130,7 +130,7 @@ public final class EffectCommandModule {
         String effectName = displayName(type);
         if (current != null && isOurs(current)) {
             player.removePotionEffect(type);
-            lang.send(player, EffectCommandMessages.OFF, "effect", effectName);
+            lang.send(player, EffectCommandMessages.TAKEN, "effect", effectName);
             return;
         }
         int amplifier = effectCaps.allowed(type, command.level() - 1);
@@ -140,7 +140,7 @@ public final class EffectCommandModule {
         }
         // A stronger effect in place stays: the server holds this one back until it ends.
         player.addPotionEffect(new PotionEffect(type, PotionEffect.INFINITE_DURATION, amplifier, false, false, true));
-        lang.send(player, EffectCommandMessages.ON, "effect", effectName, "level", EffectCommandSet.roman(amplifier + 1),
+        lang.send(player, EffectCommandMessages.GIVEN, "effect", effectName, "level", EffectCommandSet.roman(amplifier + 1),
                 "command", name);
     }
 

@@ -56,6 +56,7 @@ public final class ClassConfig {
         boolean enabled = bool(root.get("enabled"), true, "enabled");
         long warmup = seconds(root.get("warmup-seconds"), 10, "warmup-seconds");
         boolean inSafeZones = bool(root.get("abilities-in-safe-zones"), false, "abilities-in-safe-zones");
+        int heldInterval = heldInterval(root.get("held-effect-interval-ticks"));
         List<PvpClass> classes = new ArrayList<>();
         Map<String, ?> list = map(root.get("classes"), "classes");
         for (Map.Entry<String, ?> entry : list.entrySet()) {
@@ -73,7 +74,7 @@ public final class ClassConfig {
             }
             classes.add(loaded);
         }
-        return new ClassSettings(enabled, warmup, inSafeZones, classes);
+        return new ClassSettings(enabled, warmup, inSafeZones, heldInterval, classes);
     }
 
     private PvpClass parseClass(String id, Map<String, ?> entry) {
@@ -134,7 +135,8 @@ public final class ClassConfig {
             ClassEffect effect = effect(section, HELD_SECONDS, where);
             ClassTarget target = target(section.get("targets"), ClassTarget.TEAM, where);
             if (effect != null) {
-                held.put(item, new HeldEffect(effect, target, decimal(section.get("radius"), 20.0, where + ".radius")));
+                held.put(item, new HeldEffect(effect, target, decimal(section.get("radius"), 20.0, where + ".radius"),
+                        includeSelf(section, target, where)));
             }
         });
 
@@ -156,12 +158,14 @@ public final class ClassConfig {
                 warn.accept(where + ".energy: the class has no energy section, so the cost is ignored.");
                 cost = 0;
             }
+            ClassTarget target = target(section.get("targets"), ClassTarget.SELF, where);
             clicks.put(item, new ClickEffect(effect,
-                    target(section.get("targets"), ClassTarget.SELF, where),
+                    target,
                     decimal(section.get("radius"), 20.0, where + ".radius"),
                     cost,
                     seconds(section.get("cooldown-seconds"), 0, where + ".cooldown-seconds"),
-                    bool(section.get("consume"), true, where + ".consume")));
+                    bool(section.get("consume"), true, where + ".consume"),
+                    includeSelf(section, target, where)));
         });
 
         ArcherTag archerTag = null;
@@ -268,6 +272,34 @@ public final class ClassConfig {
                     + " enemies; " + fallback.configName() + " is used.");
             return fallback;
         });
+    }
+
+    /**
+     * {@code include-self}: whether a team effect reaches its user too. Only a team
+     * target has a choice - a self effect is the user's, an enemy one never is.
+     */
+    private boolean includeSelf(Map<String, ?> section, ClassTarget target, String where) {
+        boolean include = bool(section.get("include-self"), true, where + ".include-self");
+        if (!include && (target == ClassTarget.SELF || target == ClassTarget.ENEMIES)) {
+            warn.accept(where + ".include-self: only a team or team-and-allies effect can leave its user out;"
+                    + " ignored.");
+            return true;
+        }
+        return include;
+    }
+
+    /** @return ticks from 1 to a second, or the default (reported) */
+    private int heldInterval(Object raw) {
+        if (raw == null) {
+            return ClassSettings.HELD_INTERVAL_TICKS;
+        }
+        if (raw instanceof Number number && number.doubleValue() == Math.rint(number.doubleValue())
+                && number.longValue() >= 1 && number.longValue() <= ClassSettings.MAX_HELD_INTERVAL_TICKS) {
+            return number.intValue();
+        }
+        warn.accept("held-effect-interval-ticks: '" + raw + "' is not a whole number of ticks from 1 to "
+                + ClassSettings.MAX_HELD_INTERVAL_TICKS + "; " + ClassSettings.HELD_INTERVAL_TICKS + " is used.");
+        return ClassSettings.HELD_INTERVAL_TICKS;
     }
 
     /** @return a level from 1 to {@link ClassEffect#MAX_LEVEL}, or {@code 0} (reported) */

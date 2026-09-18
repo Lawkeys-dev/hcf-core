@@ -21,6 +21,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -54,6 +55,15 @@ public final class ClassListener implements Listener {
 
     public ClassListener(ClassModule module) {
         this.module = Objects.requireNonNull(module, "module");
+    }
+
+    /**
+     * The hand changed: its item's held effect comes at once, not at the next
+     * renewal - a Bard scrolls over an item for a fraction of a second.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onHeld(PlayerItemHeldEvent event) {
+        module.pulseHeld(event.getPlayer(), event.getPlayer().getInventory().getItem(event.getNewSlot()));
     }
 
     /**

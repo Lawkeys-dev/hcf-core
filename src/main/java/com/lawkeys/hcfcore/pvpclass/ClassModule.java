@@ -80,7 +80,9 @@ public final class ClassModule {
     private volatile EffectCaps effectCaps = EffectCaps.NONE;
     private volatile Map<String, PotionEffectType> effectTypes = Map.of();
     private BukkitTask task;
-    private long ticks;
+    /** Renews held effects; its interval is {@code held-effect-interval-ticks}. */
+    private BukkitTask heldTask;
+    private int heldInterval;
 
     /**
      * @param teams may be {@code null}: every "team" is then the player alone
@@ -139,12 +141,17 @@ public final class ClassModule {
             dyes.setTabCompleter(executor);
         }
         this.task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, TICK_PERIOD, TICK_PERIOD);
+        scheduleHeld();
     }
 
     public void disable() {
         if (task != null) {
             task.cancel();
             task = null;
+        }
+        if (heldTask != null) {
+            heldTask.cancel();
+            heldTask = null;
         }
         // What this module gave is taken back, so a plugin disabled while the server
         // runs leaves nobody with a class's Speed III.
@@ -185,6 +192,10 @@ public final class ClassModule {
         types.values().removeIf(Objects::isNull);
         this.effectTypes = Map.copyOf(types);
         this.settings = loaded;
+        if (heldTask != null) {
+            // A new interval by /hcf reload: the task starts again at it.
+            scheduleHeld();
+        }
     }
 
     private static boolean isItem(String name) {
@@ -215,7 +226,6 @@ public final class ClassModule {
     // ------------------------------------------------------------------
 
     private void tick() {
-        ticks++;
         long now = System.currentTimeMillis();
         ClassSettings current = settings;
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -229,11 +239,32 @@ public final class ClassModule {
                 continue;
             }
             refreshPassive(player, active.get());
-            // Held items once a second: a pulse lasts several.
-            if (ticks % 2 == 0) {
-                pulseHeld(player, active.get());
-            }
         }
+    }
+
+    /**
+     * Held items, every {@code held-effect-interval-ticks} (a quarter of a second as
+     * shipped): a Bard scrolls through several items in a second, and an item passed
+     * over must still give its effect - which also comes at once when the hand
+     * changes ({@link #pulseHeld(Player, ItemStack)}).
+     */
+    private void tickHeld() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            pulseHeld(player, player.getInventory().getItemInMainHand());
+        }
+    }
+
+    /** Starts the held-effect task, or restarts it when its interval changed. */
+    private void scheduleHeld() {
+        int interval = settings.heldIntervalTicks();
+        if (heldTask != null && interval == heldInterval) {
+            return;
+        }
+        if (heldTask != null) {
+            heldTask.cancel();
+        }
+        heldInterval = interval;
+        heldTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tickHeld, interval, interval);
     }
 
     /** @return the class whose whole set this player wears, if they may use it */
@@ -367,12 +398,16 @@ public final class ClassModule {
                 && !effect.isInfinite() && effect.getDuration() <= PASSIVE_TICKS;
     }
 
-    /** A held item's effect, renewed while it stays in hand. */
-    private void pulseHeld(Player player, PvpClass pvpClass) {
-        if (pvpClass.heldEffects().isEmpty()) {
+    /**
+     * A held item's effect, renewed while it stays in hand: on a timer, and at once
+     * when the player's hand changes to {@code item}.
+     */
+    public void pulseHeld(Player player, ItemStack item) {
+        Optional<PvpClass> active = manager.active(player.getUniqueId());
+        if (active.isEmpty() || active.get().heldEffects().isEmpty()) {
             return;
         }
-        HeldEffect held = pvpClass.heldEffects().get(name(player.getInventory().getItemInMainHand()));
+        HeldEffect held = active.get().heldEffects().get(name(item));
         if (held == null || blockedBySafeZone(player)) {
             return;
         }
@@ -380,7 +415,7 @@ public final class ClassModule {
         if (type == null) {
             return;
         }
-        for (Player target : targets(player, held.target(), held.radius())) {
+        for (Player target : targets(player, held.target(), held.radius(), held.includeSelf())) {
             pulse(target, type, held.effect());
         }
     }
@@ -405,6 +440,11 @@ public final class ClassModule {
 
     /** @return who an effect from {@code source} reaches */
     public List<Player> targets(Player source, ClassTarget target, double radius) {
+        return targets(source, target, radius, true);
+    }
+
+    /** @param includeSelf whether a team target reaches the source too */
+    public List<Player> targets(Player source, ClassTarget target, double radius, boolean includeSelf) {
         if (target == ClassTarget.SELF) {
             return List.of(source);
         }
@@ -416,6 +456,9 @@ public final class ClassModule {
                 continue;
             }
             boolean self = other.getUniqueId().equals(source.getUniqueId());
+            if (self && !includeSelf) {
+                continue;
+            }
             Optional<Team> otherTeam = self ? team : teamOf(other);
             boolean teammate = self || (team.isPresent() && otherTeam.isPresent()
                     && team.get().getId().equals(otherTeam.get().getId()));
@@ -501,7 +544,7 @@ public final class ClassModule {
         if (click.consume()) {
             item.setAmount(item.getAmount() - 1);
         }
-        List<Player> reached = targets(player, click.target(), click.radius());
+        List<Player> reached = targets(player, click.target(), click.radius(), click.includeSelf());
         String effectName = click.effect().displayName();
         for (Player target : reached) {
             pulse(target, type, click.effect());
@@ -511,7 +554,15 @@ public final class ClassModule {
                         "player", player.getName(), "effect", effectName);
             }
         }
-        lang.send(player, ClassMessages.EFFECT_USED, "effect", effectName, "count", String.valueOf(reached.size()));
+        if (click.energyCost() > 0) {
+            lang.send(player, ClassMessages.EFFECT_USED_ENERGY, "effect", effectName,
+                    "count", String.valueOf(reached.size()), "cost", String.valueOf(click.energyCost()),
+                    "energy", String.valueOf((int) Math.floor(manager.energy(player.getUniqueId(), now))),
+                    "max", formatNumber(active.get().energy().max()));
+        } else {
+            lang.send(player, ClassMessages.EFFECT_USED, "effect", effectName,
+                    "count", String.valueOf(reached.size()));
+        }
         return true;
     }
 

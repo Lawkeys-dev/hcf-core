@@ -17,6 +17,7 @@ Every example on this page is **taken from the shipped `classes.yml`** — the f
 | `enabled` | true / false | `true` | Turns every class off: sets still worn give nothing, `/class` and `/dyes` say classes are off |
 | `warmup-seconds` | whole seconds | `10` | How long a whole set must be worn before its class turns on. `0` turns it on at once |
 | `abilities-in-safe-zones` | true / false | `false` | Whether held and right-click effects work while their user stands in a safe zone (spawn). Passive effects always do |
+| `held-effect-interval-ticks` | ticks, 1 to 20 | `5` | How often held effects are renewed, four times a second as shipped, so an item a Bard scrolls over still gives its effect. Changing hands gives the new item's effect at once anyway |
 
 ## A class
 
@@ -98,9 +99,10 @@ An effect handed out **while an item is held in the main hand**, by item.
 | *(the section's name)* | item name | — | The item to hold: `SUGAR`, `BLAZE_POWDER`... |
 | `effect` | effect name | — | **Required.** The effect handed out |
 | `level` | 1 to 255 | `1` | Its level |
-| `seconds` | seconds | `8` | How long each application lasts. It is renewed **every second** while the item is held, so the effect is continuous — and lasts this long after the item is put away or a player leaves the range. Keep it at 2 or more |
+| `seconds` | seconds | `8` | How long each application lasts. It is renewed every `held-effect-interval-ticks` while the item is held, so the effect is continuous — and lasts this long after the item is put away or a player leaves the range. Keep it at 2 or more |
 | `radius` | blocks | `20` | How far it reaches (unused with `targets: self`) |
 | `targets` | see [targets](#targets) | `team` | Who it reaches |
+| `include-self` | true / false | `true` | Whether the holder gets it too, for a `team` or `team-and-allies` effect. The shipped Bard's blaze powder is `false`: Strength I for the team, not for the Bard |
 
 ### Right-click effects
 
@@ -121,6 +123,7 @@ An effect handed out **once, on a right-click** with an item.
 | `energy` | whole number | `0` | Energy spent. Needs an `energy:` section on the class, otherwise it is ignored with a warning |
 | `cooldown-seconds` | seconds | `0` | Wait before the item can be used again |
 | `consume` | true / false | `true` | Whether one item is taken from the stack |
+| `include-self` | true / false | `true` | Whether the user gets it too, for a `team` or `team-and-allies` effect |
 
 A right-click refused — not enough energy, a cooldown, a safe zone — does nothing else: the item is not used up, nor eaten. A self-only click, the Archer's:
 

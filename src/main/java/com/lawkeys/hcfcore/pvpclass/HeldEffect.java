@@ -7,9 +7,11 @@ import java.util.Objects;
  * powder, iron. It is applied in pulses of {@code effect.seconds()}, renewed while
  * the item stays in hand, so letting go of it ends the effect within that time.
  *
- * @param radius blocks around the holder; unused for {@link ClassTarget#SELF}
+ * @param radius      blocks around the holder; unused for {@link ClassTarget#SELF}
+ * @param includeSelf whether the holder gets it too, for a team target - a Bard
+ *                    gives Strength to the team and not to themself
  */
-public record HeldEffect(ClassEffect effect, ClassTarget target, double radius) {
+public record HeldEffect(ClassEffect effect, ClassTarget target, double radius, boolean includeSelf) {
 
     public HeldEffect {
         Objects.requireNonNull(effect, "effect");

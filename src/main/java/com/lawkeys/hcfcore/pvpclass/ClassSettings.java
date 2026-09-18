@@ -13,15 +13,21 @@ import java.util.Optional;
  * @param classes              in file order: the first class whose set matches wins
  */
 public record ClassSettings(boolean enabled, long warmupSeconds, boolean abilitiesInSafeZones,
-                            List<PvpClass> classes) {
+                            int heldIntervalTicks, List<PvpClass> classes) {
+
+    /** How often held effects are renewed by default: four times a second. */
+    public static final int HELD_INTERVAL_TICKS = 5;
+    /** The longest renewal interval allowed: a second. */
+    public static final int MAX_HELD_INTERVAL_TICKS = 20;
 
     public ClassSettings {
         warmupSeconds = Math.max(0L, warmupSeconds);
+        heldIntervalTicks = Math.max(1, Math.min(MAX_HELD_INTERVAL_TICKS, heldIntervalTicks));
         classes = List.copyOf(classes);
     }
 
     public static ClassSettings defaults() {
-        return new ClassSettings(true, 10, false, List.of());
+        return new ClassSettings(true, 10, false, HELD_INTERVAL_TICKS, List.of());
     }
 
     /** @return the class whose armour set these four pieces are, helmet to boots */

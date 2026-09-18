@@ -11,7 +11,9 @@
 #   /class list              every class and its armour
 #   /class info <class>      everything a class does
 #
-# Scoreboard rows (ui.yml): %class_line%, %class_energy_line%, %archer_tag_line%.
+# Scoreboard rows (ui.yml): %class_line% (the class, or its warmup counting down),
+# %class_energy_line%, %archer_tag_line%. The warmup and the energy show there,
+# not in chat.
 #
 # /hcf reload applies changes at once, to classes already active too.
 #
@@ -30,6 +32,11 @@ warmup-seconds: 10
 # user could not hit, wherever it is used: safe zones, SOTW and friendly fire
 # apply to it exactly as to a blow.
 abilities-in-safe-zones: false
+
+# How often, in ticks (20 a second), held effects are renewed. A Bard scrolls
+# through several items in a second: each one passed over must give its effect,
+# which also comes at once when the hand changes. 1 to 20.
+held-effect-interval-ticks: 5
 # --8<-- [end:settings]
 
 # ---------------------------------------------------------------------------
@@ -61,9 +68,10 @@ abilities-in-safe-zones: false
 #       SUGAR:
 #         effect: speed
 #         level: 2
-#         seconds: 8                  each pulse, renewed every second while held
+#         seconds: 8                  each pulse, renewed while held
 #         radius: 20
 #         targets: team               self | team | team-and-allies | enemies
+#         include-self: true          false: the team gets it, the holder does not
 #
 #     click-effects:                  on a right-click with an item
 #       SUGAR:
@@ -75,6 +83,7 @@ abilities-in-safe-zones: false
 #         energy: 20                  spent from the class's energy (needs energy:)
 #         cooldown-seconds: 0         wait before this item can be used again
 #         consume: true               take one item from the stack
+#         include-self: true          false: the team gets it, the user does not
 #
 #     archer-tag:                     a player hit by this class's arrows takes more
 #       seconds: 10                   damage, from everybody, for a while
@@ -168,6 +177,9 @@ classes:
         seconds: 8
         radius: 20
         targets: team
+        # The Bard gives Strength I to the team, not to themself; the burst
+        # (click-effects) reaches the Bard too.
+        include-self: false
       IRON_INGOT:
         effect: resistance
         level: 1

@@ -1136,8 +1136,8 @@ limiter:
 # Effect commands (effect-commands.yml): /speed and the like.
 # ---------------------------------------------------------------------------
 effect-commands:
-  on: "&a%effect% %level% &auntil you die. &7Type &f/%command% &7again to take it off."
-  off: "&7%effect% taken off."
+  given: "&a%effect% %level% &auntil you die. &7Type &f/%command% &7again to take it off."
+  taken: "&7%effect% taken off."
   forbidden: "&c%effect% is forbidden on this server."
   switched-off: "&cThis command is switched off."
 
@@ -1145,7 +1145,9 @@ effect-commands:
 # Classes (classes.yml): Diamond, Bard, Archer, Rogue, Miner and your own.
 # ---------------------------------------------------------------------------
 classes:
-  warmup: "&7Wearing the &f%class% &7set: the class turns on in &f%time%&7."
+  # Empty as shipped: the warmup shows on the scoreboard (%class_line%). Put a
+  # message back to have it in chat too.
+  warmup: ""
   activated: "&a%class% &aclass on."
   deactivated: "&c%class% &cclass off."
   team-limit: "&cYour team already has &f%max% %class%&c: the class stays off. Take a piece off to try again."
@@ -1164,6 +1166,8 @@ classes:
   not-enough-energy: "&cNot enough energy: &f%energy%&c/&f%cost%&c."
   cooldown: "&cYou can use that again in &f%time%&c."
   effect-used: "&aUsed &f%effect%&a - &f%count% &aplayer(s) reached."
+  # An effect that cost energy: %cost% spent, %energy% of %max% left.
+  effect-used-energy: "&aUsed &f%effect% &7(&6-%cost% &7energy, &f%energy%&7/&f%max% &7left)&a - &f%count% &aplayer(s) reached."
   effect-received: "&f%player% &agave you &f%effect%&a."
   effect-inflicted: "&f%player% &cinflicted &f%effect% &con you."
   archer-tag:

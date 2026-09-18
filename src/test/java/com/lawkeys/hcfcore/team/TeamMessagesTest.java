@@ -138,6 +138,32 @@ class TeamMessagesTest {
         assertTrue(unlisted.isEmpty(), "add these to MESSAGE_CLASSES: " + unlisted);
     }
 
+    /**
+     * The minimal reader below takes every key literally, but Bukkit's YAML 1.1
+     * parser reads a key {@code on}, {@code off}, {@code yes}, {@code no},
+     * {@code true} or {@code false} as a boolean: a message under
+     * {@code effect-commands.on} was looked up as a string and never found, in
+     * game (18/09/2026). No shipped file may use one as a key.
+     */
+    @Test
+    void noShippedKeyIsReadAsABoolean() throws IOException {
+        java.util.regex.Pattern booleanKey = java.util.regex.Pattern.compile(
+                "^\\s*(yes|no|true|false|on|off)\\s*:", java.util.regex.Pattern.CASE_INSENSITIVE);
+        Path resources = Path.of("src/main/resources");
+        List<String> found = new ArrayList<>();
+        try (java.util.stream.Stream<Path> files = Files.walk(resources)) {
+            for (Path file : files.filter(f -> f.toString().endsWith(".yml")).toList()) {
+                List<String> lines = Files.readAllLines(file);
+                for (int i = 0; i < lines.size(); i++) {
+                    if (booleanKey.matcher(lines.get(i)).find()) {
+                        found.add(resources.relativize(file) + ":" + (i + 1) + " " + lines.get(i).trim());
+                    }
+                }
+            }
+        }
+        assertTrue(found.isEmpty(), "keys YAML 1.1 reads as booleans: " + found);
+    }
+
     @Test
     void languageFileIsReachableOnTheClasspath() {
         assertNotNull(TeamMessagesTest.class.getResourceAsStream("/lang/en.yml"),
