@@ -554,7 +554,19 @@ public final class ClassModule {
                         "player", player.getName(), "effect", effectName);
             }
         }
-        if (click.energyCost() > 0) {
+        String seconds = String.valueOf(click.effect().seconds());
+        if (click.target() == ClassTarget.SELF) {
+            // An effect for its user alone - a Rogue's jump, an Archer's speed: how long
+            // it lasts, not how many it reached.
+            if (click.energyCost() > 0) {
+                lang.send(player, ClassMessages.EFFECT_USED_SELF_ENERGY, "effect", effectName, "seconds", seconds,
+                        "cost", String.valueOf(click.energyCost()),
+                        "energy", String.valueOf((int) Math.floor(manager.energy(player.getUniqueId(), now))),
+                        "max", formatNumber(active.get().energy().max()));
+            } else {
+                lang.send(player, ClassMessages.EFFECT_USED_SELF, "effect", effectName, "seconds", seconds);
+            }
+        } else if (click.energyCost() > 0) {
             lang.send(player, ClassMessages.EFFECT_USED_ENERGY, "effect", effectName,
                     "count", String.valueOf(reached.size()), "cost", String.valueOf(click.energyCost()),
                     "energy", String.valueOf((int) Math.floor(manager.energy(player.getUniqueId(), now))),

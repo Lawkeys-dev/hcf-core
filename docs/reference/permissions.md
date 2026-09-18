@@ -52,7 +52,7 @@ Commands that need no node — `/team` and its player subcommands, `/pay`, `/bal
 | `hcfcore.general.workbench` | op | `/workbench` | ✓ |
 | `hcfcore.general.anvil` | op | `/anvil` | ✓ |
 | `hcfcore.general.enderchest` · `.others` | op | `/enderchest`; another player's, which can be changed | ✓ |
-| `hcfcore.general.item` | op | `/item` | ✓ |
+| `hcfcore.general.item` | op | `/i` | ✓ |
 | `hcfcore.general.tphere` | op | `/tphere` | ✓ |
 | `hcfcore.general.tppos` | op | `/tppos` | ✓ |
 | `hcfcore.general.time` | op | `/day`, `/night` | ✓ |

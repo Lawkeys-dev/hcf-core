@@ -164,7 +164,7 @@ So the two nerfs differ too. The modern `strength-nerf` of `pvp.yml` takes point
 
 In 1.7, a rod's hook hitting a player was a hit of no damage: it knocked them back and counted as combat — "rodding". Classic combat does the same: the hooked player is pushed away from the angler with the 1.7 knockback, shown hurt, and both are combat-tagged. Only a player the angler could hit: not on a safe zone, not during SOTW, never a teammate.
 
-The bobber then comes back at once, ready to cast again (`remove-hook`), rather than staying on the player until reeled in — which would also pull them.
+The bobber then comes back at once, ready to cast again (`remove-hook`), rather than staying on the player until reeled in — which would also pull them. A rod never pulls a player in classic combat: reeling one in is refused, even with a right-click at the very moment of the hit.
 
 ## What stays modern
 

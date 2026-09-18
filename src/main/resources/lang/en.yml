@@ -1198,6 +1198,9 @@ classes:
   not-enough-energy: "&cNot enough energy: &f%energy%&c/&f%cost%&c."
   cooldown: "&cYou can use that again in &f%time%&c."
   effect-used: "&aUsed &f%effect%&a - &f%count% &aplayer(s) reached."
+  # An effect for its user alone (targets: self): the Rogue's jump, the Archer's speed.
+  effect-used-self: "&aUsed &f%effect%&a - applied for &f%seconds%s&a."
+  effect-used-self-energy: "&aUsed &f%effect% &7(&6-%cost% &7energy, &f%energy%&7/&f%max% &7left)&a - applied for &f%seconds%s&a."
   # An effect that cost energy: %cost% spent, %energy% of %max% left.
   effect-used-energy: "&aUsed &f%effect% &7(&6-%cost% &7energy, &f%energy%&7/&f%max% &7left)&a - &f%count% &aplayer(s) reached."
   effect-received: "&f%player% &agave you &f%effect%&a."

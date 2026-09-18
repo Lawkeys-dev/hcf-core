@@ -7,7 +7,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
-- **Everyday commands**, as an essentials plugin gives them: `/clearinventory` (`/ci`, `/clearinv`), `/feed` (`/eat`), `/fly`, `/god`, `/flyspeed`, `/walkspeed`, `/hat`, `/suicide`, `/extinguish` (`/ext`), `/workbench` (`/wb`, `/craft`), `/anvil`, `/enderchest` (`/ec`, `/echest`), `/item` (`/i`), `/tphere` (`/s`), `/tppos`, `/gmc`, `/gms`, `/gma`, `/gmsp`, `/day`, `/night`, `/sun`, `/rain`. One permission each, `hcfcore.general.<command>`, and `.others` to act on another player; operators by default. `/tpa`, `/home`, `/back` and `/near` are left out on purpose.
+- **Everyday commands**, as an essentials plugin gives them: `/clearinventory` (`/ci`, `/clearinv`), `/feed` (`/eat`), `/fly`, `/god`, `/flyspeed`, `/walkspeed`, `/hat`, `/suicide`, `/extinguish` (`/ext`), `/workbench` (`/wb`, `/craft`), `/anvil`, `/enderchest` (`/ec`, `/echest`), `/i` (`/giveitem`), `/tphere` (`/s`), `/tppos`, `/gmc`, `/gms`, `/gma`, `/gmsp`, `/day`, `/night`, `/sun`, `/rain`. One permission each, `hcfcore.general.<command>`, and `.others` to act on another player; operators by default. `/tpa`, `/home`, `/back` and `/near` are left out on purpose.
 - A test reads every shipped YAML file with the parser the server uses: a file that does not parse fails the build.
 - Classes: a class may have its own `warmup-seconds`. The shipped Diamond has none — it gives no effect, so there is nothing to wait for. *In an existing `classes.yml`, add `warmup-seconds: 0` under `diamond`.*
 - Classes: `include-self` on a held or click effect decides whether a team effect reaches its user too. The shipped Bard gives Strength I to the team but not to itself; its Strength II burst reaches it as well. *In an existing `classes.yml`, add `include-self: false` under the Bard's held `BLAZE_POWDER`.*
@@ -16,11 +16,12 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - Classes: the archer tag adds 15% damage as shipped, not 25% (`damage-multiplier: 1.15`). *An existing `classes.yml` keeps its value: set it under the Archer's `archer-tag`.*
 - Every name and lore line the plugin writes on an item is upright, no longer in the game's italics: `/dyes`, `/settings`, the ticket menu, the staff toolbar, partner items, the King's kit, the crowbar, custom enchant books, `/rename`.
 - Classes: held effects follow the scroll wheel — an item's effect comes the moment it is in hand, and is renewed four times a second instead of once (`held-effect-interval-ticks` in `classes.yml`, 5 ticks). *Existing files do without the setting: the default applies.*
+- Classes: an effect a class gives its user alone (the Rogue's jump, the Archer's speed) says how long it lasts — *Used Jump Boost V - applied for 5s* — rather than how many players it reached, which is for the Bard's team effects.
 - Classes: the warmup and the energy show on the scoreboard only (`%class_line%`, `%class_energy_line%` in `ui.yml`); the warmup chat message ships empty. A burst says the energy it cost and what is left. *An existing `lang/en.yml` keeps its warmup message: set `classes.warmup: ""` to silence it; an existing `ui.yml` needs the two lines added to its scoreboard to show them.*
 
 ### Fixed
 - Classic combat: the modern regeneration still spent a hurt player's hunger fast — the game charges it even when its heal is refused. The food bar's own regeneration is now held off while classic regeneration is on, and given back otherwise.
-- Classic combat: a rod's bobber stayed on the player it hit until reeled in, pulling them. It comes back at once (`fishing-rod.remove-hook`, on as shipped).
+- Classic combat: a rod's bobber stayed on the player it hit until reeled in, pulling them. It comes back at once (`fishing-rod.remove-hook`, on as shipped), and reeling in a hooked player is refused, so a right-click at the moment of the hit pulls nobody.
 - The effect commands' messages showed their raw key (`effect-commands.on`): YAML reads a key `on` or `off` as a boolean. They are `given` and `taken` now, and a test refuses such a key in every shipped file.
 
 ### Documentation

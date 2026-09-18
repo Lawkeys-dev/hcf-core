@@ -14,6 +14,8 @@ public final class ClassMessages {
     public static final String SAFE_ZONE = "classes.safe-zone";
     public static final String NOT_ENOUGH_ENERGY = "classes.not-enough-energy";
     public static final String COOLDOWN = "classes.cooldown";
+    public static final String EFFECT_USED_SELF = "classes.effect-used-self";
+    public static final String EFFECT_USED_SELF_ENERGY = "classes.effect-used-self-energy";
     public static final String EFFECT_USED_ENERGY = "classes.effect-used-energy";
     public static final String EFFECT_USED = "classes.effect-used";
     public static final String EFFECT_RECEIVED = "classes.effect-received";

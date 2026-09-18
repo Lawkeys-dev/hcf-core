@@ -135,7 +135,7 @@ Full **chainmail** armour. Fast, agile, and dangerous from behind.
 - A backstab follows the rules of any hit: it cannot land on a safe zone, during SOTW, or on a teammate.
 - A backstab that would kill kills as an ordinary hit, credited to the Rogue — deathban, DTR and statistics follow as usual.
 
-**Right-click**: Sugar gives Speed IV, Feather gives Jump Boost V — 8 seconds each, every 30 seconds.
+**Right-click**: Sugar gives Speed IV, Feather gives Jump Boost V — 8 seconds each, every 30 seconds. They are the Rogue's alone, and say how long they last: *Used Jump Boost V - applied for 8s*.
 
 ??? example "Rogue — as shipped in `classes.yml`"
 

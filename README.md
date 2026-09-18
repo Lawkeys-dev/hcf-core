@@ -31,7 +31,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 | **Map phases** | SOTW, EOTW and the Purge, by command or by date, surviving restarts |
 | **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, partner items, killstreak rewards, custom enchants, effect commands (`/speed`, `/strength`…), enchantment, potion and effect caps, block limits per claim, a crowbar |
 | **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams |
-| **Everyday commands** | What an essentials plugin gives — `/ci`, `/feed`, `/fly`, `/god`, `/hat`, `/ec`, `/wb`, `/item`, `/tphere`, `/gmc`, `/day`… — each with its own permission, without what breaks HCF (`/tpa`, `/home`, `/back`, `/near`) |
+| **Everyday commands** | What an essentials plugin gives — `/ci`, `/feed`, `/fly`, `/god`, `/hat`, `/ec`, `/wb`, `/i`, `/tphere`, `/gmc`, `/day`… — each with its own permission, without what breaks HCF (`/tpa`, `/home`, `/back`, `/near`) |
 | **Interface** | Flicker-free scoreboard from template lines, tab list, chat format with LuckPerms prefixes and kill counts, stats and leaderboards, holograms, player settings |
 | **Integrations** | Vault, LuckPerms and Lunar Client (Apollo) — all optional |
 

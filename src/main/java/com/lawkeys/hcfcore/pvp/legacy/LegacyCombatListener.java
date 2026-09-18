@@ -43,6 +43,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -676,6 +677,22 @@ public final class LegacyCombatListener implements Listener {
                 }
             });
         }
+    }
+
+    /**
+     * Reeling in a hooked player is refused: the bobber is taken back a tick after
+     * the hit ({@link #onHook}), and a right-click inside that tick used to pull the
+     * player - 26.2 {@code FishingHook#retrieve} fires this event, state
+     * {@code CAUGHT_ENTITY}, before {@code pullEntity}, and stops there if cancelled.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onReel(PlayerFishEvent event) {
+        if (event.getState() != PlayerFishEvent.State.CAUGHT_ENTITY || !(event.getCaught() instanceof Player)
+                || !classic().map(c -> c.fishingRod().enabled() && c.fishingRod().removeHook()).orElse(false)) {
+            return;
+        }
+        event.setCancelled(true);
+        event.getHook().remove();
     }
 
     // ------------------------------------------------------------------

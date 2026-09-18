@@ -56,7 +56,7 @@ What an essentials plugin gives, for a server that runs HCFCore alone:
 | `/extinguish [player]` | `/ext` | Put out a fire | `hcfcore.general.extinguish` |
 | `/workbench` · `/anvil` | `/wb`, `/craft` | A crafting table or an anvil, anywhere | `hcfcore.general.workbench`, `hcfcore.general.anvil` |
 | `/enderchest [player]` | `/ec`, `/echest` | Your ender chest, or a player's — live, changes included | `hcfcore.general.enderchest` |
-| `/item <item> [amount]` | `/i` | Give yourself an item; a full stack without an amount | `hcfcore.general.item` |
+| `/i <item> [amount]` | `/giveitem` | Give yourself an item; a full stack without an amount. Not `/item`: that is the game's own, left as it is | `hcfcore.general.item` |
 | `/tphere <player>` | `/s` | Bring a player to you | `hcfcore.general.tphere` |
 | `/tppos <x> <y> <z> [world]` | | Teleport to coordinates | `hcfcore.general.tppos` |
 | `/gmc` · `/gms` · `/gma` · `/gmsp` `[player]` | | Creative, survival, adventure, spectator | `hcfcore.general.admin` |

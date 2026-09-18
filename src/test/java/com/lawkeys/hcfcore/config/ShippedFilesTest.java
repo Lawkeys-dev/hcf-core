@@ -41,6 +41,20 @@ class ShippedFilesTest {
         assertTrue(broken.isEmpty(), "files that do not parse: " + broken);
     }
 
+    /**
+     * A plugin command named as a vanilla one takes it over: {@code /item} did, and
+     * {@code /item replace} - used by admins and datapacks - stopped working. The
+     * vanilla names below are those an everyday command could plausibly take.
+     */
+    @Test
+    void noEverydayCommandTakesAVanillaName() {
+        List<String> vanilla = List.of("item", "give", "clear", "tp", "teleport", "time", "weather", "effect",
+                "enchant", "gamemode", "kill", "summon", "setblock", "fill", "xp", "experience", "spectate",
+                "damage", "attribute", "data", "execute", "say", "tell", "msg", "w", "me", "list", "seed");
+        List<String> taken = BasicCommands.NAMES.stream().filter(vanilla::contains).toList();
+        assertTrue(taken.isEmpty(), "everyday commands named as vanilla ones: " + taken);
+    }
+
     @Test
     @SuppressWarnings("unchecked")
     void everyEverydayCommandIsDeclared() throws IOException {

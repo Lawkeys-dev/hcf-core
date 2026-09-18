@@ -233,8 +233,8 @@ commands:
     description: Open your ender chest, or another player's.
     usage: /<command> [player]
     permission: hcfcore.general.enderchest
-  item:
-    aliases: [i]
+  i:
+    aliases: [giveitem]
     description: Give yourself an item.
     usage: /<command> <item> [amount]
     permission: hcfcore.general.item

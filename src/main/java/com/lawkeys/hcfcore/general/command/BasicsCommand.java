@@ -30,7 +30,7 @@ import java.util.Optional;
  * alone: {@code /clearinventory}, {@code /feed}, {@code /fly}, {@code /god},
  * {@code /flyspeed}, {@code /walkspeed}, {@code /hat}, {@code /suicide},
  * {@code /extinguish}, {@code /workbench}, {@code /anvil}, {@code /enderchest},
- * {@code /item}, {@code /tphere}, {@code /tppos}, {@code /gmc} {@code /gms}
+ * {@code /i}, {@code /tphere}, {@code /tppos}, {@code /gmc} {@code /gms}
  * {@code /gma} {@code /gmsp}, {@code /day} {@code /night} {@code /sun} {@code /rain}.
  *
  * <p>Each has its own permission, {@code hcfcore.general.<command>}, and those that
@@ -94,7 +94,7 @@ public final class BasicsCommand implements TabExecutor {
             case "anvil" -> selfOnly(sender, name).ifPresent(player ->
                     player.openInventory(MenuType.ANVIL.builder().checkReachable(false).build(player)));
             case "enderchest" -> enderChest(sender, args);
-            case "item" -> item(sender, label, args);
+            case "i" -> item(sender, label, args);
             case "tphere" -> tpHere(sender, label, args);
             case "tppos" -> tpPos(sender, label, args);
             case "gmc" -> gameMode(sender, name, args, GameMode.CREATIVE);
@@ -421,7 +421,7 @@ public final class BasicsCommand implements TabExecutor {
                 }
                 return args.length == 2 ? VisiblePlayers.names(sender, args[1]) : List.of();
             }
-            case "item" -> {
+            case "i" -> {
                 if (args.length != 1 || args[0].length() < 2) {
                     return List.of();
                 }
