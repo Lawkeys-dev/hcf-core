@@ -19,6 +19,9 @@
 #   enchantments       on the item itself, e.g. {infinity: 1}
 #   cooldown-seconds   wait before this ability can be used again
 #   consume            take one from the stack when used (default true)
+#   uses               the item stays instead, and its durability bar counts the
+#                      uses left: one per use, none for a hit or a shot; it breaks
+#                      after the last (default 0: not counted)
 #   enabled            false leaves it out (default true)
 #
 # An effect is {effect: strength, level: 2, seconds: 8} - level 1 is level I.
@@ -345,35 +348,20 @@ abilities:
   # --8<-- [start:pumpkin-reaper]
   # Hit a Diamond with it: a 50% chance their helmet is swapped for a pumpkin,
   # which cannot be taken off, for 10 seconds. The helmet comes back after -
-  # and drops as itself if they die meanwhile.
+  # and drops as itself if they die meanwhile. The hoe stays: 5 uses.
   pumpkin-reaper:
     type: pumpkin
-    material: CARVED_PUMPKIN
+    material: DIAMOND_HOE
     name: "&c&lPumpkin Reaper"
     lore:
       - "&7Hit a Diamond with this item: 50% chance"
       - "&7their helmet becomes a pumpkin for 10 seconds."
     cooldown-seconds: 30
+    uses: 5
     chance: 50
     seconds: 10
     classes: [diamond]         # the classes it works on; [] for anybody
   # --8<-- [end:pumpkin-reaper]
-
-  # --8<-- [start:strength-bard]
-  # Strength II for 5 seconds, for you and your teammates within 20 blocks.
-  strength-bard:
-    type: team-effects
-    material: BLAZE_POWDER
-    name: "&6&lStrength II"
-    lore:
-      - "&7Right click to give Strength II to you and"
-      - "&7your teammates within 20 blocks for 5 seconds."
-    cooldown-seconds: 60
-    radius: 20
-    include-self: true
-    effects:
-      - {effect: strength, level: 2, seconds: 5}
-  # --8<-- [end:strength-bard]
 
   # --8<-- [start:hulk-smash]
   # Every enemy within 10 blocks is thrown about 6 blocks in the air.
@@ -418,8 +406,8 @@ abilities:
   # --8<-- [end:med-kit]
 
   # --8<-- [start:grappling-hook]
-  # Cast it at a block and reel in: you fly to the hook. No fall damage while
-  # it is in hand. It never breaks, and stays.
+  # Cast it at a block and reel in: you fly to the hook - from the ground, a
+  # jump or a fall. No fall damage while it is in hand. It never breaks, and stays.
   grappling-hook:
     type: grappling-hook
     material: FISHING_ROD      # a grappling-hook is a FISHING_ROD
@@ -429,13 +417,14 @@ abilities:
       - "&7No fall damage while in hand."
     cooldown-seconds: 15
     consume: false
-    pull: 1.0                  # stronger above 1, weaker below
+    pull: 1.2                  # stronger above 1, weaker below
     max-speed: 4.0             # the fastest it carries you, in blocks a tick
     no-fall-while-held: true
   # --8<-- [end:grappling-hook]
 
   # --8<-- [start:nausea-axe]
-  # Hit a player with it: a 50% chance of Nausea for 10 seconds.
+  # Hit a player with it: a 50% chance of Nausea for 10 seconds. The axe stays:
+  # 5 uses.
   nausea-axe:
     type: hit-effects
     material: IRON_AXE
@@ -444,6 +433,7 @@ abilities:
       - "&7Hit a player with this item: 50% chance"
       - "&7to give them Nausea for 10 seconds."
     cooldown-seconds: 45
+    uses: 5
     chance: 50
     effects:
       - {effect: nausea, level: 1, seconds: 10}
@@ -520,13 +510,13 @@ abilities:
     max-speed: 4.0             # the fastest it carries them, in blocks a tick
   # --8<-- [end:grabber]
 
-  # --8<-- [start:potato]
+  # --8<-- [start:poisonous-potato]
   # Hit a player 3 times with it: Slowness II, Poison II and Nausea for 10
   # seconds.
-  potato:
+  poisonous-potato:
     type: hit-effects
-    material: POTATO
-    name: "&c&lPotato"
+    material: POISONOUS_POTATO
+    name: "&2&lPoisonous Potato"
     lore:
       - "&7Hit a player 3 times with this item: Slowness II,"
       - "&7Poison II and Nausea for 10 seconds."
@@ -536,7 +526,7 @@ abilities:
       - {effect: slowness, level: 2, seconds: 10}
       - {effect: poison, level: 2, seconds: 10}
       - {effect: nausea, level: 1, seconds: 10}
-  # --8<-- [end:potato]
+  # --8<-- [end:poisonous-potato]
 
   # --8<-- [start:fake-pearl]
   # Thrown as an ender pearl, flies as one, teleports nobody. Its cooldown is
@@ -647,17 +637,19 @@ abilities:
   # --8<-- [end:olympia]
 
   # --8<-- [start:baguette]
-  # Hit a player 3 times with it: their hunger bar drops to 6 (of 20).
+  # Hit a player 3 times with it: a Hunger strong enough to take 14 food points
+  # (of 20) over 10 seconds - time for them to eat.
   baguette:
     type: starve
     material: BREAD
     name: "&6&lBaguette"
     lore:
-      - "&7Hit a player 3 times with this item"
-      - "&7to empty their hunger bar."
+      - "&7Hit a player 3 times with this item:"
+      - "&7their hunger bar drains for 10 seconds."
     cooldown-seconds: 120
     hits-required: 3
-    food-left: 6
+    food-lost: 14
+    seconds: 10
   # --8<-- [end:baguette]
 
   # --8<-- [start:sun]

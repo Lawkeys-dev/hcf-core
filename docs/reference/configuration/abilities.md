@@ -36,6 +36,7 @@ Each block under `abilities:` is one ability; its key is its id — stored on th
 | `enchantments` | none | On the item itself: `{infinity: 1}` |
 | `cooldown-seconds` | `0` | Wait before this ability can be used again |
 | `consume` | `true` | One is taken from the stack when it is used |
+| `uses` | `0` (`5` for `portable-archer`) | Above 0 the item stays instead, and its durability bar counts the uses left: one per use, none for a hit or a shot; it breaks after the last |
 | `enabled` | `true` | `false` leaves it out |
 
 An effect is written `{effect: strength, level: 2, seconds: 8}` — level `1` is level I. A key a type does not read is reported in the console; an ability that cannot work — no type, an unknown item, a thrown type that is not thrown — is left out, with a warning.
@@ -140,11 +141,10 @@ Teleports, after `delay-seconds`, to the last player you hit (within `hit-within
 
 #### `portable-archer`
 
-A bow whose arrows archer-tag the player they hit; it breaks after `uses` shots. Used by shooting it.
+A bow whose arrows archer-tag the player they hit; it breaks after `uses` shots (the common setting, 5 unless set). Used by shooting it.
 
 | Key | Default | What it does |
 |---|---|---|
-| `uses` | `5` | Shots before the bow breaks |
 | `tag-seconds` | `10` | How long the archer tag lasts |
 | `damage-multiplier` | `1.15` | What the damage is multiplied by |
 
@@ -226,16 +226,6 @@ Teleports, after `delay-seconds`, to the last player who hit you (within `hit-wi
 
 | Key | Default | What it does |
 |---|---|---|
-| `effects` | as shipped | The effects |
-
-#### `team-effects`
-
-`effects` for your teammates within `radius` - and you, with `include-self`. Used by a right-click.
-
-| Key | Default | What it does |
-|---|---|---|
-| `radius` | `20` | Blocks around the user it reaches |
-| `include-self` | `true` | The user gets it too |
 | `effects` | as shipped | The effects |
 
 #### `lucky-bard`
@@ -353,12 +343,13 @@ A hit: `chance`% that the weapon of the player hit swaps places with another ite
 
 #### `starve`
 
-`hits-required` hits: the hunger bar of the player hit drops to `food-left`. Used by hitting a player with it.
+`hits-required` hits: Hunger strong enough to take `food-lost` points from the player hit over `seconds` - time for them to eat. Used by hitting a player with it.
 
 | Key | Default | What it does |
 |---|---|---|
 | `hits-required` | `3` | Hits on the same player it takes, `global.hits-within-seconds` apart at most |
-| `food-left` | `6` | Hunger left, of 20 |
+| `food-lost` | `14` | Food points (of 20) the Hunger takes, once saturation is gone |
+| `seconds` | `10` | Over how long |
 
 #### `grab`
 

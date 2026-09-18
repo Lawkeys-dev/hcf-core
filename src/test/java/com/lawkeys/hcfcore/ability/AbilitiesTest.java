@@ -53,7 +53,7 @@ class AbilitiesTest {
             }
             AbilitySettings settings = config.parse(root);
             assertTrue(warnings.isEmpty(), "warnings: " + warnings);
-            assertEquals(43, settings.abilities().size(), "every ability of the shipped file");
+            assertEquals(42, settings.abilities().size(), "every ability of the shipped file");
             for (AbilityType type : AbilityType.values()) {
                 if (type != AbilityType.COMMANDS) {
                     assertTrue(settings.abilities().stream().anyMatch(a -> a.type() == type), type + " is shipped");
@@ -66,9 +66,19 @@ class AbilitiesTest {
             assertTrue(settings.disabledIn().citadel());
             assertFalse(settings.disabledIn().warzone());
             assertFalse(settings.ability("grappling-hook").orElseThrow().consume(), "the rod stays");
+            assertEquals(5, settings.ability("pumpkin-reaper").orElseThrow().uses(), "the hoe stays, for 5 uses");
+            assertEquals(5, settings.ability("nausea-axe").orElseThrow().uses());
+            assertEquals(5, settings.ability("portable-archer").orElseThrow().uses());
+            assertEquals(0, settings.ability("thunderbolt").orElseThrow().uses(), "consumed, not counted");
             assertEquals(List.of("diamond"), settings.ability("pumpkin-reaper").orElseThrow().params().strings("classes"));
             assertEquals(0, settings.ability("pocket-bard").orElseThrow().cooldownSeconds(),
                     "no cooldown on the Pocket Bard itself: its items have theirs");
+        }
+
+        @Test
+        void aPortableArcherBreaksAfterFiveShotsUnlessToldOtherwise() {
+            assertEquals(5, parse(Map.of("bow", ability("portable-archer", "BOW"))).ability("bow").orElseThrow().uses());
+            assertEquals(0, parse(Map.of("bolt", ability("thunderbolt", "GOLD_INGOT"))).ability("bolt").orElseThrow().uses());
         }
 
         @Test
@@ -163,6 +173,14 @@ class AbilitiesTest {
             assertEquals(18.0, AbilityRules.sunDamage(10, 10, 0.9), 1e-9, "9 hearts for ten");
             assertEquals(18.0, AbilityRules.sunDamage(14, 10, 0.9), 1e-9, "no more past the cap");
             assertEquals(0.0, AbilityRules.sunDamage(0, 10, 0.9), 1e-9);
+        }
+
+        @Test
+        void aBaguettesHungerTakesTheFoodOverItsSeconds() {
+            // 14 points in 10 s: 56 exhaustion in 200 ticks, 0.28 a tick - Hunger LVI.
+            assertEquals(55, AbilityRules.hungerAmplifier(14, 10));
+            assertEquals(0, AbilityRules.hungerAmplifier(0, 10));
+            assertEquals(254, AbilityRules.hungerAmplifier(20, 1), "capped at the game's highest level");
         }
 
         @Test

@@ -46,9 +46,9 @@ public enum AbilityType {
             Param.whole("hits-required", 3), Param.whole("seconds", 15),
             Param.strings("blocked-blocks", List.of("CHEST", "TRAPPED_CHEST", "FENCE_GATE", "TRAPDOOR")),
             Param.effects("user-effects", List.of(new AbilityEffect("speed", 3, 10)))),
-    /** A bow whose arrows archer-tag the player they hit; it breaks after {@code uses} shots. */
+    /** A bow whose arrows archer-tag the player they hit; it breaks after {@code uses} shots (5 unless set). */
     PORTABLE_ARCHER(Trigger.SHOOT,
-            Param.whole("uses", 5), Param.whole("tag-seconds", 10), Param.decimal("damage-multiplier", 1.15)),
+            Param.whole("tag-seconds", 10), Param.decimal("damage-multiplier", 1.15)),
     /** Invisible - armour hidden too with {@code hide-armor} - until hit, with {@code reveal-on-hit}. */
     INVISIBILITY(Trigger.RIGHT_CLICK,
             Param.effect("effect", new AbilityEffect("invisibility", 2, 120)),
@@ -82,10 +82,6 @@ public enum AbilityType {
     /** {@code effects} for you. */
     EFFECTS(Trigger.RIGHT_CLICK,
             Param.effects("effects", List.of(new AbilityEffect("strength", 2, 8)))),
-    /** {@code effects} for your teammates within {@code radius} - and you, with {@code include-self}. */
-    TEAM_EFFECTS(Trigger.RIGHT_CLICK,
-            Param.decimal("radius", 20), Param.bool("include-self", true),
-            Param.effects("effects", List.of(new AbilityEffect("strength", 2, 5)))),
     /** {@code positive-chance}% to get {@code good-effects}; {@code bad-effects} otherwise. */
     LUCKY_BARD(Trigger.RIGHT_CLICK,
             Param.decimal("positive-chance", 50),
@@ -138,9 +134,12 @@ public enum AbilityType {
     /** {@code hits-required} hits: the hotbar of the player hit is shuffled. */
     SCRAMBLE(Trigger.HIT,
             Param.whole("hits-required", 3)),
-    /** {@code hits-required} hits: the hunger bar of the player hit drops to {@code food-left} (of 20). */
+    /**
+     * {@code hits-required} hits: Hunger strong enough to take {@code food-lost} points (of 20)
+     * from the player hit over {@code seconds} - time for them to eat.
+     */
     STARVE(Trigger.HIT,
-            Param.whole("hits-required", 3), Param.whole("food-left", 6)),
+            Param.whole("hits-required", 3), Param.whole("food-lost", 14), Param.whole("seconds", 10)),
     /** A hit: the player hit is pulled towards you, by {@code pull}. */
     GRAB(Trigger.HIT,
             Param.whole("hits-required", 1), Param.decimal("pull", 1.0), Param.decimal("max-speed", 4.0)),

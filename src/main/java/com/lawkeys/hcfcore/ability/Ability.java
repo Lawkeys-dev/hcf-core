@@ -16,12 +16,14 @@ import java.util.Objects;
  * @param enchantments    enchantment key to level, on the item itself (a bow's Infinity)
  * @param cooldownSeconds wait before this ability can be used again
  * @param consume         whether using it takes one from the stack
+ * @param uses            above {@code 0}: the item stays, and its durability counts the uses left - it
+ *                        wears by one per use, never by a hit or a shot, and breaks after the last
  * @param commands        for {@code commands}: run from the console, with {@code %player%}
  * @param params          what its type reads
  */
 public record Ability(String id, AbilityType type, String material, String name, List<String> lore, boolean glow,
                       Map<String, Integer> enchantments, long cooldownSeconds, boolean consume,
-                      List<String> commands, AbilityParams params) {
+                      long uses, List<String> commands, AbilityParams params) {
 
     public Ability {
         Objects.requireNonNull(id, "id");
@@ -33,6 +35,7 @@ public record Ability(String id, AbilityType type, String material, String name,
         enchantments = Map.copyOf(enchantments);
         commands = List.copyOf(commands);
         cooldownSeconds = Math.max(0L, cooldownSeconds);
+        uses = Math.max(0L, uses);
     }
 
     /** @return the commands with the user's name filled in */

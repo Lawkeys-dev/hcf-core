@@ -26,7 +26,7 @@ public final class AbilityConfig {
     private static final Pattern VALID_ID = Pattern.compile("[a-z0-9_-]{1,32}");
     /** Settings every ability reads, whatever its type. */
     private static final List<String> COMMON = List.of("type", "enabled", "material", "name", "lore", "glow",
-            "enchantments", "cooldown-seconds", "consume", "commands");
+            "enchantments", "cooldown-seconds", "consume", "uses", "commands");
 
     private final Predicate<String> knownItem;
     private final Predicate<String> knownEffect;
@@ -158,6 +158,8 @@ public final class AbilityConfig {
                 bool(entry.get("glow"), true, at + ".glow"), enchantments,
                 whole(entry.get("cooldown-seconds"), 0, at + ".cooldown-seconds"),
                 bool(entry.get("consume"), true, at + ".consume"),
+                // A Portable Archer is a bow that breaks: 5 shots unless told otherwise.
+                whole(entry.get("uses"), type == AbilityType.PORTABLE_ARCHER ? 5 : 0, at + ".uses"),
                 commands, params(type, entry, at));
     }
 

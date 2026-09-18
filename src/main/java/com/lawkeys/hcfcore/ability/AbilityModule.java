@@ -315,9 +315,9 @@ public final class AbilityModule {
         if (ability.glow()) {
             item.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
         }
-        if (ability.type() == AbilityType.PORTABLE_ARCHER) {
-            // Breaks after so many shots: the game wears a bow by one per shot.
-            item.setData(DataComponentTypes.MAX_DAMAGE, (int) Math.max(1, ability.params().whole("uses")));
+        if (ability.uses() > 0) {
+            // The durability bar counts the uses left: see wear().
+            item.setData(DataComponentTypes.MAX_DAMAGE, (int) Math.min(Integer.MAX_VALUE, ability.uses()));
             item.setData(DataComponentTypes.DAMAGE, 0);
         }
         if (ability.type() == AbilityType.FAKE_PEARL) {
@@ -346,11 +346,31 @@ public final class AbilityModule {
         return item;
     }
 
-    /** Takes one from the stack in hand, if the ability is consumed. */
-    private static void consume(Ability ability, ItemStack item) {
-        if (ability.consume() && item != null && !item.isEmpty()) {
+    /**
+     * The item after a use: with {@code uses}, one use off its durability - broken
+     * after the last; otherwise one taken from the stack, if the ability is consumed.
+     */
+    private static void consume(Player player, Ability ability, ItemStack item) {
+        if (item == null || item.isEmpty()) {
+            return;
+        }
+        if (ability.uses() > 0) {
+            Integer worn = item.getData(DataComponentTypes.DAMAGE);
+            int now = (worn == null ? 0 : worn) + 1;
+            if (now >= ability.uses()) {
+                item.setAmount(0);
+                player.getWorld().playSound(player.getLocation(), org.bukkit.Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+            } else {
+                item.setData(DataComponentTypes.DAMAGE, now);
+            }
+        } else if (ability.consume()) {
             item.setAmount(item.getAmount() - 1);
         }
+    }
+
+    /** Whether an item wears only by its ability's uses: the game's own wear leaves it alone. */
+    public boolean wearsByUses(ItemStack item) {
+        return abilityOf(item).map(ability -> ability.uses() > 0).orElse(false);
     }
 
     // ------------------------------------------------------------------
@@ -554,14 +574,6 @@ public final class AbilityModule {
                 apply(player, p.effects("effects"));
                 lang.send(player, AbilityMessages.USED, "ability", display(ability));
             }
-            case TEAM_EFFECTS -> {
-                List<Player> reached = teammatesAround(player, p.decimal("radius"), p.bool("include-self"));
-                for (Player teammate : reached) {
-                    apply(teammate, p.effects("effects"));
-                }
-                lang.send(player, AbilityMessages.AREA_USED, "ability", display(ability),
-                        "count", String.valueOf(reached.size()));
-            }
             case LUCKY_BARD -> {
                 boolean lucky = AbilityRules.chance(p.decimal("positive-chance"), ThreadLocalRandom.current().nextDouble());
                 List<AbilityEffect> effects = p.effects(lucky ? "good-effects" : "bad-effects");
@@ -619,7 +631,7 @@ public final class AbilityModule {
             }
         }
         started(player, ability, now);
-        consume(ability, item);
+        consume(player, ability, item);
     }
 
     /** Eggs in a fan, and the user pushed back. */
@@ -693,7 +705,7 @@ public final class AbilityModule {
             return;
         }
         started(player, pocketBard, now);
-        consume(pocketBard, held);
+        consume(player, pocketBard, held);
         player.getInventory().addItem(buildPocketItem(picked)).values()
                 .forEach(left -> player.getWorld().dropItemNaturally(player.getLocation(), left));
         lang.send(player, AbilityMessages.POCKET_BARD_GIVEN, "amount", String.valueOf(picked.amount()),
@@ -887,15 +899,37 @@ public final class AbilityModule {
         if (!mayUse(player, ability, now)) {
             return;
         }
-        Location from = player.getLocation();
-        Location to = hook.getLocation();
-        if (!Objects.equals(from.getWorld(), to.getWorld())) {
+        Location to = hook.getLocation().clone();
+        if (!Objects.equals(player.getWorld(), to.getWorld())) {
             return;
         }
-        double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
-                to.getZ() - from.getZ(), ability.params().decimal("pull"), ability.params().decimal("max-speed"));
-        player.setVelocity(new Vector(v[0], v[1], v[2]));
         started(player, ability, now);
+        // A tick later, once the reel is done: whether on the ground, jumping or falling.
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!player.isOnline() || !player.getWorld().equals(to.getWorld())) {
+                return;
+            }
+            Location from = player.getLocation();
+            double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
+                    to.getZ() - from.getZ(), ability.params().decimal("pull"), ability.params().decimal("max-speed"));
+            player.setFallDistance(0f);
+            player.setVelocity(new Vector(v[0], v[1], v[2]));
+        });
+    }
+
+    /** Whether a hook is held by a block: stuck in one, lying on one, or against one's side. */
+    public static boolean hookHeld(FishHook hook) {
+        if (hook.isOnGround()) {
+            return true;
+        }
+        Location at = hook.getLocation();
+        double[][] around = {{0, 0, 0}, {0.3, 0, 0}, {-0.3, 0, 0}, {0, 0.3, 0}, {0, -0.3, 0}, {0, 0, 0.3}, {0, 0, -0.3}};
+        for (double[] d : around) {
+            if (at.clone().add(d[0], d[1], d[2]).getBlock().isSolid()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Whether a fall does this player no harm: a Sticky Web or a Rocket running, a Grappling Hook in hand. */
@@ -1028,7 +1062,7 @@ public final class AbilityModule {
             return;
         }
         started(attacker, ability, now);
-        consume(ability, held);
+        consume(attacker, ability, held);
     }
 
     /**
@@ -1113,8 +1147,10 @@ public final class AbilityModule {
                 }
             }
             case STARVE -> {
-                victim.setFoodLevel((int) Math.max(0, Math.min(20, p.whole("food-left"))));
+                // Saturation first, or it would eat the Hunger before the food bar does.
                 victim.setSaturation(0f);
+                victim.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, (int) (p.whole("seconds") * 20),
+                        AbilityRules.hungerAmplifier(p.whole("food-lost"), p.whole("seconds"))));
             }
             case GRAB -> {
                 double pull = p.decimal("pull");
@@ -1366,13 +1402,14 @@ public final class AbilityModule {
     }
 
     /** @return whether the shot goes ahead; the arrow is marked to tag whoever it hits */
-    public boolean shoot(Player player, Ability ability, Projectile arrow) {
+    public boolean shoot(Player player, Ability ability, Projectile arrow, ItemStack bow) {
         long now = System.currentTimeMillis();
         if (!mayUse(player, ability, now)) {
             return false;
         }
         arrow.getPersistentDataContainer().set(projectileKey, PersistentDataType.STRING, ability.id());
         started(player, ability, now);
+        consume(player, ability, bow);
         return true;
     }
 

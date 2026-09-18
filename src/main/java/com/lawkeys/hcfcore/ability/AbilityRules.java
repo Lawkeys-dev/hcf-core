@@ -92,4 +92,18 @@ public final class AbilityRules {
         }
         return out;
     }
+
+    /**
+     * Baguette: the Hunger amplifier that takes {@code foodLost} food points over
+     * {@code seconds}. The game's Hunger adds 0.005 exhaustion a tick per level, and
+     * 4 exhaustion is one food point, once saturation is gone.
+     */
+    public static int hungerAmplifier(long foodLost, long seconds) {
+        if (foodLost <= 0) {
+            return 0;
+        }
+        long ticks = Math.max(1L, seconds) * 20L;
+        long levels = (long) Math.ceil(foodLost * 4.0 / (0.005 * ticks));
+        return (int) Math.max(0L, Math.min(254L, levels - 1));
+    }
 }

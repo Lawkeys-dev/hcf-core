@@ -38,6 +38,7 @@ import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryHolder;
@@ -110,6 +111,14 @@ public final class AbilityListener implements Listener {
         }
     }
 
+    /** An item that counts its uses is worn by them alone, never by a hit or a shot. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onWear(PlayerItemDamageEvent event) {
+        if (module.wearsByUses(event.getItem())) {
+            event.setCancelled(true);
+        }
+    }
+
     /** No ability item is ever placed, whatever else refuses or allows it. */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPlace(BlockPlaceEvent event) {
@@ -174,18 +183,18 @@ public final class AbilityListener implements Listener {
         }
         Optional<Ability> ability = module.abilityOf(event.getBow())
                 .filter(a -> a.type() == AbilityType.PORTABLE_ARCHER);
-        if (ability.isPresent() && !module.shoot(player, ability.get(), arrow)) {
+        if (ability.isPresent() && !module.shoot(player, ability.get(), arrow, event.getBow())) {
             event.setCancelled(true);
             player.updateInventory();
         }
     }
 
-    /** A Grappling Hook reeled in while its hook is stuck in a block, or lies on one. */
+    /** A Grappling Hook reeled in while its hook is stuck in a block, lies on one, or touches one's side. */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onReel(PlayerFishEvent event) {
         FishHook hook = event.getHook();
         boolean stuck = event.getState() == PlayerFishEvent.State.IN_GROUND
-                || (event.getState() == PlayerFishEvent.State.REEL_IN && hook.isOnGround());
+                || (event.getState() == PlayerFishEvent.State.REEL_IN && AbilityModule.hookHeld(hook));
         if (!stuck || event.getHand() == null) {
             return;
         }
