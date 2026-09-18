@@ -46,13 +46,66 @@ public final class EventSettingsLoader {
             tickSeconds = defaults.tickSeconds();
         }
 
+        Set<String> seen = new HashSet<>();
+        List<CaptureEventDefinition> definitions =
+                new ArrayList<>(loadDefinitions(section.getConfigurationSection("events"), seen, warn));
+        List<CitadelDefinition> citadels = new ArrayList<>();
+        loadCitadels(section.getConfigurationSection("citadels"), seen, definitions, citadels, warn);
+
         return new EventSettings(
                 section.getBoolean("enabled", defaults.enabled()),
                 tickSeconds,
                 loadZone(section.getString("time-zone", "system"), warn),
                 section.getBoolean("announce-contests", defaults.announceContests()),
                 section.getBoolean("teamless-players-contest", defaults.teamlessPlayersContest()),
-                loadDefinitions(section.getConfigurationSection("events"), warn));
+                definitions,
+                citadels);
+    }
+
+    /**
+     * The {@code citadels:} section: each entry is a capture event, read exactly like a
+     * KOTH, plus the name of the server team whose land is the Citadel and what that
+     * land refuses. The capture event joins the others, so the capture engine runs it
+     * as it runs any KOTH.
+     */
+    private static void loadCitadels(ConfigurationSection section, Set<String> seen,
+                                     List<CaptureEventDefinition> definitions, List<CitadelDefinition> citadels,
+                                     Consumer<String> warn) {
+        if (section == null) {
+            return;
+        }
+        for (String id : section.getKeys(false)) {
+            if (!seen.add(id.toLowerCase(Locale.ROOT))) {
+                warn.accept("citadel '" + id + "' has the id of another event (ids are case-insensitive and "
+                        + "shared by every kind of event); skipped.");
+                continue;
+            }
+            ConfigurationSection entry = section.getConfigurationSection(id);
+            if (entry == null) {
+                warn.accept("citadel '" + id + "' is not a section; skipped.");
+                continue;
+            }
+            String claim = entry.getString("claim", "");
+            if (claim == null || claim.isBlank()) {
+                warn.accept("citadel '" + id + "' names no claim - the server team whose land is the "
+                        + "Citadel; skipped.");
+                continue;
+            }
+            CaptureEventDefinition capture = loadDefinition(id, entry, warn);
+            if (capture == null) {
+                continue;
+            }
+            ConfigurationSection restrictions = entry.getConfigurationSection("restrictions");
+            CitadelRules all = CitadelRules.ALL;
+            CitadelRules rules = restrictions == null ? all : new CitadelRules(
+                    restrictions.getBoolean("ender-pearls", all.enderPearls()),
+                    restrictions.getBoolean("partner-items", all.partnerItems()),
+                    restrictions.getBoolean("chorus-fruit", all.chorusFruit()),
+                    restrictions.getBoolean("elytra", all.elytra()),
+                    restrictions.getBoolean("riptide", all.riptide()));
+            definitions.add(capture);
+            citadels.add(new CitadelDefinition(id, claim.trim(), rules));
+        }
     }
 
     private static ZoneId loadZone(String raw, Consumer<String> warn) {
@@ -68,7 +121,7 @@ public final class EventSettingsLoader {
         }
     }
 
-    private static List<CaptureEventDefinition> loadDefinitions(ConfigurationSection section,
+    private static List<CaptureEventDefinition> loadDefinitions(ConfigurationSection section, Set<String> seen,
                                                                Consumer<String> warn) {
         List<CaptureEventDefinition> definitions = new ArrayList<>();
         if (section == null) {
@@ -79,7 +132,6 @@ public final class EventSettingsLoader {
         // equalsIgnoreCase - so two entries differing only by case would make
         // lookups ambiguous and let only one of them ever run. Refuse the second
         // rather than let an operator wonder why half their config is inert.
-        Set<String> seen = new HashSet<>();
         for (String id : section.getKeys(false)) {
             if (!seen.add(id.toLowerCase(Locale.ROOT))) {
                 warn.accept("event '" + id + "' collides with an earlier event whose id differs "

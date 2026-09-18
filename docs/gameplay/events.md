@@ -2,7 +2,7 @@
 
 *Configured in [`events.yml`](../reference/configuration/events.md). Command: `/events`.*
 
-Events pull teams into the open. HCFCore ships four kinds — **KOTH**, **Citadel**, **Conquest** and **Kill the King** — all defined in `events.yml` as data: a new KOTH is a block of YAML, never a recompile.
+Events pull teams into the open. HCFCore ships four kinds — **KOTH**, **Citadel**, **Conquest** and **Kill the King** — all defined in `events.yml` as data: a new KOTH or Citadel is a block of YAML, never a recompile.
 
 ```text
 /events                  # what runs and what is coming (aliases /event, /koth)
@@ -53,7 +53,57 @@ The zone is the box between the two corners, bounds included, written in any ord
 
 ## Citadel
 
-A Citadel is a KOTH with a much longer hold — **30 minutes** in the example (`capture-seconds: 1800`). It has no code of its own: the same engine, different values.
+A Citadel is a KOTH with a much longer hold — **30 minutes** in the example — fought inside a **Citadel**: a large area where the fight is decided by **teams and classes**, and where nobody gets away by throwing an item. It lives in its own section of `events.yml`, `citadels:`.
+
+A Citadel has **two zones**:
+
+| Zone | What it is | How it is set up |
+|---|---|---|
+| **The zone to hold** | The box the team must hold alone, exactly as for a KOTH | `world`, `corner-1`, `corner-2` in `events.yml` |
+| **The Citadel** | A large area around it, where the restrictions below apply | Server land: a server team's claim, named by `claim` |
+
+```yaml title="events.yml"
+citadels:
+  citadel:
+    display-name: "&5Citadel"
+    world: world
+    corner-1: {x: -200, y: 60, z: -200}     # the zone to hold
+    corner-2: {x: -185, y: 90, z: -185}
+    capture-seconds: 1800
+    contest-policy: RESET
+    schedule: []
+    reward-commands: []
+    claim: Citadel                          # the server team whose land is the Citadel
+    restrictions:
+      ender-pearls: true
+      partner-items: true
+      chorus-fruit: true
+      elytra: true
+      riptide: true
+```
+
+Create the Citadel's land once, around the zone to hold:
+
+```text
+/team createsystem Citadel combat
+/team forceclaim Citadel 4        # as many times, and wherever, as needed
+```
+
+A **combat** server team: players fight there, nobody builds, and `/team map` shows it. The console warns when a Citadel starts without its claim, or with its zone to hold outside it.
+
+### What the Citadel refuses
+
+On the Citadel's land, **at all times** — whether the event runs or not:
+
+| Refused | Detail |
+|---|---|
+| **Ender pearls** | A pearl cannot be thrown from inside, so nobody pearls out of a lost fight |
+| **Partner items** | The kit abilities of `kits.yml` do nothing inside |
+| **Chorus fruit** | Refused before it is eaten, so it is kept — any food that teleports as well |
+| **Elytra** | Nobody takes off inside, and a player gliding in lands |
+| **Riptide tridents** | A Riptide trident cannot be charged inside |
+
+**Class abilities keep working**: a Bard's buffs and bursts, an Archer's tag and dyed arrows, a Rogue's backstab — they are the point. Each restriction can be switched off in `restrictions`. The rest of the Citadel plays as a KOTH: contest policy, announcements, schedule, rewards, the hologram above the zone, and allies who may fight each other inside its zone to hold.
 
 ## Conquest
 

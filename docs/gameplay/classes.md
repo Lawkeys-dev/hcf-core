@@ -28,6 +28,9 @@ Every number below is a setting, and you can [create your own classes](#creating
 
 A logout or a death drops the class; the next time you wear the set, the warmup starts again. Kits (`/kit`) that hand out a class's armour make the class turn on the same way.
 
+!!! tip "Classes in the Citadel"
+    Inside a [Citadel](events.md#what-the-citadel-refuses), pearls and partner items are refused but class abilities keep working: the Citadel is where classes decide the fight.
+
 !!! info "Effects never cut a stronger one short"
     A class never replaces a stronger effect you already have: a Speed III potion is not cut down to a Bard's Speed II, and a weaker, longer effect comes back once a stronger one ends. When the class turns off, only the effects it gave are taken back.
 

@@ -245,6 +245,10 @@ public final class HCFCore extends JavaPlugin {
         // Kits, partner items and refill signs. Independent of everything above.
         this.kitModule = new KitModule(this, this.langManager, this.startupGate);
         this.kitModule.enable(dataSource, saveInterval);
+        // Partner items are refused inside a Citadel's claim; events/ asks kit/ what one is.
+        if (this.eventModule != null) {
+            this.eventModule.setPartnerItems(item -> this.kitModule.abilityOf(item) != null);
+        }
 
         // Killstreak rewards install themselves on the stats module's observer seam,
         // so the two share nothing but an integer.

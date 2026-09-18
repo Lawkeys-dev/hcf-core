@@ -78,6 +78,9 @@ Held and click effects need the class on, and do not work on a safe zone (`abili
 **The KOTH is never captured.**
 Anyone of another team in the zone freezes the countdown — allies included, and, by default, players with no team (`teamless-players-contest`).
 
+**Pearls or partner items still work in the Citadel.**
+The restrictions hold on the land of the server team named by the Citadel's `claim` in `events.yml`: create it (`/team createsystem Citadel combat`) and claim the area (`/team forceclaim Citadel <radius>`). `/team here` shows who owns the chunk you stand in. The console warns when a Citadel starts without its claim. A Citadel written under `events:` rather than `citadels:` — as in files from before Citadels had a section of their own — is a plain KOTH with no restrictions: move it.
+
 **Kill the King is called off.**
 The announcement says why: fewer than `minimum-players` eligible players online (survival or adventure mode, without `hcfcore.events.king.exempt`), no warzone in the event's world (`claims.yml`, `warzone.worlds`), or no safe spot found in it. The world cannot be one with a bedrock ceiling, such as the Nether.
 

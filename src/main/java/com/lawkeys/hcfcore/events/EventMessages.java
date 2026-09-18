@@ -44,4 +44,10 @@ public final class EventMessages {
     public static final String HOLOGRAM_FREE = "events.hologram.free";
     public static final String HOLOGRAM_NEXT = "events.hologram.next";
     public static final String HOLOGRAM_UNSCHEDULED = "events.hologram.unscheduled";
+
+    public static final String CITADEL_NO_PEARLS = "events.citadel.no-pearls";
+    public static final String CITADEL_NO_PARTNER_ITEMS = "events.citadel.no-partner-items";
+    public static final String CITADEL_NO_CHORUS = "events.citadel.no-chorus";
+    public static final String CITADEL_NO_ELYTRA = "events.citadel.no-elytra";
+    public static final String CITADEL_NO_RIPTIDE = "events.citadel.no-riptide";
 }

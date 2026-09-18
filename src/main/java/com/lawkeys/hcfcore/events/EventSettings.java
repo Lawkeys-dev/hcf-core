@@ -19,21 +19,41 @@ import java.util.Optional;
  *                    standing in the zone. True reads them as everybody's enemy,
  *                    which is the usual HCF behaviour; false lets teams cap around
  *                    them
+ * @param definitions every capture event - the KOTHs, and the Citadels' zones to hold
+ * @param citadels    what makes some of those Citadels: their claim and its rules
  */
 public record EventSettings(boolean enabled,
                             long tickSeconds,
                             ZoneId timeZone,
                             boolean announceContests,
                             boolean teamlessPlayersContest,
-                            List<CaptureEventDefinition> definitions) {
+                            List<CaptureEventDefinition> definitions,
+                            List<CitadelDefinition> citadels) {
 
     public EventSettings {
         Objects.requireNonNull(timeZone, "timeZone");
         definitions = List.copyOf(Objects.requireNonNull(definitions, "definitions"));
+        citadels = List.copyOf(Objects.requireNonNull(citadels, "citadels"));
+    }
+
+    /** Settings without Citadels. */
+    public EventSettings(boolean enabled, long tickSeconds, ZoneId timeZone, boolean announceContests,
+                         boolean teamlessPlayersContest, List<CaptureEventDefinition> definitions) {
+        this(enabled, tickSeconds, timeZone, announceContests, teamlessPlayersContest, definitions, List.of());
     }
 
     public static EventSettings defaults() {
         return new EventSettings(true, 1L, ZoneId.systemDefault(), true, true, List.of());
+    }
+
+    /** @return the Citadel whose claim belongs to the team of this name, if any */
+    public Optional<CitadelDefinition> citadelClaimedBy(String teamName) {
+        return citadels.stream().filter(citadel -> citadel.isClaimedBy(teamName)).findFirst();
+    }
+
+    /** @return the Citadel of this capture event, if it is one */
+    public Optional<CitadelDefinition> citadel(String eventId) {
+        return citadels.stream().filter(citadel -> citadel.eventId().equalsIgnoreCase(eventId)).findFirst();
     }
 
     public Optional<CaptureEventDefinition> find(String id) {

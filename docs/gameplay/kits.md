@@ -72,6 +72,7 @@ abilities:
 - Hand them out with `/kit ability <player> <id> [amount]`, a killstreak reward, a redeem code, or any plugin that can run a command.
 - An ability with no command is refused when the file loads — an item that looks like a tool and does nothing is worse than none.
 - Cooldowns live in memory: they stop spam in a fight, and a fight does not survive a restart.
+- Partner items do nothing inside a [Citadel](events.md#what-the-citadel-refuses), where only class abilities work.
 - Lunar Client players see ability cooldowns as icons.
 
 ## Killstreaks

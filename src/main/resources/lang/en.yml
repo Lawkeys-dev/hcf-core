@@ -431,6 +431,15 @@ economy:
 # ---------------------------------------------------------------------------
 events:
 
+  # Refused inside a Citadel's claim (events.yml, citadels: restrictions). Class
+  # abilities - a Bard's buffs, an Archer's tag - are not partner items and work.
+  citadel:
+    no-pearls: "&cEnder pearls do not work inside the Citadel."
+    no-partner-items: "&cPartner items do not work inside the Citadel - only class abilities do."
+    no-chorus: "&cChorus fruit does not work inside the Citadel."
+    no-elytra: "&cElytra do not work inside the Citadel."
+    no-riptide: "&cRiptide does not work inside the Citadel."
+
   # Above each capture zone (events.yml, zone-holograms), one line per key.
   hologram:
     title: "&6&l%event%"

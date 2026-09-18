@@ -134,7 +134,7 @@ The faction events split into **two families**, not one.
 
 What they share: a target, a win condition, a timer, announcements, a reward for the winner.
 
-- KOTH and Citadel are the same engine (`EventManager`, `CaptureEventDefinition`): hold a zone alone for a time. A Citadel is a KOTH with a much longer `capture-seconds` and no code of its own.
+- KOTH and Citadel are the same engine (`EventManager`, `CaptureEventDefinition`): hold a zone alone for a time. A Citadel is a KOTH with a much longer `capture-seconds`, plus a `CitadelDefinition` in its own `citadels:` section: the server team whose claim is the Citadel, and the `CitadelRules` that land refuses at all times (`events/listener/CitadelListener`). Its zone to hold joins the KOTHs in `EventSettings#definitions`, so the capture engine, the agenda, the holograms and the waypoints need nothing new.
 - **Conquest** (`events/conquest/`) is a second engine: several zones captured in parallel for points, first team to the target wins.
 - **Kill the King** (`events/king/`) is a third engine. It has no zone to hold, no holding team and no capture countdown: a player, their death or survival, and a border that punishes rather than counts. Forcing it into `CaptureEventDefinition` would drag a holder and a countdown through code that can have neither — and a common interface would bring nothing either, since the engines have **no method** in common.
 
@@ -264,6 +264,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `HologramSource` | `hologram/` | no source (only stored holograms) | `events/` (one hologram per capture zone) |
 | `SpawnGuard` | `general/` | `ALLOW` (nobody refused) | `events/` (the King of Kill the King never enters spawn, `/spawn` included) |
 | `LogoutGuard` | `general/` | `ALLOW` (nobody refused) | `pvp/` (a tagged player cannot leave through `/logout`: that would be a combat log) |
+| Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `kit/` (its abilities) |
 | `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel or Conquest zone, and the King during Kill the King) |
 | `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW and the Purge make everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |

@@ -107,7 +107,7 @@ events:
     reward-commands: []   # console commands; %team% and %event% are filled in
 ```
 
-Stand at each corner and read your coordinates with ++f3++. A Citadel is the same thing with a longer `capture-seconds`. A **Conquest** (`conquest:` section) is several zones held at once for points; **Kill the King** (`kill-the-king:` section) needs the warzone of its world, and a world without a bedrock ceiling — not the Nether.
+Stand at each corner and read your coordinates with ++f3++. A **Citadel** (`citadels:` section) is a longer KOTH whose zone stands inside a claimed Citadel that refuses pearls, partner items, chorus fruit, elytra and Riptide: create its land with `/team createsystem Citadel combat` and `/team forceclaim Citadel <radius>` around the zone ([Capture events](../gameplay/events.md#citadel)). A **Conquest** (`conquest:` section) is several zones held at once for points; **Kill the King** (`kill-the-king:` section) needs the warzone of its world, and a world without a bedrock ceiling — not the Nether.
 
 Try each one with `/events start <id>` and stop it with `/events stop <id>`. `/events` lists what runs and what is coming.
 

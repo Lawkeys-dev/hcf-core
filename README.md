@@ -27,7 +27,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 | **Combat** | Deathbans with rank tiers, combat tag and combat logging, safe zones, friendly fire rules, loot protection, strength nerf, optional knockback and attack speed |
 | **Classes** | Diamond, Bard, Archer, Rogue and Miner, chosen by the armour worn: Bard buffs and energy, archer tag, backstab, effects by dye colour for the Archer — and your own classes, written from scratch in `classes.yml` |
 | **Lives** | Revive friends, or spend your own life by logging in (HCF mode) |
-| **Events** | KOTH, Citadel, Conquest and Kill the King on daily schedules, with a hologram above every zone; Mountains that refill on a clock |
+| **Events** | KOTH, Citadel (fought in a claimed Citadel with no pearls or partner items), Conquest and Kill the King on daily schedules, with a hologram above every zone; Mountains that refill on a clock |
 | **Map phases** | SOTW, EOTW and the Purge, by command or by date, surviving restarts |
 | **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, partner items, killstreak rewards, custom enchants, enchantment and potion caps, block limits per claim, a crowbar |
 | **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams |
@@ -62,7 +62,7 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 964 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 969 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).

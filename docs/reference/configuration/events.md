@@ -1,6 +1,6 @@
 # events.yml
 
-Capture events: KOTH and Citadel zones, Kill the King, Conquest, their schedules and rewards, and the zone holograms.
+Capture events: KOTH zones, Citadels (a zone to hold inside a claimed Citadel with its restrictions), Kill the King, Conquest, their schedules and rewards, and the zone holograms.
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/events.md)
 

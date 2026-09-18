@@ -11,6 +11,7 @@ import com.lawkeys.hcfcore.events.conquest.ConquestSettingsLoader;
 import com.lawkeys.hcfcore.events.conquest.ConquestZone;
 import com.lawkeys.hcfcore.events.king.KingEventController;
 import com.lawkeys.hcfcore.events.king.KingSettingsLoader;
+import com.lawkeys.hcfcore.events.listener.CitadelListener;
 import com.lawkeys.hcfcore.hologram.HologramSource;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.startup.StartupGate;
@@ -27,6 +28,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -43,6 +45,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 
 /**
@@ -86,6 +89,8 @@ public final class EventModule {
      * module at startup.
      */
     private final List<AgendaContributor> agendaContributors = new CopyOnWriteArrayList<>();
+    /** Recognises a partner item, refused inside a Citadel. Installed by {@code kit/}; until then, none is. */
+    private volatile Predicate<ItemStack> partnerItems = item -> false;
 
     /** @param claims may be {@code null} if the claim module is not running; Kill the King then cannot start */
     public EventModule(Plugin plugin, TeamModule teams, ClaimModule claims, LangManager lang, StartupGate startup) {
@@ -184,6 +189,7 @@ public final class EventModule {
         conquest.enable(settings.tickSeconds());
 
         registerCommand("events", new EventsCommand(this));
+        plugin.getServer().getPluginManager().registerEvents(new CitadelListener(this), plugin);
 
         if (settings.definitions().isEmpty()) {
             plugin.getLogger().info("No capture events are configured; see events.yml.");
@@ -257,8 +263,68 @@ public final class EventModule {
         return occupants;
     }
 
+    /**
+     * Installs how a partner item is recognised. Called by the {@code kit/} module's
+     * wiring at startup, since partner items are kit abilities; this module does not
+     * need to know what one is (ARCHITECTURE.md section 14).
+     */
+    public void setPartnerItems(Predicate<ItemStack> partnerItems) {
+        this.partnerItems = Objects.requireNonNull(partnerItems, "partnerItems");
+    }
+
+    public boolean isPartnerItem(ItemStack item) {
+        return item != null && partnerItems.test(item);
+    }
+
+    /**
+     * @return the Citadel whose claim this location stands on: the land of the server
+     *         team a {@code citadels:} entry names. Its rules hold at all times, whether
+     *         the event runs or not
+     */
+    public Optional<CitadelDefinition> citadelAt(Location location) {
+        EventSettings current = settings;
+        if (!current.enabled() || current.citadels().isEmpty() || location == null || location.getWorld() == null
+                || claims == null || claims.getManager() == null) {
+            return Optional.empty();
+        }
+        return claims.getManager().getOwner(ClaimModule.toChunk(location))
+                .filter(team -> team.getType().isSystem())
+                .flatMap(team -> current.citadelClaimedBy(team.getName()));
+    }
+
+    /**
+     * Says in the console when a Citadel starts without its claim: the zone can be
+     * held, but nothing is refused around it. Checked here rather than at load, since
+     * teams and claims load after the settings.
+     */
+    private void checkCitadelClaim(String eventId) {
+        Optional<CitadelDefinition> citadel = settings.citadel(eventId);
+        Optional<CaptureEventDefinition> capture = settings.find(eventId);
+        if (citadel.isEmpty() || capture.isEmpty() || claims == null || claims.getManager() == null) {
+            return;
+        }
+        Optional<Team> owner = teams.getManager().getTeamByName(citadel.get().claim())
+                .filter(team -> team.getType().isSystem());
+        if (owner.isEmpty()) {
+            plugin.getLogger().warning("Citadel '" + eventId + "' names the claim '" + citadel.get().claim()
+                    + "', but no server team has that name: nothing is refused around the zone. Create it with "
+                    + "/team createsystem " + citadel.get().claim() + " combat, then /team forceclaim.");
+            return;
+        }
+        Cuboid zone = capture.get().zone();
+        Location centre = new Location(Bukkit.getWorld(zone.world()), (zone.minX() + zone.maxX()) / 2.0,
+                zone.minY(), (zone.minZ() + zone.maxZ()) / 2.0);
+        if (centre.getWorld() == null || citadelAt(centre).isEmpty()) {
+            plugin.getLogger().warning("Citadel '" + eventId + "': its zone to hold is not on the land of '"
+                    + citadel.get().claim() + "'. Claim the Citadel around the zone with /team forceclaim.");
+        }
+    }
+
     /** Renders an update, and applies the rewards when somebody actually won. */
     private void handle(EventUpdate update) {
+        if (update.type() == EventUpdate.Type.STARTED) {
+            checkCitadelClaim(update.eventId());
+        }
         Map<String, String> placeholders = new LinkedHashMap<>(update.placeholders());
         Optional<Team> team = Optional.ofNullable(update.teamId())
                 .flatMap(id -> teams.getManager().getTeam(id));

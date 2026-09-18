@@ -4,8 +4,9 @@
 # Events with a zone to hold, a win condition, a timer and a reward.
 #
 # Events are DATA, not code. Adding a KOTH variant means adding a block under
-# "events:" below - never a recompile. A Citadel is a classic KOTH with a much
-# longer capture-seconds; that is the whole difference.
+# "events:" below - never a recompile. A Citadel ("citadels:") is a KOTH with a
+# much longer hold, fought inside a claimed Citadel that refuses pearls, partner
+# items and the other ways out.
 #
 # Changes take effect on /hcf reload.
 # ---------------------------------------------------------------------------
@@ -111,12 +112,35 @@ events:
     # the points-per-capture scale and the cap (see teams.yml, "koth").
     reward-commands: []
 
-  # ------------------------------------------------------------------
-  # Citadel: the same mechanic, a much longer hold.
-  # Disabled by default - it has no code of its own, only these values.
-  # ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Citadel
+# ---------------------------------------------------------------------------
+# A KOTH with a much longer hold, fought inside a Citadel: a large area where the
+# fight is decided by teams and classes, and where nobody gets away by throwing an
+# item. So a Citadel has TWO zones:
+#
+#   - the zone to hold: the corners below, exactly as for a KOTH (capture time,
+#     contest policy, schedule, rewards - all read the same way);
+#   - the Citadel itself: server land, claimed around the zone for a server team
+#     whose name is "claim" below. Create it once, then claim it:
+#         /team createsystem Citadel combat
+#         /team forceclaim Citadel <radius>      (as many times as needed)
+#     Being server land, nobody builds there, and /team map shows it.
+#
+# On the Citadel's land, AT ALL TIMES - whether the event runs or not - the
+# restrictions below refuse what is switched on. Class abilities are not partner
+# items and keep working: a Bard's buffs, an Archer's tag, a Rogue's backstab.
+#
+# Ids are shared with every other event (/events start <id>). The console warns
+# when a Citadel starts without its claim, or with its zone outside it.
+# ---------------------------------------------------------------------------
+
+citadels:
+
   citadel:
     display-name: "&5Citadel"
+
+    # The zone to hold, inside the Citadel.
     world: world
     corner-1:
       x: -200
@@ -134,6 +158,22 @@ events:
     # when it should run.
     schedule: []
     reward-commands: []
+
+    # The server team whose land is the Citadel.
+    claim: Citadel
+
+    # What the Citadel's land refuses.
+    restrictions:
+      # Throwing an ender pearl from inside.
+      ender-pearls: true
+      # Using a partner item (a kit ability, kits.yml) inside.
+      partner-items: true
+      # Eating a chorus fruit - or any food that teleports - inside.
+      chorus-fruit: true
+      # Taking off with elytra inside; a player gliding in lands.
+      elytra: true
+      # Launching with a Riptide trident inside.
+      riptide: true
 
 # ---------------------------------------------------------------------------
 # Kill the King
