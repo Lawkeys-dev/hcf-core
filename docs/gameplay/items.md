@@ -80,7 +80,7 @@ Which levels a map allows — Protection I or II, Sharpness I or II, no Strength
 | A Strength II potion, with `strength: 1` | Strength I | Strength I |
 | `0` | The potion is not brewed, nor drunk, thrown or shot | Nobody has the effect |
 
-For a potion, the lower of the two caps holds. The classes, custom enchants and the King give their effects already within the cap — a Bard wanting Resistance IV gives Resistance III — and still take back only what they gave. A cap set with `/hcf reload` holds at once on the effects players already have, and on those a player brings back when joining.
+For a potion, the lower of the two caps holds. The classes, custom enchants and the King give their effects already within the cap — a Bard wanting Resistance IV gives Resistance III — and still take back only what they gave. A cap set with `/hcf reload` holds at once on the effects players already have, and on those a player brings back when joining. The [effect commands](effect-commands.md) are capped too.
 
 ## Blocks per claim
 

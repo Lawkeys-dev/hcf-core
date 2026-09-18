@@ -123,6 +123,7 @@ nav:
       - Mountains: gameplay/mountains.md
       - Economy: gameplay/economy.md
       - Classes: gameplay/classes.md
+      - Effect commands: gameplay/effect-commands.md
       - Kits and abilities: gameplay/kits.md
       - Enchants, limits and the crowbar: gameplay/items.md
       - Chat, scoreboard and settings: gameplay/interface.md
@@ -149,6 +150,7 @@ nav:
           - dtr.yml: reference/configuration/dtr.md
           - pvp.yml: reference/configuration/pvp.md
           - classes.yml: reference/configuration/classes.md
+          - effect-commands.yml: reference/configuration/effect-commands.md
           - economy.yml: reference/configuration/economy.md
           - events.yml: reference/configuration/events.md
           - resourcenodes.yml: reference/configuration/resourcenodes.md

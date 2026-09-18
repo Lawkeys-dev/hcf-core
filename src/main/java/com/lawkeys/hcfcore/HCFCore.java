@@ -12,6 +12,7 @@ import com.lawkeys.hcfcore.integration.lunar.LunarIntegration;
 import com.lawkeys.hcfcore.integration.lunar.LunarSources;
 import com.lawkeys.hcfcore.integration.vault.VaultIntegration;
 import com.lawkeys.hcfcore.killstreak.KillstreakModule;
+import com.lawkeys.hcfcore.effectcommand.EffectCommandModule;
 import com.lawkeys.hcfcore.enchant.EnchantModule;
 import com.lawkeys.hcfcore.hologram.HologramModule;
 import com.lawkeys.hcfcore.limiter.LimiterModule;
@@ -87,6 +88,7 @@ public final class HCFCore extends JavaPlugin {
     private HologramModule hologramModule;
     private EnchantModule enchantModule;
     private ClassModule classModule;
+    private EffectCommandModule effectCommandModule;
     private LunarIntegration lunarIntegration;
     private UiModule uiModule;
     private GeneralModule generalModule;
@@ -300,6 +302,11 @@ public final class HCFCore extends JavaPlugin {
         if (this.eventModule.getKing() != null) {
             this.eventModule.getKing().setEffectCaps(this.limiterModule::allowedAmplifier);
         }
+
+        // /speed and the like: an effect until death (effect-commands.yml).
+        this.effectCommandModule = new EffectCommandModule(this, this.langManager,
+                this.limiterModule::allowedAmplifier);
+        this.effectCommandModule.enable();
 
         // Holograms read the leaderboards of the stats module, and nothing else.
         this.hologramModule = new HologramModule(this, this.langManager, this.startupGate, this.statsModule);
@@ -537,6 +544,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (enchantModule != null) {
             enchantModule.reloadSettings();
+        }
+        if (effectCommandModule != null) {
+            effectCommandModule.reloadSettings();
         }
         if (lunarIntegration != null) {
             lunarIntegration.reload();

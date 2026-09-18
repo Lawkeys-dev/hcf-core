@@ -361,8 +361,10 @@ public final class ClassModule {
     }
 
     private static boolean isOurs(PotionEffect effect, int amplifier) {
+        // Never an infinite one: its duration reads -1, under any limit - and it is
+        // an effect command's (effect-commands.yml), which the class must not take.
         return !effect.isAmbient() && !effect.hasParticles() && effect.getAmplifier() == amplifier
-                && effect.getDuration() <= PASSIVE_TICKS;
+                && !effect.isInfinite() && effect.getDuration() <= PASSIVE_TICKS;
     }
 
     /** A held item's effect, renewed while it stays in hand. */

@@ -108,6 +108,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/cenchant list` | `/ce`, `/customenchant` | The custom enchants | everyone |
 | `/cenchant apply <enchant> [level]` · `remove <enchant>` · `give <player> <enchant> [level] [amount]` | | On the held item; as books (works from the console) | `hcfcore.enchant.admin` |
 | `/crowbar give <player> [amount]` | | Give crowbars | `hcfcore.crowbar.admin` |
+| `/speed` · `/strength` · `/resistance` · `/regeneration` · `/jumpboost` · `/fireresistance` | `/sp` · `/str` · `/res` · `/regen` · `/jb` · `/fres`, `/fr` | Give yourself the effect until you die; again to take it off. The commands of [`effect-commands.yml`](configuration/effect-commands.md) — yours may differ | `hcfcore.effect.<command>` |
 | `/redeem <code>` | | Redeem a code | everyone |
 | `/redeemadmin create <code> <max-uses\|unlimited> <command>` · `addcommand <code> <command>` · `removecommand <code> <number>` · `setuses <code> <max-uses\|unlimited>` · `info <code>` · `list` · `reset <code> [player]` · `delete <code>` | `/redeemcodes` | Manage codes | `hcfcore.redeem.admin` |
 | `/resetredeem <code> [player]` | | Let one player, or everybody, use a code again | `hcfcore.redeem.admin` |

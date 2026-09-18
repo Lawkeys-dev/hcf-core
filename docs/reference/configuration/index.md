@@ -6,7 +6,7 @@ The files are written on the first start and **never overwritten** afterwards.
 
 ## Rules that hold everywhere
 
-- **`/hcf reload` applies changes without a restart** — every file below, and `lang/en.yml`. Only `kitmap-mode` and the `storage` section of `config.yml` need a restart.
+- **`/hcf reload` applies changes without a restart** — every file below, and `lang/en.yml`. Only `kitmap-mode` and the `storage` section of `config.yml` need a restart — and adding, removing or renaming a command of `effect-commands.yml`.
 - **A bad value never stops the server.** A value that cannot be used — a number where true/false is expected, an unknown block name, a malformed time — is reported in the console and replaced by its default. A typo costs you that one setting.
 - **A setting missing from your file takes its built-in default.** When a new version adds settings, your files keep working; compare them with the shipped ones to see what is new.
 - **`0` usually means "no limit"** for limits and caps — each file says so where it applies.
@@ -27,6 +27,7 @@ The files are written on the first start and **never overwritten** afterwards.
 | [`dtr.yml`](dtr.md) | Maximum DTR, loss per death, floor, regeneration, announcements | `enabled` |
 | [`pvp.yml`](pvp.md) | Deathban and its tiers, combat tag, strength nerf, knockback, attack speed, safe zones, loot protection, friendly fire | `enabled`, and one per part |
 | [`classes.yml`](classes.md) | Classes: armour sets, warmup, passive, held and click effects, energy, archer tag, backstab, team limits | `enabled` |
+| [`effect-commands.yml`](effect-commands.md) | `/speed`, `/strength` and your own: effect, level, aliases, permission | `enabled` |
 | [`economy.yml`](economy.md) | Starting balance, ceiling, currency, `/pay` | `enabled` |
 | [`events.yml`](events.md) | KOTH and Citadel zones, Kill the King, Conquest, schedules, rewards, zone holograms | `enabled` |
 | [`resourcenodes.yml`](resourcenodes.md) | Mountains: regions, block palettes, refill times, protection, refill speed | `enabled` |
@@ -39,7 +40,7 @@ The files are written on the first start and **never overwritten** afterwards.
 | [`kits.yml`](kits.md) | How kits are given, the layout editor, refill signs, abilities (partner items) | `enabled` |
 | [`killstreaks.yml`](killstreaks.md) | Streak rewards | `enabled` |
 | [`enchants.yml`](enchants.md) | Custom enchants | `enabled` |
-| [`limiters.yml`](limiters.md) | Enchantment caps, potion caps, blocks per claim | `enabled` |
+| [`limiters.yml`](limiters.md) | Enchantment caps, potion caps, effect caps, blocks per claim | `enabled` |
 | [`schedule.yml`](schedule.md) | Tips, daily announcements and commands, custom timers, key-all | `enabled` |
 | [`settings.yml`](settings.md) | Which settings players may switch, what `/cobble` drops | `enabled` |
 | [`redeem.yml`](redeem.md) | Wait after a failed code | `enabled` |

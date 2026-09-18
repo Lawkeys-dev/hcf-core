@@ -29,7 +29,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 | **Lives** | Revive friends, or spend your own life by logging in (HCF mode) |
 | **Events** | KOTH, Citadel (fought in a claimed Citadel with no pearls or partner items), Conquest and Kill the King on daily schedules, with a hologram above every zone; Mountains that refill on a clock |
 | **Map phases** | SOTW, EOTW and the Purge, by command or by date, surviving restarts |
-| **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, partner items, killstreak rewards, custom enchants, enchantment and potion caps, block limits per claim, a crowbar |
+| **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, partner items, killstreak rewards, custom enchants, effect commands (`/speed`, `/strength`…), enchantment, potion and effect caps, block limits per claim, a crowbar |
 | **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams |
 | **Interface** | Flicker-free scoreboard from template lines, tab list, chat format with LuckPerms prefixes and kill counts, stats and leaderboards, holograms, player settings |
 | **Integrations** | Vault, LuckPerms and Lunar Client (Apollo) — all optional |
@@ -62,7 +62,7 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1004 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1009 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).

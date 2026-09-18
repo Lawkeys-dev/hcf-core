@@ -1133,6 +1133,15 @@ limiter:
     forbidden: "&cPotions of &f%effect% &care forbidden on this server."
 
 # ---------------------------------------------------------------------------
+# Effect commands (effect-commands.yml): /speed and the like.
+# ---------------------------------------------------------------------------
+effect-commands:
+  on: "&a%effect% %level% &auntil you die. &7Type &f/%command% &7again to take it off."
+  off: "&7%effect% taken off."
+  forbidden: "&c%effect% is forbidden on this server."
+  switched-off: "&cThis command is switched off."
+
+# ---------------------------------------------------------------------------
 # Classes (classes.yml): Diamond, Bard, Archer, Rogue, Miner and your own.
 # ---------------------------------------------------------------------------
 classes:

@@ -1,0 +1,57 @@
+# ---------------------------------------------------------------------------
+# effect-commands.yml - commands that give an effect until death
+#
+# /speed gives Speed at its level until the player dies, or types /speed again,
+# which takes it off. Each command needs its permission: hcfcore.effect.<command>
+# unless "permission" says otherwise - operators only by default, so give the
+# node to the ranks that should have it.
+#
+# /hcf reload applies a new effect, level or permission. Adding, removing or
+# renaming a command or an alias needs a restart: the server's command list is
+# built once. An alias never takes over another plugin's command; the console
+# says when one could not be registered.
+#
+# The effect caps of limiters.yml (effects.caps) hold on these too.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
+# ---------------------------------------------------------------------------
+# --8<-- [start:enabled]
+enabled: true
+# --8<-- [end:enabled]
+
+# --8<-- [start:commands]
+# Shipped at what a Bard gives by holding an item (classes.yml, held-effects),
+# without its burst.
+#
+#   <command>:
+#     effect: the effect (speed, strength, jump_boost, fire_resistance...)
+#     level: 1 is level I
+#     aliases: other names it answers to
+#     permission: optional; hcfcore.effect.<command> by default
+commands:
+  speed:
+    effect: speed
+    level: 2
+    aliases: [sp]
+  strength:
+    effect: strength
+    level: 1
+    aliases: [str]
+  resistance:
+    effect: resistance
+    level: 1
+    aliases: [res]
+  regeneration:
+    effect: regeneration
+    level: 1
+    aliases: [regen]
+  jumpboost:
+    effect: jump_boost
+    level: 2
+    aliases: [jb]
+  fireresistance:
+    effect: fire_resistance
+    level: 1
+    aliases: [fres, fr]
+# --8<-- [end:commands]

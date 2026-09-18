@@ -58,6 +58,7 @@ Operators included. Each is a choice, so it is granted on purpose or not at all.
 | Node | Default | Grants |
 |---|---|---|
 | `hcfcore.deathban.tier.short` | nobody | A 15-minute deathban instead of the hour — the example tier of `pvp.yml` |
+| `hcfcore.effect.<command>` | op | An effect command of `effect-commands.yml` — `hcfcore.effect.speed` for `/speed`; a command may name another node |
 
 ### Deathban tiers
 

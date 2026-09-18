@@ -3,6 +3,7 @@ package com.lawkeys.hcfcore.team;
 import com.lawkeys.hcfcore.claim.ClaimMessages;
 import com.lawkeys.hcfcore.crowbar.CrowbarMessages;
 import com.lawkeys.hcfcore.dtr.DtrMessages;
+import com.lawkeys.hcfcore.effectcommand.EffectCommandMessages;
 import com.lawkeys.hcfcore.limiter.LimiterMessages;
 import com.lawkeys.hcfcore.economy.EconomyMessages;
 import com.lawkeys.hcfcore.enchant.EnchantMessages;
@@ -64,6 +65,7 @@ class TeamMessagesTest {
             CrowbarMessages.class,
             DtrMessages.class,
             EconomyMessages.class,
+            EffectCommandMessages.class,
             EnchantMessages.class,
             EventMessages.class,
             GeneralMessages.class,
