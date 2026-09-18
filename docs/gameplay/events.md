@@ -73,7 +73,7 @@ On the Citadel's land, **at all times** — whether the event runs or not:
 | Refused | Detail |
 |---|---|
 | **Ender pearls** | A pearl cannot be thrown from inside, so nobody pearls out of a lost fight |
-| **Partner items** | The kit abilities of `kits.yml` do nothing inside |
+| **Partner items** | The [abilities](abilities.md) of `abilities.yml` do nothing inside |
 | **Chorus fruit** | Refused before it is eaten, so it is kept — any food that teleports as well |
 | **Elytra** | Nobody takes off inside, and a player gliding in lands |
 | **Riptide tridents** | A Riptide trident cannot be charged inside |

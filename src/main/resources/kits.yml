@@ -51,29 +51,6 @@ refill-signs:
 # --8<-- [end:refill-signs]
 
 # ---------------------------------------------------------------------------
-# Partner items / abilities
-#
-# Partner items are a core feature of HCF and kitmap, but which ones a server
-# runs - effects, triggers, cooldowns - is its own choice. The MECHANISM is
-# implemented; the LIST is yours, and it ships empty rather than with invented
-# items.
-#
-# An ability is an item that runs console commands when right-clicked:
-#
-#   abilities:
-#     switcher:
-#       material: ENDER_PEARL
-#       name: "&5&lSwitcher"
-#       lore:
-#         - "&7Swaps places with whoever you hit."
-#       cooldown-seconds: 15
-#       consume: true          # take one from the stack when used
-#       commands:
-#         - "some-command %player%"
-#
-# Hand them out with /kit ability <player> <id> [amount], or from a killstreak
-# reward, or from any other plugin that can run a command.
+# Partner items / abilities live in abilities.yml, and are handed out with
+# /ability give <player> <id> [amount].
 # ---------------------------------------------------------------------------
-# --8<-- [start:abilities]
-abilities: {}
-# --8<-- [end:abilities]

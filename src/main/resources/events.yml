@@ -177,7 +177,7 @@ citadels:
     restrictions:
       # Throwing an ender pearl from inside.
       ender-pearls: true
-      # Using a partner item (a kit ability, kits.yml) inside.
+      # Using a partner item (abilities.yml) inside.
       partner-items: true
       # Eating a chorus fruit - or any food that teleports - inside.
       chorus-fruit: true

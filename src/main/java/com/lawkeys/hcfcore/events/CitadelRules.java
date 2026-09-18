@@ -6,7 +6,7 @@ package com.lawkeys.hcfcore.events;
  * Archer's tag, a Rogue's backstab - are not partner items and stay allowed.
  *
  * @param enderPearls  throwing an ender pearl from inside the claim
- * @param partnerItems using a partner item (a kit ability) inside the claim
+ * @param partnerItems using a partner item ({@code abilities.yml}) inside the claim
  * @param chorusFruit  eating a chorus fruit, or any other food that teleports
  * @param elytra       taking off with elytra - and gliding on into the claim
  * @param riptide      launching with a Riptide trident

@@ -12,6 +12,7 @@ import com.lawkeys.hcfcore.integration.lunar.LunarIntegration;
 import com.lawkeys.hcfcore.integration.lunar.LunarSources;
 import com.lawkeys.hcfcore.integration.vault.VaultIntegration;
 import com.lawkeys.hcfcore.killstreak.KillstreakModule;
+import com.lawkeys.hcfcore.ability.AbilityModule;
 import com.lawkeys.hcfcore.effectcommand.EffectCommandModule;
 import com.lawkeys.hcfcore.enchant.EnchantModule;
 import com.lawkeys.hcfcore.hologram.HologramModule;
@@ -89,6 +90,7 @@ public final class HCFCore extends JavaPlugin {
     private EnchantModule enchantModule;
     private ClassModule classModule;
     private EffectCommandModule effectCommandModule;
+    private AbilityModule abilityModule;
     private LunarIntegration lunarIntegration;
     private UiModule uiModule;
     private GeneralModule generalModule;
@@ -244,13 +246,9 @@ public final class HCFCore extends JavaPlugin {
         this.chatModule = new ChatModule(this, this.teamModule, this.statsModule, this.langManager);
         this.chatModule.enable();
 
-        // Kits, partner items and refill signs. Independent of everything above.
+        // Kits and refill signs. Independent of everything above.
         this.kitModule = new KitModule(this, this.langManager, this.startupGate);
         this.kitModule.enable(dataSource, saveInterval);
-        // Partner items are refused inside a Citadel's claim; events/ asks kit/ what one is.
-        if (this.eventModule != null) {
-            this.eventModule.setPartnerItems(item -> this.kitModule.abilityOf(item) != null);
-        }
 
         // Killstreak rewards install themselves on the stats module's observer seam,
         // so the two share nothing but an integer.
@@ -302,6 +300,14 @@ public final class HCFCore extends JavaPlugin {
         if (this.eventModule.getKing() != null) {
             this.eventModule.getKing().setEffectCaps(this.limiterModule::allowedAmplifier);
         }
+
+        // Partner items (abilities.yml): reads classes for the archer tag, pvp for who
+        // may be harmed, events for where abilities are refused - all started above.
+        this.abilityModule = new AbilityModule(this, this.langManager, this.teamModule, this.claimModule,
+                this.pvpModule, this.classModule, this.eventModule);
+        this.abilityModule.enable();
+        // A Citadel refuses partner items: events/ asks this module what one is.
+        this.eventModule.setPartnerItems(this.abilityModule::isPartnerItem);
 
         // /speed and the like: an effect until death (effect-commands.yml).
         this.effectCommandModule = new EffectCommandModule(this, this.langManager,
@@ -365,7 +371,7 @@ public final class HCFCore extends JavaPlugin {
         // Lunar Client, through Apollo when it is installed; reads the modules above.
         this.lunarIntegration = LunarIntegration.start(this, this.langManager, new LunarSources(
                 this.teamModule, this.claimModule, this.dtrModule, this.pvpModule, this.eventModule,
-                this.kitModule, this.warmupModule));
+                this.abilityModule, this.warmupModule));
 
         // Every module has declared its load by now. Sealing is what lets the gate
         // open: before it, a fast load could not tell that another was still to come.
@@ -387,6 +393,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (this.hologramModule != null) {
             this.hologramModule.disable();
+        }
+        if (this.abilityModule != null) {
+            this.abilityModule.disable();
         }
         if (this.classModule != null) {
             this.classModule.disable();
@@ -547,6 +556,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (effectCommandModule != null) {
             effectCommandModule.reloadSettings();
+        }
+        if (abilityModule != null) {
+            abilityModule.reloadSettings();
         }
         if (lunarIntegration != null) {
             lunarIntegration.reload();

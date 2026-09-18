@@ -179,6 +179,34 @@ public final class EventModule {
         return king != null && king.getManager().isKing(playerId);
     }
 
+    /**
+     * @return whether this location is in the zone of a running event: a KOTH or
+     *         Citadel zone, or a zone of the running Conquest - where partner items
+     *         may be refused ({@code abilities.yml}, {@code disabled-in.events})
+     */
+    public boolean inEventZone(Location location) {
+        if (location == null || location.getWorld() == null) {
+            return false;
+        }
+        String world = location.getWorld().getName();
+        for (RunningEvent run : manager.getActiveEvents()) {
+            if (run.getDefinition().zone().contains(world, location.getX(), location.getY(), location.getZ())) {
+                return true;
+            }
+        }
+        if (conquest != null) {
+            Optional<ConquestRun> run = conquest.getManager().getCurrent();
+            if (run.isPresent()) {
+                for (ConquestRun.ZoneState state : run.get().zones()) {
+                    if (state.zone().area().contains(world, location.getX(), location.getY(), location.getZ())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /** @param dataSource pool Kill the King keeps its stashes in, or {@code null} to keep them in memory */
     public void enable(DataSource dataSource) {
         this.king = new KingEventController(plugin, teams, claims, lang, startup);

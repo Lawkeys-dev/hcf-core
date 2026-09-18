@@ -30,39 +30,6 @@ public final class KitSettingsLoader {
                 signs == null ? defaults.signCooldownSeconds()
                         : Math.max(0L, Durations.capSeconds(signs.getLong("cooldown-seconds", defaults.signCooldownSeconds()), "cooldown-seconds", warn)),
                 section.getBoolean("clear-before-giving", defaults.clearBeforeGiving()),
-                section.getBoolean("layout-editor", defaults.layoutEditor()),
-                loadAbilities(section.getConfigurationSection("abilities"), warn));
-    }
-
-    private static List<Ability> loadAbilities(ConfigurationSection section, Consumer<String> warn) {
-        if (section == null) {
-            return List.of();
-        }
-        List<Ability> abilities = new ArrayList<>();
-        for (String id : section.getKeys(false)) {
-            ConfigurationSection entry = section.getConfigurationSection(id);
-            if (entry == null) {
-                warn.accept("abilities." + id + " is not a block of settings; ignored.");
-                continue;
-            }
-            String material = entry.getString("material");
-            if (material == null || material.isBlank()) {
-                warn.accept("abilities." + id + " has no material; ignored.");
-                continue;
-            }
-            Ability ability = new Ability(id, material, entry.getString("name"),
-                    entry.getStringList("lore"),
-                    Math.max(0L, Durations.capSeconds(entry.getLong("cooldown-seconds", 0L), "cooldown-seconds", warn)),
-                    entry.getBoolean("consume", true),
-                    entry.getStringList("commands"));
-            if (!ability.hasEffect()) {
-                // An item that looks like a tool and does nothing is exactly the ghost
-                // behaviour ARCHITECTURE.md section 2 forbids.
-                warn.accept("abilities." + id + " has no commands, so using it would do nothing; ignored.");
-                continue;
-            }
-            abilities.add(ability);
-        }
-        return abilities;
+                section.getBoolean("layout-editor", defaults.layoutEditor()));
     }
 }

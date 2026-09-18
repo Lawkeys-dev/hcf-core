@@ -1,4 +1,4 @@
-# Kits and abilities
+# Kits and killstreaks
 
 *Configured in [`kits.yml`](../reference/configuration/kits.md) and [`killstreaks.yml`](../reference/configuration/killstreaks.md). Command: `/kit` (alias `/kits`).*
 
@@ -21,7 +21,6 @@
 | `/kit delete <id>` | Delete a kit and its cooldowns — staff |
 | `/kit give <player> <kit>` | Give a kit, starting no cooldown — staff |
 | `/kit resetcooldown <player> [kit]` | Clear cooldowns — staff |
-| `/kit ability <player> <ability> [amount]` | Give ability items — staff |
 
 Staff commands need `hcfcore.kit.admin`.
 
@@ -52,19 +51,7 @@ A sign whose first line is `[Kit]` and second line the kit id hands it out on ri
 
 The sign has its own anti-spam wait (`refill-signs.cooldown-seconds`, 3), **separate from the kit's cooldown** — a kitmap kit usually has none, and the sign still must not be clickable sixty times a second. The word in brackets is `refill-signs.line`, so it can be translated.
 
-## Abilities (partner items)
-
-An ability is an item that **runs console commands when right-clicked**, with a cooldown. It is the one shape that can express any partner item — the plugin does not need to know what yours do. **The list ships empty.**
-
-```yaml title="kits.yml"
---8<-- "src/main/resources/kits.yml:abilities"
-```
-
-- Hand them out with `/kit ability <player> <id> [amount]`, a killstreak reward, a redeem code, or any plugin that can run a command.
-- An ability with no command is refused when the file loads — an item that looks like a tool and does nothing is worse than none.
-- Cooldowns live in memory: they stop spam in a fight, and a fight does not survive a restart.
-- Partner items do nothing inside a [Citadel](events.md#what-the-citadel-refuses), where only class abilities work.
-- Lunar Client players see ability cooldowns as icons.
+Partner items — abilities — have their own page: [Abilities](abilities.md).
 
 ## Killstreaks
 

@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Per-player waits between two uses of something: a kit ability, a crowbar, the
+ * Per-player waits between two uses of something: a partner item, a crowbar, the
  * Recover enchant, a refill sign. Each module keeps its own instance, so its keys
  * are its own.
  *

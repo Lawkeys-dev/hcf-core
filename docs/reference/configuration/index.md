@@ -37,7 +37,8 @@ The files are written on the first start and **never overwritten** afterwards.
 | [`chat.yml`](chat.md) | Public chat format, kill count, local chat range, team chat logging | `enabled` (team chat works either way) |
 | [`ui.yml`](ui.md) | Scoreboard title, lines and refresh rate; tab list header and footer | `scoreboard.enabled`, `tablist.enabled` |
 | [`general.yml`](general.md) | `/spawn`, `/logout`, `/rename`, private messages | `enabled` |
-| [`kits.yml`](kits.md) | How kits are given, the layout editor, refill signs, abilities (partner items) | `enabled` |
+| [`kits.yml`](kits.md) | How kits are given, the layout editor, refill signs | `enabled` |
+| [`abilities.yml`](abilities.md) | Partner items: the shared cooldown and where they are refused, every ability, the Pocket Bard | `global.enabled` |
 | [`killstreaks.yml`](killstreaks.md) | Streak rewards | `enabled` |
 | [`enchants.yml`](enchants.md) | Custom enchants | `enabled` |
 | [`limiters.yml`](limiters.md) | Enchantment caps, potion caps, effect caps, blocks per claim | `enabled` |

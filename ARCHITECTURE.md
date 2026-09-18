@@ -40,7 +40,8 @@ hcf-core/
 │   ├── chat/                           # public chat format, team/ally routing, local chat
 │   ├── ui/                             # scoreboard, tab list
 │   ├── staff/                          # staff mode, vanish, freeze, invsee, lastinv; ticket/; strike/
-│   ├── kit/                            # kits, layouts, refill signs, abilities
+│   ├── kit/                            # kits, layouts, refill signs
+│   ├── ability/                        # partner items: 21 built-in types, abilities.yml
 │   ├── killstreak/                     # rewards, plugged into stats/
 │   ├── enchant/                        # custom enchants (effect, Hellforged, Implanted, Recover, Autosmelt), books
 │   ├── limiter/                        # enchantment, potion and effect caps, blocks per claim
@@ -266,7 +267,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `HologramSource` | `hologram/` | no source (only stored holograms) | `events/` (one hologram per capture zone) |
 | `SpawnGuard` | `general/` | `ALLOW` (nobody refused) | `events/` (the King of Kill the King never enters spawn, `/spawn` included) |
 | `LogoutGuard` | `general/` | `ALLOW` (nobody refused) | `pvp/` (a tagged player cannot leave through `/logout`: that would be a combat log) |
-| Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `kit/` (its abilities) |
+| Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `ability/` (`abilities.yml`) |
 | `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel or Conquest zone, and the King during Kill the King) |
 | `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW and the Purge make everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |

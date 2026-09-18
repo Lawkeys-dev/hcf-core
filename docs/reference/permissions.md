@@ -26,7 +26,8 @@ Commands that need no node — `/team` and its player subcommands, `/pay`, `/bal
 | `hcfcore.resourcenode.bypass` | op | Build and mine freely inside a Mountain's region | ✓ |
 | `hcfcore.phase.admin` | op | `start` and `stop` of `/sotw`, `/eotw` and `/purge` | ✓ |
 | `hcfcore.schedule.admin` | op | `/timer start` and `/timer stop`, `/keyall` | ✓ |
-| `hcfcore.kit.admin` | op | `/kit create`, `delete`, `give`, `resetcooldown`, `ability` | ✓ |
+| `hcfcore.kit.admin` | op | `/kit create`, `delete`, `give`, `resetcooldown` | ✓ |
+| `hcfcore.ability.admin` | op | `/ability give` | ✓ |
 | `hcfcore.kit.sign` | op | Create kit refill signs | ✓ |
 | `hcfcore.enchant.admin` | op | `/cenchant apply`, `remove`, `give` | ✓ |
 | `hcfcore.hologram.admin` | op | `/hologram` | ✓ |

@@ -71,7 +71,7 @@ The two keys only a Citadel has:
 |---|---|---|
 | `claim` | `Citadel` | The server team whose land is the Citadel — create it with `/team createsystem Citadel combat` and `/team forceclaim` |
 | `restrictions.ender-pearls` | `true` | No ender pearl thrown from inside |
-| `restrictions.partner-items` | `true` | No partner item (kit ability) used inside; class abilities still work |
+| `restrictions.partner-items` | `true` | No partner item ([`abilities.yml`](abilities.md)) used inside; class abilities still work |
 | `restrictions.chorus-fruit` | `true` | No chorus fruit, or any food that teleports, eaten inside |
 | `restrictions.elytra` | `true` | No take-off with elytra; a player gliding in lands |
 | `restrictions.riptide` | `true` | No Riptide trident charged inside |

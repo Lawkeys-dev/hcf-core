@@ -943,9 +943,6 @@ kit:
     unknown-kit: "&cThere is no kit called '%kit%'."
     too-fast: "&cSlow down."
 
-  ability:
-    used: "&aUsed &f%ability%&a."
-    cooldown: "&c%ability% is on cooldown for &f%time%&c."
 
   # The kit layout editor, /kit layout <kit>.
   layout:
@@ -1163,6 +1160,60 @@ limiter:
     none: "&7This server limits no blocks in claims."
   potions:
     forbidden: "&cPotions of &f%effect% &care forbidden on this server."
+
+# ---------------------------------------------------------------------------
+# Abilities / partner items (abilities.yml). %ability% is the item's name.
+# ---------------------------------------------------------------------------
+abilities:
+  used: "&aUsed %ability%&a."
+  active: "%ability% &aactive for &f%seconds%s&a."
+  ended: "%ability% &7ended."
+  cooldown: "%ability% &cis on cooldown for &f%time%&c."
+  global-cooldown: "&cYou can use another ability in &f%time%&c."
+  disabled-here: "&cAbilities do not work here."
+  no-attacker: "&cNobody has hit you in the last &f%seconds%s&c."
+  no-shooter: "&cNobody has hit you with a projectile in the last &f%seconds%s&c."
+  not-in-water: "&c%ability% &conly works in water."
+  health-too-high: "&c%ability% &conly works at &f%hearts% &chearts or less."
+  no-pearl: "&cYou have not thrown an ender pearl in the last &f%seconds%s&c."
+  teleporting: "&7Teleporting to &f%player% &7in &f%seconds%s&7..."
+  warping: "&7Back to your ender pearl in &f%seconds%s&7..."
+  teleported: "&aTeleported to &f%player%&a."
+  teleport-cancelled: "&cTeleport cancelled."
+  hits-left: "%ability%&7: &f%left% &7more hit(s) on &f%player%&7."
+  switched: "&aSwitched places with &f%player%&a."
+  switched-victim: "&c%player% &cswitched places with you."
+  struck: "&e%player% &estruck you with lightning."
+  combo-ended: "%ability%&a: &f%hits% &ahit(s) - &f%effect% &afor &f%seconds%s&a."
+  focus: "&aFocused on &f%player% &afor &f%seconds%s&a."
+  focused: "&c%player% &cfocused you: you take more damage from them for &f%seconds%s&c."
+  anti-build-applied: "&f%player% &acannot build for &f%seconds%s&a."
+  anti-build-received: "&cYou cannot build, break or open blocks for &f%seconds%s&c."
+  anti-build-refused: "&cYou cannot do that for &f%time%&c."
+  crafting-chaos-applied: "&f%player% &ais in crafting chaos for &f%seconds%s&a."
+  crafting-chaos-received: "&c%player% &cput you in crafting chaos."
+  rage-ball-team: "&a%player%&a's rage ball reached you."
+  rage-ball-enemy: "&cYou were caught in &f%player%&c's rage ball."
+  area-used: "&aUsed %ability%&a - &f%count% &aplayer(s) reached."
+  belch-bomb-hit: "&cYou were caught in &f%player%&c's belch bomb."
+  no-potions: "&cNo potions for &f%time%&c."
+  revealed: "&7You are visible again."
+  archer-tagged: "&f%player% &ais archer-tagged for &f%seconds%s&a."
+  archer-tagged-victim: "&c%player% &carcher-tagged you: you take more damage for &f%seconds%s&c."
+  pocket-bard-given: "&aGiven &f%amount% %item%&a."
+  pocket-bard-used: "&aUsed %item%&a - &f%count% &aplayer(s) reached."
+  magic-rock: "%ability%&a: &f%space% &afree block(s) above &f%player%&a."
+  magic-rock-nothing: "%ability%&7: &f%space% &7free block(s) above &f%player% &7- nothing for that."
+  turned: "&aYou turned &f%player% &aaround."
+  turned-victim: "&c%player% &cturned you around."
+  gave: "&aGave &f%amount% %ability% &ato &f%player%&a."
+  unknown: "&cNo ability named '%ability%'."
+  list: "&7Abilities: &f%abilities%"
+  list-empty: "&7No ability is configured."
+  menu-ready: "&aReady"
+  menu-cooldown: "&cCooldown: &f%time%"
+  menu-type: "&8%type%"
+  module-off: "&cAbilities are turned off."
 
 # ---------------------------------------------------------------------------
 # Effect commands (effect-commands.yml): /speed and the like.

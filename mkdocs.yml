@@ -125,7 +125,8 @@ nav:
       - Economy: gameplay/economy.md
       - Classes: gameplay/classes.md
       - Effect commands: gameplay/effect-commands.md
-      - Kits and abilities: gameplay/kits.md
+      - Kits and killstreaks: gameplay/kits.md
+      - Abilities (partner items): gameplay/abilities.md
       - Enchants, limits and the crowbar: gameplay/items.md
       - Chat, scoreboard and settings: gameplay/interface.md
   - Running a server:
@@ -162,6 +163,7 @@ nav:
           - ui.yml: reference/configuration/ui.md
           - general.yml: reference/configuration/general.md
           - kits.yml: reference/configuration/kits.md
+          - abilities.yml: reference/configuration/abilities.md
           - killstreaks.yml: reference/configuration/killstreaks.md
           - enchants.yml: reference/configuration/enchants.md
           - limiters.yml: reference/configuration/limiters.md

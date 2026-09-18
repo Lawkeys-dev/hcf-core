@@ -1,5 +1,6 @@
 package com.lawkeys.hcfcore.team;
 
+import com.lawkeys.hcfcore.ability.AbilityMessages;
 import com.lawkeys.hcfcore.claim.ClaimMessages;
 import com.lawkeys.hcfcore.crowbar.CrowbarMessages;
 import com.lawkeys.hcfcore.dtr.DtrMessages;
@@ -59,6 +60,7 @@ class TeamMessagesTest {
 
     /** Every class of language-key constants. */
     private static final List<Class<?>> MESSAGE_CLASSES = List.of(
+            AbilityMessages.class,
             ClaimMessages.class,
             ClassMessages.class,
             ConquestMessages.class,

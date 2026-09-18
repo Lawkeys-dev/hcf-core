@@ -4,7 +4,7 @@ import com.lawkeys.hcfcore.claim.HomeType;
 import com.lawkeys.hcfcore.dtr.DtrManager;
 import com.lawkeys.hcfcore.events.RunningEvent;
 import com.lawkeys.hcfcore.events.king.KingRun;
-import com.lawkeys.hcfcore.kit.Ability;
+import com.lawkeys.hcfcore.ability.Ability;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamManager;
@@ -350,8 +350,8 @@ final class ApolloBridge implements LunarBridge, Listener {
                     new CooldownSpec(warmup.finishesAt(), rules.warmupIcon())));
         }
         if (rules.abilities()) {
-            for (Ability ability : sources.kits().getSettings().abilities()) {
-                long left = sources.kits().getAbilityCooldowns().remaining(id, ability.id(), now);
+            for (Ability ability : sources.abilities().getSettings().abilities()) {
+                long left = sources.abilities().getCooldowns().remaining(id, ability.id(), now);
                 if (left > 0) {
                     wanted.put("hcf-ability-" + ability.id(), new CooldownSpec(now + left * 1000L,
                             ability.material().toUpperCase(Locale.ROOT)));

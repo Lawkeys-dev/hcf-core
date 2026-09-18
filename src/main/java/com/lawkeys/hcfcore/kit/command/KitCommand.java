@@ -1,6 +1,5 @@
 package com.lawkeys.hcfcore.kit.command;
 
-import com.lawkeys.hcfcore.kit.Ability;
 import com.lawkeys.hcfcore.kit.Kit;
 import com.lawkeys.hcfcore.kit.KitLayout;
 import com.lawkeys.hcfcore.kit.KitMessages;
@@ -24,7 +23,7 @@ public final class KitCommand implements TabExecutor {
     public static final String ADMIN_PERMISSION = "hcfcore.kit.admin";
 
     private static final List<String> ADMIN_SUBCOMMANDS =
-            List.of("create", "delete", "give", "resetcooldown", "ability");
+            List.of("create", "delete", "give", "resetcooldown");
 
     private final KitModule module;
 
@@ -61,7 +60,6 @@ public final class KitCommand implements TabExecutor {
                 case "delete" -> delete(sender, args, label);
                 case "give" -> give(sender, args, label);
                 case "resetcooldown" -> resetCooldown(sender, args, label);
-                case "ability" -> ability(sender, args, label);
                 default -> module.getLang().send(sender, "general.unknown-command", "label", label);
             }
             return true;
@@ -243,44 +241,6 @@ public final class KitCommand implements TabExecutor {
         module.getLang().send(sender, KitMessages.COOLDOWN_CLEARED, "player", target.getName());
     }
 
-    /** Hands out a partner item, which is otherwise only obtainable from a reward command. */
-    private void ability(CommandSender sender, String[] args, String label) {
-        if (args.length < 3) {
-            module.getLang().send(sender, KitMessages.USAGE,
-                    "usage", "/" + label + " ability <player> <ability> [amount]");
-            return;
-        }
-        Player target = Bukkit.getPlayerExact(args[1]);
-        if (target == null) {
-            module.getLang().send(sender, KitMessages.PLAYER_NOT_FOUND, "player", args[1]);
-            return;
-        }
-        Ability ability = module.getSettings().ability(args[2]).orElse(null);
-        if (ability == null) {
-            module.getLang().send(sender, KitMessages.UNKNOWN, "kit", args[2]);
-            return;
-        }
-        int amount = 1;
-        if (args.length > 3) {
-            try {
-                amount = Math.max(1, Integer.parseInt(args[3]));
-            } catch (NumberFormatException e) {
-                module.getLang().send(sender, KitMessages.INVALID_NUMBER, "input", args[3]);
-                return;
-            }
-        }
-        ItemStack item = module.buildAbilityItem(ability, amount);
-        if (item == null) {
-            module.getLang().send(sender, KitMessages.DISABLED);
-            return;
-        }
-        for (ItemStack leftover : target.getInventory().addItem(item).values()) {
-            target.getWorld().dropItemNaturally(target.getLocation(), leftover);
-        }
-        module.getLang().send(sender, KitMessages.GIVEN,
-                "kit", ability.id(), "player", target.getName());
-    }
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> options = new ArrayList<>();
@@ -303,7 +263,7 @@ public final class KitCommand implements TabExecutor {
         } else if (args.length == 2 && sender.hasPermission(ADMIN_PERMISSION)) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "delete" -> options.addAll(module.getManager().ids());
-                case "give", "resetcooldown", "ability" -> {
+                case "give", "resetcooldown" -> {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         options.add(player.getName());
                     }
@@ -314,7 +274,6 @@ public final class KitCommand implements TabExecutor {
         } else if (args.length == 3 && sender.hasPermission(ADMIN_PERMISSION)) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "give", "resetcooldown" -> options.addAll(module.getManager().ids());
-                case "ability" -> module.getSettings().abilities().forEach(a -> options.add(a.id()));
                 default -> {
                 }
             }

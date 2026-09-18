@@ -83,7 +83,7 @@ These run from the console.
 | `events.yml` — Conquest `reward-commands` | `%team%`, `%event%` |
 | `events.yml` — Kill the King `reward-commands` | `%player%` (the King or the killer), `%event%` |
 | `killstreaks.yml` — `commands` and `broadcast` | `%player%`, `%streak%` |
-| `kits.yml` — ability `commands` | `%player%` |
+| `abilities.yml` — a `commands` ability | `%player%` |
 | `staff.yml` — toolbar `command` | `%player%` (the player clicked), `%staff%` (you). These run **as the staff member**, not the console |
 | `staff.yml` — strike ladder `commands` | `%team%`, `%strikes%` |
 | `redeem` — a code's reward commands | `%player%` |

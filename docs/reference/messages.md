@@ -40,7 +40,8 @@ Keys follow `<module>.<context>.<message>`, fully nested — a `team:` section h
 | `stats` | `/stats`, leaderboards |
 | `ui` | the scoreboard's ready-made lines (`%combat_line%`, `%event_line%`...) |
 | `general-commands` | `/spawn`, `/logout`, `/msg`, `/heal`... |
-| `kit` | kits, layouts, refill signs, abilities |
+| `kit` | kits, layouts, refill signs |
+| `abilities` | partner items |
 | `schedule` | tips, timers, key-all |
 | `settings` | `/settings`, `/cobble` |
 | `redeem` | redeem codes |

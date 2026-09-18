@@ -4,7 +4,6 @@ import com.lawkeys.hcfcore.config.ConfigManager;
 import com.lawkeys.hcfcore.database.dao.JdbcKitStore;
 import com.lawkeys.hcfcore.kit.command.KitCommand;
 import com.lawkeys.hcfcore.kit.command.KitLayoutMenu;
-import com.lawkeys.hcfcore.kit.listener.AbilityListener;
 import com.lawkeys.hcfcore.kit.listener.KitLayoutListener;
 import com.lawkeys.hcfcore.kit.listener.KitSignListener;
 import com.lawkeys.hcfcore.lang.LangManager;
@@ -44,10 +43,7 @@ public final class KitModule {
     private final StartupGate startup;
 
     private volatile KitSettings settings = KitSettings.defaults();
-    /** Waits between uses of an ability, keyed by the ability's id. */
-    private final Cooldowns abilityCooldowns = new Cooldowns();
     private KitManager manager;
-    private NamespacedKey abilityKey;
     private NamespacedKey layoutKey;
     private BukkitTask saveTask;
 
@@ -77,17 +73,8 @@ public final class KitModule {
         return manager;
     }
 
-    public Cooldowns getAbilityCooldowns() {
-        return abilityCooldowns;
-    }
-
-    public NamespacedKey getAbilityKey() {
-        return abilityKey;
-    }
-
     public void enable(DataSource dataSource, long saveIntervalSeconds) {
         reloadSettings();
-        this.abilityKey = new NamespacedKey(plugin, "ability");
         this.layoutKey = new NamespacedKey(plugin, "kit_layout_slot");
 
         KitStore store = dataSource == null
@@ -114,7 +101,6 @@ public final class KitModule {
         }
 
         plugin.getServer().getPluginManager().registerEvents(new KitSignListener(this), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new AbilityListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new KitLayoutListener(this), plugin);
 
         PluginCommand command = plugin.getServer().getPluginCommand("kit");
@@ -236,39 +222,6 @@ public final class KitModule {
         }
     }
 
-    /** @return the ability this item carries, or {@code null} if it is not one */
-    public Ability abilityOf(ItemStack item) {
-        if (item == null || item.isEmpty() || abilityKey == null) {
-            return null;
-        }
-        String id = item.getPersistentDataContainer().get(abilityKey, PersistentDataType.STRING);
-        return id == null ? null : settings.ability(id).orElse(null);
-    }
-
-    /** Builds the item for an ability, marked so a use can find it again. */
-    public ItemStack buildAbilityItem(Ability ability, int amount) {
-        Material material = Material.matchMaterial(ability.material());
-        if (material == null || !material.isItem()) {
-            plugin.getLogger().warning("abilities." + ability.id() + ": '" + ability.material()
-                    + "' is not an item.");
-            return null;
-        }
-        ItemStack item = ItemStack.of(material, Math.max(1, amount));
-        if (ability.displayName() != null) {
-            item.editMeta(meta -> meta.customName(ItemText.line(LangManager.colorize(ability.displayName()))));
-        }
-        if (!ability.lore().isEmpty()) {
-            List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-            for (String line : ability.lore()) {
-                lore.add(ItemText.line(LangManager.colorize(line)));
-            }
-            item.editMeta(meta -> meta.lore(lore));
-        }
-        item.editPersistentDataContainer(data ->
-                data.set(abilityKey, PersistentDataType.STRING, ability.id()));
-        return item;
-    }
-
     public void reloadSettings() {
         var section = ConfigManager.loadFile(plugin, "kits.yml");
         this.settings = KitSettingsLoader.load(section,
@@ -280,7 +233,6 @@ public final class KitModule {
             saveTask.cancel();
             saveTask = null;
         }
-        abilityCooldowns.clearAll();
         if (manager == null) {
             return;
         }

@@ -125,7 +125,7 @@ Durations are typed `90` (seconds), `45s`, `30m`, `2h`, `1d` or combined like `1
 
 Kits are built in game, not in YAML: equip the loadout, then `/kit create <id> [cooldown-seconds] [permission]`. It is saved with armour, enchantments and item names. Players take it with `/kit <id>`, and arrange its items with `/kit layout <id>`.
 
-For kitmap, a sign whose first line is `[Kit]` and second line the kit id hands it out on click (creating one needs `hcfcore.kit.sign`), and `kits.yml`'s `clear-before-giving: true` gives exactly the kit. Signs work anywhere, spawn included. See [Kits and abilities](../gameplay/kits.md).
+For kitmap, a sign whose first line is `[Kit]` and second line the kit id hands it out on click (creating one needs `hcfcore.kit.sign`), and `kits.yml`'s `clear-before-giving: true` gives exactly the kit. Signs work anywhere, spawn included. See [Kits and killstreaks](../gameplay/kits.md), and [Abilities](../gameplay/abilities.md) for partner items.
 
 ## 10. What the plugin leaves to you
 
@@ -135,8 +135,8 @@ Most of these ship neutral or empty on purpose — the plugin does not decide yo
 |---|---|---|
 | `teams.yml` | Team Points scale (`per-kill`, `per-death`...), KOTH `points-per-capture` and `max-counted-captures` | all `0` |
 | `killstreaks.yml` | streak rewards | none |
-| `limiters.yml` | enchantment caps, potion caps, blocks per claim | none |
-| `kits.yml` | abilities (partner items) | none |
+| `limiters.yml` | enchantment, potion and effect caps, blocks per claim | none |
+| `abilities.yml` | which partner items run, and their values | 21, one per type |
 | `enchants.yml` | custom enchants | nine well-known ones |
 | `schedule.yml` | tips, daily announcements, custom timers, key-all commands | tips off, the rest empty |
 | `ui.yml` | tab list header and footer | off |

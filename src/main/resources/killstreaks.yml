@@ -26,7 +26,7 @@ enabled: true
 #     10:
 #       broadcast: "&4%player% &7is on &f%streak%&7! Somebody stop them."
 #       commands:
-#         - "kit ability %player% switcher 1"
+#         - "ability give %player% switcher 1"
 #
 # A streak is reset by dying, and is stored - so it survives a restart, and
 # cannot be farmed by waiting for one.

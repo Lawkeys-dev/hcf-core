@@ -26,8 +26,6 @@ public final class KitMessages {
     public static final String SIGN_UNKNOWN_KIT = "kit.sign.unknown-kit";
     public static final String SIGN_TOO_FAST = "kit.sign.too-fast";
 
-    public static final String ABILITY_USED = "kit.ability.used";
-    public static final String ABILITY_COOLDOWN = "kit.ability.cooldown";
 
     public static final String LAYOUT_TITLE = "kit.layout.title";
     public static final String LAYOUT_INFO_NAME = "kit.layout.info-name";

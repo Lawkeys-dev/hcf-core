@@ -285,7 +285,11 @@ commands:
   kit:
     aliases: [kits]
     description: Take a kit; staff create them from their own inventory.
-    usage: /<command> [kit|layout <kit> [reset]|create|delete|give|resetcooldown|ability]
+    usage: /<command> [kit|layout <kit> [reset]|create|delete|give|resetcooldown]
+  ability:
+    aliases: [abilities, partneritems]
+    description: The partner items and your cooldowns; staff hand them out with /ability give.
+    usage: /<command> [list|give <player> <ability> [amount]]
   dyes:
     aliases: [dyecolors]
     description: Which colour of a dyed class set gives its arrows which effect.
@@ -405,8 +409,12 @@ permissions:
       hcfcore.hologram.admin: true
       hcfcore.enchant.admin: true
       hcfcore.limiter.bypass: true
+      hcfcore.ability.admin: true
   hcfcore.enchant.admin:
     description: Apply and remove custom enchants, and give custom enchant books.
+    default: op
+  hcfcore.ability.admin:
+    description: Hand out partner items with /ability give.
     default: op
   hcfcore.limiter.bypass:
     description: Place blocks in claims beyond limiters.yml's claim-blocks limits, while /staffbuild is on.

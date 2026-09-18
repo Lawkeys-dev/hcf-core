@@ -6,6 +6,12 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+### Added
+- **Partner items**: 21 abilities built in (`abilities.yml`), one shipped of each — Switcher, Thunderbolt, Combo, Lucky Mode, Rage Ball, Crafting Chaos, Focus Mode, Ninja, Exotic Bone (anti-build), Portable Archer, Invisibility, Time Warp, Pocket Bard, Berserk, Close Call, Switch Stick, Teleport Eye, Samurai, Magic Rock, Belch Bomb, Anti Trap Star — and a `commands` type for your own. A shared cooldown after any ability (10 s), and zones where none works (a Citadel's claim, a running event's zone, the Nether, the End). `/ability` shows them with your cooldowns; `/ability give` hands one out.
+
+### Changed
+- Partner items moved from `kits.yml` to `abilities.yml`, and `/kit ability` became `/ability give` (permission `hcfcore.ability.admin`). *A `commands` ability of your `kits.yml` goes under `abilities:` in `abilities.yml` with `type: commands`; items already handed out keep working if their id is kept. A killstreak or redeem command using `kit ability` becomes `ability give`.*
+
 ## [0.5.0] - 2026-09-18
 
 Everyday commands, and the fixes of a first round of in-game tests: classes, the Bard, classic combat, effect commands.
