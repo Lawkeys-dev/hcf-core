@@ -76,6 +76,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/pay <player> <amount>` | | Send money | everyone |
 | `/eco give\|take\|set <player> <amount>` | `/economy` | Change a player's balance | `hcfcore.economy.admin` |
 | `/class` · `/class list` · `/class info <class>` | `/classes`, `/pvpclass` | Your class, energy and warmup; every class; what one does | everyone |
+| `/dyes` | `/dyecolors` | A menu of the effects each dye colour gives a class's arrows | everyone |
 | `/stats [player]` | | Kills, deaths, killstreak, playtime | everyone |
 | `/leaderboard [kills\|deaths\|kdr\|killstreak\|playtime]` | `/lb`, `/top10` | The leaderboards | everyone |
 

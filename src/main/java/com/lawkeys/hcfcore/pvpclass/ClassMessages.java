@@ -59,4 +59,13 @@ public final class ClassMessages {
     public static final String UNKNOWN = "classes.command.unknown";
     public static final String USAGE = "classes.command.usage";
     public static final String DISABLED = "classes.disabled";
+
+    public static final String DYES_TITLE = "classes.dyes.title";
+    public static final String DYES_ITEM_NAME = "classes.dyes.item-name";
+    public static final String DYES_LORE_CLASS = "classes.dyes.lore-class";
+    public static final String DYES_LORE_EFFECT = "classes.dyes.lore-effect";
+    public static final String DYES_LORE_CHANCE = "classes.dyes.lore-chance";
+    public static final String DYES_LORE_HOWTO = "classes.dyes.lore-how-to";
+    public static final String DYES_LORE_YOURS = "classes.dyes.lore-yours";
+    public static final String DYES_NONE = "classes.dyes.none";
 }

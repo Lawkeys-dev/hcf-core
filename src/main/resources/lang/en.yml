@@ -1135,6 +1135,16 @@ classes:
   deactivated: "&c%class% &cclass off."
   team-limit: "&cYour team already has &f%max% %class%&c: the class stays off. Take a piece off to try again."
   disabled: "&cClasses are disabled on this server."
+  # The /dyes menu: one dye per colour a class's dyed set gives its arrows an effect for.
+  dyes:
+    title: "&8Dyed sets"
+    item-name: "&f%colour%"
+    lore-class: "&7Class: &f%class%"
+    lore-effect: "&7Arrow hit: &f%effect% &7for &f%seconds%s"
+    lore-chance: "&7Chance: &f%chance%% &7per hit"
+    lore-how-to: "&8Dye all four leather pieces %colour%."
+    lore-yours: "&aYour set is this colour."
+    none: "&7No class gives an effect for a dyed set on this server."
   safe-zone: "&cClass abilities do not work in a safe zone."
   not-enough-energy: "&cNot enough energy: &f%energy%&c/&f%cost%&c."
   cooldown: "&cYou can use that again in &f%time%&c."

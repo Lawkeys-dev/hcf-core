@@ -18,6 +18,7 @@ Every number below is a setting, and you can [create your own classes](#creating
 /class               # your class, its energy, the warmup left
 /class list          # every class and its armour
 /class info bard     # everything a class does
+/dyes                # the effects of each dye colour, in a menu
 ```
 
 ## How a class turns on
@@ -92,7 +93,7 @@ Dye the whole leather set one colour and the Archer's arrows may add an effect t
 | **Black** (the ink sac) | 20% | Wither I, 10 s |
 | **Blue** (lapis lazuli) | 20% | Slowness I, 10 s |
 
-Every colour can have its own effect, chance and duration — `dye-effects` in `classes.yml`, with gray given as a commented example. `/class` shows the colour your set reads as and its effect; `/class info archer` lists them all.
+Every colour can have its own effect, chance and duration — `dye-effects` in `classes.yml`, with gray given as a commented example. **`/dyes`** (alias `/dyecolors`) opens a menu of every colour with an effect: its dye, the class, the effect and its duration, the chance per hit — and which one your set is right now. From the console, it prints the same list. `/class` also shows the colour your set reads as, and `/class info archer` lists them all.
 
 - **All four pieces** must be dyed and read as the same colour. A piece dyed with several dyes counts as the dye its colour is closest to — one green and one lime dye still read as green, one green and two lime as lime.
 - The effect follows the hit: an arrow refused by the rules of combat (safe zone, SOTW, a teammate) gives nothing.

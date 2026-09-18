@@ -4,6 +4,7 @@ import com.lawkeys.hcfcore.pvpclass.ArcherTag;
 import com.lawkeys.hcfcore.pvpclass.Backstab;
 import com.lawkeys.hcfcore.pvpclass.ClassMessages;
 import com.lawkeys.hcfcore.pvpclass.ClassModule;
+import com.lawkeys.hcfcore.pvpclass.DyesMenu;
 import com.lawkeys.hcfcore.pvpclass.PvpClass;
 import com.lawkeys.hcfcore.util.Durations;
 import org.bukkit.Location;
@@ -17,6 +18,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -220,6 +223,21 @@ public final class ClassListener implements Listener {
             return player;
         }
         return event.getDamageSource().getCausingEntity() instanceof Player causing ? causing : null;
+    }
+
+    /** The {@code /dyes} menu is read only. Recognised by its holder, read with {@code getHolder(false)}. */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMenuClick(InventoryClickEvent event) {
+        if (event.getInventory().getHolder(false) instanceof DyesMenu) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMenuDrag(InventoryDragEvent event) {
+        if (event.getInventory().getHolder(false) instanceof DyesMenu) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

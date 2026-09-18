@@ -4,6 +4,7 @@ import com.lawkeys.hcfcore.config.ConfigManager;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.pvp.PvpModule;
 import com.lawkeys.hcfcore.pvpclass.command.ClassCommand;
+import com.lawkeys.hcfcore.pvpclass.command.DyesCommand;
 import com.lawkeys.hcfcore.pvpclass.listener.ClassListener;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamModule;
@@ -121,6 +122,14 @@ public final class ClassModule {
             ClassCommand executor = new ClassCommand(this);
             command.setExecutor(executor);
             command.setTabCompleter(executor);
+        }
+        PluginCommand dyes = plugin.getServer().getPluginCommand("dyes");
+        if (dyes == null) {
+            plugin.getLogger().severe("The 'dyes' command is missing from plugin.yml.");
+        } else {
+            DyesCommand executor = new DyesCommand(this);
+            dyes.setExecutor(executor);
+            dyes.setTabCompleter(executor);
         }
         this.task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, TICK_PERIOD, TICK_PERIOD);
     }
