@@ -141,7 +141,17 @@ The golden apple and the enchanted (Notch) apple give their 1.7.10 effects — t
 --8<-- "src/main/resources/pvp.yml:legacy-strength"
 ```
 
-1.7 Strength multiplied the hit: **Strength I was +130%**, Strength II +260%. While on, it replaces the HCF `strength-nerf` of `pvp.yml`; switch it off to keep the nerf with classic combat — many 1.7 HCF servers nerfed Strength, and the nerf is there for it.
+**1.7 Strength was a percentage**, where the modern game adds points: it multiplied the weapon's damage — **Strength I +130%**, Strength II +260%. The modern game adds 3 points per level.
+
+So the two nerfs differ too. The modern `strength-nerf` of `pvp.yml` takes points off (3 per level down to 1.5); **classic combat's nerf is a percentage**: `nerf.per-level` instead of `per-level`. It ships at half, as the modern nerf halves the modern bonus:
+
+| Diamond sword (8) | Strength I | Strength II |
+|---|---|---|
+| 1.7.10, no nerf | 8 × 2.3 = **18.4** | 8 × 3.6 = **28.8** |
+| Classic nerf, `0.65` | 8 × 1.65 = **13.2** | 8 × 2.3 = **18.4** |
+| Modern, nerfed (`strength-nerf`) | 7 + 1.5 = **8.5** | 7 + 3 = **10** |
+
+`nerf.enabled: false` gives 1.7.10's own Strength. While 1.7 Strength is on, the modern `strength-nerf` does not apply in classic combat; switch 1.7 Strength off to play the modern flat bonus — and its nerf — with classic combat.
 
 ## Fishing rod
 

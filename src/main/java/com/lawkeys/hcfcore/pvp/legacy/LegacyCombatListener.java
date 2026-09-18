@@ -142,8 +142,8 @@ public final class LegacyCombatListener implements Listener {
 
     /**
      * A player's blow on a player, rebuilt the 1.7 way ({@link LegacyMath#rebuildHit}):
-     * the weapon's damage, Strength (1.7's multiplier, else the HCF nerf or the
-     * modern bonus), a critical by 1.7's rules, then Sharpness. Called by the combat
+     * the weapon's damage, Strength (1.7's percentage, nerfed or not; else the
+     * modern flat bonus, nerfed or not), a critical by 1.7's rules, then Sharpness. Called by the combat
      * listener where Strength has always been adjusted. A mace is left as the modern
      * game hits: its fall bonus is no weapon damage 1.7 knew.
      *
@@ -157,7 +157,7 @@ public final class LegacyCombatListener implements Listener {
         }
         LegacyMath.StrengthRule strength;
         if (classic.strength().enabled()) {
-            strength = new LegacyMath.StrengthRule(true, classic.strength().perLevel());
+            strength = new LegacyMath.StrengthRule(true, classic.strength().effectivePerLevel());
         } else if (nerf.enabled()) {
             strength = new LegacyMath.StrengthRule(false, nerf.nerfedBonusPerLevel());
         } else {

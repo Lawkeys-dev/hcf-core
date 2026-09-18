@@ -313,11 +313,19 @@ legacy-combat:
   # --8<-- [end:legacy-apples]
 
   # --8<-- [start:legacy-strength]
-  # 1.7 Strength: the hit multiplied by 1 + per-level x level - Strength I was
-  # +130%. Replaces strength-nerf above while on; switch it off to keep the nerf.
+  # 1.7 Strength: a percentage of the weapon's damage, where the modern game adds
+  # points - the weapon's damage multiplied by 1 + per-level x level: Strength I
+  # was +130%, Strength II +260%. While on, strength-nerf above does not apply:
+  # it takes points off, and 1.7 Strength has none.
   strength:
     enabled: true
     per-level: 1.3
+    # The HCF nerf of 1.7 Strength, a percentage too: per-level below instead of
+    # the one above. Shipped at half, as strength-nerf halves the modern bonus
+    # (0.65: Strength I +65%, Strength II +130%). Off gives 1.7.10's own Strength.
+    nerf:
+      enabled: true
+      per-level: 0.65
   # --8<-- [end:legacy-strength]
 
   # --8<-- [start:legacy-rod]

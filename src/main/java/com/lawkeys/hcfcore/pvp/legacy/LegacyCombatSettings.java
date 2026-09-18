@@ -159,8 +159,18 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
         }
     }
 
-    /** 1.7.10 Strength: the hit multiplied by {@code 1 + perLevel * level}. */
-    public record Strength(boolean enabled, double perLevel) {
+    /**
+     * 1.7.10 Strength: the weapon's damage multiplied by {@code 1 + perLevel * level}
+     * - a percentage, where the modern game adds points. Its HCF nerf is a
+     * percentage too: {@code nerfPerLevel} instead of {@code perLevel} while
+     * {@code nerfEnabled}; the modern flat {@code strength-nerf} does not apply.
+     */
+    public record Strength(boolean enabled, double perLevel, boolean nerfEnabled, double nerfPerLevel) {
+
+        /** @return what each Strength level adds, as a fraction of the weapon's damage */
+        public double effectivePerLevel() {
+            return nerfEnabled ? nerfPerLevel : perLevel;
+        }
     }
 
     /** A fishing rod's hook hitting a player knocks them back and counts as a hit. */
@@ -189,7 +199,7 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
                                 new AppleEffect("absorption", 1, 120),
                                 new AppleEffect("resistance", 1, 300),
                                 new AppleEffect("fire_resistance", 1, 300)))),
-                new Strength(true, 1.3),
+                new Strength(true, 1.3, true, 0.65),
                 new FishingRod(true));
     }
 }

@@ -166,6 +166,18 @@ class LegacyCombatTest {
         }
 
         @Test
+        void theClassicNerfIsAPercentageToo() {
+            var nerfed = new LegacyCombatSettings.Strength(true, 1.3, true, 0.65);
+            var unnerfed = new LegacyCombatSettings.Strength(true, 1.3, false, 0.65);
+            assertEquals(0.65, nerfed.effectivePerLevel());
+            assertEquals(1.3, unnerfed.effectivePerLevel());
+            // A diamond sword at 8 under the modern Strength I (+3): 8 x 1.65.
+            assertEquals(8 * 1.65, LegacyMath.rebuildHit(11, false, 1, 3.0,
+                    new LegacyMath.StrengthRule(true, nerfed.effectivePerLevel()), false, 1.5, 0, OLD_SHARPNESS),
+                    EPSILON);
+        }
+
+        @Test
         void theNerfAddsItsFlatBonusInsteadOfTheModernOne() {
             // 8 + the modern Strength I (+3); nerfed to +1.5.
             assertEquals(9.5, LegacyMath.rebuildHit(11, false, 1, 3.0, new LegacyMath.StrengthRule(false, 1.5),

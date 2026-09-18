@@ -85,7 +85,11 @@ public final class LegacyCombatLoader {
                                 d.goldenApples().enchanted(), "enchanted-golden-apple", warn)),
                 new LegacyCombatSettings.Strength(
                         bool(strength, "enabled", d.strength().enabled()),
-                        Math.max(0.0, number(strength, "per-level", d.strength().perLevel()))),
+                        Math.max(0.0, number(strength, "per-level", d.strength().perLevel())),
+                        bool(strength == null ? null : strength.getConfigurationSection("nerf"), "enabled",
+                                d.strength().nerfEnabled()),
+                        Math.max(0.0, number(strength == null ? null : strength.getConfigurationSection("nerf"),
+                                "per-level", d.strength().nerfPerLevel()))),
                 new LegacyCombatSettings.FishingRod(bool(rod, "enabled", d.fishingRod().enabled())));
     }
 

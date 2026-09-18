@@ -48,7 +48,7 @@ Every example on this page is **taken from the shipped `pvp.yml`**. Changes appl
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `enabled` | `true` | The nerf at all |
+| `enabled` | `true` | The nerf at all. In classic combat, 1.7 Strength has its own nerf, a percentage: see below |
 | `vanilla-bonus-per-level` | `3.0` | The damage vanilla adds per Strength level, subtracted. **Check it for your version** |
 | `nerfed-bonus-per-level` | `1.5` | The damage added per level instead |
 
@@ -137,7 +137,8 @@ Used only while `config.yml` says `combat: classic`. Every value ships at what 1
 | `natural-regeneration.minimum-food`, `exhaustion` | `18`, `3.0` | The food it needs, and the hunger each heal costs |
 | `golden-apples.enabled` | `true` | Golden apples with their 1.7 effects |
 | `golden-apples.<apple>.food`, `saturation`, `effects` | 1.7 values | Per apple; each effect is an `effect`, a `level` and `seconds` |
-| `strength.enabled`, `per-level` | `true`, `1.3` | 1.7 Strength, +130% per level; replaces `strength-nerf` while on |
+| `strength.enabled`, `per-level` | `true`, `1.3` | 1.7 Strength, a percentage of the weapon's damage: +130% per level; replaces `strength-nerf` while on |
+| `strength.nerf.enabled`, `per-level` | `true`, `0.65` | The HCF nerf of 1.7 Strength, a percentage too: +65% per level instead. Off gives 1.7.10's own |
 | `fishing-rod.enabled` | `true` | A rod's hook knocks a player back and tags both |
 
 ## The whole shipped file
