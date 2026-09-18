@@ -1,0 +1,1116 @@
+# ---------------------------------------------------------------------------
+# HCFCore - English language file
+# ---------------------------------------------------------------------------
+# No player-facing text exists anywhere in the Java code: every message is looked
+# up here by key. To translate, copy this file to lang/<code>.yml, translate it,
+# and set "language: <code>" in config.yml. An empty message is not sent.
+#
+# Key convention: <module>.<context>.<message>
+# Keys are fully nested (a "team:" section containing a "create:" section
+# containing "success:"), never written as a dotted key on one line.
+#
+# Colours use legacy ampersand codes (&a, &c, ...). Placeholders are wrapped in
+# percent signs and are substituted by name, so their order in a sentence is free
+# to change between translations.
+# ---------------------------------------------------------------------------
+
+general:
+  reload-success: "&aConfiguration reloaded successfully."
+  reload-failed: "&cReload failed: %error% &7(see console)"
+  no-permission: "&cYou do not have permission to use this command."
+  player-only: "&cThis command can only be used by players."
+  version: "&7Running &bHCFCore v%version% &7in &b%mode% &7mode."
+  unknown-command: "&cUnknown command. Try &f/%label% help&c."
+
+# Until every module has loaded its data, players are refused at login, and the
+# commands that read or change that data answer with one of these instead of
+# running. "failed" means a load did not succeed: the server stays closed until
+# the cause is fixed and it is restarted.
+startup:
+  login:
+    loading: "&eThe server is still starting up. &7Try again in a few seconds."
+    failed: "&cThe server could not load its data. &7Please try again later."
+  command:
+    loading: "&eHCFCore is still loading its data. &7Try again in a few seconds."
+    failed: "&cHCFCore could not load its data, so this command is unavailable. &7See the console, then restart the server."
+
+team:
+  # How a role is written in messages (%role%, %required%).
+  role:
+    leader: "Leader"
+    co-leader: "Co-leader"
+    member: "Member"
+
+  # --- Name validation ---------------------------------------------------
+  name:
+    too-short: "&cA team name must be at least %min% characters long."
+    too-long: "&cA team name may be at most %max% characters long."
+    invalid-characters: "&c'%name%' contains characters that are not allowed in a team name."
+    blacklisted: "&cThat team name is reserved."
+    taken: "&cA team named '%name%' already exists."
+
+  # --- Shared failures ---------------------------------------------------
+  error:
+    not-in-team: "&cYou are not in a team."
+    target-not-in-team: "&cThat player is not in your team."
+    not-a-member: "&cYou are not a member of %team%."
+    insufficient-role: "&cYou must be at least %required% to do that (you are %role%)."
+    cannot-target-self: "&cYou cannot target yourself."
+    system-team-immutable: "&c%team% is a server team and cannot be modified."
+    not-system-team: "&c%team% is a player team; only server teams are safe or combat zones."
+    team-full: "&cThat team is full (%max% members)."
+    not-found: "&cNo team named '%name%' was found."
+    player-not-found: "&cNo player named '%player%' was found."
+
+  # --- Lifecycle ---------------------------------------------------------
+  # --- Server (system) teams: safe zones and combat zones -------------------
+  system:
+    created-safe: "&aServer team &f%team% &acreated as a &fsafe zone &a(no PvP while pvp.yml's safe-zones is on). Give it land with &f/team forceclaim %team% [radius]&a."
+    created-combat: "&aServer team &f%team% &acreated as a &fcombat zone &a(PvP on). Give it land with &f/team forceclaim %team% [radius]&a."
+    zone-safe: "&f%team% &ais now a &fsafe zone&a: nobody can be attacked on its land while pvp.yml's safe-zones is on."
+    zone-combat: "&f%team% &ais now a &fcombat zone&a: players can fight on its land."
+    invalid-zone: "&c'%input%' is not a zone kind - use safe or combat."
+
+  create:
+    success: "&aTeam &f%team% &acreated. Invite members with &f/team invite <player>&a."
+    already-in-team: "&cYou are already in a team. Leave it first."
+    cancelled: "&cTeam creation was cancelled."
+  disband:
+    success: "&aTeam &f%team% &ahas been disbanded."
+    cancelled: "&cDisbanding the team was cancelled."
+    broadcast: "&cYour team has been disbanded by %player%."
+  rename:
+    success: "&aTeam renamed from &f%old% &ato &f%name%&a."
+    same-name: "&cYour team is already called '%name%'."
+    cancelled: "&cRenaming the team was cancelled."
+    broadcast: "&eYour team was renamed to &f%name% &eby %player%."
+
+  # --- Invitations -------------------------------------------------------
+  invite:
+    sent: "&aInvitation sent."
+    received: "&e%player% invited you to join &f%team%&e. Use &f/team join %team% &eto accept."
+    already-sent: "&cThat player already has a pending invitation."
+    target-in-team: "&cThat player is already in a team."
+    revoked: "&aInvitation revoked."
+    not-found: "&cThat player has no pending invitation from your team."
+    broadcast: "&e%player% invited %target% to the team."
+  join:
+    success: "&aYou joined &f%team%&a."
+    no-invite: "&cYou have no pending invitation from %team%."
+    already-in-team: "&cYou are already in a team."
+    broadcast: "&a%player% joined the team."
+    # /team forcejoin, to the staff member who typed it.
+    forced: "&aPut &f%player% &ain &f%team%&a."
+    forced-already-in-team: "&c%player% is already in a team."
+
+  # --- Leaving -----------------------------------------------------------
+  leave:
+    success: "&aYou left &f%team%&a."
+    leader-must-transfer: "&cHand over leadership before leaving &f%team%&c."
+    disbanded: "&aYou left &f%team%&a, and as its last member the team was disbanded."
+    broadcast: "&e%player% left the team."
+  kick:
+    success: "&aPlayer kicked from the team."
+    kicked: "&cYou were kicked from &f%team% &cby %player%."
+    broadcast: "&e%target% was kicked from the team by %player%."
+
+  # --- Roles -------------------------------------------------------------
+  promote:
+    success: "&aPromoted to &f%role%&a."
+    already-highest: "&cThat player is already %role% - use &f/team transfer &cto hand over leadership."
+    co-leader-limit: "&cYour team already has the maximum of %max% co-leaders."
+    broadcast: "&a%target% was promoted to %role% by %player%."
+  demote:
+    success: "&aDemoted to &f%role%&a."
+    already-lowest: "&cThat player is already %role%."
+    cannot-demote-leader: "&cThe leader cannot be demoted - hand over leadership instead."
+    broadcast: "&e%target% was demoted to %role% by %player%."
+  transfer:
+    success: "&aLeadership of &f%team% &ahas been handed over."
+    broadcast: "&e%target% is now the leader of the team."
+    # /team forcekick removed the leader: to the staff member, who took over.
+    forced: "&7%player% &7now leads &f%team%&7, in place of the player you removed."
+
+  # --- Alliances ---------------------------------------------------------
+  ally:
+    disabled: "&cAlliances are disabled on this server."
+    same-team: "&cYou cannot ally your own team."
+    already-allied: "&cYou are already allied with %team%."
+    request-sent: "&aAlliance request sent to &f%team%&a."
+    request-already-sent: "&cYou already have a pending alliance request to %team%."
+    now-allied: "&aYou are now allied with &f%team%&a."
+    limit-reached: "&cYour team has reached its alliance limit (%max%)."
+    target-limit-reached: "&c%team% has reached its alliance limit (%max%)."
+    received: "&e%team% has requested an alliance. Use &f/team ally %team% &eto accept."
+    broadcast: "&aYour team is now allied with &f%team%&a."
+  unally:
+    success: "&aAlliance with &f%team% &abroken."
+    not-allied: "&cYou are not allied with %team%."
+    broadcast: "&cYour team is no longer allied with &f%team%&c."
+
+  # --- Focus -------------------------------------------------------------
+  focus:
+    disabled: "&cFocus is disabled on this server."
+    team-success: "&aYour team is now focusing &f%target%&a."
+    player-success: "&aYour team is now focusing &f%target%&a."
+    already-focused: "&cYour team is already focusing %target%."
+    limit-reached: "&cYour team can focus at most %max% target(s) at once."
+    cannot-focus-own-team: "&cYou cannot focus your own team."
+    broadcast: "&eYour team is now focusing &f%target%&e."
+  unfocus:
+    success: "&aNo longer focusing &f%target%&a."
+    not-focused: "&cYour team is not focusing %target%."
+
+  # --- Rally -------------------------------------------------------------
+  rally:
+    disabled: "&cRally is disabled on this server."
+    set: "&aRally point set. It stays active for %seconds% seconds."
+    cleared: "&aRally point cleared."
+    not-set: "&cYour team has no rally point set."
+    broadcast: "&e%player% set a rally point. Your compass now points to it."
+
+  # --- Bank, points, KOTH ------------------------------------------------
+  bank:
+    disabled: "&cTeam banks are disabled on this server."
+    invalid-amount: "&cEnter a positive amount."
+    insufficient-funds: "&cYour team bank only holds %balance%."
+    deposit-success: "&aDeposited %amount%. Team balance: %balance%."
+    withdraw-success: "&aWithdrew %amount%. Team balance: %balance%."
+  points:
+    set: "&aPoints for &f%team% &aset to &f%points%&a."
+    added: "&a%amount% point(s) applied to &f%team%&a. New total: &f%points%&a."
+  koth:
+    cap-reached: "&e%team% has reached its cap of %max% counted KOTH capture(s)."
+    capture-counted: "&aKOTH capture recorded for &f%team% &a(%captures% total)."
+    reset: "&7Counted KOTH captures reset for &f%count% &7team(s)."
+
+  # --- Command layer -----------------------------------------------------
+  command:
+    unknown-subcommand: "&cUnknown subcommand '&f%input%&c'. Try &f/%label% help&c."
+    usage: "&cUsage: &f/%label% %usage%"
+    help-header: "&7&m--------&r &bTeam commands &7&m--------"
+    help-entry: "&f/%label% %usage% &7- &7%description%"
+    invalid-number: "&c'%input%' is not a valid number."
+
+  info:
+    header: "&7&m--------&r &b%team% &7&m--------"
+    leader: "&7Leader: &f%leader%"
+    co-leaders: "&7Co-leaders: &f%members%"
+    members: "&7Members: &f%members%"
+    online: "&7Online: &f%online%&7/&f%total%"
+    balance: "&7Balance: &f%balance%"
+    points: "&7Points: &f%points%"
+    koth-captures: "&7KOTH captures: &f%captures%"
+    allies: "&7Allies: &f%allies%"
+    rally: "&7Rally: &f%world% %x%, %y%, %z%"
+    none: "&7none"
+    zone-safe: "&7Server land - &asafe zone&7: nobody can be attacked here."
+    zone-combat: "&7Server land - &ccombat zone&7: players can fight here."
+
+  list:
+    header: "&7&m--------&r &bTop teams &7&m--------"
+    entry: "&7%rank%. &f%team% &7- &f%points% &7point(s), &f%members% &7member(s)"
+    empty: "&7No teams have been created yet."
+
+  chat:
+    switched: "&aYou are now talking in &f%channel% &achat."
+    format-team: "&9[Team] &b%player%&7: &f%message%"
+    format-ally: "&d[Ally] &b%player%&7: &f%message%"
+    # The console's copy of a team or ally line (chat.yml, log-team-chat). It names
+    # the team, which the members do not need but whoever reads the log does.
+    # %channel% is TEAM or ALLY.
+    log: "[%channel%] %team% - %player%: %message%"
+
+# ---------------------------------------------------------------------------
+# Claim / territory module
+# ---------------------------------------------------------------------------
+claim:
+
+  # /team hq, /team base and /team stuck share their countdowns with /spawn and
+  # /logout, so only one can run at a time.
+  warmup-busy: "&cYou are already counting down to something."
+
+  claim:
+    success: "&aClaimed &f%count% &achunk(s). Your team now holds &f%total%&7/&f%max%&a."
+    already-yours: "&cYour team already owns %chunk%."
+    already-owned: "&c%chunk% belongs to &f%team%&c. Raiding a team never gives you its land."
+    limit-reached: "&cYour team may hold at most %max% chunks (currently %current%)."
+    not-connected: "&cClaims must touch your existing territory in this world."
+    too-close: "&cToo close to &f%team%&c's territory - keep at least %distance% chunk(s) away."
+    world-disabled: "&cClaiming is disabled in %world%."
+    disabled: "&cClaiming is disabled on this server."
+    system-team: "&c%team% is a server team; only staff can claim for it."
+    nothing-selected: "&cNo chunk selected."
+    too-many-at-once: "&cThat would claim %count% chunks at once; the limit is %max% per command."
+    warzone: "&c%chunk% is part of the %warzone%&c: no player team can claim there."
+    reserved-region: "&c%chunk% overlaps %region%&c and cannot be claimed."
+
+  admin:
+    claimed: "&aClaimed &f%count% &achunk(s) for &f%team%&a - &f%total% &ain total."
+    unclaimed: "&aReleased %chunk% from &f%team%&a."
+    unclaimed-all: "&aReleased all &f%count% &achunk(s) of &f%team%&a."
+
+  unclaim:
+    success: "&aReleased %chunk%. Your team now holds &f%total% &achunk(s)."
+    not-yours: "&cThat chunk belongs to &f%team%&c."
+    not-claimed: "&cThat chunk is unclaimed."
+    all-success: "&aReleased all &f%count% &aof your team's chunks."
+    would-disconnect: "&cReleasing %chunk% would split your territory in two."
+
+  home:
+    set: "&aYour team's %type% has been set here."
+    not-set: "&cYour team has no %type% set."
+    not-in-territory: "&cYour %type% must be inside your own territory."
+    disabled: "&cTeam homes are disabled on this server."
+    world-unloaded: "&cThe world '%world%' is not loaded."
+    teleported: "&aTeleported to your team's %type%."
+    warmup: "&7Teleporting to your team's %type% in &f%time%s&7. Do not move or take damage."
+    cancelled: "&cTeleport cancelled."
+
+  lock:
+    locked: "&aYour claim is locked&7: nobody but your team can enter it until SOTW ends."
+    unlocked: "&7Your claim is open again."
+    not-now: "&cA claim can only be locked during SOTW."
+    entry-denied: "&c%team%'s claim is locked until the end of SOTW."
+    expelled: "&7You were moved out of &f%team%&7's claim: it is locked until the end of SOTW."
+    broadcast-locked: "&e%player% locked the team's claim until the end of SOTW."
+    broadcast-unlocked: "&e%player% opened the team's claim again."
+
+  protection:
+    claimed: "&cThis land belongs to &f%team%&c."
+    ally: "&cThis land belongs to your ally &f%team%&c."
+    system: "&cThis is a protected server area."
+    warzone: "&cNothing can be built in the %warzone%&c."
+
+  territory:
+    enter: "&7Now entering &f%team%&7."
+    leave: "&7Now leaving &f%team%&7."
+
+  info:
+    header: "&7&m--------&r &bChunk %chunk% &7&m--------"
+    owner: "&7Owner: &f%team%"
+    wilderness: "&7This chunk is unclaimed wilderness."
+    warzone: "&7This chunk is part of the %warzone%&7: players fight here, and no player team can claim it."
+    raidable: "&cRaidable &7- its protection is currently down."
+    protected: "&aProtected."
+    unenforced: "&eUnprotected &7- territory protection is turned off on this server."
+    count: "&7Territory: &f%count%&7/&f%max% &7chunks"
+
+  map:
+    header: "&7&m--------&r &bTerritory around %chunk% &7&m--------"
+    row: "%row%"
+    legend: "&7Legend: &e+ &7you  &a# &7your team  &d# &7ally  &c# &7enemy  &b# &7server  &4# &7warzone  &7- &7wilderness"
+
+  stuck:
+    moved: "&aYou have been moved to the nearest free land."
+    nowhere: "&cNo free land nearby. &7Ask a staff member for help."
+    not-stuck: "&cYou are not stuck - you are standing on land you may be on."
+    warmup: "&7Moving you to the nearest free land in &f%time%s&7. Do not move or take damage."
+    cancelled: "&cStuck cancelled."
+
+  error:
+    not-in-team: "&cYou need a team to hold territory."
+    insufficient-role: "&cYou must be at least %required% to do that (you are %role%)."
+    invalid-radius: "&c'%input%' is not a valid radius."
+
+# ---------------------------------------------------------------------------
+# DTR module
+# ---------------------------------------------------------------------------
+dtr:
+
+  info:
+    header: "&7&m--------&r &bDTR - %team% &7&m--------"
+    current: "&7DTR: &f%dtr%&7/&f%max%"
+    raidable: "&c&lRAIDABLE &7- this team's territory is open to raiding."
+    protected: "&aProtected."
+    frozen: "&7Regeneration frozen for another &f%time%&7."
+    regenerating: "&7Protected again in &f%time%&7."
+    at-maximum: "&7At full DTR."
+    # Its DTR would protect it, but EOTW or the Purge opens every team's claims.
+    map-wide-raid: "&7Every team is raidable until EOTW or the Purge ends, whatever its DTR."
+
+  death:
+    lost: "&c%player% died. &7-%loss% DTR &7(now &f%dtr%&7)."
+
+  announce:
+    became-raidable: "&c&l%team% &cis now RAIDABLE!"
+    no-longer-raidable: "&a%team% &7is no longer raidable."
+
+  set:
+    success: "&aDTR for &f%team% &aset to &f%dtr%&a."
+    out-of-range: "&cDTR must be between %min% and %max%."
+
+  setregen:
+    success: "&aRegeneration for &f%team% &aresumes in &f%seconds%s&a."
+    negative: "&cThe delay cannot be negative."
+
+  error:
+    disabled: "&cThe DTR system is disabled on this server."
+    invalid-number: "&c'%input%' is not a valid number."
+    system-team: "&c%team% is a server team and has no DTR."
+
+# ---------------------------------------------------------------------------
+# PvP / combat module
+# ---------------------------------------------------------------------------
+pvp:
+
+  tag:
+    tagged: "&cYou are now in combat for &f%seconds%s&c. You cannot teleport or log out safely."
+    expired: "&aYou are no longer in combat."
+    blocks-teleport: "&cYou cannot teleport while in combat (&f%time% &cleft)."
+    blocks-logout: "&cYou cannot log out while in combat (&f%time% &cleft): leaving now would kill you."
+    status-active: "&7Combat tag: &c%time% &7remaining."
+    status-clear: "&7Combat tag: &anone&7."
+
+  deathban:
+    applied: "&cYou died. You cannot rejoin for &f%time%&c."
+    login-denied: "&cYou are deathbanned for another &f%time%&c."
+    lifted: "&aDeathban lifted for &f%player%&a."
+    not-banned: "&7%player% is not deathbanned."
+    status: "&7Deathban: &c%time% &7remaining."
+    set: "&aDeathbanned &f%player% &afor &f%time%&a."
+    invalid-length: "&c'%input%' is not a ban length: give a number of seconds above zero."
+    # EOTW: a death bans until the end of the map; staff lift it after the reset.
+    map-end:
+      applied: "&cYou died during EOTW. You cannot rejoin until the end of the map."
+      login-denied: "&cYou died during EOTW and are deathbanned until the end of the map."
+      status: "&7Deathban: &cuntil the end of the map&7."
+
+  safezone:
+    attacker: "&cYou cannot fight inside a safe zone."
+
+  # pvp.yml, friendly-fire
+  friendly-fire:
+    teammate: "&eYou cannot hurt &a%player%&e: they are on your team."
+    ally: "&eYou cannot hurt your ally &d%player% &eoutside an event zone."
+
+  status:
+    header: "&7&m--------&r &bCombat status - %player% &7&m--------"
+
+  error:
+    player-not-found: "&cNo player named '%player%' was found."
+    invalid-number: "&c'%input%' is not a valid number."
+    disabled: "&cThe PvP module is disabled on this server."
+
+# ---------------------------------------------------------------------------
+# Economy module
+# ---------------------------------------------------------------------------
+economy:
+
+  balance:
+    self: "&7Balance: &a%balance%"
+    other: "&f%player%&7's balance: &a%balance%"
+
+  pay:
+    sent: "&aSent &f%amount% &ato &f%player%&a. New balance: &f%balance%&a."
+    received: "&aReceived &f%amount% &afrom &f%player%&a. New balance: &f%balance%&a."
+    disabled: "&cPlayer-to-player payments are disabled on this server."
+    self: "&cYou cannot pay yourself."
+    below-minimum: "&cThe smallest payment allowed is &f%minimum%&c."
+
+  admin:
+    given: "&aGave &f%amount% &ato &f%player%&a. New balance: &f%balance%&a."
+    taken: "&aTook &f%amount% &afrom &f%player%&a. New balance: &f%balance%&a."
+    set: "&aSet &f%player%&a's balance to &f%balance%&a."
+    received: "&7Your balance was changed by a staff member. New balance: &a%balance%&7."
+
+  bank:
+    deposited: "&aDeposited &f%amount% &ainto &f%team%&a's bank (&f%bank%&a). Your balance: &f%balance%&a."
+    withdrawn: "&aWithdrew &f%amount% &afrom &f%team%&a's bank (&f%bank%&a). Your balance: &f%balance%&a."
+
+  error:
+    insufficient-funds: "&cYou do not have enough money. Balance: &f%balance%&c."
+    invalid-amount: "&cThat is not a valid amount."
+    above-maximum: "&cThat would take the account over the maximum balance allowed."
+    disabled: "&cThe economy is disabled on this server."
+    player-not-found: "&cNo player named '%player%' was found."
+    not-in-team: "&cYou are not in a team."
+
+# ---------------------------------------------------------------------------
+# Capture events (KOTH, Citadel and variants)
+# ---------------------------------------------------------------------------
+events:
+
+  # Above each capture zone (events.yml, zone-holograms), one line per key.
+  hologram:
+    title: "&6&l%event%"
+    conquest-title: "&6&l%event% &7- &f%zone%"
+    time-left: "&7Time left: &f%time%"
+    held-by: "&7Held by &a%team%"
+    contested: "&cContested"
+    free: "&7Nobody holds it"
+    next: "&7Next: &f%time%"
+    unscheduled: "&7Not scheduled"
+
+  broadcast:
+    started: "&e%event% &6has started! &7Hold it for &f%time% &7to win. &8(%zone%)"
+    capture-began: "&f%team% &eis capturing &f%event%&e. &7%time% &7remaining."
+    contested: "&c%event% &7is contested - the countdown is frozen."
+    control-lost: "&7Nobody is holding &f%event% &7any more. &8(%time% left)"
+    progress: "&e%event%&7: &f%time% &7remaining, held by &f%team%&7."
+    captured: "&a%team% &6captured &e%event%&6!"
+    expired: "&7%event% &7ended with no winner."
+    stopped: "&7%event% &7has been stopped."
+
+  list:
+    header: "&7&m--------&r &bEvents &7&m--------"
+    active: "&a▶ &f%event% &7- &f%time% &7left, held by &f%team%"
+    contested: "&c▶ &f%event% &7- &f%time% &7left, &ccontested"
+    # Running, and nobody has taken the zone yet.
+    free: "&a▶ &f%event% &7- &f%time% &7left, &7nobody holds it"
+    scheduled: "&7• &f%event% &7- next at &f%time%"
+    unscheduled: "&8• &7%event% &8- no schedule"
+    empty: "&7No events are configured."
+
+  admin:
+    started: "&aStarted &f%event%&a."
+    stopped: "&aStopped &f%event%&a."
+
+  error:
+    unknown: "&cThere is no event called '%event%'."
+    already-active: "&c%event% is already running."
+    not-active: "&c%event% is not running."
+    disabled: "&cThe events module is disabled on this server."
+
+  # --- Conquest ------------------------------------------------------------
+  # %event% is the Conquest's display name, %team% the team concerned.
+  conquest:
+    started: "&6&l%event% &ehas begun! &7Hold its &f%zones% &7zones - the first team to &f%points% &7points wins."
+    zone-captured: "&6[%event%] &f%team% &7captured %zone% &7(+%gained%) &8- &f%points%&7/&f%target%"
+    points-lost: "&6[%event%] &f%team% &clost %lost% point(s) &7to a death &8- &f%points%&7/&f%target%"
+    won: "&6&l%event% &ewas won by &f%team% &ewith &f%points% &epoints!"
+    expired: "&6%event% &7ran out of time with no winner."
+    stopped: "&6%event% &7was stopped by staff."
+    already-running: "&c%event% is already running - one Conquest at a time."
+    list-active: "&6▶ &f%event% &7- &f%team% &7leads with &f%points%&7/&f%target%"
+    list-active-nobody: "&6▶ &f%event% &7- nobody has scored yet &8(first to %target%)"
+
+  # --- Kill the King -------------------------------------------------------
+  # %king% is the King, %player% the winner, %event% the event's display name.
+  king:
+    crowned: "&6%king% &eis the King in &f%event%&e! &7Kill the King within &f%time% &7- or the King wins."
+    coordinates: "&6%king% &7is at &f%x%&7, &f%y%&7, &f%z% &8(%world%) &7- &f%time% &7left"
+    progress: "&e%event%&7: &f%king% &7has &f%time% &7left to survive."
+    survived: "&6%king% &esurvived &f%event% &eand wins it!"
+    killed: "&c%player% &ekilled the King &6%king% &eand wins &f%event%&e!"
+    died: "&7The King &f%king% &7died in &f%event% &7- no winner."
+    fled: "&7The King &f%king% &7left the server - &f%event% &7ends with no winner."
+    stopped: "&7%event% &7has been stopped."
+    cancelled:
+      not-enough-players: "&7%event% &7is called off: it needs at least &f%minimum% &7players."
+      no-warzone: "&7%event% &7is called off: its world has no warzone."
+      no-spot: "&7%event% &7is called off: no safe spot was found in the warzone."
+      teleport-failed: "&7%event% &7is called off: the King could not be sent to the warzone."
+    you-are-king: "&6You are the King! &7Survive &f%time% &7in the warzone. Your items are safe and come back at the end."
+    left-zone: "&cYou left the warzone! &7Go back within &f%grace%s&7, or you will wither."
+    returned: "&aBack in the warzone."
+    safe-zone-refused: "&cThe King cannot enter a safe zone."
+    not-while-king: "&cNot while you are the King - the kit stays with you."
+    items-returned: "&aYour own items are back."
+    already-running: "&c%event% is already running - only one King at a time."
+    list:
+      active: "&6♛ &f%event% &7- &f%king% &7reigns, &f%time% &7left"
+      crowning: "&6♛ &f%event% &7- drawing the King..."
+
+# ---------------------------------------------------------------------------
+# Resource nodes (Mountain / Glowstone Mountain / Ore Mountain)
+# ---------------------------------------------------------------------------
+resourcenode:
+
+  broadcast:
+    soon: "&e%node% &7refills in &f%time%&7."
+    refilled: "&6%node% &ehas just refilled! &7(%world%)"
+
+  list:
+    header: "&7&m------&r &bResource nodes &7&m------"
+    scheduled: "&7• &f%node% &7- next refill at &f%time%"
+    unscheduled: "&8• &7%node% &8- no schedule"
+    refilling: "&a▶ &f%node% &7- refilling now"
+    empty: "&7No resource node is configured."
+
+  admin:
+    refilling: "&aRefilling &f%node%&a."
+    busy: "&c%node% is already being refilled."
+
+  protection:
+    no-build: "&cYou cannot build inside %node%."
+    no-break: "&cOnly the resources that spawn here can be mined in %node%."
+
+  error:
+    unknown: "&cThere is no resource node called '%node%'."
+    disabled: "&cThe resource node module is disabled on this server."
+    world-missing: "&cCannot refill %node%&c: the world '%world%' is not loaded."
+    outside-world: "&cCannot refill %node%&c: its region is outside the height range of '%world%'."
+
+# ---------------------------------------------------------------------------
+# SOTW / EOTW - the start and the end of the map
+# ---------------------------------------------------------------------------
+phase:
+
+  sotw:
+    started: "&aSOTW has started! &7No PvP, no deathbans and no DTR lost for &f%time%&7. &8(/sotw enable to fight early)"
+    progress: "&aSOTW &7ends in &f%time%&7."
+    ended: "&cSOTW is over &7- PvP, deathbans and DTR are back. Good luck."
+    stopped: "&cSOTW was ended by staff &7- PvP, deathbans and DTR are back."
+    you-are-protected: "&7You are protected by SOTW. &f/sotw enable &7to fight - there is no going back."
+    victim-protected: "&7That player is protected by SOTW."
+    enabled: "&cPvP enabled for you &7until SOTW ends - only against players who did the same. This cannot be undone."
+    already-enabled: "&7You have already enabled PvP for this SOTW."
+    not-active: "&7SOTW is not running."
+    already-active: "&cSOTW is already running &7(&f%time% &7left)."
+    during-eotw: "&cNot during EOTW."
+    status:
+      active: "&aSOTW&7: &f%time% &7left."
+      protected: "&7You are protected. &f/sotw enable &7to fight."
+      enabled: "&7You have enabled PvP for this SOTW."
+      scheduled: "&7SOTW starts at &f%time%&7."
+      inactive: "&7SOTW is not running."
+
+  eotw:
+    started: "&4EOTW has begun! &cEvery team is raidable, claiming is closed, and a death bans you until the end of the map."
+    stopped: "&7EOTW has been stopped by staff."
+    no-claims: "&cClaiming is closed: EOTW is under way."
+    already-active: "&cEOTW is already under way."
+    not-active: "&7EOTW is not under way."
+    during-sotw: "&cNot during SOTW - stop it first."
+    status:
+      active: "&4EOTW &cis under way &7- every team is raidable, and a death bans until the end of the map."
+      scheduled: "&7EOTW starts at &f%time%&7."
+      inactive: "&7EOTW is not under way."
+
+  purge:
+    started: "&4&lTHE PURGE HAS BEGUN! &cEvery team is raidable for &f%time%&c, whatever its DTR."
+    ended: "&aThe Purge is over &7- teams are protected by their DTR again."
+    stopped: "&7The Purge was ended by staff &7- teams are protected by their DTR again."
+    already-active: "&cA Purge is already running &7(&f%time% &7left)."
+    not-active: "&7No Purge is running."
+    during-sotw: "&cNot during SOTW."
+    during-eotw: "&cNot during EOTW - every team is raidable already."
+    status:
+      active: "&4Purge&7: every team is raidable for &f%time%&7."
+      scheduled: "&7The next Purge starts at &f%time%&7."
+      inactive: "&7No Purge is running or scheduled."
+
+  error:
+    invalid-duration: "&c'%input%' is not a duration. &7Try &f2h&7, &f90m &7or &f1h30m&7."
+
+  # Lines in /events
+  agenda:
+    sotw-active: "&a▶ &fSOTW &7- &f%time% &7left"
+    sotw-scheduled: "&7• &fSOTW &7- starts at &f%time%"
+    eotw-active: "&4▶ &fEOTW &7- under way"
+    purge-active: "&4▶ &fPurge &7- &f%time% &7left, every team raidable"
+    purge-scheduled: "&7• &fPurge &7- starts at &f%time%"
+    eotw-scheduled: "&7• &fEOTW &7- starts at &f%time%"
+
+# ---------------------------------------------------------------------------
+# Staff tools
+# ---------------------------------------------------------------------------
+staff:
+  mode:
+    entered: "&aStaff mode on&7. Your items are held safely until you leave it."
+    left: "&7Staff mode off. Your items are back."
+    announce-entered: "&8[&9Staff&8] &b%player% &7entered staff mode."
+    announce-left: "&8[&9Staff&8] &b%player% &7left staff mode."
+    # Refused rather than overwrite: the held inventory is the real one.
+    already-held: "&cYour items from an earlier session are still held. &7Rejoin the server to get them back before using staff mode."
+    stash-restored: "&aYour items have been given back&7 - the server stopped while you were in staff mode."
+    # Their inventory stays held in the database; the next login tries again.
+    restore-failed: "&cYour items could not be given back. &7They are kept safe and will be given back when you rejoin; the error is in the server log."
+    item-needs-target: "&cRight-click a player with that item."
+    list-header: "&9Staff mode &7(&f%count%&7):"
+    list-entry: "&7- &b%player%"
+    list-empty: "&7Nobody is in staff mode."
+
+  # "enabled"/"disabled" and not "on"/"off": YAML reads a bare on/off/yes/no as a
+  # boolean, so `on:` would become the key `true` and the message would never be
+  # found. Keep them spelled out.
+  vanish:
+    enabled: "&aYou are now hidden&7 from players who cannot see vanished staff."
+    disabled: "&7You are visible again."
+
+  chat:
+    enabled: "&aStaff chat on&7 - what you type goes to the staff channel."
+    disabled: "&7Staff chat off."
+
+  build:
+    enabled: "&aStaff build on&7 - you can build through territory protection."
+    # Toggled on by staff who lack hcfcore.claim.bypass: the toggle alone lifts nothing.
+    enabled-without-bypass: "&eStaff build on&7, but you do not hold &fhcfcore.claim.bypass&7: territory protection still applies to you."
+    disabled: "&7Staff build off."
+
+  teleport:
+    to-player: "&7Teleported to &b%player%&7."
+    player-here: "&7Teleported &b%player% &7to you."
+    all: "&7Teleported &f%count% &7player(s) to you."
+    location: "&7Teleported to &f%x%&7, &f%y%&7, &f%z% &7in &f%world%&7."
+    nobody-else: "&cThere is nobody else online."
+    location-told: "&b%player% &7is at &f%x%&7, &f%y%&7, &f%z% &7in &f%world%&7."
+
+  near:
+    header: "&9%count% player(s) &7within &f%radius% &7blocks:"
+    entry: "&7- &b%player% &7(&f%distance%&7 block(s))"
+    empty: "&7Nobody within &f%radius% &7blocks."
+
+  dimension:
+    header: "&9%dimension% &7(&f%count%&7):"
+    entry: "&7- &b%player%"
+    empty: "&7Nobody is in &f%dimension%&7."
+    missing: "&cThere is no world named '%world%'."
+
+  chat-cleared: "&8[&9Staff&8] &b%player% &7cleared the chat."
+
+  error:
+    player-not-found: "&c'%player%' is not online."
+    invalid-number: "&c'%input%' is not a number."
+    disabled: "&cThe staff module is disabled."
+    usage: "&cUsage: &f%usage%"
+
+  # Freeze, and the ban that follows running from one
+  freeze:
+    applied: "&aYou froze &b%player%&7."
+    released: "&7You released &b%player%&7."
+    target-frozen: "&c&lYOU HAVE BEEN FROZEN &7by &b%player%&7. &fDo not log out - leaving now results in a ban. Talk to them in chat."
+    target-released: "&aYou have been released&7. Thanks for waiting."
+    reminder: "&c&lFROZEN &7- stay here and talk to &b%player%&7. Logging out results in a ban."
+    blocked: "&cYou cannot do that while frozen."
+    already-held: "&c%player% is already frozen by &b%holder%&7."
+    list-header: "&9Frozen &7(&f%count%&7):"
+    list-entry: "&7- &b%player% &7(held by &f%holder%&7)"
+    list-empty: "&7Nobody is frozen."
+    logout-announce: "&8[&9Staff&8] &c%player% logged out while frozen &7and has been banned."
+
+  ban:
+    login-denied: "&cYou were banned for logging out while frozen.&7 Appeal with the staff team."
+    lifted: "&aLifted the ban on &b%player%&7."
+    not-banned: "&c%player% is not banned."
+    reason-frozen-logout: "logged out while frozen"
+
+  invsee:
+    opened: "&7Viewing &b%player%&7's inventory."
+    read-only: "&7This view is &fread-only&7."
+    editable: "&c&lEDITABLE &7- what you change here changes their real inventory."
+    armour: "&7Armour: &f%armour% &7| Off-hand: &f%offhand%"
+    self: "&cOpen your own inventory the usual way."
+
+  lastinv:
+    header: "&9%player%&7's last deaths (&f%count%&7):"
+    entry: "&7[&f%index%&7] &f%when% &7ago"
+    empty: "&7No recorded deaths for &b%player%&7."
+    opened: "&7Viewing &b%player%&7's inventory from &f%when% &7ago. &fRead-only&7."
+    # The title of the window; %index% is the death's number in the list.
+    view-title: "%player% - death %index%"
+    out-of-range: "&cThere is no death number %index% for %player%."
+    unreadable: "&cThat snapshot could not be read; it is kept in the database."
+    lookup-failed: "&cCould not read the death archive. See the console."
+
+  # Reports and requests - one queue, see staff.yml
+  ticket:
+    opened: "&aSubmitted&7. Ticket &f#%id%&7 - staff have been notified."
+    announce: "&8[&9Staff&8] &f#%id% &7%type% from &b%player% &7about &b%target%&7: &f%message%"
+    # A request is about nobody, so its lines have no %target%.
+    announce-request: "&8[&9Staff&8] &f#%id% &7%type% from &b%player%&7: &f%message%"
+    too-soon: "&cYou must wait &f%time% &cbefore sending another."
+    self: "&cYou cannot report yourself."
+    list-header: "&9Tickets &7(&f%count%&7):"
+    list-entry: "&7#&f%id% &7[&f%status%&7] &f%type% &7from &b%player% &7about &b%target% &7(&f%age% &7ago): &f%message%"
+    list-entry-request: "&7#&f%id% &7[&f%status%&7] &f%type% &7from &b%player% &7(&f%age% &7ago): &f%message%"
+    list-empty: "&7Nothing in the queue."
+    claimed: "&aTicket &f#%id% &ais yours."
+    already-claimed: "&cTicket #%id% is not open - somebody may already have it."
+    closed: "&7Closed ticket &f#%id%&7."
+    unknown: "&cThere is no open ticket #%id%."
+    nobody-to-visit: "&cNobody on ticket #%id% is online to teleport to."
+    # Sent to whoever raised the ticket, if they are online. No staff name: the
+    # staff member may be vanished and watching the player who was reported.
+    notify-claimed: "&aA staff member is looking at your ticket &f#%id%&a."
+    notify-closed: "&7Your ticket &f#%id% &7has been closed."
+    menu:
+      title: "&9Tickets &8(&f%count%&8)"
+      more: "&7The menu shows the oldest &f%shown%&7; &f%count% &7more are in &f/tickets list&7."
+      report-name: "&c#%id% &fReport &7- &b%target%"
+      request-name: "&e#%id% &fRequest &7- &b%player%"
+      from: "&7From: &b%player%"
+      about: "&7About: &b%target%"
+      status: "&7Status: &f%status%"
+      age: "&7Opened &f%age% &7ago"
+      message-line: "&f%line%"
+      left-click: "&aLeft-click &7to claim it and teleport"
+      right-click: "&cRight-click &7to close it"
+
+  # Strikes against teams (staff.yml, strikes).
+  strike:
+    issued: "&7Struck &c%team%&7 - &f%count% &7active (&f#%id%&7)."
+    announce: "&8[&9Staff&8] &b%staff% &7struck &c%team%%subject% &7(&f%count% &7active): &f%reason%"
+    # To everybody: a strike is public. %max% is "/3" when a count disbands, else empty.
+    broadcast: "&c&lSTRIKE &8» &c%team% &7received a strike &8(&f%count%%max%&8)&7: &f%reason%"
+    points-lost: "&c%team% &7lost &f%points% &7point(s)."
+    disbanded: "&c%team% &7has been disbanded after &f%count% &7strikes."
+    disband-refused: "&cThe strike is recorded, but %team% could not be disbanded - another plugin refused it."
+    # Appended after the team where a strike was for a member.
+    subject: " &7(for &b%player%&7)"
+    list-header: "&9Strikes &7for &c%team% &7(&f%active% &7active of &f%total%&7):"
+    list-entry: "&7#&f%id% &7[&f%state%&7] &f%reason%%subject% &7- by &b%staff%&7, &f%age% &7ago"
+    none: "&7%team% has no strikes."
+    pardoned: "&7Pardoned strike &f#%id%&7. Points taken, and a disband, are not given back."
+    unknown: "&cThere is no strike #%id%."
+    unknown-team: "&cThere is no team or player called '%team%'."
+    no-team: "&c%player% is not in a team."
+    system-team: "&cServer teams cannot be struck."
+
+# ---------------------------------------------------------------------------
+# Player statistics
+# ---------------------------------------------------------------------------
+stats:
+  header: "&9Stats &7- &b%player%"
+  kills: "&7Kills: &f%value%"
+  deaths: "&7Deaths: &f%value%"
+  ratio: "&7K/D: &f%value%"
+  killstreak: "&7Killstreak: &f%value% &7(best &f%best%&7)"
+  playtime: "&7Playtime: &f%value%"
+  first-seen: "&7First seen: &f%value% &7ago"
+  unknown-player: "&cNo statistics for '%player%'."
+
+  top:
+    header: "&9Top 10 &7- &f%kind%"
+    entry: "&7%rank%. &b%player% &7- &f%value%"
+    empty: "&7Nobody has any statistics yet."
+    usage: "&cUnknown leaderboard. &7Try: &f%kinds%"
+
+# ---------------------------------------------------------------------------
+# Scoreboard wording
+# ---------------------------------------------------------------------------
+ui:
+  scoreboard:
+    no-team: "&7None"
+    dtr-raidable: "&4(raidable)"
+    combat-line: "&cCombat: &f%time%"
+    # %target% is a player's or a team's name; the rally row gives block coordinates.
+    focus-line: "&dFocus&7: &f%target%"
+    rally-line: "&eRally&7: &f%x%, %y%, %z%"
+    phase-sotw: "&aSOTW&7: &f%time%"
+    phase-eotw: "&4EOTW active"
+    phase-purge: "&4Purge&7: &f%time%"
+    # The running KOTH or Citadel closest to being captured; %event% carries its own colours.
+    event-line: "%event%&7: &f%time%"
+    king-line: "&6King &f%player%&7: &f%time%"
+    # The running Conquest: the leading team, then one row per zone.
+    conquest-line: "%event%&7: &f%team% %points%&7/&f%target%"
+    conquest-zone: "%zone%&7: &f%time%"
+    # One custom timer (/timer, /keyall); %label% is its label, colours included.
+    timer-line: "%label%&7: &f%time%"
+
+# ---------------------------------------------------------------------------
+# Utility commands
+# ---------------------------------------------------------------------------
+general-commands:
+  spawn:
+    warmup: "&7Teleporting to spawn in &f%time%s&7. Do not move."
+    arrived: "&aWelcome to spawn."
+    cancelled: "&cTeleport cancelled."
+    already-warming: "&cYou already have something counting down."
+
+  world:
+    moved: "&7Moved to &f%world%&7."
+    unknown: "&cThere is no world named '%world%'."
+    list: "&7Worlds: &f%worlds%"
+
+  top:
+    moved: "&7Moved to &fy=%y%&7."
+    nothing-above: "&cThere is nothing above you."
+
+  healed: "&aHealed."
+  healed-other: "&7Healed &b%player%&7."
+  killed-other: "&7Killed &b%player%&7."
+
+  gamemode:
+    set: "&7Game mode set to &f%mode%&7."
+    set-other: "&7Set &b%player%&7's game mode to &f%mode%&7."
+    unknown: "&c'%mode%' is not a game mode."
+
+  message:
+    sent: "&8[&7you &8-> &b%player%&8] &f%message%"
+    received: "&8[&b%player% &8-> &7you&8] &f%message%"
+    nobody-to-reply-to: "&cYou have nobody to reply to."
+    blocked: "&cYou have private messages turned off. &7Use &f/togglepm&7."
+    they-blocked: "&c%player% is not accepting messages from you."
+    toggled-on: "&aPrivate messages on."
+    toggled-off: "&7Private messages off."
+
+  ignore:
+    added: "&7You are now ignoring &b%player%&7."
+    removed: "&7You are no longer ignoring &b%player%&7."
+    self: "&cYou cannot ignore yourself."
+    list: "&7Ignoring: &f%players%"
+    list-empty: "&7You are not ignoring anybody."
+    unknown: "&cNobody called '%player%' has played here."
+
+  renamed: "&7Renamed to &r%name%&7."
+  rename-nothing-held: "&cHold the item first."
+  rename-too-long: "&cThat name is too long (max %max%)."
+  more-filled: "&7Stack filled."
+
+  repair:
+    repaired: "&aRepaired."
+    repaired-all: "&aRepaired &f%count% &aitem(s)."
+    nothing: "&7Nothing there needs repairing."
+
+  ping:
+    own: "&7Your ping: &f%ping%ms"
+    other: "&b%player%&7's ping: &f%ping%ms"
+
+  logout:
+    started: "&7Logging out in &f%time%s&7. Do not move or take damage."
+    cancelled: "&cLogout cancelled."
+    kick: "&aYou logged out safely."
+
+  player-not-found: "&c'%player%' is not online."
+  usage: "&cUsage: &f%usage%"
+  disabled: "&cThat command is disabled."
+
+# ---------------------------------------------------------------------------
+# Kits, partner items and refill signs
+# ---------------------------------------------------------------------------
+kit:
+  received: "&aYou received the &f%kit% &akit."
+  on-cooldown: "&cYou must wait &f%time% &cbefore taking %kit% again."
+  unknown: "&cThere is no kit called '%kit%'."
+  no-permission: "&cYou do not have access to the %kit% kit."
+
+  list:
+    header: "&9Kits &7(&f%count%&7):"
+    entry: "&7- &f%kit% &7(&f/kit %id%&7)"
+    entry-cooldown: "&7- &8%kit% &7(&c%time%&7)"
+    empty: "&7No kits have been created yet."
+
+  admin:
+    created: "&aSaved your inventory as the &f%kit% &akit."
+    deleted: "&7Deleted the &f%kit% &7kit."
+    given: "&7Gave &f%kit% &7to &b%player%&7."
+    cooldown-cleared: "&7Cleared kit cooldowns for &b%player%&7."
+    invalid-number: "&c'%input%' is not a number."
+    player-not-found: "&c'%player%' is not online."
+
+  sign:
+    created: "&aRefill sign created for the &f%kit% &akit."
+    unknown-kit: "&cThere is no kit called '%kit%'."
+    too-fast: "&cSlow down."
+
+  ability:
+    used: "&aUsed &f%ability%&a."
+    cooldown: "&c%ability% is on cooldown for &f%time%&c."
+
+  # The kit layout editor, /kit layout <kit>.
+  layout:
+    title: "&8Layout: &r%kit%"
+    info-name: "&eArrange your kit"
+    info-lore: "&7Move the items where you want them, then close to save."
+    reset-name: "&cReset"
+    reset-lore: "&7Back to the kit's own order."
+    saved: "&aSaved your layout for &f%kit%&a."
+    reset: "&7Your layout for &f%kit% &7is back to the kit's own order."
+    disabled: "&cThe kit layout editor is disabled on this server."
+
+  disabled: "&cKits are disabled."
+  usage: "&cUsage: &f%usage%"
+
+# ---------------------------------------------------------------------------
+# Tips, schedules, custom timers and the key-all
+# ---------------------------------------------------------------------------
+schedule:
+  disabled: "&cScheduling is disabled on this server."
+  usage: "&cUsage: &f%usage%"
+  timer:
+    started: "&aStarted timer &f%timer% &afor &f%time%&a."
+    stopped: "&7Stopped timer &f%timer%&7."
+    # Said to everybody when a timer without an end-broadcast runs out.
+    ended: "%timer% &7has ended."
+    already-running: "&cA timer called '%timer%' is already running. &7Stop it first."
+    # /timer start with the name the key-all's countdown uses.
+    reserved: "&c'%timer%' is the key-all's timer: it runs the key-all when it ends. &7Use &f/keyall&7."
+    unknown: "&cNo timer called '%timer%' is running."
+    invalid-duration: "&c'%input%' is not a duration. &7Try 90, 30m, 2h or 1h30m."
+    list-header: "&9Timers &7(&f%count%&7):"
+    list-entry: "&7- &f%name% &7(&f%time%&7): %label%"
+    list-empty: "&7No timers are running."
+  keyall:
+    done: "&aKey-all given to &f%count% &aplayer(s)."
+    not-configured: "&cThere are no key-all commands in schedule.yml, so there is nothing to give."
+    scheduled: "&aKey-all in &f%time%&a - it is on everybody's scoreboard."
+
+# ---------------------------------------------------------------------------
+# Player settings
+# ---------------------------------------------------------------------------
+settings:
+  menu-title: "&9Your settings"
+  state-on: "&aOn"
+  state-off: "&cOff"
+  lore-state: "&7Currently: %state%"
+  lore-click: "&eClick to switch"
+  changed: "&7%setting%&7: %state%"
+  unknown: "&cThere is no setting called '%input%'. &7Try: &f%settings%"
+  list-header: "&9Your settings:"
+  list-entry: "&7- %setting% &8(%key%)&7: %state%"
+  disabled: "&cThat setting is not available on this server."
+  usage: "&cUsage: &f%usage%"
+  names:
+    scoreboard: "&fScoreboard"
+    private-messages: "&fPrivate messages"
+    tips: "&fTips"
+    cobblestone: "&fPick up cobblestone"
+  descriptions:
+    scoreboard: "&7The board on the right of your screen."
+    private-messages: "&7Messages from other players. Off, you cannot send any either."
+    tips: "&7The occasional line of advice in chat."
+    cobblestone: "&7Off, you leave cobblestone on the ground while mining."
+
+# ---------------------------------------------------------------------------
+# Redeem codes
+# ---------------------------------------------------------------------------
+redeem:
+  redeemed: "&aCode &f%code% &aredeemed!"
+  unknown: "&cThat code does not exist."
+  exhausted: "&cThat code has been used up."
+  already: "&cYou have already redeemed that code."
+  empty: "&cThat code is not ready yet."
+  too-soon: "&cWait a moment before trying another code."
+  disabled: "&cCodes are disabled on this server."
+  usage: "&cUsage: &f%usage%"
+  admin:
+    created: "&aCreated code &f%code% &a(max uses: &f%uses%&a)."
+    exists: "&cA code called %code% already exists. &7Delete it first."
+    invalid-code: "&c'%code%' is not a valid code: 3 to 32 letters, digits, - or _."
+    no-such-code: "&cThere is no code called %code%."
+    command-added: "&aAdded a reward to &f%code%&a."
+    command-removed: "&7Removed reward &f%number% &7from &f%code%&7."
+    no-such-command: "&c%code% has no reward number %number%."
+    uses-set: "&7%code% can now be used &f%uses% &7time(s)."
+    deleted: "&7Deleted code &f%code%&7."
+    reset-all: "&7Everybody can use &f%code% &7again."
+    reset-player: "&f%player% &7can use &f%code% &7again."
+    not-redeemed-by: "&c%player% has not redeemed %code%."
+    unknown-player: "&cNobody called '%player%' has played here."
+    invalid-uses: "&c'%input%' is not a number of uses - use a positive number or 'unlimited'."
+    info-header: "&9%code% &7- used &f%used%&7/&f%uses% &7- made by &f%by% &f%age% &7ago"
+    info-command: "&7%number%. &f%command%"
+    info-no-commands: "&cNo rewards yet - players are told the code is not ready."
+    list-header: "&9Codes &7(&f%count%&7):"
+    list-entry: "&7- &f%code% &7(&f%used%&7/&f%uses%&7)"
+    list-empty: "&7No codes yet."
+    unlimited: "unlimited"
+
+# ---------------------------------------------------------------------------
+# Crowbar
+# ---------------------------------------------------------------------------
+crowbar:
+  removed: "&aFrame taken out. &7Uses left: &f%uses%"
+  spent: "&aFrame taken out. &7Your crowbar broke."
+  enemy-claim: "&cNot in another team's claim - raidable or not."
+  server-land: "&cNot on server land."
+  warzone: "&cNot in the warzone."
+  protected: "&cSomething protects that frame."
+  cooldown: "&cWait &f%time% &cbefore using a crowbar again."
+  cannot-pay: "&cUsing the crowbar costs &f%cost%&c."
+  given: "&7Gave &f%amount% &7crowbar(s) to &b%player%&7."
+  received: "&aYou received &f%amount% &acrowbar(s)."
+  player-not-found: "&c'%player%' is not online."
+  unlimited: "unlimited"
+  disabled: "&cThe crowbar is disabled on this server."
+  usage: "&cUsage: &f%usage%"
+
+# ---------------------------------------------------------------------------
+# Lives
+# ---------------------------------------------------------------------------
+lives:
+  own: "&7Your lives: &f%lives%"
+  other: "&b%player%&7's lives: &f%lives%"
+  sent: "&aGave &b%player% &f%amount% &aof your lives."
+  received: "&b%player% &agave you &f%amount% &aof their lives."
+  not-enough: "&cNot enough lives - you have &f%lives%&c."
+  send-disabled: "&cLives cannot be sent on this server."
+  send-self: "&cYou cannot send lives to yourself."
+  revived: "&aYou spent a life: &b%player% &acan play again. &7You have &f%lives% &7left."
+  not-banned: "&c%player% is not deathbanned."
+  map-end: "&c%player% is banned until the map ends - no life brings them back."
+  no-life: "&cYou have no life to spend."
+  used-at-login: "&aYou spent a life to come back. &7You have &f%lives% &7left."
+  admin-set: "&b%player%&7's lives: &f%lives%"
+  unknown-player: "&cNobody called '%player%' has played here."
+  invalid-amount: "&c'%input%' is not a number of lives."
+  disabled: "&cLives are disabled on this server."
+  usage: "&cUsage: &f%usage%"
+
+# ---------------------------------------------------------------------------
+# Holograms
+# ---------------------------------------------------------------------------
+hologram:
+  created: "&aCreated hologram &f%id%&a where you stand."
+  exists: "&cA hologram called %id% already exists."
+  invalid-id: "&c'%id%' is not a valid id: 1 to 32 letters, digits, - or _."
+  unknown: "&cThere is no hologram called %id%."
+  updated: "&7Updated hologram &f%id%&7."
+  moved: "&7Moved hologram &f%id% &7here."
+  deleted: "&7Deleted hologram &f%id%&7."
+  no-such-line: "&c%id% has no line %line%."
+  too-many-lines: "&cA hologram holds at most %max% lines."
+  world-gone: "&cThe world '%world%' is not loaded."
+  list-header: "&9Holograms &7(&f%count%&7):"
+  list-entry: "&7- &f%id% &7in %world% at %x%, %y%, %z% &8(%lines% line(s))"
+  list-empty: "&7No holograms yet."
+  # What a leaderboard rank nobody holds yet shows as its name.
+  empty-rank: "&7---"
+  disabled: "&cHolograms are disabled on this server."
+  usage: "&cUsage: &f%usage%"
+
+# ---------------------------------------------------------------------------
+# Custom enchants
+# ---------------------------------------------------------------------------
+enchants:
+  # One line of an item's lore per enchant; %enchant% carries its own colour.
+  lore-line: "%enchant% &7%level%"
+  book-name: "%enchant% &7%level% &fBook"
+  book-lore: "&7Drag onto an item in your inventory to apply."
+  book-applied: "&aApplied %enchant% &7%level%&a."
+  book-wrong-item: "&c%enchant% &cdoes not go on that item."
+  book-nothing-to-add: "&cThat item already has %enchant% &cat that level or higher."
+  recovered: "%enchant% &7kicked in."
+  applied: "&aApplied %enchant% &7%level%&a to your item."
+  removed: "&7Removed %enchant% &7from your item."
+  not-on-item: "&cYour item does not have %enchant%&c."
+  nothing-held: "&cHold the item first."
+  wrong-item: "&c%enchant% &cdoes not go on that item."
+  given: "&7Gave &f%amount% %enchant% &7%level% &7book(s) to &b%player%&7."
+  received: "&aYou received &f%amount% %enchant% &7%level% &abook(s)."
+  unknown: "&cThere is no custom enchant called '%input%'. &7See &f/cenchant list&7."
+  invalid-level: "&c'%input%' is not a level - from 1 to %max%."
+  invalid-amount: "&c'%input%' is not an amount - from 1 to 64."
+  player-not-found: "&c'%player%' is not online."
+  list-header: "&9Custom enchants &7(&f%count%&7):"
+  list-entry: "&7- %enchant% &7(up to %max%) &8%id% &7on %targets%"
+  list-empty: "&7No custom enchants are configured."
+  disabled: "&cCustom enchants are disabled on this server."
+  usage: "&cUsage: &f%usage%"
+
+# ---------------------------------------------------------------------------
+# Lunar Client (apollo.yml): waypoint names. Shown as plain text - colour codes
+# here are dropped.
+# ---------------------------------------------------------------------------
+apollo:
+  waypoint:
+    hq: "HQ"
+    base: "Base"
+    rally: "Rally"
+    focus: "Focus: %player%"
+    focus-team: "%team% HQ"
+    conquest-zone: "Conquest %zone%"
+    king: "King %player%"
+
+# ---------------------------------------------------------------------------
+# Limiters (limiters.yml): blocks per claim.
+# ---------------------------------------------------------------------------
+limiter:
+  claim-blocks:
+    refused: "&cThis land already holds &f%count%&c/&f%limit% %block% &c- the most a team's territory may."
+    header: "&9Block limits &7for &b%team%&7:"
+    entry: "&7- &f%block%&7: &f%count%&7/&f%limit%"
+    none: "&7This server limits no blocks in claims."

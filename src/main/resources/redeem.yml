@@ -1,0 +1,26 @@
+# ---------------------------------------------------------------------------
+# redeem.yml - redeem codes
+#
+# Codes are not written here: staff make them in game, and they are stored.
+#
+#   /redeemadmin create <code> <max-uses|unlimited> <command>
+#   /redeemadmin addcommand <code> <command>      another reward
+#   /redeemadmin removecommand <code> <number>    numbers come from info
+#   /redeemadmin setuses <code> <max-uses|unlimited>
+#   /redeemadmin info <code> | list | delete <code>
+#   /resetredeem <code> [player]                  usable again, by one or by all
+#
+# A reward is a console command with %player% filled in - an item, money, a
+# rank, a kit, from whichever plugin provides it:
+#   /redeemadmin create SUMMER 100 eco give %player% 500
+#
+# Every player can redeem a given code once. max-uses caps how many players can
+# redeem it in all: 1 for a single-use code, unlimited for an open giveaway.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# After a failed attempt - no such code, already used, all used up - how long a
+# player waits before the next one. Without it, codes could be found by trying
+# names as fast as chat allows.
+failed-attempt-cooldown-seconds: 3

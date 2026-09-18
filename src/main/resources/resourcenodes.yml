@@ -1,0 +1,193 @@
+# ---------------------------------------------------------------------------
+# HCFCore - Resource nodes (Mountain, Glowstone Mountain, Ore Mountain)
+# ---------------------------------------------------------------------------
+# This is NOT a capture event. Nothing is held, nobody wins and nothing is
+# rewarded: a region refills with configured blocks on a timer, the server says
+# so, and several teams show up at once. The fight is the point - the plugin only
+# provides the reason for it.
+#
+# Nodes are DATA, not code. A second mountain is a block of YAML under "nodes:".
+#
+# Changes take effect on /hcf reload.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# How often the refill schedule is examined, in seconds. Nothing counts down per
+# second here, so this can be coarse - it only bounds how late a refill or a
+# warning can be.
+tick-seconds: 5
+
+# Time zone the refill times below are read in.
+# "system" follows the host clock. Prefer naming a zone explicitly (for example
+# "Europe/Paris") so moving the server to another host does not silently shift
+# every refill.
+time-zone: "system"
+
+# How many block positions a refill examines per tick, shared between the refills
+# running at once. A mountain is tens of thousands of blocks; setting them all in
+# one tick would freeze the server, so the work is spread.
+#   lower  - gentler, refills take longer to finish
+#   higher - refills finish sooner, each tick costs more
+blocks-per-tick: 4000
+
+# Whether placing a block triggers a physics update on its neighbours.
+# Off by default: a refill sets thousands of blocks at once and the Paper javadoc
+# for Block#setType(Material, boolean) warns that doing that with physics is
+# expensive. Turn it on only if a palette below contains blocks that need gravity
+# or support to behave correctly (sand, gravel).
+apply-physics: false
+
+# Whether a refill leaves empty the blocks a player's body is in. A refill fills
+# air, and a player mining in the region is standing in air: without this, one
+# landing mid-fight fills the space around them and they suffocate in the
+# resource. They can mine their way out of a full mountain either way; this
+# decides whether a refill can kill somebody. Spectators are never counted.
+skip-occupied-blocks: true
+
+nodes:
+
+  # ------------------------------------------------------------------
+  # Glowstone Mountain: the classic. Glowstone is the bottleneck resource for
+  # level II potions, so a refill reliably pulls every team onto the same rock.
+  # ------------------------------------------------------------------
+  glowstone-mountain:
+    display-name: "&eGlowstone Mountain"
+
+    # The region is the box between the two corners, bounds included. Write the
+    # corners in whichever order you walked them - they are normalised on load.
+    # Keep it to the mountain itself: every position inside is examined on each
+    # refill.
+    world: world_nether
+    corner-1:
+      x: 40
+      y: 40
+      z: 40
+    corner-2:
+      x: 70
+      y: 80
+      z: 70
+
+    # What the refill puts back. Two shapes are accepted:
+    #
+    #   blocks: [GLOWSTONE, NETHERRACK]     <- a plain list, all equally likely
+    #
+    #   blocks:                             <- name: weight, for a mix
+    #     GLOWSTONE: 1
+    #     NETHERRACK: 4
+    #
+    # Weights are relative, not percentages: 1 beside 4 means one block in five is
+    # glowstone. Nothing has to add up to 100.
+    # Names are Minecraft block names; an unknown one is reported in the console at
+    # startup and skipped, never guessed at.
+    blocks:
+      GLOWSTONE: 1
+      NETHERRACK: 4
+
+    # Which blocks a refill may overwrite.
+    #   air    - refill what players mined out. This is what you normally want.
+    #   blocks - extra block names the refill may also replace, for repairing a
+    #            region players filled with something of their own.
+    # A refill never touches anything else, so a region is repaired rather than
+    # rebuilt from scratch.
+    replace:
+      air: true
+      blocks: []
+
+    # When it refills. The two sources are merged, and both may be used.
+    #
+    #   interval-seconds - every N seconds, ANCHORED TO LOCAL MIDNIGHT. 14400
+    #                      means 00:00, 04:00, 08:00 ... every day, whatever the
+    #                      server did in between: a restart cannot shift the hours
+    #                      and players can learn them. If the interval does not
+    #                      divide 24 hours evenly, the last window before midnight
+    #                      is shorter than the others.
+    #   times            - explicit local times of day.
+    #
+    # Leave both empty for a node only staff can refill with
+    # /resourcenode refill <id>.
+    #
+    # Shipped at 0, staff only: a refill writes blocks into the world, and the
+    # region above is an example - left scheduled, a fresh server would fill
+    # that box of the Nether with glowstone every four hours. Move the region onto
+    # your mountain, then set interval-seconds: 14400 (every four hours) or times.
+    refill:
+      interval-seconds: 0
+      times: []
+
+    # How long before a refill to warn the server, in seconds. This is what makes
+    # a refill a rendez-vous rather than a surprise: teams need notice to travel.
+    # A warning at or beyond the interval itself is ignored - it would be
+    # permanently on screen.
+    announce-before-seconds: [300, 60]
+
+    # Whether the refill itself is broadcast.
+    announce-refill: true
+
+    # Whether the region is filled once when the server starts. Off by default: on
+    # an established map the region already holds its blocks, and a fill on every
+    # restart is a needless pass over tens of thousands of positions.
+    fill-on-start: false
+
+    protection:
+      # No building inside the region: no towering over the mountain, no walling
+      # it off, no lava buckets. The same goes for what no player places by hand:
+      # pistons cannot push blocks in or pull the structure out, and liquids poured
+      # outside cannot flow in. Liquid already inside the region keeps flowing.
+      prevent-build: true
+
+      # What may be mined inside the region:
+      #   PALETTE_ONLY - only the blocks this node places (GLOWSTONE, NETHERRACK
+      #                  above). The structure survives, so there is still a
+      #                  mountain to refill next time.
+      #   ANY          - anything. The region is then only non-buildable, and
+      #                  players will eventually flatten it.
+      break-policy: PALETTE_ONLY
+
+      # Whether teams are refused claims overlapping the region. Leave this on:
+      # a claimed mountain is a mountain one team owns.
+      prevent-claim: true
+
+      # Whether explosions are stopped from breaking the region.
+      #
+      # Leave this on too. Without it break-policy above is decorative: a player
+      # refused the netherrack blows it up instead, and after a few days there is
+      # no mountain left for the refill to fill.
+      prevent-explosions: true
+
+  # ------------------------------------------------------------------
+  # Ore Mountain: the same mechanic, a different palette. No code of its own -
+  # which is the point of family B being data too.
+  # Staff-only until you give it a schedule.
+  # ------------------------------------------------------------------
+  ore-mountain:
+    display-name: "&bOre Mountain"
+    world: world
+    corner-1:
+      x: -80
+      y: 30
+      z: -80
+    corner-2:
+      x: -50
+      y: 60
+      z: -50
+    blocks:
+      STONE: 12
+      IRON_ORE: 4
+      GOLD_ORE: 2
+      DIAMOND_ORE: 1
+      EMERALD_ORE: 1
+    replace:
+      air: true
+      blocks: []
+    refill:
+      interval-seconds: 0
+      times: []
+    announce-before-seconds: [60]
+    announce-refill: true
+    fill-on-start: false
+    protection:
+      prevent-build: true
+      break-policy: PALETTE_ONLY
+      prevent-claim: true
+      prevent-explosions: true

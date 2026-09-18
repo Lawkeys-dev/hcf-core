@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------------------
+# kits.yml - kits, partner items and refill signs
+# ---------------------------------------------------------------------------
+enabled: true
+
+# Kits are NOT defined here. They are created in game with
+#   /kit create <id> [cooldown-seconds] [permission]
+# which saves your current inventory - armour, enchantments, potions and named
+# items included - and stores it in the database. Describing a full HCF loadout
+# by hand in YAML is a job nobody finishes correctly, which is why this file has
+# no kit list to get wrong.
+#
+#   /kit                       list what you can take
+#   /kit <id>                  take one
+#   /kit delete <id>
+#   /kit give <player> <kit>   no cooldown started - that is the point of giving
+#   /kit resetcooldown <player> [kit]
+#   /kit layout <kit> [reset]  arrange a kit's items (players; see layout-editor)
+
+# Whether taking a kit clears the inventory first. True is the kitmap behaviour
+# (you get exactly the kit). False adds to what you carry and drops the overflow
+# at your feet rather than eating it.
+clear-before-giving: true
+
+# The kit layout editor (the "editmenu"). /kit layout <kit> opens the kit as your
+# inventory; put each item where you want it and close the window to save. From
+# then on the kit is handed to you in that order, by /kit and by refill signs alike.
+# Armour stays where it is worn. A layout is kept per player and per kit, and is
+# dropped when staff re-create the kit with other items - its slots would no longer
+# hold what was arranged. The editor shows copies that cannot leave it.
+layout-editor: true
+
+refill-signs:
+  # Click a sign to get a kit - the kitmap standard. Write a sign whose first
+  # line is [Kit] and whose second is the kit id.
+  enabled: true
+  # The word inside the brackets, so it can be translated.
+  line: "Kit"
+  # Anti-spam wait, separate from the kit's own cooldown: a kitmap kit usually
+  # has no cooldown, and the sign still must not be clickable sixty times a
+  # second.
+  cooldown-seconds: 3
+
+# ---------------------------------------------------------------------------
+# Partner items / abilities
+#
+# Partner items are a core feature of HCF and kitmap, but which ones a server
+# runs - effects, triggers, cooldowns - is its own choice. The MECHANISM is
+# implemented; the LIST is yours, and it ships empty rather than with invented
+# items.
+#
+# An ability is an item that runs console commands when right-clicked:
+#
+#   abilities:
+#     switcher:
+#       material: ENDER_PEARL
+#       name: "&5&lSwitcher"
+#       lore:
+#         - "&7Swaps places with whoever you hit."
+#       cooldown-seconds: 15
+#       consume: true          # take one from the stack when used
+#       commands:
+#         - "some-command %player%"
+#
+# Hand them out with /kit ability <player> <id> [amount], or from a killstreak
+# reward, or from any other plugin that can run a command.
+# ---------------------------------------------------------------------------
+abilities: {}

@@ -1,0 +1,72 @@
+# Combat
+
+*Configured in [`pvp.yml`](../reference/configuration/pvp.md). Command: `/pvp`.*
+
+## Combat tag
+
+A hit tags **both players for 30 seconds** (`combat-tag.duration-seconds`; `tag-attacker` decides whether the attacker is tagged too). `/pvp` shows your tag and deathban status.
+
+A *hit* is anything the damage is credited to a player for:
+
+- a blow or an arrow — projectiles trace back to the shooter, so an archer is tagged;
+- the blast of TNT a player lit, or of a crystal a player struck.
+
+A bed or respawn anchor set off in the wrong dimension is credited to nobody. Every rule on this page applies to credited blasts as to a blow.
+
+**While tagged**, a player cannot use plugin teleports — `/team hq`, `/team base`, `/team stuck`, `/spawn`, `/world`, `/top` (`block-teleport`). A teleport countdown checks the tag at the start **and again at the end**.
+
+The tag is **not saved**: it lasts a few dozen seconds, and making it survive a restart would punish players for the server being down.
+
+## Combat logging
+
+**Logging out while tagged kills the player** (`kill-on-logout`). That death counts like any other: deathban, DTR lost, drops on the ground.
+
+`/logout` is the way to leave that is visibly not an escape: a **30-second countdown** that damage or moving cancels. It is refused while tagged, when it is typed and again when its countdown ends — striking a blow during the countdown tags the attacker, and the kick would then be a combat log.
+
+## Safe zones
+
+Nobody hits or is hit on **safe** server land — spawn, typically (`safe-zones.enabled`). Server land created as a **combat** zone — roads, event grounds — and the warzone are fought on like anywhere else. See [Territory](territory.md#server-land).
+
+**A hit refused for any reason tags nobody.**
+
+## Friendly fire
+
+- **Teammates never hurt each other** (`friendly-fire.teammates: false`).
+- **Allies hurt each other only in an event area** (`friendly-fire.allies: EVENT_AREAS`): inside the zone of a running KOTH, Citadel or Conquest, and on or by the King during Kill the King — where allied teams compete, since captures and the King are strictly per team. `ALWAYS` and `NEVER` are the alternatives.
+
+Mountains are not event areas: nobody captures a node.
+
+## Not only hits
+
+Where a player may not hit another — a safe zone, SOTW, a teammate, an ally outside an event area — they may not affect them either:
+
+- a splash or lingering potion with a harmful effect does nothing to them (a potion of healing still heals);
+- a fishing rod does not reel them in;
+- a wind charge — or TNT or a crystal the player set off — does not push them.
+
+## Loot protection
+
+For **10 seconds** after a kill, what the dead player dropped can be picked up **only by the killer and the killer's team** — no other player, no mob, no hopper (`loot-protection`). Then it is ordinary loot.
+
+- The drops fall where they always did; they only carry the claim.
+- A death with no killer (lava, a fall) is not protected.
+- The killer's allies are not included: strictly per team.
+- `team-shares: false` keeps the loot for the killer alone.
+
+## Strength nerf
+
+Strength potions give less than vanilla (`strength-nerf`): the plugin subtracts vanilla's bonus per level and adds its own, **1.5** by default.
+
+!!! warning "Check `vanilla-bonus-per-level` for your version"
+    Vanilla's bonus is a setting (`3.0` shipped), not a constant: Mojang has changed the formula before, and the value for the targeted version could not be confirmed in official documentation. Verify it for your Minecraft version and correct it in `pvp.yml` — no recompile needed.
+
+## Knockback and attack speed
+
+Both ship **off**: they change how combat feels, so they should be a deliberate choice.
+
+- **Knockback** scales the knockback of one player hitting another — weapon, fist or projectile — with separate `horizontal` and `vertical` multipliers (`1.0` is vanilla). Falling, sprinting and other plugins are untouched.
+- **Attack speed** replaces every player's base attack-speed attribute (`4.0` is vanilla's base); the weapon in hand still adds its own modifier. A higher value shortens the recharge between full-strength hits — a large one gives a pre-1.9 feel. It is given as a modifier never saved to player data: switching it off, or removing the plugin, leaves nobody with a changed attribute.
+
+## Switching combat off
+
+`enabled: false` in `pvp.yml` disables the whole module: no deathbans, no combat tags, no combat tweaks. Each part also has its own switch. SOTW's no-PvP rule holds even then: it is the map's rule.

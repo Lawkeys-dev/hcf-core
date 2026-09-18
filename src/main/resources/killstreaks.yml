@@ -1,0 +1,29 @@
+# ---------------------------------------------------------------------------
+# killstreaks.yml - rewards for consecutive kills
+# ---------------------------------------------------------------------------
+enabled: true
+
+# EMPTY ON PURPOSE. The reward table is entirely yours, and inventing one would
+# be deciding your gameplay - the same reason points-per-capture defaults to 0 in
+# teams.yml.
+#
+# A reward fires at EXACTLY its streak, not at every streak up to it: a player
+# reaching 10 was already given 3 and 5 on the way up.
+#
+# Rewards are console commands, which is the only shape that can express "give
+# them a kit", "drop a crate" or anything from another plugin without this module
+# knowing what those are. %player% and %streak% are filled in.
+#
+#   rewards:
+#     5:
+#       broadcast: "&c%player% &7is on a &f%streak% &7killstreak!"
+#       commands:
+#         - "kit give %player% streak5"
+#     10:
+#       broadcast: "&4%player% &7is on &f%streak%&7! Somebody stop them."
+#       commands:
+#         - "kit ability %player% switcher 1"
+#
+# A streak is reset by dying, and is stored - so it survives a restart, and
+# cannot be farmed by waiting for one.
+rewards: {}

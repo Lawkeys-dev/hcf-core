@@ -1,0 +1,106 @@
+# ---------------------------------------------------------------------------
+# enchants.yml - custom enchants
+#
+# The well-known HCF and kitmap enchants. Every one below
+# can be changed - name, levels, the items it goes on, its numbers - removed, or
+# copied under a new id (another effect enchant is one more block).
+#
+#   /cenchant list                                   what exists (everybody)
+#   /cenchant apply <enchant> [level]                on the held item (staff)
+#   /cenchant remove <enchant>                       from the held item (staff)
+#   /cenchant give <player> <enchant> [level] [n]    books (staff, or a shop,
+#                                                    a crate, a redeem code...)
+#
+# A BOOK is dragged onto an item in the inventory: a higher book sets its level,
+# an equal one raises it by one, up to max-level - the anvil's rule.
+#
+# The enchant lives on the item, so kits (/kit create), chests, deaths and trades
+# carry it like anything else about the item.
+#
+# type:
+#   effect      a potion effect while the piece is worn (effect: its id)
+#   hellforged  repairs the worn piece each time its wearer takes damage
+#               (repair-per-level: durability restored per level per hit)
+#   implanted   keeps its wearer fed (food-per-level every interval-seconds)
+#   recover     Regeneration (level) for regeneration-seconds when the wearer
+#               falls to below-health or less (20 is full health), then
+#               cooldown-seconds before it can fire again
+#   autosmelt   a tool that smelts what it mines, exactly as a furnace would
+#               (the server's own furnace recipes, datapacks included)
+#
+# applies-to: helmet, chestplate, leggings, boots, sword, axe, pickaxe, shovel,
+#   hoe, bow, crossbow, trident - or the groups armor, tool, weapon. The effect,
+#   hellforged, implanted and recover enchants act on worn armour only.
+#
+# An effect enchant never overrides a stronger effect from elsewhere: a Speed II
+# potion is not cut down to a Speed I boot.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+enchants:
+
+  fire-resistance:
+    name: "&6Fire Resistance"
+    type: effect
+    effect: fire_resistance
+    max-level: 1
+    applies-to: [armor]
+
+  speed:
+    name: "&bSpeed"
+    type: effect
+    effect: speed
+    max-level: 2
+    applies-to: [boots]
+
+  jump-boost:
+    name: "&aJump Boost"
+    type: effect
+    effect: jump_boost
+    max-level: 2
+    applies-to: [boots]
+
+  night-vision:
+    name: "&9Night Vision"
+    type: effect
+    effect: night_vision
+    max-level: 1
+    applies-to: [helmet]
+
+  invisibility:
+    name: "&7Invisibility"
+    type: effect
+    effect: invisibility
+    max-level: 1
+    applies-to: [chestplate]
+
+  hellforged:
+    name: "&cHellforged"
+    type: hellforged
+    max-level: 4
+    applies-to: [armor]
+    repair-per-level: 1
+
+  implanted:
+    name: "&2Implanted"
+    type: implanted
+    max-level: 3
+    applies-to: [helmet]
+    food-per-level: 1
+    interval-seconds: 10
+
+  recover:
+    name: "&dRecover"
+    type: recover
+    max-level: 2
+    applies-to: [chestplate]
+    below-health: 8
+    regeneration-seconds: 5
+    cooldown-seconds: 60
+
+  autosmelt:
+    name: "&6Autosmelt"
+    type: autosmelt
+    max-level: 1
+    applies-to: [pickaxe]

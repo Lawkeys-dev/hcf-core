@@ -1,0 +1,66 @@
+# ---------------------------------------------------------------------------
+# HCFCore - DTR (Deaths Till Raidable) configuration
+# ---------------------------------------------------------------------------
+# DTR is what decides whether a team's territory is currently open to raiding.
+# A team is raidable exactly while its DTR has run out
+# (0 or below), and regains its protection the moment DTR climbs back above
+# zero - nothing is re-claimed, and its land never changes hands.
+#
+# ⚠️ DTR is DERIVED FROM TIME, not ticked by a task. What is stored per team is
+# the value at its last death plus the instant regeneration resumes; the current
+# figure is computed on read. One consequence to be aware of: regeneration keeps
+# running while the server is down, so a team that logs off raidable can come
+# back protected. That is the usual HCF behaviour.
+#
+# The defaults below are the long-standing HCF scale. Tune to taste.
+# ---------------------------------------------------------------------------
+
+# Turning this off means no team is ever raidable: claims stay permanently
+# protected, and deaths cost nothing.
+enabled: true
+
+maximum:
+  # DTR every team has regardless of size.
+  base: 0.0
+  # DTR added per member. With the default 1.1, a solo team holds 1.1 DTR - so
+  # its first death (costing 1.0) leaves it at 0.1 and still protected, and the
+  # second one opens it. That asymmetry is intentional and long-standing.
+  per-member: 1.1
+  # Hard ceiling whatever the member count. 0 = uncapped.
+  # The default 6.6 is 1.1 x 6, the classic "six-man cap".
+  cap: 6.6
+
+# DTR lost per member death.
+loss-per-death: 1.0
+
+# Floor the DTR can never fall below, however many times a team dies. Must be
+# zero or negative, otherwise no team could ever become raidable. A deeper floor
+# means a heavily-farmed team takes proportionally longer to close its base.
+minimum: -5.0
+
+regeneration:
+  # How long regeneration is frozen after a death. The default is 45 minutes:
+  # long enough that a raid has time to happen.
+  freeze-seconds: 2700
+  # DTR granted per interval. 0 disables regeneration entirely - a team would
+  # then only recover through a staff override.
+  amount: 0.1
+  # Length of one regeneration step. With the defaults, 0.1 every 3 minutes is
+  # a full DTR point every half hour.
+  #
+  # Regeneration is stepwise, not continuous: a partial interval grants nothing,
+  # so what players see matches what the server advertises.
+  interval-seconds: 180
+
+announcements:
+  # Tell the team how much DTR a member's death cost.
+  on-death: true
+  # Announce server-wide when a team becomes raidable, and when it stops being.
+  on-raidable-change: true
+  # How often to check for teams that regenerated back above zero.
+  #
+  # This only drives ANNOUNCEMENTS - never the DTR value itself, which is always
+  # computed live. A slower poll makes "no longer raidable" messages less
+  # punctual; it never makes protection late. Becoming raidable is caused by a
+  # death and is announced immediately, whatever this value.
+  poll-seconds: 60

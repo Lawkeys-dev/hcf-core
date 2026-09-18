@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+bin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local test server / runtime artifacts, if run from within the repo
+run/
+*.log
+
+# Local database file (SQLite dev mode)
+*.db
+
+# Documentation site (mkdocs build) and its virtual environment
+site/
+.venv/

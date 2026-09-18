@@ -1,0 +1,172 @@
+site_name: HCFCore
+site_description: Open source, fully configurable HCF and Kitmap core plugin for Paper.
+site_url: https://lawkeys-dev.github.io/hcf-core/
+repo_url: https://github.com/Lawkeys-dev/hcf-core
+repo_name: Lawkeys-dev/hcf-core
+edit_uri: edit/main/docs/
+copyright: HCFCore is released under the MIT License, with an attribution requirement.
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+theme:
+  name: material
+  language: en
+  icon:
+    logo: material/sword-cross
+    repo: fontawesome/brands/github
+  favicon: assets/favicon.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/weather-night
+        name: Switch to system preference
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+plugins:
+  - search
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Lawkeys-dev/hcf-core
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Setting up a map: getting-started/setup-guide.md
+      - Game modes: getting-started/game-modes.md
+      - Upgrading: getting-started/upgrading.md
+  - How the game works:
+      - gameplay/index.md
+      - Teams: gameplay/teams.md
+      - Territory: gameplay/territory.md
+      - DTR and raids: gameplay/dtr-and-raids.md
+      - Combat: gameplay/combat.md
+      - Deathbans and lives: gameplay/deathbans-and-lives.md
+      - SOTW, EOTW and the Purge: gameplay/map-phases.md
+      - Capture events: gameplay/events.md
+      - Mountains: gameplay/mountains.md
+      - Economy: gameplay/economy.md
+      - Kits and abilities: gameplay/kits.md
+      - Enchants, limits and the crowbar: gameplay/items.md
+      - Chat, scoreboard and settings: gameplay/interface.md
+  - Running a server:
+      - server/index.md
+      - Moderation: server/moderation.md
+      - Holograms: server/holograms.md
+      - Redeem codes: server/redeem.md
+      - Schedules, timers and key-alls: server/schedules.md
+      - Utility commands: server/utilities.md
+      - Integrations: server/integrations.md
+      - Troubleshooting: server/troubleshooting.md
+  - Reference:
+      - reference/index.md
+      - Commands: reference/commands.md
+      - Permissions: reference/permissions.md
+      - Placeholders: reference/placeholders.md
+      - Messages and translation: reference/messages.md
+      - Configuration:
+          - reference/configuration/index.md
+          - config.yml: reference/configuration/config.md
+          - teams.yml: reference/configuration/teams.md
+          - claims.yml: reference/configuration/claims.md
+          - dtr.yml: reference/configuration/dtr.md
+          - pvp.yml: reference/configuration/pvp.md
+          - economy.yml: reference/configuration/economy.md
+          - events.yml: reference/configuration/events.md
+          - resourcenodes.yml: reference/configuration/resourcenodes.md
+          - phases.yml: reference/configuration/phases.md
+          - lives.yml: reference/configuration/lives.md
+          - staff.yml: reference/configuration/staff.md
+          - chat.yml: reference/configuration/chat.md
+          - ui.yml: reference/configuration/ui.md
+          - general.yml: reference/configuration/general.md
+          - kits.yml: reference/configuration/kits.md
+          - killstreaks.yml: reference/configuration/killstreaks.md
+          - enchants.yml: reference/configuration/enchants.md
+          - limiters.yml: reference/configuration/limiters.md
+          - schedule.yml: reference/configuration/schedule.md
+          - settings.yml: reference/configuration/settings.md
+          - redeem.yml: reference/configuration/redeem.md
+          - crowbar.yml: reference/configuration/crowbar.md
+          - holograms.yml: reference/configuration/holograms.md
+          - apollo.yml: reference/configuration/apollo.md
+  - Developers:
+      - developers/index.md
+      - Developer API: developers/api.md
+      - Building from source: developers/building.md
+      - Architecture overview: developers/architecture.md
+      - Contributing: developers/contributing.md

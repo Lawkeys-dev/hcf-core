@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# lives.yml - lives, the way back from a deathban
+#
+# Not loaded at all in kitmap mode (config.yml, kitmap-mode: true): kitmap has no
+# deathban for a life to lift.
+#
+#   /lives                         how many you have
+#   /lives check <player>          how many somebody else has
+#   /lives send <player> <amount>  give some of yours
+#   /lives revive <player>         (or /revive) spend one of yours to lift a
+#                                  friend's deathban
+#   /lives give|take|set <player> <amount>   staff (hcfcore.lives.admin)
+#
+# A deathban until the end of the map - EOTW's - can never be bought back: EOTW
+# is final.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# How many lives a player who has never had any starts with. Lives usually come
+# from a store, a redeem code or staff (/lives give), so this ships at 0.
+starting-lives: 0
+
+# A deathbanned player who tries to join while holding a life spends it and comes
+# in, and is told so. On a single server this is the only way a player can use
+# their own life - they cannot join to type a command. Off, only a friend's
+# /lives revive brings them back.
+use-on-login: true
+
+# Whether players may give each other lives with /lives send.
+allow-send: true

@@ -1,0 +1,34 @@
+/* HCFCore documentation - small additions on top of Material. */
+
+/* Hero on the home page. */
+.hcf-hero {
+  padding: 1.2rem 0 0.4rem;
+}
+.hcf-hero h1 {
+  margin-bottom: 0.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.hcf-hero .hcf-tagline {
+  font-size: 1.15rem;
+  opacity: 0.85;
+  margin-top: 0;
+}
+
+/* Tables: keep the first column (a command, a node, a setting) on one line
+   where possible, and let long tables scroll rather than squash. */
+.md-typeset table:not([class]) td:first-child code {
+  white-space: nowrap;
+}
+
+/* Grid cards: a little more air. */
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border-radius: 0.6rem;
+}
+
+/* The shipped YAML files embedded in the configuration reference are long:
+   cap their height and let them scroll. */
+.hcf-shipped pre > code {
+  max-height: 36rem;
+}

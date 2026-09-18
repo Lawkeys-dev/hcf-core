@@ -1,0 +1,118 @@
+# ---------------------------------------------------------------------------
+# HCFCore - PvP / combat configuration
+# ---------------------------------------------------------------------------
+# Deathban, combat tag, strength nerf, safe zones, loot protection and
+# anti-logout. Changes take effect on /hcf reload.
+# ---------------------------------------------------------------------------
+
+# Turning this off disables the whole module: no deathbans, no combat tags, no
+# combat tweaks.
+enabled: true
+
+deathban:
+  # Keep a player out of the server for a while after they die.
+  enabled: true
+  # Ban length for a player with no matching tier below.
+  duration-seconds: 3600
+  # Shorter bans for ranks. The SHORTEST matching tier wins, so granting a rank
+  # is always a reduction and never accidentally a penalty. Only the nodes listed
+  # here are checked, so an unrelated wildcard grant cannot silently shorten
+  # somebody's ban.
+  permission-tiers:
+    hcfcore.deathban.tier.short: 900
+  # Staff with hcfcore.deathban.bypass are never banned in the first place: the
+  # permission is read at the death, where the player is still on the server. It
+  # cannot be read at the login - the connection carries a profile, not a player -
+  # so granting it to somebody who is already banned does not let them back in.
+  # Clear that ban with /pvp lift <player>, which works from the console.
+
+combat-tag:
+  enabled: true
+  # How long a hit keeps a player in combat.
+  duration-seconds: 30
+  # Tag the attacker as well as the victim, so hitting someone commits you too.
+  tag-attacker: true
+  # Kill a tagged player who disconnects. This is the classic HCF answer to
+  # combat logging, and the reason the tag exists at all: without it, a losing
+  # fight is escaped by pulling the plug. The death runs the normal path, so the
+  # deathban applies and the team loses DTR.
+  kill-on-logout: true
+  # Refuse plugin teleports (such as /team hq) while tagged.
+  block-teleport: true
+
+strength-nerf:
+  # The historic HCF nerf of Strength potions.
+  enabled: true
+  # ⚠️ Damage vanilla adds PER STRENGTH LEVEL. This module subtracts it and adds
+  # its own figure instead.
+  #
+  # This is a config value on purpose. Mojang has changed the formula before (a
+  # damage multiplier before 1.9, a flat bonus after), and the value for the
+  # targeted version could not be confirmed against the official documentation
+  # when this module was written, and a guess is not presented as fact here.
+  # VERIFY IT for your server version and correct it here; no recompilation is
+  # needed.
+  vanilla-bonus-per-level: 3.0
+  # Damage this module adds per level instead.
+  nerfed-bonus-per-level: 1.5
+  # (An "effect-names" list used to follow here, for servers whose API spelled
+  # the Strength effect differently. It is read through Paper's STRENGTH constant
+  # now, verified in the 26.2 sources, and the list is ignored if still present.)
+
+knockback:
+  # Scale knockback. Off by default: this changes the feel of combat, so it
+  # should be a deliberate choice rather than something a server inherits.
+  #
+  # Only knockback from one player hitting another - with a weapon, a fist or a
+  # projectile - is scaled, through Paper's own knockback event: the knockback
+  # itself is scaled, not whatever else is moving the victim at that moment.
+  enabled: false
+  # 1.0 is vanilla.
+  horizontal: 1.0
+  vertical: 1.0
+
+attack-speed:
+  # Every player's attack-speed attribute. Off by default: like knockback, this
+  # changes how combat feels, so it should be a deliberate choice.
+  #
+  # The value replaces the player's base; the weapon in hand still adds its own
+  # modifier on top (a sword lowers it). The higher the value, the shorter the
+  # recharge between full-strength hits. Vanilla's base is 4 (the Minecraft Wiki's
+  # figure - Paper does not document it; the plugin reads the real base at runtime
+  # and only adds the difference). Servers after a pre-1.9 feel set a large value;
+  # how large removes the recharge entirely is Mojang's formula, so try it.
+  #
+  # Given as a modifier that is never saved to player data: turning this off, or
+  # removing the plugin, leaves nobody with a changed attribute.
+  enabled: false
+  value: 4.0
+
+safe-zones:
+  # Disable PvP on the land of server teams created as SAFE zones - spawn,
+  # typically. Server teams created as COMBAT zones (warzone, roads, event
+  # grounds) are fought on like anywhere else. Both are made the same way:
+  #   /team createsystem <name> <safe|combat>, then /team forceclaim <name> [radius]
+  # and /team setzone <name> <safe|combat> switches one later.
+  # Turning this off makes every server team fightable, whatever its kind.
+  enabled: true
+
+# Anticlean - loot protection. For a few seconds after a kill, what the dead player
+# drops can be picked up only by the killer (and, with team-shares, the killer's
+# team): no other player, no mob, no hopper. Then it is ordinary loot. A death with
+# no killer - lava, a fall - is not protected. The drops still fall where they
+# always did; they only carry the claim.
+loot-protection:
+  enabled: true
+  seconds: 10
+  team-shares: true
+
+# Hits between players on the same side. The default rule:
+# teammates never hurt each other, and allies only inside an event area - a running
+# KOTH, Citadel or Conquest zone, or a hit on or by the King during Kill the King -
+# since that is where allied teams compete (captures and the King are strictly per
+# team). A refused hit does nothing and tags nobody.
+friendly-fire:
+  # Can teammates hurt each other?
+  teammates: false
+  # Where can allies hurt each other? ALWAYS, EVENT_AREAS or NEVER.
+  allies: EVENT_AREAS

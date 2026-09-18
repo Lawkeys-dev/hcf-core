@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# holograms.yml - floating text
+#
+# Drawn by Paper's own text displays: no plugin or library to install, and every
+# client sees them. Holograms are made in game and stored in the database:
+#
+#   /hologram create <id> <first line>   where you stand, at eye height
+#   /hologram addline <id> <text>
+#   /hologram setline <id> <line> <text>
+#   /hologram removeline <id> <line>
+#   /hologram movehere <id> | tp <id> | list | delete <id>
+#
+# Colour codes (&c) work. A line can show a leaderboard, refreshed every
+# refresh-seconds:
+#
+#   %top_<board>_<rank>_name%    %top_<board>_<rank>_value%
+#
+# where <board> is kills, deaths, kdr, killstreak or playtime and <rank> runs
+# from 1 to 100. For example:
+#
+#   /hologram create kills &6&lTop kills
+#   /hologram addline kills &f1. %top_kills_1_name% &7- &c%top_kills_1_value%
+#
+# The displays are never saved into the world: the database is the only copy, so
+# nothing is left floating after a crash or a delete.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# How often leaderboard lines are redrawn. Holograms without one never are.
+refresh-seconds: 10

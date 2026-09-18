@@ -1,0 +1,73 @@
+# ---------------------------------------------------------------------------
+# HCFCore - SOTW and EOTW (Start and End Of The World)
+# ---------------------------------------------------------------------------
+# The start and the end of a map:
+#
+#   SOTW - no PvP anywhere, no deathbans, no DTR lost. A player may type
+#          /sotw enable to fight early: for the rest of that SOTW they can hit,
+#          and be hit by, only players who did the same. There is no going back.
+#   EOTW - every team is raidable whatever its DTR, players cannot claim new
+#          land (staff still can, for server land), and a death bans until the
+#          end of the map - staff lift those bans after the reset. Spawn stays
+#          a safe zone.
+#
+# SOTW's "no PvP" holds even if pvp.yml is turned off: it is the map's rule.
+# EOTW's deathban is still a deathban, though: with pvp.yml off, or its
+# deathbans off, nobody is banned in EOTW either.
+#
+# Both start by command (/sotw start [duration], /eotw start - permission
+# hcfcore.phase.admin) or by themselves at the dates below. A SOTW ends by
+# itself when its time runs out; EOTW lasts until staff stop it. Both survive a
+# restart: a SOTW that ends at 20:00 ends at 20:00 however often the server
+# goes down before then.
+#
+# Changes take effect on /hcf reload.
+# ---------------------------------------------------------------------------
+
+# Time zone the dates below are written in. "system" follows the host clock;
+# prefer naming it ("Europe/Paris") so moving hosts does not shift the map.
+time-zone: "system"
+
+sotw:
+  # How long a SOTW lasts: a scheduled one, and /sotw start without a duration.
+  duration-seconds: 7200
+
+  # Date and time at which SOTW starts by itself, as "yyyy-MM-dd HH:mm" in the
+  # time zone above. Empty: only staff start it.
+  # It runs from that time to that time plus duration-seconds. A server that was
+  # down at the start still gets what is left of that window; once the window
+  # is over, the date does nothing - a date left from an earlier map is harmless.
+  start-at: ""
+
+  # Remaining-time marks to broadcast, in seconds.
+  announce-at-seconds: [3600, 1800, 600, 300, 60, 10]
+
+eotw:
+  # Date and time at which EOTW starts by itself ("yyyy-MM-dd HH:mm"). Empty:
+  # only staff start it. If a SOTW is running at that time, EOTW waits for its
+  # end.
+  start-at: ""
+
+  # How late a scheduled EOTW may still start, in seconds - after a server that
+  # was down at the time comes back up. Past that, the date is treated as one
+  # left from an earlier map and ignored, so a fresh map never opens straight
+  # into EOTW. Start it with /eotw start instead.
+  start-window-seconds: 3600
+
+purge:
+  # The Purge: a window during which EVERY team is raidable,
+  # whatever its DTR - a temporary EOTW, without EOTW's closed claims or its bans
+  # until the map ends. Deathbans and DTR work as usual. Spawn stays a safe zone.
+  #
+  # /purge start [duration] and /purge stop (hcfcore.phase.admin), or by itself
+  # at the times below. Never during SOTW - a SOTW that begins ends a running
+  # Purge - and refused during EOTW, when every team is raidable already. Like
+  # SOTW it ends at an instant, so a restart does not cut it short.
+
+  # How long a Purge lasts: a scheduled one, and /purge start without a duration.
+  duration-seconds: 1800
+
+  # Times of day, in the time zone above, at which a Purge starts by itself.
+  # Empty on purpose: when a server purges is its own call.
+  #   schedule: ["20:00"]
+  schedule: []

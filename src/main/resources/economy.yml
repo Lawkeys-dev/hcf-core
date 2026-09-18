@@ -1,0 +1,38 @@
+# ---------------------------------------------------------------------------
+# HCFCore - Economy configuration
+# ---------------------------------------------------------------------------
+# Player balances, /pay, and staff management.
+# Changes take effect on /hcf reload.
+#
+# NOTE on precision: balances are stored as floating-point numbers rather than
+# an integer number of cents. That is not the usual advice for money, and it is
+# a deliberate concession - the Vault Economy interface this module has to expose
+# is itself double-based, so anything else would mean converting on every call and
+# losing the same precision at the boundary (checked against VaultAPI 1.7).
+# ---------------------------------------------------------------------------
+
+# Turning this off disables balances, /pay, /eco and the team bank commands.
+enabled: true
+
+# Balance a player starts with. Nothing is written to the database until their
+# balance actually changes, so this costs no storage for players who never earn.
+starting-balance: 100.0
+
+# Ceiling per account. 0 = no ceiling.
+# A credit that would cross it is refused rather than clamped, so money is never
+# silently destroyed.
+maximum-balance: 0.0
+
+currency:
+  # Shown before an amount: $1,234.50
+  symbol: "$"
+  # Used when the amount is named rather than symbolised: "1 dollar", "2 dollars".
+  singular: "dollar"
+  plural: "dollars"
+
+pay:
+  # Player-to-player transfers (/pay). Can be turned off without disabling the
+  # rest of the economy.
+  enabled: true
+  # Smallest transfer allowed, to stop 0.01 spam.
+  minimum-amount: 1.0

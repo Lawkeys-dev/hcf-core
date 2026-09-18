@@ -1,0 +1,77 @@
+# ---------------------------------------------------------------------------
+# ui.yml - the scoreboard and tab list
+#
+# /hcf reload rebuilds every board at once.
+# ---------------------------------------------------------------------------
+
+scoreboard:
+  enabled: true
+  # How often the board is redrawn, in ticks. 20 is once a second, which is as
+  # fine as any countdown on it needs; lowering it costs a redraw per player per
+  # tick for no visible gain.
+  update-ticks: 20
+  title: "&c&lHCF"
+
+  # The rows, top to bottom. A scoreboard shows at most 15; anything past that is
+  # never drawn, and you are told so in the console.
+  #
+  # A row whose placeholders all come out empty is DROPPED rather than left blank.
+  # That is how a conditional row works: %combat_line% is nothing while you are
+  # not in combat, so the row simply is not there. It is also why a server that
+  # does not run a module needs no edits here - its placeholders are just empty.
+  #
+  # Placeholders:
+  #   %player%        your name              %online%    players online
+  #   %world%         world you are in       %ping%      your ping
+  #   %team%          your team, or "None"   %territory% team owning your chunk
+  #   %dtr%           your team's DTR        %dtr_coloured%  the same, coloured,
+  #                                          with a marker when raidable
+  #   %dtr_max%       your team's maximum DTR, which grows with its size
+  #   %kills% %deaths% %kdr% %killstreak% %playtime%
+  #   %balance%       your balance, formatted
+  #   %focus_line%    who your team is focusing (online players first, then teams)
+  #   %rally_line%    your team's rally point, while it lasts
+  #   %combat%        combat tag left        %combat_line%   a whole ready-made row
+  #   %deathban% %deathban_line%   always empty: a deathbanned player is not online to
+  #                   read a board. Kept so a file that lists them still renders.
+  #   %phase_line%    SOTW/EOTW row, empty when neither runs
+  #   %event_line%    the running KOTH/Citadel closest to being captured
+  #   %king_line%     the King and their time left, during Kill the King
+  #   %conquest_line% the running Conquest's leader and points
+  #   %conquest_zone_1% to %conquest_zone_4%   each Conquest zone's countdown
+  #   %timer_1% %timer_2% %timer_3%   the custom timers (/timer, /keyall), the
+  #                   one ending soonest first - each a whole ready-made row
+  #
+  # The *_line placeholders are whole rows from lang/en.yml, so the wording is
+  # translated in one place rather than written twice here.
+  lines:
+    - "&7&m----------------"
+    - "&cTeam: &f%team%"
+    - "&cDTR: %dtr_coloured%"
+    - "&cKills: &f%kills%"
+    - "&cStreak: &f%killstreak%"
+    - "&cBalance: &a%balance%"
+    - "%focus_line%"
+    - "%rally_line%"
+    - "%combat_line%"
+    - "%phase_line%"
+    - "%event_line%"
+    - "%king_line%"
+    - "%conquest_line%"
+    - "%conquest_zone_1%"
+    - "%conquest_zone_2%"
+    - "%conquest_zone_3%"
+    - "%conquest_zone_4%"
+    - "%timer_1%"
+    - "%timer_2%"
+    - "%timer_3%"
+    - "&7&m----------------"
+
+tablist:
+  # Off by default: the vanilla player list is perfectly good, and a header nobody
+  # asked for is the kind of thing an operator notices and has to go turn off.
+  enabled: false
+  header:
+    - "&c&lHCF"
+  footer:
+    - "&7%online% online"

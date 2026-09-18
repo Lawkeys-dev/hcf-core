@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# general.yml - the utility commands
+#
+# Nothing here is HCF-specific. Turn the whole module off if your server already
+# runs an essentials plugin that provides these - most do, and two plugins
+# fighting over /spawn helps nobody.
+# ---------------------------------------------------------------------------
+enabled: true
+
+spawn:
+  enabled: true
+  # Which world's spawn point /spawn uses. Leave empty for the player's current
+  # world, which is what a multi-world server usually wants.
+  world: ""
+  # A countdown that any damage or movement cancels. /spawn must not be a way out
+  # of a fight; the combat tag already refuses it, but a server running without
+  # combat tags still wants this. 0 teleports immediately.
+  warmup-seconds: 5
+
+# /logout is a countdown for the same reason, from the other side: closing the
+# client mid-fight is how a player escapes one, and the combat tag answers that by
+# killing them - so a way to leave that is visibly not an escape has to exist.
+# Any damage or movement cancels it. 0 disconnects immediately.
+logout-seconds: 30
+
+# Longest name /rename accepts, so nobody writes a book into an item name.
+rename-max-length: 32
+
+# /msg, /reply, /togglepm and /ignore. Ignore lists last for the session only:
+# a stored one would be a social graph nobody would think to clear.
+private-messages: true

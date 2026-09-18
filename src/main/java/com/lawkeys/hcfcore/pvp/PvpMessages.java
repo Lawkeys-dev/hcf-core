@@ -1,0 +1,40 @@
+package com.lawkeys.hcfcore.pvp;
+
+/** Every language key the PvP module can produce. Audited against {@code lang/en.yml}. */
+public final class PvpMessages {
+
+    private PvpMessages() {
+    }
+
+    // Combat tag
+    public static final String TAGGED = "pvp.tag.tagged";
+    public static final String TAG_EXPIRED = "pvp.tag.expired";
+    public static final String TAG_BLOCKS_TELEPORT = "pvp.tag.blocks-teleport";
+    public static final String TAG_BLOCKS_LOGOUT = "pvp.tag.blocks-logout";
+    public static final String TAG_STATUS_ACTIVE = "pvp.tag.status-active";
+    public static final String TAG_STATUS_CLEAR = "pvp.tag.status-clear";
+
+    // Deathban
+    public static final String DEATHBAN_APPLIED = "pvp.deathban.applied";
+    public static final String DEATHBAN_LOGIN_DENIED = "pvp.deathban.login-denied";
+    public static final String DEATHBAN_LIFTED = "pvp.deathban.lifted";
+    public static final String DEATHBAN_NOT_BANNED = "pvp.deathban.not-banned";
+    public static final String DEATHBAN_STATUS = "pvp.deathban.status";
+    public static final String DEATHBAN_SET = "pvp.deathban.set";
+    public static final String DEATHBAN_INVALID_LENGTH = "pvp.deathban.invalid-length";
+    // A ban that lasts until the map ends (EOTW) has no time left to show
+    public static final String DEATHBAN_MAP_END_APPLIED = "pvp.deathban.map-end.applied";
+    public static final String DEATHBAN_MAP_END_LOGIN_DENIED = "pvp.deathban.map-end.login-denied";
+    public static final String DEATHBAN_MAP_END_STATUS = "pvp.deathban.map-end.status";
+
+    // Safe zones
+    public static final String SAFE_ZONE_ATTACKER = "pvp.safezone.attacker";
+    public static final String FRIENDLY_FIRE_TEAMMATE = "pvp.friendly-fire.teammate";
+    public static final String FRIENDLY_FIRE_ALLY = "pvp.friendly-fire.ally";
+
+    // Command layer
+    public static final String STATUS_HEADER = "pvp.status.header";
+    public static final String PLAYER_NOT_FOUND = "pvp.error.player-not-found";
+    public static final String INVALID_NUMBER = "pvp.error.invalid-number";
+    public static final String DISABLED = "pvp.error.disabled";
+}

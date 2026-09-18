@@ -1,0 +1,305 @@
+# ---------------------------------------------------------------------------
+# HCFCore - Capture events (KOTH, Citadel and variants)
+# ---------------------------------------------------------------------------
+# Events with a zone to hold, a win condition, a timer and a reward.
+#
+# Events are DATA, not code. Adding a KOTH variant means adding a block under
+# "events:" below - never a recompile. A Citadel is a classic KOTH with a much
+# longer capture-seconds; that is the whole difference.
+#
+# Changes take effect on /hcf reload.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# How often the server samples who is standing in a running zone. 1 second is
+# the natural value: capture countdowns are displayed in seconds, so sampling
+# less often would make the announced time drift from what players see.
+# Raise it only if you have a measured reason to.
+tick-seconds: 1
+
+# Time zone the "schedule" times below are read in.
+# "system" follows the host clock. Prefer naming a zone explicitly (for example
+# "Europe/Paris") so moving the server to another host does not silently shift
+# every event by a few hours.
+time-zone: "system"
+
+# Broadcast when a zone becomes contested. Announced only when the state
+# changes, never every tick, so a long brawl produces one message and not one
+# per second.
+announce-contests: true
+
+# Whether a player with no team freezes a capture by standing in the zone.
+#   true  - they are everybody's enemy and block the capture (usual HCF reading)
+#   false - teams can capture around them
+# A teamless player can never HOLD a zone either way: capturing is a team act.
+teamless-players-contest: true
+
+# Two teams that are ALLIED still contest each other: capture is strictly per
+# team, for Conquest and KTK as well.
+
+# A hologram above each capture zone - KOTH, Citadel, every Conquest zone - for as
+# long as the zone is configured: while its event runs, the time left and who
+# holds it; otherwise, when it runs next. Texts in lang/en.yml (events.hologram).
+# Drawn by the hologram module, so holograms.yml must be enabled too.
+zone-holograms:
+  enabled: true
+  # Blocks above the top of the zone.
+  height: 3.0
+
+events:
+
+  # ------------------------------------------------------------------
+  # A classic KOTH: hold the zone for 10 uninterrupted minutes.
+  # ------------------------------------------------------------------
+  koth:
+    display-name: "&6KOTH"
+
+    # The zone is the cuboid between the two corners, bounds included. Write the
+    # corners in whichever order you walked them - they are normalised on load.
+    world: world
+    corner-1:
+      x: 100
+      y: 60
+      z: 100
+    corner-2:
+      x: 115
+      y: 90
+      z: 115
+
+    # Seconds of uninterrupted holding needed to win.
+    capture-seconds: 600
+
+    # What LOSING the zone does to the countdown:
+    #   RESET - back to full. The classic, brutal behaviour: pushed off at
+    #           nine minutes means starting over.
+    #   PAUSE - freezes where it is and resumes for whoever holds next.
+    # This changes how a KOTH plays more than any other single value here.
+    #
+    # Being contested is NOT losing the zone. An enemy standing in it freezes the
+    # countdown and costs the holder nothing; the progress is only wiped (under
+    # RESET) when the zone actually empties or another team takes sole control.
+    # Otherwise one player touching the zone for a single tick would erase nine
+    # minutes of work.
+    contest-policy: RESET
+
+    # Hard stop for an event nobody manages to win. 0 = runs until someone does.
+    # Must be at least capture-seconds, or the event could never be won; a
+    # smaller value is refused on load and treated as 0.
+    max-duration-seconds: 0
+
+    # Remaining-time marks to broadcast, in seconds. Each fires once per attempt
+    # and they are announced again after a RESET, so a fresh attempt gets its own
+    # warnings. A mark at or above capture-seconds is ignored - it would fire the
+    # instant the event opens.
+    announce-at-seconds: [300, 120, 60, 30, 10]
+
+    # Local times of day at which this event opens by itself, read in time-zone
+    # above. Leave the list empty for an event only staff can open with
+    # /events start <id>.
+    #
+    # Shipped empty: the zone above is an example, and an event that opens by
+    # itself on a fresh server would announce a KOTH on land nobody has built.
+    # Move the zone to your map, then give it its times, for instance:
+    #   schedule: ["18:00", "21:00"]
+    schedule: []
+
+    # Console commands run on capture. Placeholders: %team%, %event%.
+    # Rewards are team-scoped, matching the fact that a capture is credited to a
+    # team - there is no %player% here on purpose.
+    # The capture itself is always counted through the team module, which owns
+    # the points-per-capture scale and the cap (see teams.yml, "koth").
+    reward-commands: []
+
+  # ------------------------------------------------------------------
+  # Citadel: the same mechanic, a much longer hold.
+  # Disabled by default - it has no code of its own, only these values.
+  # ------------------------------------------------------------------
+  citadel:
+    display-name: "&5Citadel"
+    world: world
+    corner-1:
+      x: -200
+      y: 60
+      z: -200
+    corner-2:
+      x: -185
+      y: 90
+      z: -185
+    capture-seconds: 1800
+    contest-policy: RESET
+    max-duration-seconds: 0
+    announce-at-seconds: [900, 600, 300, 60, 30, 10]
+    # No schedule: staff open it with /events start citadel until you decide
+    # when it should run.
+    schedule: []
+    reward-commands: []
+
+# ---------------------------------------------------------------------------
+# Kill the King
+# ---------------------------------------------------------------------------
+# A random online player is drawn as King, stripped of their items (they are kept
+# safe and given back at the end), equipped with the kit below and sent to a
+# random spot in the warzone. The King's position goes to chat every
+# coordinates-interval-ticks. The King wins if still alive when the time runs
+# out; otherwise whoever kills the King wins - unless that player is on the
+# King's team. Any other death (withered, fall, lava...) or a logout ends the event with
+# no winner.
+#
+# THE EVENT ZONE IS THE WARZONE of "world", as set in claims.yml (warzone.worlds).
+# There is no zone to draw here: a world without a warzone cannot run this event.
+# The King is sent to the surface, so the world must not have a bedrock ceiling
+# (not the Nether).
+#
+# While King, a player:
+#   - cannot enter a safe zone (spawn) by any means - walking, pearls, commands,
+#     portals - and a safe zone counts as outside the warzone anyway;
+#   - cannot mount anything, drop items, open containers or use item frames,
+#     armour stands and the like: the kit stays with the King, and what drops
+#     at their death is the kit;
+#   - keeps what they pick up. Only the kit is taken back at the end.
+#
+# Ids are shared with the capture events above (/events start <id>), so they
+# must differ from them. Players with hcfcore.events.king.exempt are never drawn.
+# ---------------------------------------------------------------------------
+
+kill-the-king:
+
+  ktk:
+    display-name: "&4Kill the King"
+    world: world
+
+    # How long the King must survive.
+    duration-seconds: 1800
+
+    # Eligible players needed online (survival or adventure mode, not exempt).
+    # Below that the event is called off - a King alone on the server would win
+    # by waiting.
+    minimum-players: 2
+
+    # How often the King's position is put in chat, in ticks (20 ticks = 1 s).
+    # 0 turns it off.
+    coordinates-interval-ticks: 20
+
+    # Remaining-time marks to broadcast, in seconds.
+    announce-at-seconds: [900, 300, 60, 10]
+
+    # What leaving the warzone costs. The count starts over each time the King
+    # comes back in.
+    outside-penalty:
+      # Seconds outside before anything happens: a King knocked over the border
+      # by a hit is not punished for it.
+      grace-seconds: 3
+      # Plain damage per second outside, after the grace (2.0 = one heart).
+      damage-per-second: 1.0
+      # Wither level once the grace is over (1 = Wither I), one level more every
+      # wither-step-seconds, up to wither-max-level.
+      wither-start-level: 1
+      wither-step-seconds: 10
+      wither-max-level: 5
+
+    # The King's kit. Materials and enchantments use the server's names
+    # (minecraft:protection, or just protection). A name the server does not
+    # know is reported at load and left out; the rest of the kit stands.
+    # Enchantment levels may exceed the vanilla maximum.
+    kit:
+      helmet:
+        material: DIAMOND_HELMET
+        name: "&6Crown of the King"
+        enchantments: {protection: 4, unbreaking: 3}
+      chestplate:
+        material: DIAMOND_CHESTPLATE
+        enchantments: {protection: 4, unbreaking: 3}
+      leggings:
+        material: DIAMOND_LEGGINGS
+        enchantments: {protection: 4, unbreaking: 3}
+      boots:
+        material: DIAMOND_BOOTS
+        enchantments: {protection: 4, feather_falling: 4, unbreaking: 3}
+      items:
+        - material: DIAMOND_SWORD
+          enchantments: {sharpness: 5, unbreaking: 3}
+        - material: GOLDEN_APPLE
+          amount: 16
+        - material: ENDER_PEARL
+          amount: 16
+      # Effects for the length of the reign, as levels (1 = Speed I).
+      effects:
+        speed: 2
+        resistance: 1
+
+    # Local times of day at which it starts by itself (time-zone above). Empty:
+    # only staff start it, with /events start ktk.
+    schedule: []
+
+    # Console commands run for the winner - the killer, or the King.
+    # Placeholders: %player%, %event%.
+    reward-commands: []
+
+# ---------------------------------------------------------------------------
+# Conquest
+# ---------------------------------------------------------------------------
+# The classic HCF Conquest. Several zones are
+# captured AT THE SAME TIME, each the way a KOTH is - held alone by one team,
+# frozen while contested, reset or paused when lost - but on a short timer. A
+# capture ends nothing: it gives the holding team points and the zone's countdown
+# starts again, so a team keeps scoring from a zone as long as it holds it. The
+# first team to points-to-win wins, and its rewards run.
+#
+# A death of any member of a team, anywhere, while a Conquest runs costs that
+# team death-penalty points (never below zero). Players with no team never hold
+# a zone, and contest one as teamless-players-contest above says.
+#
+# One Conquest runs at a time. Ids are shared with the capture events and Kill
+# the King (/events start <id>). Nothing is kept across a restart: a restart
+# ends the Conquest, as it ends a KOTH.
+#
+# The example below has no schedule: staff open it with /events start conquest.
+# The numbers are common HCF values, not rules - move the zones to your map and
+# tune them.
+# ---------------------------------------------------------------------------
+
+conquest:
+
+  conquest:
+    display-name: "&6Conquest"
+    world: world
+
+    # Seconds a team must hold a zone alone to score from it.
+    capture-seconds: 30
+    # What one capture of one zone is worth.
+    points-per-capture: 1
+    # The target: the first team to reach it wins.
+    points-to-win: 250
+    # Points a team loses when one of its members dies.
+    death-penalty: 20
+
+    # What losing a zone does to its countdown: RESET or PAUSE, as for a KOTH.
+    contest-policy: RESET
+
+    # Hard stop with no winner, in seconds. 0 = runs until somebody wins.
+    max-duration-seconds: 0
+
+    # Local times at which it opens by itself; empty for staff only.
+    schedule: []
+
+    # Console commands run for the winner. Placeholders: %team%, %event%.
+    reward-commands: []
+
+    zones:
+      red:
+        display-name: "&cRed"
+        corner-1: {x: 300, y: 60, z: 300}
+        corner-2: {x: 306, y: 70, z: 306}
+      blue:
+        display-name: "&9Blue"
+        corner-1: {x: 340, y: 60, z: 300}
+        corner-2: {x: 346, y: 70, z: 306}
+      green:
+        display-name: "&aGreen"
+        corner-1: {x: 300, y: 60, z: 340}
+        corner-2: {x: 306, y: 70, z: 346}
+      yellow:
+        display-name: "&eYellow"
+        corner-1: {x: 340, y: 60, z: 340}
+        corner-2: {x: 346, y: 70, z: 346}

@@ -1,0 +1,392 @@
+name: HCFCore
+version: '${version}'
+main: com.lawkeys.hcfcore.HCFCore
+api-version: '26.2'
+description: Open source, fully configurable HCF core plugin for Paper, supporting both HCF and Kitmap game modes.
+authors: [Lawkeys]
+website: https://github.com/Lawkeys-dev/hcf-core
+
+# All external integrations are soft-dependencies: the plugin must fully function
+# without any of these installed. Never move these
+# to "depend" without re-validating that principle.
+softdepend:
+  - Vault
+  - LuckPerms
+  # Lunar Client's Apollo. Its API is compiled against, not shipped: the Apollo
+  # plugin provides it at runtime (lunarclient.dev/maven-repository: "provided",
+  # "Apollo doesn't require shading"), so it must load first. Names from Lunar's
+  # own plugin.yml; its API example soft-depends on the same two.
+  - Apollo-Bukkit
+  - Apollo-Folia
+
+commands:
+  hcf:
+    description: Main administrative command for HCFCore (reload, info, etc.)
+    usage: /<command> [reload|version]
+    permission: hcfcore.admin
+  team:
+    aliases: [f, faction]
+    description: Team/Faction management command.
+    usage: /<command> help
+  pvp:
+    description: Combat tag and deathban status, plus staff overrides.
+    usage: /<command> [check|lift|ban]
+  events:
+    aliases: [event, koth]
+    description: Shows running and upcoming events; staff can start and stop them.
+    usage: /<command> [start|stop <event>]
+  resourcenode:
+    aliases: [node, mountain]
+    description: Shows when resource nodes refill; staff can refill them by hand.
+    usage: /<command> [refill <node>]
+  pay:
+    description: Send money to another player.
+    usage: /<command> <player> <amount>
+  balance:
+    aliases: [bal, money]
+    description: Show your balance, or another player's.
+    usage: /<command> [player]
+  eco:
+    aliases: [economy]
+    description: Staff management of player balances.
+    usage: /<command> <give|take|set> <player> <amount>
+    permission: hcfcore.economy.admin
+  sotw:
+    description: Start of the World - no PvP, deathbans or DTR loss while it runs. /sotw enable to fight early; staff start and stop it.
+    usage: /<command> [enable|start [duration]|stop]
+  eotw:
+    description: End of the World - every team raidable, no new claims, deathbans until the map ends.
+    usage: /<command> [start|stop]
+  purge:
+    description: The Purge - every team raidable for a while, whatever its DTR. Staff start and stop it.
+    usage: /<command> [start [duration]|stop]
+  staff:
+    aliases: [mod, staffmode]
+    description: Staff mode, and the moderation verbs hung off it. The teleport family lives here as subcommands rather than as /tp and /near, which are taken.
+    usage: /<command> [list|tp|tphere|tpall|tploc|tpnearest|randomtp|near|telllocation|end|nether]
+    permission: hcfcore.staff
+  vanish:
+    aliases: [v]
+    description: Hide yourself from players who cannot see vanished staff.
+    usage: /<command>
+    permission: hcfcore.staff
+  staffchat:
+    aliases: [sc]
+    description: Toggle the staff channel, or send one line to it.
+    usage: /<command> [message]
+    permission: hcfcore.staff
+  staffbuild:
+    aliases: [sb]
+    description: Build through territory protection until you toggle it back off - with hcfcore.claim.bypass.
+    usage: /<command>
+    permission: hcfcore.staff
+  broadcast:
+    aliases: [bc]
+    description: Send one formatted line to everybody on the server.
+    usage: /<command> <message>
+    permission: hcfcore.staff.broadcast
+  clearchat:
+    aliases: [cc]
+    description: Push chat off everybody's screen, staff excepted.
+    usage: /<command>
+    permission: hcfcore.staff.clearchat
+  freeze:
+    aliases: [ss]
+    description: Hold a player for a check. Leaving while frozen earns a ban only staff can lift.
+    usage: /<command> <player> | list | unban <player>
+    permission: hcfcore.staff
+  invsee:
+    aliases: [inv]
+    description: Look inside a player's inventory. Read-only unless you hold hcfcore.staff.invsee.edit.
+    usage: /<command> <player>
+    permission: hcfcore.staff
+  lastinv:
+    aliases: [li]
+    description: What a player was carrying when they died. Always read-only.
+    usage: /<command> <player> [number]
+    permission: hcfcore.staff
+  report:
+    description: Report a player to the staff team.
+    usage: /<command> <player> <reason>
+  # No /helpop alias: EssentialsX owns that name, and claiming it would either lose
+  # to Essentials or silently take it away from a server that runs both.
+  request:
+    description: Ask the staff team for help.
+    usage: /<command> <message>
+  tickets:
+    aliases: [reports]
+    description: The queue of reports and requests - a menu, or list|view|claim|close by id.
+    usage: /<command> [list|view <id>|claim <id>|close <id>]
+    permission: hcfcore.staff
+  strike:
+    aliases: [strikes]
+    description: Strikes against teams - list them; staff issue and pardon them. What they cost is in staff.yml.
+    usage: /<command> [list [team|player]|add <team|player> <reason>|pardon <id>]
+  stats:
+    description: A player's kills, deaths, killstreak and playtime.
+    usage: /<command> [player]
+  spawn:
+    description: Teleport to spawn, after a countdown any damage or movement cancels.
+    usage: /<command>
+  world:
+    description: Move to another world's spawn point.
+    usage: /<command> [world]
+    permission: hcfcore.general.world
+  top:
+    description: Teleport to the highest block above you.
+    usage: /<command>
+    permission: hcfcore.general.top
+  msg:
+    aliases: [tell, w, whisper, m]
+    description: Send a private message.
+    usage: /<command> <player> <message>
+  reply:
+    aliases: [r]
+    description: Reply to the last person who messaged you.
+    usage: /<command> <message>
+  togglepm:
+    description: Turn private messages on or off.
+    usage: /<command>
+  ignore:
+    description: Ignore a player, or list who you are ignoring.
+    usage: /<command> [player]
+  heal:
+    description: Restore health, hunger and put out fire.
+    usage: /<command> [player]
+    permission: hcfcore.general.admin
+  kill:
+    description: Kill a player, exactly as any other death.
+    usage: /<command> [player]
+    permission: hcfcore.general.admin
+  gamemode:
+    aliases: [gm]
+    description: Change a game mode.
+    usage: /<command> <mode> [player]
+    permission: hcfcore.general.admin
+  rename:
+    description: Rename the item you are holding.
+    usage: /<command> <name>
+    permission: hcfcore.general.rename
+  more:
+    description: Fill the held stack to its maximum.
+    usage: /<command>
+    permission: hcfcore.general.more
+  repair:
+    aliases: [fix]
+    description: Repair the item you are holding, or everything you carry with /repair all.
+    usage: /<command> [all]
+    permission: hcfcore.general.repair
+  ping:
+    description: Your ping, or another player's.
+    usage: /<command> [player]
+  logout:
+    description: Log out safely after a countdown any damage or movement cancels.
+    usage: /<command>
+  kit:
+    aliases: [kits]
+    description: Take a kit; staff create them from their own inventory.
+    usage: /<command> [kit|layout <kit> [reset]|create|delete|give|resetcooldown|ability]
+  cenchant:
+    aliases: [customenchant, ce]
+    description: Custom enchants - list them; staff apply, remove and give books.
+    usage: /<command> [list|apply <enchant> [level]|remove <enchant>|give <player> <enchant> [level] [amount]]
+  hologram:
+    aliases: [holo, holograms]
+    description: Create, write, move and delete holograms.
+    usage: /<command> <create|addline|setline|removeline|movehere|tp|list|delete>
+    permission: hcfcore.hologram.admin
+  lives:
+    description: Your lives, which bring a deathbanned player back. Not available in kitmap mode.
+    usage: /<command> [check <player>|send <player> <amount>|revive <player>]
+  revive:
+    description: Spend one of your lives to lift a friend's deathban.
+    usage: /<command> <player>
+  crowbar:
+    description: Give crowbars, which take End portal frames out in the wilderness or your own claim.
+    usage: /<command> give <player> [amount]
+    permission: hcfcore.crowbar.admin
+  redeem:
+    description: Redeem a code for a reward.
+    usage: /<command> <code>
+  redeemadmin:
+    aliases: [redeemcodes]
+    description: Create, change, reset and delete redeem codes.
+    usage: /<command> <create|addcommand|removecommand|setuses|info|list|reset|delete>
+    permission: hcfcore.redeem.admin
+  resetredeem:
+    description: Let one player, or everybody, use a redeem code again.
+    usage: /<command> <code> [player]
+    permission: hcfcore.redeem.admin
+  settings:
+    aliases: [options]
+    description: Switch the scoreboard, private messages, tips or cobblestone pickup on or off.
+    usage: /<command> [list|<setting> [on|off]]
+  cobble:
+    aliases: [cobblestone]
+    description: Stop or start picking up cobblestone.
+    usage: /<command> [on|off]
+  timer:
+    aliases: [customtimer, timers]
+    description: Countdowns everybody sees on the scoreboard. Staff start and stop them.
+    usage: /<command> [start <name> <duration> [label]|stop <name>|list]
+  keyall:
+    description: Run the key-all commands for every player online, now or after a countdown.
+    usage: /<command> [countdown]
+    permission: hcfcore.schedule.admin
+  leaderboard:
+    aliases: [lb, top10]
+    description: The leaderboards - kills, deaths, K/D, killstreak, playtime.
+    usage: /<command> [kills|deaths|kdr|killstreak|playtime]
+
+permissions:
+  hcfcore.admin:
+    description: Full administrative access to HCFCore.
+    default: op
+    children:
+      hcfcore.team.admin: true
+      hcfcore.claim.bypass: true
+      hcfcore.claim.admin: true
+      hcfcore.pvp.admin: true
+      hcfcore.deathban.bypass: true
+      hcfcore.economy.admin: true
+      hcfcore.events.admin: true
+      hcfcore.resourcenode.admin: true
+      hcfcore.resourcenode.bypass: true
+      hcfcore.phase.admin: true
+      hcfcore.staff: true
+      hcfcore.staff.broadcast: true
+      hcfcore.staff.clearchat: true
+      hcfcore.staff.strike: true
+      hcfcore.general.world: true
+      hcfcore.general.top: true
+      hcfcore.general.admin: true
+      hcfcore.general.rename: true
+      hcfcore.general.more: true
+      hcfcore.general.repair: true
+      hcfcore.general.repair.all: true
+      hcfcore.kit.admin: true
+      hcfcore.kit.sign: true
+      hcfcore.chat.color: true
+      hcfcore.schedule.admin: true
+      hcfcore.redeem.admin: true
+      hcfcore.crowbar.admin: true
+      hcfcore.lives.admin: true
+      hcfcore.hologram.admin: true
+      hcfcore.enchant.admin: true
+      hcfcore.limiter.bypass: true
+  hcfcore.enchant.admin:
+    description: Apply and remove custom enchants, and give custom enchant books.
+    default: op
+  hcfcore.limiter.bypass:
+    description: Place blocks in claims beyond limiters.yml's claim-blocks limits, while /staffbuild is on.
+    default: op
+  hcfcore.hologram.admin:
+    description: Create, write, move and delete holograms.
+    default: op
+  hcfcore.lives.admin:
+    description: Give, take and set lives with /lives give|take|set.
+    default: op
+  hcfcore.crowbar.admin:
+    description: Give crowbars with /crowbar give.
+    default: op
+  hcfcore.redeem.admin:
+    description: Create, change, reset and delete redeem codes.
+    default: op
+  hcfcore.schedule.admin:
+    description: Start and stop custom timers, and run the key-all.
+    default: op
+  hcfcore.chat.color:
+    description: Use & colour and format codes in chat, private messages, the staff channel and /broadcast. Without it, what a player types is shown exactly as typed.
+    default: op
+  hcfcore.staff:
+    description: Access to staff tools (staff mode, vanish, staff chat, staff build, staff teleports).
+    default: op
+  hcfcore.staff.broadcast:
+    description: Send a server-wide broadcast.
+    default: op
+  hcfcore.staff.clearchat:
+    description: Clear the chat for everybody who is not staff.
+    default: op
+  hcfcore.staff.strike:
+    description: Issue and pardon strikes against teams with /strike.
+    default: op
+  hcfcore.kit.admin:
+    description: Create, delete and give kits, and reset their cooldowns.
+    default: op
+  hcfcore.kit.sign:
+    description: Create kit refill signs.
+    default: op
+  hcfcore.general.world:
+    description: Move between worlds with /world.
+    default: op
+  # Staff by default: /top has no countdown - only a combat tag refuses it - so it lifted anybody out
+  # of any trap or base and onto any roof, the free exit /team stuck's 60 seconds
+  # exist to prevent. Grant it to players deliberately if your server wants that.
+  hcfcore.general.top:
+    description: Teleport to the highest block with /top.
+    default: op
+  hcfcore.general.admin:
+    description: /heal, /kill and /gamemode.
+    default: op
+  hcfcore.general.rename:
+    description: Rename held items.
+    default: op
+  hcfcore.general.more:
+    description: Fill a held stack with /more.
+    default: op
+  hcfcore.general.repair:
+    description: Repair the held item with /repair.
+    default: op
+  hcfcore.general.repair.all:
+    description: Repair everything carried and worn with /repair all - and the held item, since /repair needs it.
+    children:
+      hcfcore.general.repair: true
+    default: op
+  # Deliberately not a child of hcfcore.admin, and not held by operators: changing
+  # somebody's inventory through /invsee cannot be undone and looks exactly like
+  # staff theft, so it is granted deliberately or not at all.
+  hcfcore.staff.invsee.edit:
+    description: Change a player's inventory through /invsee, instead of only viewing it.
+    default: false
+  # Deliberately not a child of hcfcore.admin, and not held by operators: staff who
+  # can see each other while vanished is a choice about who is invisible to whom,
+  # and granting it by default would quietly make vanish useless among staff.
+  hcfcore.staff.vanish.see:
+    description: See staff who are vanished.
+    default: false
+  hcfcore.team.admin:
+    description: Staff overrides on teams (forcedisband, forcejoin, forcekick, forcepromote, forcedemote, setpoints, addpoints).
+    default: op
+  hcfcore.claim.bypass:
+    description: Build, break and interact inside any territory, whatever its protection - while /staffbuild is on. Also walks into claims locked during SOTW.
+    default: op
+  hcfcore.claim.admin:
+    description: Claim and release land for any team with /team forceclaim|forceunclaim - how server teams get theirs.
+    default: op
+  hcfcore.pvp.admin:
+    description: Inspect, lift and set deathbans on other players.
+    default: op
+  hcfcore.deathban.bypass:
+    description: Never be deathbanned when you die.
+    default: op
+  hcfcore.economy.admin:
+    description: Give, take and set player balances with /eco.
+    default: op
+  hcfcore.events.admin:
+    description: Start and stop capture events and Kill the King by hand with /events start|stop.
+    default: op
+  hcfcore.phase.admin:
+    description: Start and stop SOTW and EOTW with /sotw start|stop and /eotw start|stop.
+    default: op
+  hcfcore.events.king.exempt:
+    description: Never drawn as King in Kill the King. Not given to anyone by default, operators included - grant it to staff who should not be picked.
+    default: false
+  hcfcore.resourcenode.admin:
+    description: Refill a resource node by hand with /resourcenode refill.
+    default: op
+  hcfcore.resourcenode.bypass:
+    description: Build and mine freely inside a resource node's region.
+    default: op
+  hcfcore.deathban.tier.short:
+    description: Shorter deathban tier (see permission-tiers in pvp.yml).
+    default: false

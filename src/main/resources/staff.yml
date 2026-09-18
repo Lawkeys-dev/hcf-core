@@ -1,0 +1,194 @@
+# ---------------------------------------------------------------------------
+# staff.yml - moderation tools
+#
+# Everything here can be changed without restarting: /hcf reload re-reads this
+# file and the new values apply at once, including the toolbar.
+# ---------------------------------------------------------------------------
+
+# Turns the whole module off: no staff mode, no vanish, no staff channel, and the
+# commands answer that the module is disabled. Anybody already in staff mode when
+# you reload keeps their toolbar until they leave it - their real inventory is
+# still held in the database, and /staff gives it back.
+enabled: true
+
+staff-mode:
+  # Entering staff mode hides you from players who cannot see vanished staff.
+  vanish: true
+  # Entering staff mode lets you fly.
+  flight: true
+  # No damage taken, none dealt, no mob aggro, and nothing picked up. The pickup
+  # part matters more than it looks: a staff member standing in the drops of the
+  # fight they are watching would otherwise collect the loot into an inventory
+  # that is emptied when they leave the mode.
+  invulnerable: true
+  # Tell other staff when somebody enters or leaves the mode.
+  announce: true
+
+  # The toolbar, by inventory slot. 0-8 is the hotbar; 0-35 is the whole
+  # inventory. Two items cannot share a slot - the first one wins and the second
+  # is reported in the console.
+  #
+  #   material     any item name, e.g. COMPASS, BOOK, BLAZE_ROD
+  #   name         display name, & colour codes allowed
+  #   lore         optional lines under the name
+  #   command      the command run when the item is used, WITHOUT the leading /.
+  #                It runs as you, so your own permissions apply.
+  #                %player% becomes the player you clicked, %staff% becomes you.
+  #   needs-target true if the command needs a player: the item then only works
+  #                by right-clicking somebody, and says so if used on air.
+  #
+  # Any command works here, including one from another plugin - the only rule is
+  # that it has to exist, or the slot looks like a tool and answers "unknown
+  # command".
+  items:
+    0:
+      material: COMPASS
+      name: "&b&lPlayer Tracker"
+      lore:
+        - "&7Teleports you to the nearest player."
+      command: "staff tpnearest"
+    1:
+      material: ENDER_PEARL
+      name: "&d&lRandom Teleport"
+      lore:
+        - "&7Teleports you to a random player."
+      command: "staff randomtp"
+    2:
+      material: BOOK
+      name: "&e&lInspect"
+      lore:
+        - "&7Right-click a player to see"
+        - "&7what they are carrying."
+      command: "invsee %player%"
+      needs-target: true
+    3:
+      material: PACKED_ICE
+      name: "&b&lFreeze"
+      lore:
+        - "&7Right-click a player to hold"
+        - "&7them for a check."
+      command: "freeze %player%"
+      needs-target: true
+    7:
+      material: LIME_DYE
+      name: "&a&lVanish"
+      lore:
+        - "&7Toggles whether players can see you."
+      command: "vanish"
+    8:
+      material: BARRIER
+      name: "&c&lLeave Staff Mode"
+      lore:
+        - "&7Gives your own items back."
+      command: "staff"
+
+vanish:
+  # Also remove vanished staff from the player list, not only from sight.
+  hide-from-tab: true
+  # Who can still see vanished staff. Give this to your senior ranks so they are
+  # not invisible to each other; nobody holds it by default, operators included.
+  see-permission: "hcfcore.staff.vanish.see"
+
+staff-chat:
+  enabled: true
+  # %player% is who spoke, %message% is what they said. Their own & codes only
+  # work with hcfcore.chat.color.
+  format: "&9[SC] &b%player%&7: &f%message%"
+
+broadcast:
+  # %message% is the text given to /broadcast; its & codes only work with
+  # hcfcore.chat.color.
+  format: "&8[&cBroadcast&8] &f%message%"
+  # How many blank lines /clearchat pushes. There is no API to clear a client's
+  # chat - the history lives on the client - so the only way is to push it off
+  # the screen. Chat height differs between clients, hence the setting. Staff are
+  # skipped: they usually need to read whatever caused the clear.
+  clear-chat-lines: 100
+
+freeze:
+  enabled: true
+  # Commands a frozen player may still run, without the slash. A check is a
+  # conversation: somebody who cannot answer can only sit there or disconnect,
+  # and disconnecting is the one thing the hold exists to discourage. An empty
+  # list is honoured as a choice - delete the key entirely to get these back.
+  allowed-commands:
+    - msg
+    - r
+    - reply
+    - tell
+    - w
+    - whisper
+  # Record a ban when somebody disconnects while frozen. This is the standard
+  # answer and the only thing that makes a freeze mean anything, but it is a ban,
+  # so it is a switch. Lift one with /freeze unban <player>.
+  #
+  # It is NOT a deathban and does not live in the deathban table: turning
+  # deathbans off in pvp.yml must not quietly turn off the enforcement of every
+  # freeze as well.
+  ban-on-logout: true
+  # How often to remind a frozen player that they are held, in seconds.
+  # 0 tells them once and then leaves them alone.
+  reminder-seconds: 10
+
+invsee:
+  enabled: true
+  # Read-only for everybody; hcfcore.staff.invsee.edit is needed on top of the
+  # staff node to change anything. Nobody holds it by default, operators
+  # included. On a server where the items are the economy, an accidental drag in
+  # somebody's inventory cannot be undone and looks exactly like staff theft.
+  #
+  # The window shows the 36 storage slots - that is what a player inventory is.
+  # Armour and the off-hand are printed as a line of text instead.
+
+last-inventory:
+  enabled: true
+  # How many deaths to keep per player. Each row is a whole inventory, so this is
+  # the difference between an archive and a table that grows for ever.
+  keep: 3
+
+tickets:
+  # /report <player> <reason> and /request <message>. They share one queue,
+  # because they are the same act with a different word on the front: somebody
+  # wants staff attention, and here is why.
+  #
+  # Staff use /tickets, a menu of the queue, oldest first: left-click takes a
+  # ticket and teleports to it (to the reported player, or else to whoever asked),
+  # right-click closes it. /tickets list|view|claim|close <id> do the same by id,
+  # from the console too. Whoever raised a ticket is told when it is taken and
+  # when it is closed - without the staff member's name.
+  enabled: true
+  # How long one player waits between raising tickets. Without it, one person can
+  # fill the queue faster than staff can read it.
+  cooldown-seconds: 60
+
+# Strikes punish a TEAM for what one of its members did - a member banned for
+# cheating, typically. Staff strike a team by its name, or by a member's name,
+# which also records the member:
+#
+#   /strike add <team|player> <reason>   (hcfcore.staff.strike)
+#   /strike pardon <id>                  (hcfcore.staff.strike) - points taken and
+#                                        a disband are not given back
+#   /strike list [team|player]           (everybody; your own team by default)
+#
+# A strike is announced to the whole server.
+strikes:
+  enabled: true
+  # How long a strike counts towards the ladder below. 0 means for the whole map.
+  valid-seconds: 0
+
+  # What each number of ACTIVE strikes costs the team. A rung fires at exactly its
+  # count - a team reaching 3 was already sanctioned at 1 and 2 on the way. Each
+  # rung takes any of:
+  #   points-loss-percent: share of the team's points taken (rounded down)
+  #   disband: true        the team is disbanded, as by /team forcedisband
+  #   commands: [...]      console commands, with %team% and %strikes% filled in
+  #
+  # Shipped as an example: half the team's points at the first
+  # and second strike, disbanded at the third.
+  ladder:
+    1:
+      points-loss-percent: 50
+    2:
+      points-loss-percent: 50
+    3:
+      disband: true

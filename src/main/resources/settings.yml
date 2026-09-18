@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# settings.yml - what players can switch off for themselves
+#
+# /settings opens a menu; /settings <setting> [on|off] and /settings list do the
+# same by typing; /cobble is the classic shortcut for the cobblestone switch.
+# Choices are stored, so they survive restarts. /hcf reload applies changes.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# Which switches players get, in menu order. Remove one to take it away: it is
+# then on for everybody, whatever they had chosen.
+#
+#   scoreboard        the HCF scoreboard
+#   private-messages  /msg both ways - the same switch as /togglepm
+#   tips              the rotating tips of schedule.yml
+#   cobblestone       picking up cobblestone, for mining without filling up
+#
+# There is no sound switch: the plugin plays no sounds, so it would switch
+# nothing.
+offered:
+  - scoreboard
+  - private-messages
+  - tips
+  - cobblestone
+
+cobblestone:
+  # What the cobblestone switch leaves on the ground.
+  materials:
+    - COBBLESTONE
+    - COBBLED_DEEPSLATE

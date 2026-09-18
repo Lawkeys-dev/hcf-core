@@ -1,0 +1,73 @@
+# ---------------------------------------------------------------------------
+# schedule.yml - things that happen on a clock
+#
+# Rotating tips, announcements and commands at fixed times, countdowns staff
+# start by hand, and the key-all. /hcf reload applies changes at once.
+#
+# NOTHING HERE SHIPS SWITCHED ON: tips are off, and every list is empty. What a
+# server announces, and what its keys are, belong to it.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# Time zone the schedule times below are read in. "system" follows the host
+# clock; prefer naming one (for example "Europe/Paris") so a host move does not
+# shift every announcement.
+time-zone: "system"
+
+tips:
+  # A line of advice every so often. Off by default: a message nobody asked for,
+  # every few minutes, is something an operator has to go and turn off.
+  # Players can switch tips off for themselves with /settings.
+  enabled: false
+  # At least 10.
+  interval-seconds: 300
+  # in-order, or random - which never shows the same tip twice running.
+  order: in-order
+  prefix: "&8[&eTip&8] &7"
+  messages:
+    - "Type &f/team help &7to see every team command."
+    - "&f/events &7lists what is running and what is coming."
+    - "&f/stats &7and &f/leaderboard &7show how you are doing."
+
+# Announcements and commands at fixed times, every day. Each entry needs at least
+# one time and a broadcast or a command; commands run from the console.
+#
+#   schedules:
+#     evening-koth:
+#       times: ["18:00", "21:00"]
+#       broadcast: "&6A KOTH starts in 5 minutes!"
+#       commands: []
+#     nightly-restart-warning:
+#       times: ["03:55"]
+#       broadcast: "&cThe server restarts in 5 minutes."
+schedules: {}
+
+# Countdowns started with /timer start <name> <duration> [label]. They show on
+# the scoreboard (%timer_1% to %timer_3% in ui.yml) and end with a line in chat.
+# A name listed here gets its label, and can say and do something when it ends.
+# Any other name works too, with the label typed in the command.
+#
+#   timers:
+#     double-points:
+#       label: "&dDouble Points"
+#       end-broadcast: "&dDouble points are over."
+#       end-commands:
+#         - "some-command %timer%"
+#
+# Timers live in memory: a restart ends them.
+timers: {}
+
+key-all:
+  # /keyall runs these commands once for every player online, from the console
+  # (%player% is filled in). This plugin has no crates: point them at whatever
+  # your crate plugin, economy or kit provides. Empty, /keyall refuses rather
+  # than announcing a key-all that gives nothing.
+  #
+  #   commands:
+  #     - "crates key give %player% vote 1"
+  commands: []
+  # Said once it has run; %count% is how many players received it.
+  broadcast: "&6&lKEY-ALL! &7%count% players received a key."
+  # The label of the countdown /keyall <duration> starts.
+  label: "&6Key-All"

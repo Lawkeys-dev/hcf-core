@@ -1,0 +1,117 @@
+# ---------------------------------------------------------------------------
+# HCFCore - Team module configuration
+# ---------------------------------------------------------------------------
+# Every rule the team module applies is defined here. Nothing below is
+# duplicated as a constant in the plugin's code: no gameplay value should ever
+# need a recompile.
+#
+# Changes take effect on /hcf reload - no server restart needed.
+#
+# Convention used throughout this file: a limit of 0 means "no limit".
+# ---------------------------------------------------------------------------
+
+names:
+  min-length: 3
+  max-length: 16
+  # Regex a team name must match in full. The default allows letters, digits and
+  # underscores only. An invalid regex is reported in the console at load time and
+  # the built-in default is used instead, rather than failing every command later.
+  pattern: "^[A-Za-z0-9_]+$"
+  # Names players may not use, compared case-insensitively. Staff-created system
+  # teams are exempt from this list (but not from the length/pattern rules).
+  blacklist:
+    - "spawn"
+    - "warzone"
+    - "wilderness"
+    - "staff"
+    - "admin"
+
+# Maximum members per team. 0 = unlimited.
+max-members: 20
+# Maximum simultaneous co-leaders. 0 = unlimited.
+max-co-leaders: 2
+
+# How long an invitation stays valid, in seconds. 0 = invitations never expire.
+invite-expiry-seconds: 300
+
+# When the last remaining member leaves (or is removed), disband the team instead
+# of leaving an empty one behind. Set to false if you would rather keep empty
+# teams around, for example so their claims survive a temporary emptying.
+disband-on-last-member-leave: true
+
+# Role the outgoing leader drops to after handing over leadership.
+# One of: leader, co-leader, member.
+role-after-leadership-transfer: co-leader
+
+# ---------------------------------------------------------------------------
+# Minimum role required for each action. One of: leader, co-leader, member.
+# An unrecognised value falls back to "leader" (the safest option) and is
+# reported in the console.
+# ---------------------------------------------------------------------------
+required-roles:
+  disband: leader
+  rename: leader
+  invite: co-leader
+  revoke-invite: co-leader
+  kick: co-leader
+  promote: leader
+  demote: leader
+  transfer-leadership: leader
+  ally: leader
+  unally: leader
+  focus: co-leader
+  rally: co-leader
+  bank-deposit: member
+  bank-withdraw: leader
+
+alliances:
+  enabled: true
+  # Maximum allied teams per team. 0 = unlimited.
+  max-allies: 1
+
+focus:
+  enabled: true
+  # Maximum simultaneous focus targets (teams and players combined). 0 = unlimited.
+  max-targets: 0
+
+rally:
+  enabled: true
+  # How long a rally point stays active, in seconds. 0 = until cleared manually.
+  duration-seconds: 300
+
+bank:
+  # Turning this off rejects every deposit/withdraw on a team bank.
+  # Money moves between a player's balance and the bank with /team deposit and
+  # /team withdraw; turning the economy off in economy.yml disables those too.
+  enabled: true
+
+points:
+  # Points a newly created team starts with.
+  starting: 0
+  # Floor the score can never drop below.
+  minimum: 0
+
+  # The scale: what earns - or, with a negative number, costs - points. All 0 so
+  # nothing is decided for you; KOTH and Citadel captures
+  # are koth.points-per-capture below.
+  # To the killer's team, for killing a player of any other team, or of none. A
+  # player with no team can be an alt: with per-kill above 0, watch for farming.
+  per-kill: 0
+  # To the victim's team, for any death of a member (write -1 to take a point).
+  per-death: 0
+  # To a team whose DTR has just made it raidable (write a negative number).
+  per-raidable: 0
+  # To the team that wins a Conquest.
+  per-conquest-win: 0
+  # To the team of the player who wins Kill the King.
+  per-king-win: 0
+
+koth:
+  # Cap on how many KOTH captures count toward a team's ranking. 0 = uncapped.
+  # How many points a capture is worth, and where the cap belongs, is a balance
+  # decision for your server. These defaults are deliberately neutral (uncapped,
+  # no points) so nothing is silently decided for you.
+  max-counted-captures: 0
+  points-per-capture: 0
+  # Counted captures are reset by staff with /team resetkoth - at the start of a
+  # map, or of whatever ranking period the server runs.

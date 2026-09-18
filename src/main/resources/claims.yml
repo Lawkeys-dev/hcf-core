@@ -1,0 +1,144 @@
+# ---------------------------------------------------------------------------
+# HCFCore - Claim (territory) module configuration
+# ---------------------------------------------------------------------------
+# Every rule the claim module applies lives here; nothing below is duplicated as
+# a constant in the plugin's code. Changes take
+# effect on /hcf reload.
+#
+# As in teams.yml, a limit of 0 means "no limit".
+#
+# ⚠️ Reading this file, remember how protection actually works: who OWNS a chunk is permanent, and is never changed by raiding.
+# Whether that owner is currently PROTECTED is a separate, live question
+# answered by their DTR. Nothing here can make a raid transfer land - a raid
+# only opens the pillage window described under "protection" below.
+# ---------------------------------------------------------------------------
+
+# Turning this off stops all claiming and all territory protection: nobody
+# claims, staff included, and every territory - player land, server land such
+# as spawn, and the warzone - can be built on, broken and blown up.
+#
+# Who owns what is kept, so turning it back on restores every rule exactly as
+# it was. PvP on safe zones is not territory protection: pvp.yml has its own
+# switch for it (safe-zones.enabled).
+enabled: true
+
+limits:
+  # Chunks every team may claim regardless of its size.
+  base: 16
+  # Extra chunks granted per member. 0 disables scaling by team size.
+  per-member: 4
+  # Hard cap whatever the member count. 0 = uncapped.
+  maximum: 0
+  # Chunks a single command may claim at once. Keeps a mistyped
+  # "/team claim 8" from swallowing a chunk of the map in one keystroke.
+  # Staff overrides are exempt. 0 = no cap.
+  max-per-command: 64
+
+placement:
+  # New chunks must touch the team's existing territory in that world. A team
+  # may still open a brand new territory in a world it holds nothing in.
+  require-connected: true
+  # Minimum distance, in chunks, to another team's claims. 0 disables the
+  # buffer entirely, letting teams claim right up against each other.
+  minimum-distance-to-others: 2
+  # Whether unclaiming may split a team's territory into disconnected pieces.
+  allow-disconnecting: false
+
+protection:
+  # Allies may build inside the team's territory.
+  allow-ally-build: false
+  # Attackers may build and break inside a RAIDABLE team's territory - the
+  # pillage window. Turning this off makes claims
+  # protected permanently, whatever the owner's DTR.
+  allow-raid-building: true
+  # Tell players when they cross a territory border.
+  announce-territory: true
+  # Explosions cannot break blocks in protected territory.
+  #
+  # Leave this on. Without it every rule above is optional: a player refused a
+  # block break simply throws a stick of TNT instead, and the whole protection
+  # is decorative.
+  #
+  # It follows the same rule as a player, asked as a stranger would ask it -
+  # an explosion has no team, and attributing it to whoever placed the TNT
+  # would be a guess. So a RAIDABLE team's territory still blows up, which is
+  # exactly what the pillage window is for, and a protected team's does not.
+  block-explosions: true
+
+homes:
+  # HQ and the secondary base (/team sethq, /team hq, /team setbase, /team base).
+  enabled: true
+  # A home must sit on a chunk the team owns.
+  require-inside-territory: true
+  # Countdown before /team hq or /team base teleports; taking damage or leaving
+  # the block cancels it, and a combat tag refuses it at the start and again at
+  # the end. 0 teleports at once. 10 is a common HCF value, not a rule.
+  warmup-seconds: 10
+
+stuck:
+  # Countdown before /team stuck moves a player to the nearest free land, with
+  # the same cancelling rules as above. It is the one way out of a base short of
+  # breaking it, so without a countdown it is a free exit from any trap - and from
+  # any raid. 60 is a common HCF value, not a rule.
+  warmup-seconds: 60
+
+# Worlds where claiming is allowed. Leave the list empty to allow every world.
+# Example:
+#   claimable-worlds:
+#     - world
+#     - world_nether
+claimable-worlds: []
+
+# Minimum role required for each claim action. One of: leader, co-leader, member.
+# An unrecognised value falls back to "leader" and is reported in the console.
+required-roles:
+  claim: co-leader
+  unclaim: leader
+  set-home: co-leader
+  # /team lockclaim: during SOTW only, nobody but members may enter the claim -
+  # so nobody can camp in it until SOTW ends. Allies included. Every lock lapses
+  # when SOTW ends, and a restart releases them (a SOTW is hours, not a map).
+  lock-claim: co-leader
+
+# ---------------------------------------------------------------------------
+# Warzone
+# ---------------------------------------------------------------------------
+# Server land around each world's centre: players fight there, no player team
+# can claim it, and - unless allowed below - nobody builds on it.
+#
+# It sits alongside server teams (/team createsystem <name> <safe|combat>),
+# and the most specific rule wins: CLAIMED LAND ALWAYS FOLLOWS ITS OWNER. Spawn
+# at the centre stays a safe zone, a road claimed across the warzone keeps its
+# own rules, and a player team that held land here before the warzone was set
+# up keeps it - ownership never changes. The warzone only governs land nobody
+# owns. Inside a Mountain's region, the Mountain's own rules apply instead, so
+# its resources stay minable (see resourcenodes.yml).
+#
+# The radius is in blocks from the centre to each edge of a square, ROUNDED
+# OUTWARDS TO WHOLE CHUNKS: territory is chunk-based everywhere else, so the
+# warzone has one border - the same on /team map, in "Now entering" messages,
+# for a refused claim and for a protected block.
+#
+# Off by default: until you list a world below, nothing is reserved.
+warzone:
+  display-name: "&cWarzone"
+
+  # Whether players may place and break blocks on unclaimed warzone land.
+  # false is the usual HCF rule. Doors, chests and buttons are not building and
+  # stay usable either way. Explosions follow this too, as long as
+  # protection.block-explosions is on: a charge cannot do what a pickaxe is
+  # refused. Turning block-explosions off lets explosions through everywhere,
+  # the warzone included - it is the one switch for every explosion rule.
+  allow-building: false
+
+  # One entry per world that has a warzone; a world not listed has none.
+  # center-x / center-z default to 0. Example:
+  #
+  #   worlds:
+  #     world:
+  #       radius: 800
+  #     world_nether:
+  #       radius: 250
+  #       center-x: 0
+  #       center-z: 0
+  worlds:

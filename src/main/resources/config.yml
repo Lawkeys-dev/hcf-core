@@ -1,0 +1,64 @@
+# HCFCore configuration
+# Server-wide settings: language, game mode and storage. Every module has its own
+# file next to this one, and every gameplay value lives in those files - nothing is
+# hardcoded in the plugin. Documentation: https://lawkeys-dev.github.io/hcf-core/
+
+# Language of the messages: lang/<language>.yml in this folder. The plugin ships
+# English (en); to translate, copy lang/en.yml to lang/<code>.yml, translate it and
+# set its code here.
+language: en
+
+# Determines which game mode this server instance runs.
+# - false (default): full HCF mode, all systems enabled (Lives system, DTR, claims...).
+# - true: Kitmap mode. Modules that don't apply to Kitmap - today, the Lives
+#   system - do not initialize at all, not just hide their commands. Everything
+#   else is shaped by the module files (a kitmap usually turns deathbans off in
+#   pvp.yml, for instance).
+# Read at startup only: changing it needs a restart, not /hcf reload.
+kitmap-mode: false
+
+# This whole section is read at startup only: changing it needs a restart, not
+# /hcf reload. Switching type starts from an empty database - nothing copies the
+# data from one to the other.
+storage:
+  # "sqlite" for solo/dev, "mysql" for production.
+  type: sqlite
+  # How often the in-memory caches are flushed to the database, in seconds
+  # (memory is the source of truth; the database is written periodically, in the
+  # background). A full save also runs on a clean shutdown.
+  # 0 disables the periodic save, leaving only the shutdown one - not recommended,
+  # since a crash would then lose everything since startup.
+  save-interval-seconds: 300
+  mysql:
+    host: localhost
+    port: 3306
+    database: hcfcore
+    username: root
+    # Better left empty: set the environment variable HCFCORE_MYSQL_PASSWORD for
+    # the server process instead, and a real password never sits in a file. Set
+    # and not blank, the variable wins over this value; the console says which of
+    # the two was used (never the password itself).
+    password: ""
+    # MySQL Connector/J connection properties, handed to the driver as they are
+    # (dev.mysql.com/doc/connector-j, "Configuration Properties").
+    # sslMode PREFERRED - the driver's own default - encrypts whenever the server
+    # offers TLS, which MySQL 8 does out of the box. It is also what lets MySQL 8's
+    # default login (caching_sha2_password) work: over an unencrypted connection
+    # the driver will not fetch the server's key and every connection fails with
+    # "Public Key Retrieval is not allowed". REQUIRED or VERIFY_IDENTITY insist on
+    # encryption; a server without TLS needs sslMode: DISABLED and
+    # allowPublicKeyRetrieval: true.
+    properties:
+      sslMode: PREFERRED
+
+# Modules and integrations are not switched here. Each module has its own
+# "enabled:" at the top of its own file (kits.yml, redeem.yml, crowbar.yml,
+# holograms.yml, lives.yml, claims.yml, pvp.yml...); teams, player statistics and
+# the map phases have none, since the rest is built on them.
+#
+# Vault and LuckPerms are used whenever they are installed: Vault receives the
+# economy (economy.yml), LuckPerms supplies the chat prefix and suffix, whose
+# format is in chat.yml. The Lunar Client features are switched in apollo.yml.
+#
+# (A "modules:" and an "integrations:" section used to follow here. Nothing ever
+# read them; if your file still has them, they can be deleted.)

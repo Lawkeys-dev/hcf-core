@@ -1,0 +1,79 @@
+# ---------------------------------------------------------------------------
+# limiters.yml - enchantment and potion limits
+#
+# /hcf reload applies changes at once, including to what players already carry.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+enchantments:
+  # The highest level each enchantment may reach. 0 forbids it entirely. Anything
+  # not listed keeps vanilla's levels.
+  #
+  # EMPTY ON PURPOSE. Which levels a map allows - Protection I or II, Sharpness I
+  # or II - is the defining choice of an HCF map, and not a default to invent.
+  #
+  # Names are the enchantment's id, with or without "minecraft:". A name this
+  # server does not know is reported in the console when the file is loaded.
+  #
+  # A cap can also be ABOVE vanilla's maximum: the anvil then combines past it,
+  # with vanilla's rule - two equal levels make one higher - so two Sharpness V
+  # make Sharpness VI when sharpness is capped at 6. Nothing else in the game
+  # creates such levels, so the anvil is where they come from.
+  #
+  #   caps:
+  #     protection: 2
+  #     sharpness: 2
+  #     power: 3
+  #     fire_aspect: 0
+  caps: {}
+
+  # Caps always apply at the enchanting table and the anvil. This also brings
+  # down items that arrive some other way - loot, villager trades, fishing,
+  # another plugin - when their holder joins, closes an inventory, or fights with
+  # them. It only ever lowers. The very first hit with such an item can still land
+  # at its old level: the damage of a hit is worked out before it can be seen.
+  # Enchanted books are left as they are - they only give their levels through an
+  # anvil, which caps them.
+  fix-existing-items: true
+
+potions:
+  # The highest level each effect may be applied at FROM A POTION - drunk,
+  # splashed, a lingering cloud, a tipped arrow. 0 forbids it. Anything not
+  # listed is untouched. An effect above its cap is brought down to it rather
+  # than refused: Strength II drinks as Strength I when strength is capped at 1.
+  #
+  # Golden apples, beacons, commands and other plugins are left alone: a cap on
+  # regeneration is about potions, not about apples.
+  #
+  # Empty on purpose, like the enchantments.
+  #
+  #   caps:
+  #     strength: 1
+  #     invisibility: 0
+  caps: {}
+
+# ---------------------------------------------------------------------------
+# Blocks per claim: the most of a block a team's whole territory may hold -
+# against lag machines and abuse. Placing one more there is refused. Only player
+# teams' land counts. Staff get past the limits only while they hold
+# hcfcore.limiter.bypass AND have /staffbuild on - an operator placing blocks in
+# normal play is counted like anybody else. Players see their team's usage with
+# /team limits.
+#
+# Counted per chunk and kept up as blocks are placed, broken, burnt and blown up;
+# each claimed chunk is also recounted exactly - off the main thread - the first
+# time it loads after a start, which puts right whatever the events cannot see
+# (redstone washed away by water, blocks changed by another plugin). A limit of 0
+# forbids the block in claims. Names as the server spells them. Ships empty:
+#
+#   claim-blocks:
+#     enabled: true
+#     limits:
+#       HOPPER: 64
+#       SPAWNER: 8
+#       REDSTONE_WIRE: 256
+# ---------------------------------------------------------------------------
+claim-blocks:
+  enabled: true
+  limits: {}

@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# crowbar.yml - the crowbar
+#
+# A tool that takes a placed End portal frame out - the block survival cannot
+# break, and a common part of base traps. Right-click a frame with it.
+#
+# WHERE: in the wilderness, or in your own team's claim. NEVER in another team's
+# claim, raidable or not, and not on server land or in the warzone: the crowbar
+# is there so a team can adjust its own traps, not so a raid can defuse somebody
+# else's. After that, the removal is offered to every other protection as an
+# ordinary block break, so a resource node or another plugin's region still has
+# its say. Frames only: no spawners.
+#
+# Given with /crowbar give <player> [amount] - from staff, a kit, a redeem code
+# or a crate plugin's reward command.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+item:
+  material: GOLDEN_HOE
+  name: "&6&lCrowbar"
+  # %uses% is how many frames it has left.
+  lore:
+    - "&7Right-click an End portal frame to take it out."
+    - "&7Only in the wilderness or your own claim."
+    - "&7Uses left: &f%uses%"
+
+# How many frames one crowbar takes out before it breaks. 0 is no limit.
+uses: 0
+
+# Seconds a player waits between two uses. 0 is none.
+cooldown-seconds: 0
+
+# Money one use costs, taken from the economy module. 0 is free. Nothing is
+# taken for a refused use.
+cost: 0
