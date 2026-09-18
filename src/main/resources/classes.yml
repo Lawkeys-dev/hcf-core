@@ -195,7 +195,7 @@ classes:
       GUNPOWDER:
         effect: invisibility
         level: 1
-        seconds: 10
+        seconds: 5
         radius: 20
         targets: team
     # --8<-- [end:bard-held]

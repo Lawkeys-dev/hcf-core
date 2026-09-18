@@ -4,6 +4,11 @@ Every change to HCFCore, newest first. Versions follow [Semantic Versioning](htt
 
 **HCFCore is in pre-release** (`0.x`): a minor version (`0.x.0`) adds a feature or changes how something plays; a patch (`0.x.y`) changes default values, fixes a defect or documents. Until `1.0.0`, a minor version may change a setting's name or meaning — the notes below say so, and what to do.
 
+## [0.13.3] - 2026-09-18
+
+### Changed
+- The shipped Bard's gunpowder works exactly as its magma cream does, with Invisibility I instead of Fire Resistance I: 5 seconds after it leaves the hand, not 10. *In an existing `classes.yml`, set `seconds: 5` under `GUNPOWDER`.*
+
 ## [0.13.2] - 2026-09-18
 
 ### Added
@@ -101,6 +106,7 @@ Every change to HCFCore, newest first. Versions follow [Semantic Versioning](htt
 ### Added
 - First public version: teams, territory and DTR, combat and deathbans, lives, capture events (KOTH, Citadel, Conquest, Kill the King), Mountains, SOTW/EOTW/Purge, economy with Vault, kits and abilities, custom enchants and limiters, moderation tools, scoreboard and chat, holograms, redeem codes, the Lunar Client integration, and this documentation.
 
+[0.13.3]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.13.3
 [0.13.2]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.13.2
 [0.13.1]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.13.1
 [0.13.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.13.0

@@ -61,7 +61,7 @@ Full **gold** armour. The Bard is the team's support.
 | Ghast Tear | Regeneration I |
 | Feather | Jump Boost II |
 | Magma Cream | Fire Resistance I |
-| Gunpowder | Invisibility I, for 10 s after it leaves the hand |
+| Gunpowder | Invisibility I |
 
 **Right-clicking the item** spends **energy** for a stronger burst, and uses up the item:
 
