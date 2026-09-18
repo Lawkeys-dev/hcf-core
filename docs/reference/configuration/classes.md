@@ -122,7 +122,7 @@ An effect handed out **once, on a right-click** with an item.
 | `cooldown-seconds` | seconds | `0` | Wait before the item can be used again |
 | `consume` | true / false | `true` | Whether one item is taken from the stack |
 
-A right-click refused — not enough energy, a cooldown, a safe zone — does nothing else: a spider eye is not eaten. A self-only click, the Archer's:
+A right-click refused — not enough energy, a cooldown, a safe zone — does nothing else: the item is not used up, nor eaten. A self-only click, the Archer's:
 
 ```yaml title="classes.yml — the Archer's right-click effect"
 --8<-- "src/main/resources/classes.yml:archer-click"

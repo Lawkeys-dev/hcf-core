@@ -192,6 +192,12 @@ classes:
         seconds: 5
         radius: 20
         targets: team
+      GUNPOWDER:
+        effect: invisibility
+        level: 1
+        seconds: 10
+        radius: 20
+        targets: team
     # --8<-- [end:bard-held]
     # --8<-- [start:bard-click]
     click-effects:
@@ -230,13 +236,6 @@ classes:
         radius: 20
         targets: team
         energy: 25
-      SPIDER_EYE:
-        effect: wither
-        level: 2
-        seconds: 5
-        radius: 20
-        targets: enemies
-        energy: 35
     # --8<-- [end:bard-click]
   # --8<-- [end:bard]
 

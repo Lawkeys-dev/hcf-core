@@ -22,7 +22,7 @@ enabled: true
 
 # --8<-- [start:commands]
 # Shipped at what a Bard gives by holding an item (classes.yml, held-effects),
-# without its burst.
+# without its burst - and Haste II and Night Vision, the Miner's.
 #
 #   <command>:
 #     effect: the effect (speed, strength, jump_boost, fire_resistance...)
@@ -54,4 +54,16 @@ commands:
     effect: fire_resistance
     level: 1
     aliases: [fres, fr]
+  invisibility:
+    effect: invisibility
+    level: 1
+    aliases: [invis, invi]
+  haste:
+    effect: haste
+    level: 2
+    aliases: [hst]
+  nightvision:
+    effect: night_vision
+    level: 1
+    aliases: [nv]
 # --8<-- [end:commands]

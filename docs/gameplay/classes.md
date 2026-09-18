@@ -61,6 +61,7 @@ Full **gold** armour. The Bard is the team's support.
 | Ghast Tear | Regeneration I |
 | Feather | Jump Boost II |
 | Magma Cream | Fire Resistance I |
+| Gunpowder | Invisibility I, for 10 s after it leaves the hand |
 
 **Right-clicking the item** spends **energy** for a stronger burst, and uses up the item:
 
@@ -71,13 +72,14 @@ Full **gold** armour. The Bard is the team's support.
 | Iron Ingot | Resistance III, 5 s | teammates | 40 |
 | Ghast Tear | Regeneration III, 5 s | teammates | 40 |
 | Feather | Jump Boost VII, 5 s | teammates | 25 |
-| Spider Eye | Wither II, 5 s | **enemies** | 35 |
+
+Magma Cream and Gunpowder have no burst.
 
 **Energy** fills by **1 per second** up to **100** while the class is on, and starts at 0 each time it turns on. The scoreboard shows it (`%class_energy_line%`).
 
 - Bard effects reach the Bard's **team only**, not allies — `targets: team-and-allies` changes that.
 - To make the Bard the **only source of Strength**, forbid Strength potions: `strength: 0` under `potions.caps` in `limiters.yml` ([potion caps](items.md#enchantment-potion-and-effect-caps)). A Bard's effects are not potions: the potion cap never touches them. To cap an effect **whatever gives it** — a Bard's Resistance included — use `effects.caps` ([effect caps](items.md#effect-caps)).
-- The **Spider Eye** reaches only enemies the Bard could hit: not on a safe zone, not during SOTW, never a teammate, and an ally only in an event area — the same rules as a blow ([Combat](combat.md#friendly-fire)).
+- A click effect of your own with `targets: enemies` — a Wither on a spider eye, say — reaches only enemies the Bard could hit: not on a safe zone, not during SOTW, never a teammate, and an ally only in an event area — the same rules as a blow ([Combat](combat.md#friendly-fire)).
 - Held and click effects do **not** work while the Bard stands in a safe zone (`abilities-in-safe-zones`).
 
 ??? example "Bard — as shipped in `classes.yml`"

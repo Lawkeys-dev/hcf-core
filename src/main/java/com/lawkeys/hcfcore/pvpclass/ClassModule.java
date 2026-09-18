@@ -461,7 +461,7 @@ public final class ClassModule {
      * Uses the click effect of the item in hand, if the player's class has one.
      *
      * @return whether the item is one of the class's click items - the caller then
-     *         cancels the click, used or refused, so a spider eye is never eaten
+     *         cancels the click, used or refused, so the item is never eaten
      */
     public boolean click(Player player, ItemStack item) {
         if (item == null || !settings.enabled() || isPluginItem(item)) {

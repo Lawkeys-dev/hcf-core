@@ -8,7 +8,7 @@
 --8<-- "src/main/resources/effect-commands.yml:commands"
 ```
 
-**Shipped at what a Bard gives by holding an item**, without its burst:
+**Shipped at what a Bard gives by holding an item**, without its burst — and the Miner's Haste II and Night Vision:
 
 | Command | Aliases | Effect |
 |---|---|---|
@@ -18,6 +18,9 @@
 | `/regeneration` | `/regen` | Regeneration I |
 | `/jumpboost` | `/jb` | Jump Boost II |
 | `/fireresistance` | `/fres`, `/fr` | Fire Resistance I |
+| `/invisibility` | `/invis`, `/invi` | Invisibility I |
+| `/haste` | `/hst` | Haste II |
+| `/nightvision` | `/nv` | Night Vision I |
 
 ## Your own commands
 
@@ -29,10 +32,10 @@ commands:
     effect: speed
     level: 3
     aliases: [sp]
-  nightvision:
-    effect: night_vision
+  glowing:
+    effect: glowing
     level: 1
-    aliases: [nv]
+    aliases: [glow]
     permission: myserver.rank.vip
 ```
 

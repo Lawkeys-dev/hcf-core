@@ -22,7 +22,7 @@ Every example on this page is **taken from the shipped `effect-commands.yml`**. 
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `commands.<name>` | six commands | The command, without its slash: letters, digits, `_` and `-` |
+| `commands.<name>` | nine commands | The command, without its slash: letters, digits, `_` and `-` |
 | `effect` | — | The effect: `speed`, `strength`, `jump_boost`, `fire_resistance`… (another namespace is written in full, `mypack:glow`) |
 | `level` | — | `1` is level I, up to 255 |
 | `aliases` | one or two each | Other names; a name or alias belongs to the first command that claims it, and never takes over another plugin's command |
