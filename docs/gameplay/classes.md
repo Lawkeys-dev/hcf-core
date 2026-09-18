@@ -86,8 +86,10 @@ Dye the whole leather set one colour and the Archer's arrows may add an effect t
 | Colour | Chance per arrow hit | Effect |
 |---|---|---|
 | **Green** (the dye made from cactus) | 20% | Poison I, 10 s |
+| **Black** (the ink sac) | 20% | Wither I, 10 s |
+| **Blue** (lapis lazuli) | 20% | Slowness I, 10 s |
 
-Every colour can have its own effect, chance and duration — `dye-effects` in `classes.yml`, with black, light blue and gray given as commented examples. `/class` shows the colour your set reads as and its effect; `/class info archer` lists them all.
+Every colour can have its own effect, chance and duration — `dye-effects` in `classes.yml`, with gray given as a commented example. `/class` shows the colour your set reads as and its effect; `/class info archer` lists them all.
 
 - **All four pieces** must be dyed and read as the same colour. A piece dyed with several dyes counts as the dye its colour is closest to — one green and one lime dye still read as green, one green and two lime as lime.
 - The effect follows the hit: an arrow refused by the rules of combat (safe zone, SOTW, a teammate) gives nothing.

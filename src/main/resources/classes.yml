@@ -245,22 +245,25 @@ classes:
       seconds: 10
       damage-multiplier: 1.25
     dye-effects:
+      # Green dye, made from cactus.
       GREEN:
         effect: poison
         level: 1
         seconds: 10
         chance: 20
+      # Black dye, the ink sac's.
+      BLACK:
+        effect: wither
+        level: 1
+        seconds: 10
+        chance: 20
+      # Blue dye, the lapis lazuli's.
+      BLUE:
+        effect: slowness
+        level: 1
+        seconds: 10
+        chance: 20
       # More colours, if your server wants them:
-      # BLACK:
-      #   effect: blindness
-      #   level: 1
-      #   seconds: 3
-      #   chance: 15
-      # LIGHT_BLUE:
-      #   effect: slowness
-      #   level: 1
-      #   seconds: 5
-      #   chance: 20
       # GRAY:
       #   effect: weakness
       #   level: 1
