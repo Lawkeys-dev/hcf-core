@@ -3,6 +3,7 @@ package com.lawkeys.hcfcore.team;
 import com.lawkeys.hcfcore.claim.ClaimMessages;
 import com.lawkeys.hcfcore.crowbar.CrowbarMessages;
 import com.lawkeys.hcfcore.dtr.DtrMessages;
+import com.lawkeys.hcfcore.limiter.LimiterMessages;
 import com.lawkeys.hcfcore.economy.EconomyMessages;
 import com.lawkeys.hcfcore.enchant.EnchantMessages;
 import com.lawkeys.hcfcore.events.EventMessages;
@@ -69,6 +70,7 @@ class TeamMessagesTest {
             HologramMessages.class,
             KingMessages.class,
             KitMessages.class,
+            LimiterMessages.class,
             LivesMessages.class,
             PhaseMessages.class,
             PvpMessages.class,

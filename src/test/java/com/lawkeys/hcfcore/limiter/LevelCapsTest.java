@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -71,6 +72,14 @@ class LevelCapsTest {
 
     @Nested
     class Clamping {
+
+        @Test
+        void onlyACapOfZeroForbids() {
+            LevelCaps caps = caps(Map.of("strength", 0, "speed", 1));
+            assertTrue(caps.forbids("minecraft:strength"), "Strength left to the Bard");
+            assertFalse(caps.forbids("minecraft:speed"), "capped, brought down, not forbidden");
+            assertFalse(caps.forbids("minecraft:regeneration"), "not listed");
+        }
 
         private final LevelCaps caps = caps(Map.of("sharpness", 2, "fire_aspect", 0, "power", 7));
 

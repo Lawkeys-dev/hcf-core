@@ -25,7 +25,7 @@ Every example on this page is **taken from the shipped `limiters.yml`**. Changes
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `caps` | `{}` | Effect to its highest level **from a potion** (drunk, splashed, lingering, tipped arrow); `0` forbids it. Above the cap, the effect is brought down, not refused |
+| `caps` | `{}` | Effect to its highest level **from a potion** (drunk, splashed, lingering, tipped arrow); `0` forbids it: not brewed, drinking, throwing or shooting refused. Above the cap, the effect is brought down, not refused. A Bard's effects are not potions |
 
 ## Blocks per claim
 

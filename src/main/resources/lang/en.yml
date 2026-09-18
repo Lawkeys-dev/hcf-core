@@ -1129,6 +1129,8 @@ limiter:
     header: "&9Block limits &7for &b%team%&7:"
     entry: "&7- &f%block%&7: &f%count%&7/&f%limit%"
     none: "&7This server limits no blocks in claims."
+  potions:
+    forbidden: "&cPotions of &f%effect% &care forbidden on this server."
 
 # ---------------------------------------------------------------------------
 # Classes (classes.yml): Diamond, Bard, Archer, Rogue, Miner and your own.

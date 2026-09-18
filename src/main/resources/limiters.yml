@@ -49,14 +49,19 @@ potions:
   # listed is untouched. An effect above its cap is brought down to it rather
   # than refused: Strength II drinks as Strength I when strength is capped at 1.
   #
+  # A forbidden potion (0) is not brewed, and drinking, throwing or shooting one
+  # is refused and the player told - a potion is kept, not used up for nothing.
+  #
   # Golden apples, beacons, commands and other plugins are left alone: a cap on
-  # regeneration is about potions, not about apples.
+  # regeneration is about potions, not about apples. So are the classes' effects:
+  # "strength: 0" leaves Strength to the Bard.
   #
   # Empty on purpose, like the enchantments.
   #
   #   caps:
-  #     strength: 1
+  #     strength: 0        # Strength from the Bard only
   #     invisibility: 0
+  #     speed: 2
   caps: {}
 # --8<-- [end:potions]
 

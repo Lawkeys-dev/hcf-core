@@ -87,6 +87,12 @@ public final class LevelCaps {
         return caps.keySet();
     }
 
+    /** @return whether a key is forbidden outright: capped at 0 */
+    public boolean forbids(String key) {
+        Integer cap = caps.get(key);
+        return cap != null && cap <= 0;
+    }
+
     public OptionalInt capOf(String key) {
         Integer cap = caps.get(key);
         return cap == null ? OptionalInt.empty() : OptionalInt.of(cap);

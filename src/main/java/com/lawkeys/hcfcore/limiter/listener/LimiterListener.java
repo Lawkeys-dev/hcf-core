@@ -2,8 +2,13 @@ package com.lawkeys.hcfcore.limiter.listener;
 
 import com.lawkeys.hcfcore.limiter.ItemLevels;
 import com.lawkeys.hcfcore.limiter.LevelCaps;
+import com.lawkeys.hcfcore.limiter.LimiterMessages;
 import com.lawkeys.hcfcore.limiter.LimiterModule;
 import com.lawkeys.hcfcore.limiter.LimiterSettings;
+import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
+import com.lawkeys.hcfcore.util.RefusalThrottle;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.PotionContents;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
@@ -15,14 +20,20 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -41,7 +52,12 @@ import java.util.Set;
  * <p><strong>Potion effects</strong> are capped as they are applied, and only when
  * they come from a potion - drunk, splashed, a lingering cloud, a tipped arrow.
  * Golden apples, beacons and other plugins are left alone: a cap on Regeneration is
- * about potions, not about apples.
+ * about potions, not about apples - nor about a Bard's effects, which are this
+ * plugin's.
+ *
+ * <p>A <strong>forbidden</strong> potion (an effect capped at 0) is not brewed, and
+ * drinking, throwing or shooting one is refused, the player told - a potion kept
+ * rather than used up for nothing.
  */
 public final class LimiterListener implements Listener {
 
@@ -52,7 +68,10 @@ public final class LimiterListener implements Listener {
             EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD,
             EntityPotionEffectEvent.Cause.ARROW);
 
+    private static final long MESSAGE_EVERY_MILLIS = 2_000L;
+
     private final LimiterModule module;
+    private final RefusalThrottle refusals = new RefusalThrottle(MESSAGE_EVERY_MILLIS);
 
     public LimiterListener(LimiterModule module) {
         this.module = Objects.requireNonNull(module, "module");
@@ -273,5 +292,108 @@ public final class LimiterListener implements Listener {
                 player.addPotionEffect(capped);
             }
         });
+    }
+
+    /** @return the potion caps in force, or {@code null} when there are none */
+    private LevelCaps potionCaps() {
+        LimiterSettings settings = module.getSettings();
+        return settings.enabled() && !settings.potions().isEmpty() ? settings.potions() : null;
+    }
+
+    /**
+     * The first forbidden effect an item carries - a potion, splash or lingering, a
+     * tipped arrow: every effect of its contents, the base potion's and custom ones.
+     *
+     * @return its key, or {@code null} when the item is allowed
+     */
+    private static String forbiddenEffect(ItemStack item, LevelCaps caps) {
+        if (caps == null || item == null || item.isEmpty()) {
+            return null;
+        }
+        PotionContents contents = item.getData(DataComponentTypes.POTION_CONTENTS);
+        if (contents == null) {
+            return null;
+        }
+        for (PotionEffect effect : contents.allEffects()) {
+            String key = LimiterModule.key(effect.getType());
+            if (caps.forbids(key)) {
+                return key;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * A forbidden potion is not brewed: its slot keeps what it held. The ingredient
+     * is used up all the same, as the brew went through for the other slots - the
+     * event cannot give it back, and cancelling it would start the brew again,
+     * burning fuel each time.
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBrew(BrewEvent event) {
+        LevelCaps caps = potionCaps();
+        if (caps == null) {
+            return;
+        }
+        List<ItemStack> results = event.getResults();
+        for (int slot = 0; slot < results.size(); slot++) {
+            if (forbiddenEffect(results.get(slot), caps) != null) {
+                ItemStack before = event.getContents().getItem(slot);
+                results.set(slot, before == null ? null : before.clone());
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onDrink(PlayerItemConsumeEvent event) {
+        String effect = forbiddenEffect(event.getItem(), potionCaps());
+        if (effect != null) {
+            event.setCancelled(true);
+            refuse(event.getPlayer(), effect);
+        }
+    }
+
+    /** A splash or lingering potion: refused, and kept in hand. */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onThrow(PlayerLaunchProjectileEvent event) {
+        if (!(event.getProjectile() instanceof ThrownPotion)) {
+            return;
+        }
+        String effect = forbiddenEffect(event.getItemStack(), potionCaps());
+        if (effect != null) {
+            event.setShouldConsume(false);
+            event.setCancelled(true);
+            refuse(event.getPlayer(), effect);
+        }
+    }
+
+    /**
+     * A tipped arrow: the shot refused. Whether the arrow is kept is the server's to
+     * decide - {@code setConsumeItem} is "not currently functional" (26.2 javadoc) -
+     * so the inventory is sent again to show what the server kept.
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onShoot(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        String effect = forbiddenEffect(event.getConsumable(), potionCaps());
+        if (effect != null) {
+            event.setCancelled(true);
+            player.updateInventory();
+            refuse(player, effect);
+        }
+    }
+
+    private void refuse(Player player, String effectKey) {
+        if (refusals.tryTell(player.getUniqueId(), System.currentTimeMillis())) {
+            String name = effectKey.substring(effectKey.indexOf(':') + 1).replace('_', ' ');
+            module.getLang().send(player, LimiterMessages.POTION_FORBIDDEN, "effect", name);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent event) {
+        refusals.forget(event.getPlayer().getUniqueId());
     }
 }

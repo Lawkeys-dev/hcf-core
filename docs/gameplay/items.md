@@ -56,6 +56,15 @@ Which levels a map allows — Protection I or II, Sharpness I or II, no Strength
 
 **Potions** are capped when the effect comes from a potion — drunk, splashed, lingering, a tipped arrow. An effect above its cap is **brought down**, not refused: Strength II drinks as Strength I when strength is capped at 1. Golden apples, beacons, commands and other plugins are left alone.
 
+**A potion capped at `0` is forbidden**:
+
+- it is **not brewed**: the brewing stand leaves that bottle as it was (the ingredient is used up, as for the other bottles);
+- **drinking or throwing one is refused**, and the potion stays in hand; shooting a tipped arrow of it is refused. The player is told why;
+- one that still reaches a player — a dispenser, a potion from before — gives nothing.
+
+!!! tip "Strength from the Bard only"
+    The classic HCF rule: `strength: 0` under `caps`. **The classes are not potions**: a Bard still gives Strength to the team, and a class's own effects are untouched. See [Classes](classes.md).
+
 ## Blocks per claim
 
 The most of a block a team's whole territory may hold — against lag machines and abuse. Placing one more there is refused. **Ships empty:**
