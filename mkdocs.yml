@@ -83,6 +83,7 @@ markdown_extensions:
   - pymdownx.mark
   - pymdownx.snippets:
       check_paths: true
+      dedent_subsections: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid

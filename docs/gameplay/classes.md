@@ -39,6 +39,12 @@ A logout or a death drops the class; the next time you wear the set, the warmup 
 
 Full diamond armour. No effects: the ordinary PvP set, listed so the scoreboard and `/class` name it.
 
+??? example "Diamond — as shipped in `classes.yml`"
+
+    ```yaml
+    --8<-- "src/main/resources/classes.yml:diamond"
+    ```
+
 ## Bard
 
 Full **gold** armour. The Bard is the team's support.
@@ -73,6 +79,12 @@ Full **gold** armour. The Bard is the team's support.
 - The **Spider Eye** reaches only enemies the Bard could hit: not on a safe zone, not during SOTW, never a teammate, and an ally only in an event area — the same rules as a blow ([Combat](combat.md#friendly-fire)).
 - Held and click effects do **not** work while the Bard stands in a safe zone (`abilities-in-safe-zones`).
 
+??? example "Bard — as shipped in `classes.yml`"
+
+    ```yaml
+    --8<-- "src/main/resources/classes.yml:bard"
+    ```
+
 ## Archer
 
 Full **leather** armour. Fast and fragile.
@@ -101,6 +113,12 @@ Every colour can have its own effect, chance and duration — `dye-effects` in `
 
 **Dyeing keeps the enchantments.** Dye a piece the vanilla way — the piece and a dye in the inventory's crafting grid, or at a crafting table — and it keeps everything it carried: enchantments, custom enchants, name and lore. The game builds the dyed piece from the original, only changing its colour.
 
+??? example "Archer — as shipped in `classes.yml`"
+
+    ```yaml
+    --8<-- "src/main/resources/classes.yml:archer"
+    ```
+
 ## Rogue
 
 Full **chainmail** armour. Fast, agile, and dangerous from behind.
@@ -115,6 +133,12 @@ Full **chainmail** armour. Fast, agile, and dangerous from behind.
 
 **Right-click**: Sugar gives Speed IV, Feather gives Jump Boost V — 8 seconds each, every 30 seconds.
 
+??? example "Rogue — as shipped in `classes.yml`"
+
+    ```yaml
+    --8<-- "src/main/resources/classes.yml:rogue"
+    ```
+
 ## Miner
 
 Full **iron** armour. For mining, not fighting.
@@ -122,6 +146,12 @@ Full **iron** armour. For mining, not fighting.
 **Always**: Haste II, Night Vision, Fire Resistance.
 
 **Invisible below Y 20**: deep underground, the Miner is invisible — handy for mining without being hunted.
+
+??? example "Miner — as shipped in `classes.yml`"
+
+    ```yaml
+    --8<-- "src/main/resources/classes.yml:miner"
+    ```
 
 ## Team limits
 
@@ -175,5 +205,7 @@ classes:
 | `dye-effects` | Leather sets: per dye colour, a chance for the class's arrows to give an effect |
 
 **Targets** of held and click effects: `self` (the user alone), `team` (the user and teammates in range), `team-and-allies`, or `enemies` (everybody else in range the user could hit).
+
+Every key, its default and an example of each part taken from the shipped file are in the [`classes.yml` reference](../reference/configuration/classes.md).
 
 After editing, `/hcf reload` applies the file — to classes already on, too. An unknown item or effect is reported in the console and left out; a class whose armour is unknown, or whose set another class already uses, is skipped. The [shipped file](../reference/configuration/classes.md) documents every setting.

@@ -14,8 +14,12 @@
 # Scoreboard rows (ui.yml): %class_line%, %class_energy_line%, %archer_tag_line%.
 #
 # /hcf reload applies changes at once, to classes already active too.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
 # ---------------------------------------------------------------------------
 
+# --8<-- [start:settings]
 enabled: true
 
 # How long a whole set must be worn before its class turns on.
@@ -26,6 +30,7 @@ warmup-seconds: 10
 # user could not hit, wherever it is used: safe zones, SOTW and friendly fire
 # apply to it exactly as to a blow.
 abilities-in-safe-zones: false
+# --8<-- [end:settings]
 
 # ---------------------------------------------------------------------------
 # Making a class
@@ -110,34 +115,46 @@ classes:
   # Diamond: the ordinary PvP set. No effects - it is here so the
   # scoreboard and /class name it.
   # ------------------------------------------------------------------
+  # --8<-- [start:diamond]
   diamond:
     display-name: "&bDiamond"
+    # --8<-- [start:diamond-armor]
     armor:
       helmet: DIAMOND_HELMET
       chestplate: DIAMOND_CHESTPLATE
       leggings: DIAMOND_LEGGINGS
       boots: DIAMOND_BOOTS
+    # --8<-- [end:diamond-armor]
+  # --8<-- [end:diamond]
 
   # ------------------------------------------------------------------
   # Bard: the team's support. Holding an item buffs the teammates around;
   # right-clicking it spends energy for a stronger burst - or, with a
   # spider eye, withers the enemies around.
   # ------------------------------------------------------------------
+  # --8<-- [start:bard]
   bard:
     display-name: "&6Bard"
     max-per-team: 0
+    # --8<-- [start:bard-armor]
     armor:
       helmet: GOLDEN_HELMET
       chestplate: GOLDEN_CHESTPLATE
       leggings: GOLDEN_LEGGINGS
       boots: GOLDEN_BOOTS
+    # --8<-- [end:bard-armor]
+    # --8<-- [start:bard-passive]
     passive-effects:
       speed: 2
       regeneration: 1
       resistance: 2
+    # --8<-- [end:bard-passive]
+    # --8<-- [start:bard-energy]
     energy:
       max: 100
       per-second: 1.0
+    # --8<-- [end:bard-energy]
+    # --8<-- [start:bard-held]
     held-effects:
       SUGAR:
         effect: speed
@@ -175,6 +192,8 @@ classes:
         seconds: 5
         radius: 20
         targets: team
+    # --8<-- [end:bard-held]
+    # --8<-- [start:bard-click]
     click-effects:
       SUGAR:
         effect: speed
@@ -218,6 +237,8 @@ classes:
         radius: 20
         targets: enemies
         energy: 35
+    # --8<-- [end:bard-click]
+  # --8<-- [end:bard]
 
   # ------------------------------------------------------------------
   # Archer: fast and fragile. An arrow hit archer-tags the target, who
@@ -230,20 +251,28 @@ classes:
   # dyes: WHITE, LIGHT_GRAY, GRAY, BLACK, BROWN, RED, ORANGE, YELLOW, LIME,
   # GREEN (made from cactus), CYAN, LIGHT_BLUE, BLUE, PURPLE, MAGENTA, PINK.
   # ------------------------------------------------------------------
+  # --8<-- [start:archer]
   archer:
     display-name: "&aArcher"
     max-per-team: 0
+    # --8<-- [start:archer-armor]
     armor:
       helmet: LEATHER_HELMET
       chestplate: LEATHER_CHESTPLATE
       leggings: LEATHER_LEGGINGS
       boots: LEATHER_BOOTS
+    # --8<-- [end:archer-armor]
+    # --8<-- [start:archer-passive]
     passive-effects:
       speed: 3
       resistance: 2
+    # --8<-- [end:archer-passive]
+    # --8<-- [start:archer-tag]
     archer-tag:
       seconds: 10
       damage-multiplier: 1.25
+    # --8<-- [end:archer-tag]
+    # --8<-- [start:archer-dyes]
     dye-effects:
       # Green dye, made from cactus.
       GREEN:
@@ -269,6 +298,8 @@ classes:
       #   level: 1
       #   seconds: 5
       #   chance: 20
+    # --8<-- [end:archer-dyes]
+    # --8<-- [start:archer-click]
     click-effects:
       SUGAR:
         effect: speed
@@ -276,29 +307,39 @@ classes:
         seconds: 8
         targets: self
         cooldown-seconds: 30
+    # --8<-- [end:archer-click]
+  # --8<-- [end:archer]
 
   # ------------------------------------------------------------------
   # Rogue: gets behind people. A hit from behind with a golden sword is a
   # backstab: three hearts through armour, and the sword breaks.
   # ------------------------------------------------------------------
+  # --8<-- [start:rogue]
   rogue:
     display-name: "&7Rogue"
     max-per-team: 0
+    # --8<-- [start:rogue-armor]
     armor:
       helmet: CHAINMAIL_HELMET
       chestplate: CHAINMAIL_CHESTPLATE
       leggings: CHAINMAIL_LEGGINGS
       boots: CHAINMAIL_BOOTS
+    # --8<-- [end:rogue-armor]
+    # --8<-- [start:rogue-passive]
     passive-effects:
       speed: 3
       jump_boost: 2
       resistance: 1
+    # --8<-- [end:rogue-passive]
+    # --8<-- [start:rogue-backstab]
     backstab:
       weapon: GOLDEN_SWORD
       damage: 6.0
       cooldown-seconds: 15
       break-weapon: true
       max-angle: 60
+    # --8<-- [end:rogue-backstab]
+    # --8<-- [start:rogue-click]
     click-effects:
       SUGAR:
         effect: speed
@@ -312,21 +353,31 @@ classes:
         seconds: 8
         targets: self
         cooldown-seconds: 30
+    # --8<-- [end:rogue-click]
+  # --8<-- [end:rogue]
 
   # ------------------------------------------------------------------
   # Miner: for mining, not fighting. Sees in the dark, digs fast, and is
   # invisible deep underground.
   # ------------------------------------------------------------------
+  # --8<-- [start:miner]
   miner:
     display-name: "&eMiner"
     max-per-team: 0
+    # --8<-- [start:miner-armor]
     armor:
       helmet: IRON_HELMET
       chestplate: IRON_CHESTPLATE
       leggings: IRON_LEGGINGS
       boots: IRON_BOOTS
+    # --8<-- [end:miner-armor]
+    # --8<-- [start:miner-passive]
     passive-effects:
       haste: 2
       night_vision: 1
       fire_resistance: 1
+    # --8<-- [end:miner-passive]
+    # --8<-- [start:miner-invisible]
     invisible-below-y: 20
+    # --8<-- [end:miner-invisible]
+  # --8<-- [end:miner]
