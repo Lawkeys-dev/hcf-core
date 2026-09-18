@@ -61,7 +61,7 @@ abilities-in-safe-zones: false
 #       SUGAR:
 #         effect: speed
 #         level: 2
-#         seconds: 5                  each pulse, renewed every second while held
+#         seconds: 8                  each pulse, renewed every second while held
 #         radius: 20
 #         targets: team               self | team | team-and-allies | enemies
 #
@@ -159,43 +159,43 @@ classes:
       SUGAR:
         effect: speed
         level: 2
-        seconds: 5
+        seconds: 8
         radius: 20
         targets: team
       BLAZE_POWDER:
         effect: strength
         level: 1
-        seconds: 5
+        seconds: 8
         radius: 20
         targets: team
       IRON_INGOT:
         effect: resistance
         level: 1
-        seconds: 5
+        seconds: 8
         radius: 20
         targets: team
       GHAST_TEAR:
         effect: regeneration
         level: 1
-        seconds: 5
+        seconds: 8
         radius: 20
         targets: team
       FEATHER:
         effect: jump_boost
         level: 2
-        seconds: 5
+        seconds: 8
         radius: 20
         targets: team
       MAGMA_CREAM:
         effect: fire_resistance
         level: 1
-        seconds: 5
+        seconds: 8
         radius: 20
         targets: team
       GUNPOWDER:
         effect: invisibility
         level: 1
-        seconds: 5
+        seconds: 8
         radius: 20
         targets: team
     # --8<-- [end:bard-held]

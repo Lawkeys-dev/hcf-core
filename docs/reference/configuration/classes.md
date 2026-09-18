@@ -98,7 +98,7 @@ An effect handed out **while an item is held in the main hand**, by item.
 | *(the section's name)* | item name | — | The item to hold: `SUGAR`, `BLAZE_POWDER`... |
 | `effect` | effect name | — | **Required.** The effect handed out |
 | `level` | 1 to 255 | `1` | Its level |
-| `seconds` | seconds | `5` | How long each application lasts. It is renewed **every second** while the item is held, so the effect is continuous — and lasts this long after the item is put away or a player leaves the range. Keep it at 2 or more |
+| `seconds` | seconds | `8` | How long each application lasts. It is renewed **every second** while the item is held, so the effect is continuous — and lasts this long after the item is put away or a player leaves the range. Keep it at 2 or more |
 | `radius` | blocks | `20` | How far it reaches (unused with `targets: self`) |
 | `targets` | see [targets](#targets) | `team` | Who it reaches |
 

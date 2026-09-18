@@ -9,7 +9,7 @@
 
 3. Replace the jar and start the server.
 
-Read the [Changelog](../changelog.md) first: every version says what changed, and what to do when a setting changes. **Your configuration files are never rewritten** — a new default (a Bard's new item, a new command) reaches an existing file only if you add it; the changelog says when. Until `1.0.0`, a minor version (`0.x.0`) may rename a setting.
+Read the [Changelog](../changelog.md) first: every release says what changed, and what to do when a setting changes. **Your configuration files are never rewritten** — a new default (a Bard's new item, a new command) reaches an existing file only if you add it; the changelog says when. Until `1.0.0`, a minor version (`0.x.0`) may rename a setting.
 
 ## Database changes apply by themselves
 

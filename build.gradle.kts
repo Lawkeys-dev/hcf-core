@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.lawkeys"
-version = "0.13.3"
+version = "0.4.0"
 description = "HCFCore - Open source HCF/Kitmap core plugin for Paper"
 
 java {

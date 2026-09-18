@@ -51,7 +51,7 @@ Full **gold** armour. The Bard is the team's support.
 
 **Always**: Speed II, Regeneration I, Resistance II.
 
-**Holding an item** buffs every teammate within **20 blocks** — the Bard included — for as long as it stays in hand:
+**Holding an item** buffs every teammate within **20 blocks** — the Bard included — for as long as it stays in hand, and **8 seconds** after it is put away or a teammate leaves the range.
 
 | Hold | Teammates get |
 |---|---|

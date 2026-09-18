@@ -24,6 +24,9 @@ import java.util.regex.Pattern;
  */
 public final class ClassConfig {
 
+    /** A held effect's default duration, in seconds. */
+    static final int HELD_SECONDS = 8;
+
     private static final Pattern VALID_ID = Pattern.compile("[a-z0-9_-]{1,32}");
     private static final String[] PIECES = {"helmet", "chestplate", "leggings", "boots"};
 
@@ -128,7 +131,7 @@ public final class ClassConfig {
                 return;
             }
             Map<String, ?> section = map(value, where);
-            ClassEffect effect = effect(section, 5, where);
+            ClassEffect effect = effect(section, HELD_SECONDS, where);
             ClassTarget target = target(section.get("targets"), ClassTarget.TEAM, where);
             if (effect != null) {
                 held.put(item, new HeldEffect(effect, target, decimal(section.get("radius"), 20.0, where + ".radius")));
