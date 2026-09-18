@@ -11,13 +11,32 @@ import java.util.Objects;
  *                         made at an enchanting table or an anvil
  * @param potions          the highest level each effect may be applied at from a
  *                         potion
+ * @param effects          the highest level each effect may have on a player,
+ *                         whatever gives it
  */
 public record LimiterSettings(boolean enabled, LevelCaps enchantments, boolean fixExistingItems,
-                              LevelCaps potions) {
+                              LevelCaps potions, LevelCaps effects) {
 
     public LimiterSettings {
         Objects.requireNonNull(enchantments, "enchantments");
         Objects.requireNonNull(potions, "potions");
+        Objects.requireNonNull(effects, "effects");
+    }
+
+    /**
+     * The level an effect may be given at: its effect cap, whatever gives it, and
+     * its potion cap too when a potion does. Never raised.
+     *
+     * @param key        the effect's key, {@code minecraft:resistance}
+     * @param fromPotion drunk, splashed, a lingering cloud, a tipped arrow
+     * @return the level allowed; {@code 0} means refused
+     */
+    public int allowedLevel(String key, int level, boolean fromPotion) {
+        if (!enabled) {
+            return level;
+        }
+        int allowed = effects.clamp(key, level);
+        return fromPotion ? Math.min(allowed, potions.clamp(key, level)) : allowed;
     }
 
     /**
@@ -26,6 +45,6 @@ public record LimiterSettings(boolean enabled, LevelCaps enchantments, boolean f
      * II - is the operator's call, not a default to invent.
      */
     public static LimiterSettings defaults() {
-        return new LimiterSettings(true, LevelCaps.none(), true, LevelCaps.none());
+        return new LimiterSettings(true, LevelCaps.none(), true, LevelCaps.none(), LevelCaps.none());
     }
 }

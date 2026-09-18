@@ -6,6 +6,7 @@ import com.lawkeys.hcfcore.enchant.listener.EnchantListener;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.util.Cooldowns;
 import com.lawkeys.hcfcore.util.Durations;
+import com.lawkeys.hcfcore.util.EffectCaps;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -78,6 +79,7 @@ public final class EnchantModule {
     private volatile Map<String, PotionEffectType> effects = Map.of();
     /** Main thread only. */
     private final Map<UUID, Set<PotionEffectType>> applied = new HashMap<>();
+    private volatile EffectCaps effectCaps = EffectCaps.NONE;
     private final Map<UUID, Map<String, Long>> lastFed = new HashMap<>();
     private final Cooldowns recoverCooldowns = new Cooldowns();
     private Map<Material, ItemStack> smelting;
@@ -89,6 +91,11 @@ public final class EnchantModule {
         this.loreLines = new NamespacedKey(plugin, "ce_lore_lines");
         this.bookId = new NamespacedKey(plugin, "ce_book");
         this.bookLevel = new NamespacedKey(plugin, "ce_book_level");
+    }
+
+    /** The effect caps of {@code limiters.yml}, asked before giving an effect; filled after startup. */
+    public void setEffectCaps(EffectCaps effectCaps) {
+        this.effectCaps = Objects.requireNonNull(effectCaps, "effectCaps");
     }
 
     public Plugin getPlugin() {
@@ -401,7 +408,13 @@ public final class EnchantModule {
                     feed(player, enchant, level, now);
                 }
             });
-            wanted.forEach((type, amplifier) -> giveEffect(player, type, amplifier));
+            // Within the effect caps, so what is given is what is recognised as ours.
+            wanted.forEach((type, amplifier) -> {
+                int allowed = effectCaps.allowed(type, amplifier);
+                if (allowed >= 0) {
+                    giveEffect(player, type, allowed);
+                }
+            });
             takeBackEffects(player, wanted.keySet());
         }
     }

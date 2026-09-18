@@ -27,6 +27,7 @@ public final class LimiterSettingsLoader {
         }
         ConfigurationSection enchantments = section.getConfigurationSection("enchantments");
         ConfigurationSection potions = section.getConfigurationSection("potions");
+        ConfigurationSection effects = section.getConfigurationSection("effects");
         return new LimiterSettings(
                 section.getBoolean("enabled", defaults.enabled()),
                 LevelCaps.of(readCaps(enchantments, "enchantments", warn),
@@ -35,7 +36,9 @@ public final class LimiterSettingsLoader {
                         ? defaults.fixExistingItems()
                         : enchantments.getBoolean("fix-existing-items", defaults.fixExistingItems()),
                 LevelCaps.of(readCaps(potions, "potions", warn),
-                        message -> warn.accept("potions.caps: " + message)));
+                        message -> warn.accept("potions.caps: " + message)),
+                LevelCaps.of(readCaps(effects, "effects", warn),
+                        message -> warn.accept("effects.caps: " + message)));
     }
 
     private static Map<String, Integer> readCaps(ConfigurationSection parent, String path,

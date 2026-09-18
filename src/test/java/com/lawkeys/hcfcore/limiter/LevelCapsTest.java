@@ -147,4 +147,43 @@ class LevelCapsTest {
             assertEquals(0, caps(Map.of("sharpness", 0)).combine(SHARPNESS, 1, 1, 2));
         }
     }
+
+    @Nested
+    class Effects {
+
+        private static final String RESISTANCE = "minecraft:resistance";
+
+        private LimiterSettings settings(Map<String, Integer> potions, Map<String, Integer> effects) {
+            return new LimiterSettings(true, LevelCaps.none(), true, caps(potions), caps(effects));
+        }
+
+        @Test
+        void anEffectCapHoldsWhateverGivesTheEffect() {
+            LimiterSettings settings = settings(Map.of(), Map.of("resistance", 3));
+            assertEquals(3, settings.allowedLevel(RESISTANCE, 4, false), "a Bard's, a beacon's, a command's");
+            assertEquals(3, settings.allowedLevel(RESISTANCE, 4, true), "a potion's");
+            assertEquals(2, settings.allowedLevel(RESISTANCE, 2, false), "below the cap: untouched");
+        }
+
+        @Test
+        void aPotionCapHoldsForPotionsOnly() {
+            LimiterSettings settings = settings(Map.of("strength", 0), Map.of());
+            assertEquals(0, settings.allowedLevel("minecraft:strength", 1, true), "a Strength potion");
+            assertEquals(2, settings.allowedLevel("minecraft:strength", 2, false), "a Bard's Strength II");
+        }
+
+        @Test
+        void theLowerOfBothCapsWinsForAPotion() {
+            LimiterSettings settings = settings(Map.of("resistance", 1), Map.of("resistance", 3));
+            assertEquals(1, settings.allowedLevel(RESISTANCE, 4, true));
+            assertEquals(3, settings.allowedLevel(RESISTANCE, 4, false));
+        }
+
+        @Test
+        void switchedOffNothingIsCapped() {
+            LimiterSettings off = new LimiterSettings(false, LevelCaps.none(), true, LevelCaps.none(),
+                    caps(Map.of("resistance", 3)));
+            assertEquals(4, off.allowedLevel(RESISTANCE, 4, false));
+        }
+    }
 }

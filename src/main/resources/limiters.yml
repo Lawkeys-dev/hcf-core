@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# limiters.yml - enchantment and potion limits
+# limiters.yml - enchantment, potion and effect limits
 #
 # /hcf reload applies changes at once, including to what players already carry.
 #
@@ -64,6 +64,24 @@ potions:
   #     speed: 2
   caps: {}
 # --8<-- [end:potions]
+
+# --8<-- [start:effects]
+effects:
+  # The highest level each effect may have on a player, WHATEVER gives it: a
+  # potion, a class (a Bard's burst), a custom enchant, the King, a golden apple,
+  # a beacon, a command, another plugin. 0 forbids it. Anything not listed is
+  # untouched; an effect above its cap is brought down to it, not refused.
+  #
+  # Where potions.caps above is about potions only, this is about the effect:
+  # "resistance: 3" and no player ever has more than Resistance III.
+  #
+  # Empty on purpose, like the rest.
+  #
+  #   caps:
+  #     resistance: 3
+  #     speed: 3
+  caps: {}
+# --8<-- [end:effects]
 
 # ---------------------------------------------------------------------------
 # Blocks per claim: the most of a block a team's whole territory may hold -

@@ -270,6 +270,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |
 | Scoreboard placeholder sources | `ui/` | only `ui/`'s own placeholders | `pvpclass/` (`%class_line%`, `%class_energy_line%`, `%archer_tag_line%`) |
 | Tips filter | `schedule/` | everybody receives them | `settings/` |
+| `EffectCaps` (`util/`) | `pvpclass/`, `enchant/`, `events/` (the King) | `NONE` (every effect as asked) | `limiter/` (`effects.caps`: each module asks before giving an effect, so what it gives is what it recognises as its own) |
 | `/togglepm` observer | `general/` | the choice lasts the session | `settings/` (keeps it) |
 
 **Wrapping a seam rather than replacing it.** EOTW makes every team raidable, but outside EOTW the DTR still decides: `phase/` therefore does not replace the `RaidabilityPolicy` installed by `dtr/`, it **wraps** it (`raidable = EOTW running OR Purge running OR what the DTR says`). Hence the startup order: `phase/` after `dtr/`, to wrap the real policy and not the `NEVER` default. A module that needs to *modify* another's answer, without knowing it, does it this way.

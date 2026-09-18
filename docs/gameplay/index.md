@@ -38,7 +38,7 @@ flowchart LR
 -   :material-image-filter-hdr: [__Mountains__](mountains.md) — regions that refill on a clock
 -   :material-cash: [__Economy__](economy.md) — balances, `/pay`, team banks, Vault
 -   :material-bag-personal: [__Kits and abilities__](kits.md) — kits, refill signs, layouts, partner items, killstreaks
--   :material-auto-fix: [__Enchants, limits and the crowbar__](items.md) — custom enchants, enchantment and potion caps, block limits
+-   :material-auto-fix: [__Enchants, limits and the crowbar__](items.md) — custom enchants, enchantment, potion and effect caps, block limits
 -   :material-monitor-dashboard: [__Chat, scoreboard and settings__](interface.md) — chat format, scoreboard, tab list, stats, settings
 
 </div>

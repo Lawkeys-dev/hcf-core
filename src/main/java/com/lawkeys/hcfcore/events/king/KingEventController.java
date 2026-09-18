@@ -11,6 +11,7 @@ import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.util.ChunkPosition;
 import com.lawkeys.hcfcore.util.ColorCodes;
 import com.lawkeys.hcfcore.util.Durations;
+import com.lawkeys.hcfcore.util.EffectCaps;
 import com.lawkeys.hcfcore.util.RewardCommands;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -82,6 +83,7 @@ public final class KingEventController {
     private final StartupGate startup;
     private final KingKitFactory kits;
     private final RandomGenerator random = RandomGenerator.getDefault();
+    private volatile EffectCaps effectCaps = EffectCaps.NONE;
 
     private volatile KingSettings settings = KingSettings.defaults();
     private KingEventManager manager;
@@ -91,6 +93,11 @@ public final class KingEventController {
     /** True between the crowning and the end of the teleport: the King counts as inside meanwhile. */
     private boolean arriving;
     private long lastRefusal;
+
+    /** The effect caps of {@code limiters.yml}, asked before giving an effect; filled after startup. */
+    public void setEffectCaps(EffectCaps effectCaps) {
+        this.effectCaps = Objects.requireNonNull(effectCaps, "effectCaps");
+    }
 
     /** @param claims may be {@code null} if the claim module is not running; KTK then cannot start */
     public KingEventController(Plugin plugin, TeamModule teams, ClaimModule claims, LangManager lang,
@@ -634,9 +641,14 @@ public final class KingEventController {
     /**
      * Applies an effect at this amplifier, re-applying only when it is missing, at
      * another amplifier, or close to running out - so a periodic effect such as the
-     * Wither keeps its own rhythm instead of being restarted every second.
+     * Wither keeps its own rhythm instead of being restarted every second. Within the
+     * effect caps, asked first: the amplifier compared is then the one given.
      */
-    private static void ensureEffect(Player player, PotionEffectType type, int amplifier) {
+    private void ensureEffect(Player player, PotionEffectType type, int wanted) {
+        int amplifier = effectCaps.allowed(type, wanted);
+        if (amplifier < 0) {
+            return;
+        }
         PotionEffect current = player.getPotionEffect(type);
         if (current == null || current.getAmplifier() != amplifier
                 || (!current.isInfinite() && current.getDuration() < REFRESH_BELOW_TICKS)) {

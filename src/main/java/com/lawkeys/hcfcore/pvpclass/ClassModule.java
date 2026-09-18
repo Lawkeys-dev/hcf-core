@@ -9,6 +9,7 @@ import com.lawkeys.hcfcore.pvpclass.listener.ClassListener;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.util.Cooldowns;
+import com.lawkeys.hcfcore.util.EffectCaps;
 import com.lawkeys.hcfcore.util.Durations;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -76,6 +77,7 @@ public final class ClassModule {
     private final Cooldowns cooldowns = new Cooldowns();
     /** Main thread only: the passive effects given to each player, and at which amplifier. */
     private final Map<UUID, Map<PotionEffectType, Integer>> passiveGiven = new HashMap<>();
+    private volatile EffectCaps effectCaps = EffectCaps.NONE;
     private volatile Map<String, PotionEffectType> effectTypes = Map.of();
     private BukkitTask task;
     private long ticks;
@@ -90,6 +92,11 @@ public final class ClassModule {
         this.teams = teams;
         this.pvp = pvp;
         this.anyPluginKey = new NamespacedKey(plugin, "any");
+    }
+
+    /** The effect caps of {@code limiters.yml}, asked before giving an effect; filled after startup. */
+    public void setEffectCaps(EffectCaps effectCaps) {
+        this.effectCaps = Objects.requireNonNull(effectCaps, "effectCaps");
     }
 
     public LangManager getLang() {
@@ -304,6 +311,10 @@ public final class ClassModule {
         if (pvpClass.invisibleBelowY() != null && player.getLocation().getY() < pvpClass.invisibleBelowY()) {
             wanted.merge(PotionEffectType.INVISIBILITY, 0, Math::max);
         }
+        // Within the effect caps before anything: what is given is then what is
+        // recognised as ours, and a forbidden effect is simply not wanted.
+        wanted.replaceAll((type, amplifier) -> effectCaps.allowed(type, amplifier));
+        wanted.values().removeIf(amplifier -> amplifier < 0);
         Map<PotionEffectType, Integer> given = passiveGiven.computeIfAbsent(player.getUniqueId(), id -> new HashMap<>());
         for (Map.Entry<PotionEffectType, Integer> entry : wanted.entrySet()) {
             PotionEffectType type = entry.getKey();
@@ -377,8 +388,12 @@ public final class ClassModule {
      * effects, and holds a weaker, longer one back until the stronger ends - so a
      * pulse never cuts a potion short.
      */
-    private static void pulse(Player target, PotionEffectType type, ClassEffect effect) {
-        target.addPotionEffect(new PotionEffect(type, effect.seconds() * 20, effect.amplifier(), false, true, true));
+    private void pulse(Player target, PotionEffectType type, ClassEffect effect) {
+        int amplifier = effectCaps.allowed(type, effect.amplifier());
+        if (amplifier < 0) {
+            return;
+        }
+        target.addPotionEffect(new PotionEffect(type, effect.seconds() * 20, amplifier, false, true, true));
     }
 
     /** @return whether a class ability may not be used here: its user stands in a safe zone */

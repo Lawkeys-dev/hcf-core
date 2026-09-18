@@ -34,7 +34,7 @@ Enchantments that do not exist in vanilla — the well-known HCF and kitmap ones
 
 A **book is dragged onto an item** in the inventory, with the anvil's rule: a higher book sets its level, an equal one raises it by one, up to the maximum. `/cenchant give` from the console is how a shop, a crate or a redeem code hands books out. Staff commands need `hcfcore.enchant.admin`.
 
-## Enchantment and potion caps
+## Enchantment, potion and effect caps
 
 Which levels a map allows — Protection I or II, Sharpness I or II, no Strength II — is **the** defining choice of an HCF map. **Both lists ship empty.**
 
@@ -64,6 +64,23 @@ Which levels a map allows — Protection I or II, Sharpness I or II, no Strength
 
 !!! tip "Strength from the Bard only"
     The classic HCF rule: `strength: 0` under `caps`. **The classes are not potions**: a Bard still gives Strength to the team, and a class's own effects are untouched. See [Classes](classes.md).
+
+### Effect caps
+
+```yaml title="limiters.yml"
+--8<-- "src/main/resources/limiters.yml:effects"
+```
+
+**An effect cap holds whatever gives the effect**: a potion, a class — a Bard's burst, a Diamond's passive —, a custom enchant, the King, a golden apple, a beacon, a command, another plugin. `resistance: 3` and **no player ever has more than Resistance III**. An effect above its cap is brought down to it, keeping its duration; `0` forbids the effect entirely.
+
+| | `potions.caps` | `effects.caps` |
+|---|---|---|
+| What it caps | The effect **when a potion gives it** | The effect, **whatever gives it** |
+| A Bard's Strength II, with `strength: 1` | Untouched | Strength I |
+| A Strength II potion, with `strength: 1` | Strength I | Strength I |
+| `0` | The potion is not brewed, nor drunk, thrown or shot | Nobody has the effect |
+
+For a potion, the lower of the two caps holds. The classes, custom enchants and the King give their effects already within the cap — a Bard wanting Resistance IV gives Resistance III — and still take back only what they gave. A cap set with `/hcf reload` holds at once on the effects players already have, and on those a player brings back when joining.
 
 ## Blocks per claim
 

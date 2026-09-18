@@ -101,6 +101,14 @@ public final class LimiterModule {
         return settings;
     }
 
+    /**
+     * The effect caps ({@code effects.caps}), for the modules that give effects
+     * themselves: {@link com.lawkeys.hcfcore.util.EffectCaps}.
+     */
+    public int allowedAmplifier(org.bukkit.potion.PotionEffectType type, int amplifier) {
+        return settings.allowedLevel(key(type), amplifier + 1, false) - 1;
+    }
+
     /** @return the key {@link LevelCaps} expects for an enchantment or an effect */
     public static String key(Keyed keyed) {
         return keyed.getKey().toString();
@@ -168,7 +176,12 @@ public final class LimiterModule {
         checkNames("enchantments", loaded.enchantments(), key ->
                 RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(key) != null);
         checkNames("potions", loaded.potions(), key -> Registry.MOB_EFFECT.get(key) != null);
+        checkNames("effects", loaded.effects(), key -> Registry.MOB_EFFECT.get(key) != null);
         this.settings = loaded;
+        if (listener != null) {
+            // A cap set by /hcf reload holds at once on the effects players already have.
+            Bukkit.getOnlinePlayers().forEach(listener::enforceEffectCaps);
+        }
         ClaimBlockLimits blocks = loadClaimBlocks(section == null ? null : section.getConfigurationSection("claim-blocks"));
         boolean changed = !blocks.equals(claimBlocks);
         this.claimBlocks = blocks;

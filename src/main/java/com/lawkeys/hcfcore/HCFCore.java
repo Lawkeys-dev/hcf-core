@@ -293,6 +293,13 @@ public final class HCFCore extends JavaPlugin {
         // both running by now, so they call them directly (ARCHITECTURE.md section 14).
         this.classModule = new ClassModule(this, this.langManager, this.teamModule, this.pvpModule);
         this.classModule.enable();
+        // The effect caps of limiters.yml: the modules that give effects themselves
+        // ask before giving, so they still recognise what they gave.
+        this.enchantModule.setEffectCaps(this.limiterModule::allowedAmplifier);
+        this.classModule.setEffectCaps(this.limiterModule::allowedAmplifier);
+        if (this.eventModule.getKing() != null) {
+            this.eventModule.getKing().setEffectCaps(this.limiterModule::allowedAmplifier);
+        }
 
         // Holograms read the leaderboards of the stats module, and nothing else.
         this.hologramModule = new HologramModule(this, this.langManager, this.startupGate, this.statsModule);

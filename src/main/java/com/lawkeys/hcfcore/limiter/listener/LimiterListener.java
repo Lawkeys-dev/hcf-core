@@ -188,6 +188,31 @@ public final class LimiterListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         fixInventory(event.getPlayer());
+        enforceEffectCaps(event.getPlayer());
+    }
+
+    /**
+     * Brings the effects a player already has down to the effect caps: a cap set
+     * while they had the effect - by {@code /hcf reload}, or while they were away -
+     * holds at once, not only on the next effect. The effect keeps its duration and
+     * how it shows; the copy passes {@link #onEffect}, being within the cap.
+     */
+    public void enforceEffectCaps(Player player) {
+        LimiterSettings settings = module.getSettings();
+        if (!settings.enabled() || settings.effects().isEmpty()) {
+            return;
+        }
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            int level = effect.getAmplifier() + 1;
+            int allowed = settings.allowedLevel(LimiterModule.key(effect.getType()), level, false);
+            if (allowed == level) {
+                continue;
+            }
+            player.removePotionEffect(effect.getType());
+            if (allowed > 0) {
+                player.addPotionEffect(effect.withAmplifier(allowed - 1));
+            }
+        }
     }
 
     /**
@@ -256,19 +281,22 @@ public final class LimiterListener implements Listener {
     // ------------------------------------------------------------------
 
     /**
-     * Refuses a forbidden effect, and brings one above its cap down to it.
+     * Refuses a forbidden effect, and brings one above its cap down to it: the
+     * effect caps whatever gives the effect, the potion caps when a potion does.
      *
      * <p>Bringing it down means refusing this one and applying the capped copy a
      * tick later: the event cannot change the effect it carries, and adding an
      * effect from inside the handler of the one being added is asking for trouble.
-     * The capped copy comes from this plugin, so it does not come back through here.
+     * The capped copy comes back through here, within every cap, and passes. The
+     * classes, custom enchants and the King ask for the cap before giving an effect
+     * ({@link com.lawkeys.hcfcore.util.EffectCaps}), so theirs pass too, and they
+     * still recognise it as their own.
      */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEffect(EntityPotionEffectEvent event) {
         LimiterSettings settings = module.getSettings();
-        if (!settings.enabled() || settings.potions().isEmpty()
+        if (!settings.enabled() || (settings.potions().isEmpty() && settings.effects().isEmpty())
                 || !(event.getEntity() instanceof Player player)
-                || !FROM_POTIONS.contains(event.getCause())
                 || (event.getAction() != EntityPotionEffectEvent.Action.ADDED
                         && event.getAction() != EntityPotionEffectEvent.Action.CHANGED)) {
             return;
@@ -278,7 +306,8 @@ public final class LimiterListener implements Listener {
             return;
         }
         int level = effect.getAmplifier() + 1;
-        int allowed = settings.potions().clamp(LimiterModule.key(effect.getType()), level);
+        int allowed = settings.allowedLevel(LimiterModule.key(effect.getType()), level,
+                FROM_POTIONS.contains(event.getCause()));
         if (allowed == level) {
             return;
         }
