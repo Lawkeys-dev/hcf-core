@@ -390,6 +390,7 @@ A fishing rod: reeling in a hook stuck in a block pulls you to it. Used by reeli
 | Key | Default | What it does |
 |---|---|---|
 | `pull` | `1.0` | How hard: stronger above 1, weaker below |
+| `lift` | `0.5` | An extra upward push, for a higher arc; `0` for none |
 | `max-speed` | `4.0` | The fastest the pull carries a player, in blocks a tick |
 | `no-fall-while-held` | `true` | No fall damage while it is in hand |
 

@@ -198,12 +198,13 @@ class AbilitiesTest {
 
         @Test
         void aPullGoesTowardsItsTargetAndIsCapped() {
-            double[] v = AbilityRules.pullVelocity(10, 0, 0, 1.0, 4.0);
+            double[] v = AbilityRules.pullVelocity(10, 0, 0, 1.0, 0.0, 4.0);
             assertTrue(v[0] > 0 && v[1] > 0, "forward, with an arc");
             assertEquals(0.0, v[2], 1e-9);
-            double[] far = AbilityRules.pullVelocity(200, 0, 0, 1.0, 4.0);
+            assertEquals(v[1] + 0.5, AbilityRules.pullVelocity(10, 0, 0, 1.0, 0.5, 4.0)[1], 1e-9, "a lift raises the arc");
+            double[] far = AbilityRules.pullVelocity(200, 0, 0, 1.0, 0.0, 4.0);
             assertEquals(4.0, Math.sqrt(far[0] * far[0] + far[1] * far[1] + far[2] * far[2]), 1e-9);
-            assertArrayEquals(new double[] {0, 0, 0}, AbilityRules.pullVelocity(0, 0, 0, 1.0, 4.0), 1e-9);
+            assertArrayEquals(new double[] {0, 0, 0}, AbilityRules.pullVelocity(0, 0, 0, 1.0, 0.0, 4.0), 1e-9);
         }
 
         @Test

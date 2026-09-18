@@ -57,18 +57,18 @@ public final class AbilityRules {
 
     /**
      * Grappling Hook, Grabber: the velocity that carries a player from one point to
-     * another, arcing as a thrown thing does; {@code pull} scales it, and it is capped
-     * at {@code max} blocks a tick.
+     * another, arcing as a thrown thing does; {@code pull} scales it, {@code lift} adds
+     * to its upward part - a higher arc - and it is capped at {@code max} blocks a tick.
      *
      * @return {x, y, z}
      */
-    public static double[] pullVelocity(double dx, double dy, double dz, double pull, double max) {
+    public static double[] pullVelocity(double dx, double dy, double dz, double pull, double lift, double max) {
         double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (distance < 1e-6) {
             return new double[] {0, 0, 0};
         }
         double x = (1.0 + 0.07 * distance) * dx / distance * pull;
-        double y = ((1.0 + 0.03 * distance) * dy / distance + 0.04 * distance) * pull;
+        double y = ((1.0 + 0.03 * distance) * dy / distance + 0.04 * distance) * pull + lift;
         double z = (1.0 + 0.07 * distance) * dz / distance * pull;
         double speed = Math.sqrt(x * x + y * y + z * z);
         if (speed > max) {

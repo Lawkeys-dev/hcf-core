@@ -418,6 +418,7 @@ abilities:
     cooldown-seconds: 15
     consume: false
     pull: 1.2                  # stronger above 1, weaker below
+    lift: 0.5                  # extra upward push: a higher arc; 0 for none
     max-speed: 4.0             # the fastest it carries you, in blocks a tick
     no-fall-while-held: true
   # --8<-- [end:grappling-hook]

@@ -152,11 +152,13 @@ public enum AbilityType {
     /** An ender pearl that flies as one and teleports nobody. */
     FAKE_PEARL(Trigger.THROW),
     /**
-     * A fishing rod: reeling in a hook stuck in a block pulls you to it, by {@code pull};
+     * A fishing rod: reeling in a hook stuck in a block pulls you to it, by {@code pull}, arcing
+     * higher with {@code lift};
      * no fall damage while it is in hand, with {@code no-fall-while-held}.
      */
     GRAPPLING_HOOK(Trigger.FISH,
-            Param.decimal("pull", 1.0), Param.decimal("max-speed", 4.0), Param.bool("no-fall-while-held", true));
+            Param.decimal("pull", 1.0), Param.decimal("lift", 0.5), Param.decimal("max-speed", 4.0),
+            Param.bool("no-fall-while-held", true));
 
     /** How an ability is used. */
     public enum Trigger {

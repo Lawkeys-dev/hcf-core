@@ -911,7 +911,8 @@ public final class AbilityModule {
             }
             Location from = player.getLocation();
             double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
-                    to.getZ() - from.getZ(), ability.params().decimal("pull"), ability.params().decimal("max-speed"));
+                    to.getZ() - from.getZ(), ability.params().decimal("pull"), ability.params().decimal("lift"),
+                    ability.params().decimal("max-speed"));
             player.setFallDistance(0f);
             player.setVelocity(new Vector(v[0], v[1], v[2]));
         });
@@ -1163,7 +1164,7 @@ public final class AbilityModule {
                     Location from = victim.getLocation();
                     Location to = attacker.getLocation();
                     double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
-                            to.getZ() - from.getZ(), pull, maxSpeed);
+                            to.getZ() - from.getZ(), pull, 0.0, maxSpeed);
                     victim.setVelocity(new Vector(v[0], v[1], v[2]));
                 });
             }
