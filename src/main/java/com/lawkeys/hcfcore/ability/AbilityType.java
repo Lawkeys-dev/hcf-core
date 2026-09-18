@@ -39,9 +39,9 @@ public enum AbilityType {
     /** The last player who hit you (within {@code hit-within-seconds}) takes {@code damage-multiplier} from you, for {@code seconds}. */
     FOCUS_MODE(Trigger.RIGHT_CLICK,
             Param.decimal("damage-multiplier", 1.25), Param.whole("seconds", 10), Param.whole("hit-within-seconds", 15)),
-    /** Teleports, after {@code delay-seconds}, to the last player who hit you. */
+    /** Teleports, after {@code delay-seconds}, to the last player you hit (within {@code hit-within-seconds}). */
     NINJA(Trigger.RIGHT_CLICK,
-            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 15)),
+            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 10)),
     /** {@code hits-required} hits with it: they cannot build, break or open {@code blocked-blocks} for {@code seconds}. */
     ANTI_BUILD(Trigger.HIT,
             Param.whole("hits-required", 3), Param.whole("seconds", 15),
@@ -92,9 +92,9 @@ public enum AbilityType {
     BELCH_BOMB(Trigger.RIGHT_CLICK,
             Param.decimal("radius", 8),
             Param.effects("effects", List.of(new AbilityEffect("slowness", 2, 6), new AbilityEffect("blindness", 2, 6)))),
-    /** Teleports, after {@code delay-seconds}, to the last player who hit you with a projectile. */
+    /** Teleports, after {@code delay-seconds}, to the last player who hit you (within {@code hit-within-seconds}). */
     ANTI_TRAP_STAR(Trigger.RIGHT_CLICK,
-            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 15));
+            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 10));
 
     /** How an ability is used. */
     public enum Trigger {

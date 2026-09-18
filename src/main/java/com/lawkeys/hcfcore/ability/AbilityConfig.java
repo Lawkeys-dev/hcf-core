@@ -194,7 +194,8 @@ public final class AbilityConfig {
                 decimal(entry.get("radius"), 20, at + ".radius"),
                 bool(entry.get("include-self"), true, at + ".include-self"),
                 (int) whole(entry.get("slot"), 0, at + ".slot"),
-                text(entry.get("menu-name"), name));
+                text(entry.get("menu-name"), name),
+                whole(entry.get("cooldown-seconds"), 60, at + ".cooldown-seconds"));
     }
 
     // ------------------------------------------------------------------

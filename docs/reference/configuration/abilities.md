@@ -119,12 +119,12 @@ The last player who hit you (within `hit-within-seconds`) takes `damage-multipli
 
 #### `ninja`
 
-Teleports, after `delay-seconds`, to the last player who hit you. Used by a right-click.
+Teleports, after `delay-seconds`, to the last player you hit (within `hit-within-seconds`). Used by a right-click.
 
 | Key | Default | What it does |
 |---|---|---|
 | `delay-seconds` | `3` | Seconds before the teleport |
-| `hit-within-seconds` | `15` | How recent the hit must be |
+| `hit-within-seconds` | `10` | How recent the hit must be |
 
 #### `anti-build`
 
@@ -170,7 +170,7 @@ Back, after `delay-seconds`, to where you threw your last ender pearl (within `p
 
 A menu to pick a set of Bard items (the `pocket-bard` section). Used by a right-click.
 
-It reads nothing of its own: its sets are the `pocket-bard` section.
+It reads nothing of its own: its sets are the `pocket-bard` section. It has no cooldown and takes no part in the shared one; each set's items have their own `cooldown-seconds`, and wait for and start the shared one.
 
 #### `berserk`
 
@@ -241,12 +241,12 @@ A hit with it: `effects-by-space`, by how many free blocks are above the player'
 
 #### `anti-trap-star`
 
-Teleports, after `delay-seconds`, to the last player who hit you with a projectile. Used by a right-click.
+Teleports, after `delay-seconds`, to the last player who hit you (within `hit-within-seconds`). Used by a right-click.
 
 | Key | Default | What it does |
 |---|---|---|
 | `delay-seconds` | `3` | Seconds before the teleport |
-| `hit-within-seconds` | `15` | How recent the hit must be |
+| `hit-within-seconds` | `10` | How recent the hit must be |
 
 ## Pocket Bard's sets
 
@@ -262,6 +262,7 @@ Teleports, after `delay-seconds`, to the last player who hit you with a projecti
 | `items.<id>.effect` | | What a right-click with one gives |
 | `items.<id>.radius` | `20` | Blocks around the user the effect reaches: the teammates there |
 | `items.<id>.include-self` | `true` | The user gets it too |
+| `items.<id>.cooldown-seconds` | `60` | Wait between two uses of this set's items, per player; each set apart. The shared cooldown holds as well |
 | `items.<id>.slot` · `menu-name` | | The icon in the menu, from slot 0 |
 
 ## The whole shipped file

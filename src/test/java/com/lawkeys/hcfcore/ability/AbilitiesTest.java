@@ -59,12 +59,16 @@ class AbilitiesTest {
                 }
             }
             assertEquals(4, settings.pocketBard().size());
+            assertTrue(settings.pocketBard().stream().allMatch(item -> item.cooldownSeconds() == 60),
+                    "a minute between two uses of a set");
             assertEquals(10, settings.globalCooldownSeconds());
             assertTrue(settings.disabledIn().citadel());
             assertFalse(settings.disabledIn().warzone());
             Ability samurai = settings.ability("samurai").orElseThrow();
             assertFalse(samurai.consume(), "the sword stays");
             assertEquals(16, samurai.params().whole("ender-pearl-cooldown-seconds"));
+            assertEquals(0, settings.ability("pocket-bard").orElseThrow().cooldownSeconds(),
+                    "no cooldown on the Pocket Bard itself: its items have theirs");
         }
 
         @Test
@@ -128,6 +132,15 @@ class AbilitiesTest {
                     Map.of("menu-size", 9, "items", Map.of("speed", item))));
             assertTrue(settings.pocketBard().isEmpty());
             assertEquals(1, warnings.size());
+        }
+
+        @Test
+        void aPocketBardSetWaitsAMinuteUnlessSetOtherwise() {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("material", "SUGAR");
+            item.put("effect", Map.of("effect", "speed", "level", 3, "seconds", 6));
+            assertEquals(60, config.parse(Map.of("pocket-bard", Map.of("items", Map.of("speed", item))))
+                    .pocketBard().get(0).cooldownSeconds());
         }
     }
 

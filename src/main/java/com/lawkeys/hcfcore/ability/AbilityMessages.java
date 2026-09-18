@@ -10,7 +10,7 @@ public final class AbilityMessages {
     public static final String GLOBAL_COOLDOWN = "abilities.global-cooldown";
     public static final String DISABLED_HERE = "abilities.disabled-here";
     public static final String NO_ATTACKER = "abilities.no-attacker";
-    public static final String NO_SHOOTER = "abilities.no-shooter";
+    public static final String NO_VICTIM = "abilities.no-victim";
     public static final String NOT_IN_WATER = "abilities.not-in-water";
     public static final String HEALTH_TOO_HIGH = "abilities.health-too-high";
     public static final String NO_PEARL = "abilities.no-pearl";

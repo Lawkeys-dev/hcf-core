@@ -1172,7 +1172,7 @@ abilities:
   global-cooldown: "&cYou can use another ability in &f%time%&c."
   disabled-here: "&cAbilities do not work here."
   no-attacker: "&cNobody has hit you in the last &f%seconds%s&c."
-  no-shooter: "&cNobody has hit you with a projectile in the last &f%seconds%s&c."
+  no-victim: "&cYou have not hit anybody in the last &f%seconds%s&c."
   not-in-water: "&c%ability% &conly works in water."
   health-too-high: "&c%ability% &conly works at &f%hearts% &chearts or less."
   no-pearl: "&cYou have not thrown an ender pearl in the last &f%seconds%s&c."

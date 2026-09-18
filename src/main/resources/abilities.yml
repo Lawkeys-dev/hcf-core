@@ -167,18 +167,18 @@ abilities:
   # --8<-- [end:focus-mode]
 
   # --8<-- [start:ninja]
-  # Teleports you, 3 seconds later, to the last player who hit you (in the last
-  # 15 seconds).
+  # Teleports you, 3 seconds later, to the last player you hit (in the last 10
+  # seconds).
   ninja:
     type: ninja
     material: NETHER_STAR
     name: "&d&lNinja Ability"
     lore:
       - "&7Right click this item to teleport to"
-      - "&7the last person who hit you in 3s."
+      - "&7the last person you hit in 3s."
     cooldown-seconds: 120
     delay-seconds: 3
-    hit-within-seconds: 15
+    hit-within-seconds: 10
   # --8<-- [end:ninja]
 
   # --8<-- [start:anti-build]
@@ -250,7 +250,8 @@ abilities:
 
   # --8<-- [start:pocket-bard]
   # Opens a menu to pick a set of Bard items (pocket-bard, below). Nothing is
-  # spent until one is picked.
+  # spent until one is picked. No cooldown of its own, and none shared: the items
+  # it gives have theirs.
   pocket-bard:
     type: pocket-bard
     material: ORANGE_DYE
@@ -258,7 +259,6 @@ abilities:
     lore:
       - "&7Right click this item to open the"
       - "&7portable bard selection."
-    cooldown-seconds: 60
   # --8<-- [end:pocket-bard]
 
   # --8<-- [start:berserk]
@@ -387,18 +387,18 @@ abilities:
   # --8<-- [end:belch-bomb]
 
   # --8<-- [start:anti-trap-star]
-  # Teleports you, 3 seconds later, to the last player who hit you with a
-  # projectile (in the last 15 seconds).
+  # Teleports you, 3 seconds later, to the last player who hit you (in the last
+  # 10 seconds) - out of a trap, onto the one who put you there.
   anti-trap-star:
     type: anti-trap-star
     material: NETHER_STAR
     name: "&d&lAnti Trap Star"
     lore:
       - "&7Right click this item to teleport to the last"
-      - "&7person who hit you with a projectile."
+      - "&7person who hit you in 3s."
     cooldown-seconds: 120
     delay-seconds: 3
-    hit-within-seconds: 15
+    hit-within-seconds: 10
   # --8<-- [end:anti-trap-star]
 
   # --8<-- [start:commands-example]
@@ -415,7 +415,9 @@ abilities:
 
 # --8<-- [start:pocket-bard-items]
 # The Pocket Bard's sets. A pick gives "amount" items; right-clicking one gives
-# its effect to the teammates within "radius" - and the user, with include-self.
+# its effect to the teammates within "radius" - and the user, with include-self -
+# then that set waits "cooldown-seconds" before its next use, and every item
+# waits for and starts the shared cooldown (global.cooldown-seconds).
 pocket-bard:
   menu-title: "&dPocket Bard Selection"
   menu-size: 9
@@ -430,6 +432,7 @@ pocket-bard:
       include-self: true
       slot: 1
       menu-name: "&c3x Strength"
+      cooldown-seconds: 60
     resistance:
       material: IRON_INGOT
       name: "&6Resistance III"
@@ -440,6 +443,7 @@ pocket-bard:
       include-self: true
       slot: 2
       menu-name: "&73x Resistance"
+      cooldown-seconds: 60
     jump-boost:
       material: FEATHER
       name: "&6Jump VII"
@@ -450,6 +454,7 @@ pocket-bard:
       include-self: true
       slot: 3
       menu-name: "&a3x Jump"
+      cooldown-seconds: 60
     speed:
       material: SUGAR
       name: "&6Speed III"
@@ -460,4 +465,5 @@ pocket-bard:
       include-self: true
       slot: 4
       menu-name: "&b3x Speed"
+      cooldown-seconds: 60
 # --8<-- [end:pocket-bard-items]

@@ -17,9 +17,11 @@ import java.util.Objects;
  * @param includeSelf whether the user gets it too, besides the teammates in range
  * @param slot        its place in the selection menu, from 0
  * @param menuName    its name in the menu
+ * @param cooldownSeconds wait between two uses of this set's items, per player
  */
 public record PocketBardItem(String id, String material, String name, List<String> lore, int amount,
-                             AbilityEffect effect, double radius, boolean includeSelf, int slot, String menuName) {
+                             AbilityEffect effect, double radius, boolean includeSelf, int slot, String menuName,
+                             long cooldownSeconds) {
 
     public PocketBardItem {
         Objects.requireNonNull(id, "id");
@@ -28,5 +30,6 @@ public record PocketBardItem(String id, String material, String name, List<Strin
         lore = List.copyOf(lore);
         amount = Math.max(1, Math.min(64, amount));
         radius = Math.max(0.0, radius);
+        cooldownSeconds = Math.max(0L, cooldownSeconds);
     }
 }

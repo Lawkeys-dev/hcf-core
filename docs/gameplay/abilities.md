@@ -16,7 +16,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 --8<-- "src/main/resources/abilities.yml:global"
 ```
 
-- **Two cooldowns**: each ability's own (`cooldown-seconds`), and a **shared one** after any ability — 10 seconds before the next, whichever it is.
+- **Two cooldowns**: each ability's own (`cooldown-seconds`), and a **shared one** after any ability — 10 seconds before the next, whichever it is. The Pocket Bard itself takes no part in it — the items it gives do.
 - **Where no ability works**: a Citadel's claim, the zone of a running KOTH, Citadel or Conquest, the Nether, the End — and the warzone if you switch it on.
 - **An enemy is only reached if you could hit them**: never a teammate, nobody on a safe zone, nobody during SOTW, an ally only in an event area — the rules of a blow ([Combat](combat.md)). A teleport to a player who has since stepped onto a safe zone is cancelled.
 - **Nothing is spent on a refusal**: on cooldown, in a refused zone, no target — the item stays, and no cooldown starts.
@@ -34,7 +34,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Rage Ball | egg | throwing it | Where it lands, 8 blocks: teammates Strength II and Resistance III, enemies Wither II |
 | Crafting Chaos | crafting table | 3 hits with it | 10 s: each of your hits has 20% to open a crafting table on them |
 | Focus Mode | gold nugget | right-click | The last player who hit you takes 25% more damage from you, 10 s |
-| Ninja Ability | nether star | right-click | Teleport to the last player who hit you, 3 s later |
+| Ninja Ability | nether star | right-click | Teleport to the last player **you** hit (10 s), 3 s later |
 | Exotic Bone | bone | 3 hits with it | They cannot build, break or open chests, gates, trapdoors for 15 s; you get Speed III |
 | Portable Archer | bow | shooting | Its arrows archer-tag who they hit, 10 s; breaks after 5 shots |
 | Invisibility | ink sac | right-click | Invisible 2 minutes, armour hidden too, until a player hits you |
@@ -47,9 +47,9 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Samurai | diamond sword | right-click | Teleport to the last player who hit you: anti-build 15 s and no pearl 16 s for them, Strength II and Speed III for you. Kept after use |
 | Magic Rock | coal | a hit with it | Strength II for you, longer the less space there is above their head |
 | Belch Bomb | slime ball | right-click | Slowness II and Blindness II for every enemy within 8 blocks, 6 s |
-| Anti Trap Star | nether star | right-click | Teleport to the last player who hit you with a projectile, 3 s later |
+| Anti Trap Star | nether star | right-click | Teleport to the last player who hit **you** (10 s), 3 s later — out of a trap |
 
-"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`). Every value in this table is a setting — the pages below quote each ability as shipped.
+"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`) — 10 for the two stars. Every value in this table is a setting — the pages below quote each ability as shipped.
 
 ## Right-click
 
@@ -95,7 +95,7 @@ Both players are told. With nobody who hit you lately, nothing is spent.
 --8<-- "src/main/resources/abilities.yml:anti-trap-star"
 ```
 
-The teleport happens after the delay, to where the player stands then. It is cancelled if they have left, changed world, or stepped where you may not reach them — a safe zone.
+The **Ninja** goes to the last player you hit; the **Anti Trap Star** and the **Teleport Eye** to the last player who hit you. The teleport happens after the delay, to where the player stands then. It is cancelled if they have left, changed world, or stepped where you may not reach them — a safe zone.
 
 ### Samurai
 
@@ -131,7 +131,7 @@ Back to where you stood when you threw the pearl — undoing it.
 --8<-- "src/main/resources/abilities.yml:pocket-bard-items"
 ```
 
-Right-clicking opens the menu; **nothing is spent until a set is picked**. The items it gives work as a Bard's burst: a right-click gives their effect to the teammates within 20 blocks and to you, and uses one up. They have no cooldown of their own, and in a Bard's hand they are never taken for the class's own items.
+Right-clicking opens the menu; **nothing is spent until a set is picked**. The Pocket Bard itself has **no cooldown**, and does not start or wait for the shared one: the items it gives have theirs. The items it gives work as a Bard's burst: a right-click gives their effect to the teammates within 20 blocks and to you, and uses one up. **Each set waits 60 seconds between two uses** (`cooldown-seconds`), and every item waits for and starts the **shared cooldown** — Strength II and Resistance III are never given at once. In a Bard's hand they are never taken for the class's own items.
 
 ### Berserk
 

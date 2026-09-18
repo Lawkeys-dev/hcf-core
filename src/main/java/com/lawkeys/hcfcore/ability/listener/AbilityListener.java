@@ -197,12 +197,10 @@ public final class AbilityListener implements Listener {
             return;
         }
         Player attacker = null;
-        boolean projectile = false;
         if (event.getDamager() instanceof Player direct) {
             attacker = direct;
         } else if (event.getDamager() instanceof Projectile shot && shot.getShooter() instanceof Player shooter) {
             attacker = shooter;
-            projectile = true;
             Player tagger = shooter;
             module.thrownAbility(shot)
                     .filter(a -> a.type() == AbilityType.PORTABLE_ARCHER)
@@ -215,7 +213,7 @@ public final class AbilityListener implements Listener {
         if (attacker == null || attacker.equals(victim)) {
             return;
         }
-        module.recordHit(attacker, victim, projectile);
+        module.recordHit(attacker, victim);
         module.hitWhileInvisible(victim);
     }
 

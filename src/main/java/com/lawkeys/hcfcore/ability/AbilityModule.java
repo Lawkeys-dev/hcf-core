@@ -130,7 +130,8 @@ public final class AbilityModule {
     private final Map<UUID, Ability> invisible = new HashMap<>();
     private final Map<UUID, BukkitTask> teleports = new HashMap<>();
     private final Map<UUID, Hit> lastHit = new ConcurrentHashMap<>();
-    private final Map<UUID, Hit> lastProjectileHit = new ConcurrentHashMap<>();
+    /** Whom each player hit last: {@code attacker} is then the one hit. */
+    private final Map<UUID, Hit> lastVictim = new ConcurrentHashMap<>();
     private final Map<UUID, Pearl> lastPearl = new HashMap<>();
     private BukkitTask ticker;
 
@@ -322,7 +323,7 @@ public final class AbilityModule {
             lang.send(player, AbilityMessages.DISABLED_HERE);
             return false;
         }
-        long global = cooldowns.remaining(player.getUniqueId(), GLOBAL_COOLDOWN, now);
+        long global = sharesCooldown(ability) ? cooldowns.remaining(player.getUniqueId(), GLOBAL_COOLDOWN, now) : 0;
         if (global > 0) {
             lang.send(player, AbilityMessages.GLOBAL_COOLDOWN, "time", Durations.formatWithSeconds(global));
             return false;
@@ -339,7 +340,17 @@ public final class AbilityModule {
     /** The ability happened: its cooldown and the shared one start. */
     public void started(Player player, Ability ability, long now) {
         cooldowns.start(player.getUniqueId(), ability.id(), ability.cooldownSeconds(), now);
-        cooldowns.start(player.getUniqueId(), GLOBAL_COOLDOWN, settings.globalCooldownSeconds(), now);
+        if (sharesCooldown(ability)) {
+            cooldowns.start(player.getUniqueId(), GLOBAL_COOLDOWN, settings.globalCooldownSeconds(), now);
+        }
+    }
+
+    /**
+     * Whether an ability waits for, and starts, the shared cooldown. Not the Pocket
+     * Bard: it only hands out a set, whose items have a cooldown each.
+     */
+    private static boolean sharesCooldown(Ability ability) {
+        return ability.type() != AbilityType.POCKET_BARD;
     }
 
     private boolean disabledAt(Location location, AbilitySettings.DisabledIn rules) {
@@ -416,12 +427,13 @@ public final class AbilityModule {
                     lang.send(player, AbilityMessages.NOT_IN_WATER, "ability", display(ability));
                     return;
                 }
-                Map<UUID, Hit> source = ability.type() == AbilityType.ANTI_TRAP_STAR ? lastProjectileHit : lastHit;
+                // The Ninja goes to whom you hit; the others to who hit you.
+                boolean ninja = ability.type() == AbilityType.NINJA;
                 long within = p.whole("hit-within-seconds");
-                Optional<Player> target = recentAttacker(player, source, within, now);
+                Optional<Player> target = recentAttacker(player, ninja ? lastVictim : lastHit, within, now);
                 if (target.isEmpty()) {
-                    lang.send(player, ability.type() == AbilityType.ANTI_TRAP_STAR
-                            ? AbilityMessages.NO_SHOOTER : AbilityMessages.NO_ATTACKER, "seconds", String.valueOf(within));
+                    lang.send(player, ninja ? AbilityMessages.NO_VICTIM : AbilityMessages.NO_ATTACKER,
+                            "seconds", String.valueOf(within));
                     return;
                 }
                 teleportLater(player, ability, target.get());
@@ -515,7 +527,11 @@ public final class AbilityModule {
                 "item", LangManager.colorize(picked.name()));
     }
 
-    /** A Pocket Bard item right-clicked: its effect for the teammates in range. Only the shared rules apply. */
+    /**
+     * A Pocket Bard item right-clicked: its effect for the teammates in range. Its own
+     * cooldown, per set, and the shared one - so Strength II and Resistance III are
+     * not given at once - and the zones where abilities are refused.
+     */
     public void usePocketItem(Player player, PocketBardItem pocket, ItemStack item) {
         if (!settings.enabled()) {
             lang.send(player, AbilityMessages.MODULE_OFF);
@@ -525,6 +541,22 @@ public final class AbilityModule {
             lang.send(player, AbilityMessages.DISABLED_HERE);
             return;
         }
+        long now = System.currentTimeMillis();
+        // The shared cooldown too: Strength II and Resistance III are not given at once.
+        long global = cooldowns.remaining(player.getUniqueId(), GLOBAL_COOLDOWN, now);
+        if (global > 0) {
+            lang.send(player, AbilityMessages.GLOBAL_COOLDOWN, "time", Durations.formatWithSeconds(global));
+            return;
+        }
+        String key = "pocket:" + pocket.id();
+        long left = cooldowns.remaining(player.getUniqueId(), key, now);
+        if (left > 0) {
+            lang.send(player, AbilityMessages.COOLDOWN, "ability", LangManager.colorize(pocket.name()),
+                    "time", Durations.formatWithSeconds(left));
+            return;
+        }
+        cooldowns.start(player.getUniqueId(), key, pocket.cooldownSeconds(), now);
+        cooldowns.start(player.getUniqueId(), GLOBAL_COOLDOWN, settings.globalCooldownSeconds(), now);
         List<Player> reached = teammatesAround(player, pocket.radius(), pocket.includeSelf());
         for (Player teammate : reached) {
             apply(teammate, List.of(pocket.effect()));
@@ -584,13 +616,11 @@ public final class AbilityModule {
         return Optional.ofNullable(Bukkit.getPlayer(hit.attacker()));
     }
 
-    /** Remembers who hit whom last: Focus Mode, Ninja and the teleports go by it. */
-    public void recordHit(Player attacker, Player victim, boolean projectile) {
-        Hit hit = new Hit(attacker.getUniqueId(), System.currentTimeMillis());
-        lastHit.put(victim.getUniqueId(), hit);
-        if (projectile) {
-            lastProjectileHit.put(victim.getUniqueId(), hit);
-        }
+    /** Remembers who hit whom last: Focus Mode and the teleports go by it - the Ninja by whom one hit. */
+    public void recordHit(Player attacker, Player victim) {
+        long now = System.currentTimeMillis();
+        lastHit.put(victim.getUniqueId(), new Hit(attacker.getUniqueId(), now));
+        lastVictim.put(attacker.getUniqueId(), new Hit(victim.getUniqueId(), now));
     }
 
     public void recordPearl(Player player) {
@@ -992,7 +1022,7 @@ public final class AbilityModule {
         forget(player);
         cooldowns.forget(player.getUniqueId());
         lastHit.remove(player.getUniqueId());
-        lastProjectileHit.remove(player.getUniqueId());
+        lastVictim.remove(player.getUniqueId());
         lastPearl.remove(player.getUniqueId());
     }
 
