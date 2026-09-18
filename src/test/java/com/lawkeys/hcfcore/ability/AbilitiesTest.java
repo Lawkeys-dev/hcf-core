@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AbilitiesTest {
 
     private static final Set<String> EFFECTS = Set.of("strength", "resistance", "wither", "speed", "invisibility",
-            "regeneration", "slowness", "blindness", "jump_boost");
+            "regeneration", "slowness", "blindness", "jump_boost", "absorption", "nausea", "poison", "weakness");
 
     private final List<String> warnings = new ArrayList<>();
     private final AbilityConfig config = new AbilityConfig(item -> !item.startsWith("NOT_"), EFFECTS::contains,
@@ -52,7 +53,7 @@ class AbilitiesTest {
             }
             AbilitySettings settings = config.parse(root);
             assertTrue(warnings.isEmpty(), "warnings: " + warnings);
-            assertEquals(21, settings.abilities().size(), "every ability of the shipped file: one per type");
+            assertEquals(43, settings.abilities().size(), "every ability of the shipped file");
             for (AbilityType type : AbilityType.values()) {
                 if (type != AbilityType.COMMANDS) {
                     assertTrue(settings.abilities().stream().anyMatch(a -> a.type() == type), type + " is shipped");
@@ -64,9 +65,8 @@ class AbilitiesTest {
             assertEquals(10, settings.globalCooldownSeconds());
             assertTrue(settings.disabledIn().citadel());
             assertFalse(settings.disabledIn().warzone());
-            Ability samurai = settings.ability("samurai").orElseThrow();
-            assertFalse(samurai.consume(), "the sword stays");
-            assertEquals(16, samurai.params().whole("ender-pearl-cooldown-seconds"));
+            assertFalse(settings.ability("grappling-hook").orElseThrow().consume(), "the rod stays");
+            assertEquals(List.of("diamond"), settings.ability("pumpkin-reaper").orElseThrow().params().strings("classes"));
             assertEquals(0, settings.ability("pocket-bard").orElseThrow().cooldownSeconds(),
                     "no cooldown on the Pocket Bard itself: its items have theirs");
         }
@@ -86,12 +86,15 @@ class AbilitiesTest {
             abilities.put("unknown-item", ability("ninja", "NOT_AN_ITEM"));
             abilities.put("thrown-stick", ability("switcher", "STICK"));
             abilities.put("sword-bow", ability("portable-archer", "DIAMOND_SWORD"));
+            abilities.put("stone-pearl", ability("fake-pearl", "STONE"));
+            abilities.put("stick-hook", ability("grappling-hook", "STICK"));
+            abilities.put("thrown-apple", ability("thrown-effects", "APPLE"));
             abilities.put("empty-commands", ability("commands", "STICK"));
             abilities.put("Bad Id!", ability("ninja", "NETHER_STAR"));
             abilities.put("fine", ability("ninja", "NETHER_STAR"));
             AbilitySettings settings = parse(abilities);
             assertEquals(List.of("fine"), settings.abilities().stream().map(Ability::id).toList());
-            assertEquals(6, warnings.size());
+            assertEquals(9, warnings.size());
         }
 
         @Test
@@ -155,10 +158,34 @@ class AbilitiesTest {
         }
 
         @Test
-        void magicRockGoesByTheFreeBlocksAboveTheHead() {
-            Map<Integer, List<AbilityEffect>> table = Map.of(2, List.of(new AbilityEffect("strength", 2, 8)));
-            assertEquals(8, AbilityRules.magicRock(table, 2).get(0).seconds());
-            assertTrue(AbilityRules.magicRock(table, 7).isEmpty(), "no line, nothing");
+        void theSunHurtsMoreWithEveryEnemyCaughtUpToItsCap() {
+            assertEquals(1.8, AbilityRules.sunDamage(1, 10, 0.9), 1e-9, "0.9 heart for one");
+            assertEquals(18.0, AbilityRules.sunDamage(10, 10, 0.9), 1e-9, "9 hearts for ten");
+            assertEquals(18.0, AbilityRules.sunDamage(14, 10, 0.9), 1e-9, "no more past the cap");
+            assertEquals(0.0, AbilityRules.sunDamage(0, 10, 0.9), 1e-9);
+        }
+
+        @Test
+        void aShotgunFanIsSpreadEvenly() {
+            assertArrayEquals(new double[] {-5, -2.5, 0, 2.5, 5}, AbilityRules.fan(5, 10), 1e-9);
+            assertArrayEquals(new double[] {0}, AbilityRules.fan(1, 10), 1e-9, "one straight ahead");
+        }
+
+        @Test
+        void aLaunchGrowsWithTheSquareRootOfTheHeight() {
+            assertEquals(0.8, AbilityRules.launchSpeed(1), 1e-9);
+            assertEquals(1.6, AbilityRules.launchSpeed(4), 1e-9);
+            assertEquals(0.0, AbilityRules.launchSpeed(-1), 1e-9);
+        }
+
+        @Test
+        void aPullGoesTowardsItsTargetAndIsCapped() {
+            double[] v = AbilityRules.pullVelocity(10, 0, 0, 1.0, 4.0);
+            assertTrue(v[0] > 0 && v[1] > 0, "forward, with an arc");
+            assertEquals(0.0, v[2], 1e-9);
+            double[] far = AbilityRules.pullVelocity(200, 0, 0, 1.0, 4.0);
+            assertEquals(4.0, Math.sqrt(far[0] * far[0] + far[1] * far[1] + far[2] * far[2]), 1e-9);
+            assertArrayEquals(new double[] {0, 0, 0}, AbilityRules.pullVelocity(0, 0, 0, 1.0, 4.0), 1e-9);
         }
 
         @Test

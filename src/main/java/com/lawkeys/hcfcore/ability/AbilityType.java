@@ -2,13 +2,12 @@ package com.lawkeys.hcfcore.ability;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * What an ability does, and the settings it reads. The behaviour is built in; the
  * values are {@code abilities.yml}'s. Each type is used one way: a right-click, a
- * throw, a hit with the item, or a shot from it.
+ * throw, a hit with the item, a shot from it, or reeling in with it.
  */
 public enum AbilityType {
 
@@ -73,28 +72,92 @@ public enum AbilityType {
     /** For {@code seconds}, each hit has {@code chance}% to turn the player hit by {@code degrees}. */
     SWITCH_STICK(Trigger.RIGHT_CLICK,
             Param.whole("seconds", 10), Param.decimal("chance", 20), Param.decimal("degrees", 180)),
-    /** In water only: teleports, after {@code delay-seconds}, to the last player who hit you. */
-    TELEPORT_EYE(Trigger.RIGHT_CLICK,
-            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 15)),
-    /** Teleports to the last player who hit you, puts them under anti-build and a pearl cooldown; {@code effects} for you. */
-    SAMURAI(Trigger.RIGHT_CLICK,
-            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 15),
-            Param.whole("anti-build-seconds", 15), Param.whole("ender-pearl-cooldown-seconds", 16),
-            Param.effects("effects", List.of(new AbilityEffect("strength", 2, 8), new AbilityEffect("speed", 3, 8)))),
-    /** A hit with it: {@code effects-by-space}, by how many free blocks are above the player's head. */
-    MAGIC_ROCK(Trigger.HIT,
-            Param.effectTable("effects-by-space", Map.of(
-                    2, List.of(new AbilityEffect("strength", 2, 8)),
-                    3, List.of(new AbilityEffect("strength", 2, 6)),
-                    4, List.of(new AbilityEffect("strength", 2, 4)),
-                    5, List.of(new AbilityEffect("strength", 2, 2))))),
     /** {@code effects} for every enemy within {@code radius}. */
     BELCH_BOMB(Trigger.RIGHT_CLICK,
             Param.decimal("radius", 8),
             Param.effects("effects", List.of(new AbilityEffect("slowness", 2, 6), new AbilityEffect("blindness", 2, 6)))),
     /** Teleports, after {@code delay-seconds}, to the last player who hit you (within {@code hit-within-seconds}). */
     ANTI_TRAP_STAR(Trigger.RIGHT_CLICK,
-            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 10));
+            Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 10)),
+    /** {@code effects} for you. */
+    EFFECTS(Trigger.RIGHT_CLICK,
+            Param.effects("effects", List.of(new AbilityEffect("strength", 2, 8)))),
+    /** {@code effects} for your teammates within {@code radius} - and you, with {@code include-self}. */
+    TEAM_EFFECTS(Trigger.RIGHT_CLICK,
+            Param.decimal("radius", 20), Param.bool("include-self", true),
+            Param.effects("effects", List.of(new AbilityEffect("strength", 2, 5)))),
+    /** {@code positive-chance}% to get {@code good-effects}; {@code bad-effects} otherwise. */
+    LUCKY_BARD(Trigger.RIGHT_CLICK,
+            Param.decimal("positive-chance", 50),
+            Param.effects("good-effects", List.of(new AbilityEffect("strength", 2, 8),
+                    new AbilityEffect("speed", 2, 8), new AbilityEffect("regeneration", 2, 8))),
+            Param.effects("bad-effects", List.of(new AbilityEffect("slowness", 2, 8),
+                    new AbilityEffect("weakness", 1, 8), new AbilityEffect("poison", 1, 8)))),
+    /** Takes off your negative effects; the others stay. */
+    CLEANSE(Trigger.RIGHT_CLICK),
+    /** No fall damage for {@code seconds}. */
+    NO_FALL(Trigger.RIGHT_CLICK,
+            Param.whole("seconds", 10)),
+    /** Launches you up - {@code height} 1 is about 3 blocks - with no fall damage for {@code no-fall-seconds}. */
+    ROCKET(Trigger.RIGHT_CLICK,
+            Param.decimal("height", 3.5), Param.whole("no-fall-seconds", 6)),
+    /** Throws every enemy within {@code radius} in the air - {@code height} 1 is about 3 blocks. */
+    HULK_SMASH(Trigger.RIGHT_CLICK,
+            Param.decimal("radius", 10), Param.decimal("height", 2)),
+    /** For {@code seconds}, the players you hit can be hit again after {@code hit-delay-ticks}, not the game's 10. */
+    COMBO_FISH(Trigger.RIGHT_CLICK,
+            Param.whole("seconds", 5), Param.whole("hit-delay-ticks", 2)),
+    /**
+     * Fires {@code projectiles} eggs in a fan {@code spread} degrees wide: each sets the
+     * player it hits on fire and deals {@code damage-hearts}; you are pushed back by {@code recoil}.
+     */
+    SHOTGUN(Trigger.RIGHT_CLICK,
+            Param.whole("projectiles", 10), Param.decimal("spread", 10), Param.decimal("damage-hearts", 0.5),
+            Param.whole("fire-seconds", 10), Param.decimal("recoil", 1.0)),
+    /**
+     * Fireworks burst around you; every enemy within {@code radius} takes {@code damage-hearts-per-player}
+     * for each enemy caught (at most {@code max-players}), burns and is blinded.
+     */
+    SUN(Trigger.RIGHT_CLICK,
+            Param.decimal("radius", 8), Param.decimal("damage-hearts-per-player", 0.9), Param.whole("max-players", 10),
+            Param.whole("fire-seconds", 5), Param.whole("blindness-seconds", 2)),
+    /** {@code hits-required} hits: {@code chance}% to give the player hit {@code effects}. */
+    HIT_EFFECTS(Trigger.HIT,
+            Param.whole("hits-required", 1), Param.decimal("chance", 100),
+            Param.effects("effects", List.of(new AbilityEffect("slowness", 2, 5)))),
+    /**
+     * A hit: {@code chance}% that the player hit - in one of {@code classes} - has their
+     * helmet swapped for a pumpkin, given back after {@code seconds}.
+     */
+    PUMPKIN(Trigger.HIT,
+            Param.whole("hits-required", 1), Param.decimal("chance", 50), Param.whole("seconds", 10),
+            Param.strings("classes", List.of("diamond"))),
+    /** A hit: {@code chance}% that the weapon of the player hit swaps places with another item of theirs. */
+    DISARM(Trigger.HIT,
+            Param.whole("hits-required", 1), Param.decimal("chance", 50)),
+    /** {@code hits-required} hits: the hotbar of the player hit is shuffled. */
+    SCRAMBLE(Trigger.HIT,
+            Param.whole("hits-required", 3)),
+    /** {@code hits-required} hits: the hunger bar of the player hit drops to {@code food-left} (of 20). */
+    STARVE(Trigger.HIT,
+            Param.whole("hits-required", 3), Param.whole("food-left", 6)),
+    /** A hit: the player hit is pulled towards you, by {@code pull}. */
+    GRAB(Trigger.HIT,
+            Param.whole("hits-required", 1), Param.decimal("pull", 1.0)),
+    /** A hit: for {@code seconds}, {@code reflect-percent}% of the damage that player deals you goes back to them. */
+    THORNS(Trigger.HIT,
+            Param.whole("hits-required", 1), Param.whole("seconds", 10), Param.decimal("reflect-percent", 30)),
+    /** Thrown: the player it hits gets {@code effects}. */
+    THROWN_EFFECTS(Trigger.THROW,
+            Param.effects("effects", List.of(new AbilityEffect("slowness", 1, 10), new AbilityEffect("poison", 1, 10)))),
+    /** An ender pearl that flies as one and teleports nobody. */
+    FAKE_PEARL(Trigger.THROW),
+    /**
+     * A fishing rod: reeling in a hook stuck in a block pulls you to it, by {@code pull};
+     * no fall damage while it is in hand, with {@code no-fall-while-held}.
+     */
+    GRAPPLING_HOOK(Trigger.FISH,
+            Param.decimal("pull", 1.0), Param.bool("no-fall-while-held", true));
 
     /** How an ability is used. */
     public enum Trigger {
@@ -105,13 +168,15 @@ public enum AbilityType {
         /** Hitting a player while holding it. */
         HIT,
         /** Shooting an arrow with it: a bow. */
-        SHOOT
+        SHOOT,
+        /** Reeling in with it: a fishing rod. */
+        FISH
     }
 
     /** One setting a type reads, and its value when the file gives none. */
     public record Param(String key, Kind kind, Object fallback) {
 
-        public enum Kind { WHOLE, DECIMAL, BOOL, EFFECT, EFFECTS, EFFECT_TABLE, STRINGS }
+        public enum Kind { WHOLE, DECIMAL, BOOL, EFFECT, EFFECTS, STRINGS }
 
         static Param whole(String key, long fallback) {
             return new Param(key, Kind.WHOLE, fallback);
@@ -131,10 +196,6 @@ public enum AbilityType {
 
         static Param effects(String key, List<AbilityEffect> fallback) {
             return new Param(key, Kind.EFFECTS, List.copyOf(fallback));
-        }
-
-        static Param effectTable(String key, Map<Integer, List<AbilityEffect>> fallback) {
-            return new Param(key, Kind.EFFECT_TABLE, Map.copyOf(fallback));
         }
 
         static Param strings(String key, List<String> fallback) {

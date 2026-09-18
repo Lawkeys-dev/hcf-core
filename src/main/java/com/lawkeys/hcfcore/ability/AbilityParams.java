@@ -48,11 +48,6 @@ public final class AbilityParams {
     }
 
     @SuppressWarnings("unchecked")
-    public Map<Integer, List<AbilityEffect>> effectTable(String key) {
-        return (Map<Integer, List<AbilityEffect>>) get(key);
-    }
-
-    @SuppressWarnings("unchecked")
     public List<String> strings(String key) {
         return (List<String>) get(key);
     }

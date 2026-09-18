@@ -116,7 +116,7 @@ public final class AbilityConfig {
             warn.accept(at + ".material: '" + entry.get("material") + "' is not an item this server knows; left out.");
             return null;
         }
-        if (type == AbilityType.SWITCHER || type == AbilityType.RAGE_BALL) {
+        if (type == AbilityType.SWITCHER || type == AbilityType.RAGE_BALL || type == AbilityType.THROWN_EFFECTS) {
             if (!material.equals("SNOWBALL") && !material.equals("EGG")) {
                 warn.accept(at + ".material: a " + type.configName() + " is thrown - SNOWBALL or EGG; left out.");
                 return null;
@@ -124,6 +124,14 @@ public final class AbilityConfig {
         }
         if (type == AbilityType.PORTABLE_ARCHER && !material.equals("BOW")) {
             warn.accept(at + ".material: a portable-archer is a BOW; left out.");
+            return null;
+        }
+        if (type == AbilityType.FAKE_PEARL && !material.equals("ENDER_PEARL")) {
+            warn.accept(at + ".material: a fake-pearl is an ENDER_PEARL; left out.");
+            return null;
+        }
+        if (type == AbilityType.GRAPPLING_HOOK && !material.equals("FISHING_ROD")) {
+            warn.accept(at + ".material: a grappling-hook is a FISHING_ROD; left out.");
             return null;
         }
         List<String> commands = strings(entry.get("commands"), at + ".commands");
@@ -163,7 +171,6 @@ public final class AbilityConfig {
                 case BOOL -> bool(raw, (Boolean) param.fallback(), where);
                 case EFFECT -> raw == null ? param.fallback() : orFallback(effect(map(raw, where), where), param);
                 case EFFECTS -> raw == null ? param.fallback() : effects(raw, where);
-                case EFFECT_TABLE -> raw == null ? param.fallback() : effectTable(raw, where);
                 case STRINGS -> raw == null ? param.fallback() : strings(raw, where);
             };
             values.put(param.key(), value);
@@ -235,21 +242,6 @@ public final class AbilityConfig {
             }
         }
         return List.copyOf(out);
-    }
-
-    private Map<Integer, List<AbilityEffect>> effectTable(Object raw, String where) {
-        Map<Integer, List<AbilityEffect>> out = new HashMap<>();
-        map(raw, where).forEach((key, value) -> {
-            int space;
-            try {
-                space = Integer.parseInt(key.trim());
-            } catch (NumberFormatException notANumber) {
-                warn.accept(where + "." + key + ": a number of free blocks is expected; ignored.");
-                return;
-            }
-            out.put(space, effects(value, where + "." + key));
-        });
-        return Map.copyOf(out);
     }
 
     private List<String> strings(Object raw, String where) {

@@ -15,35 +15,47 @@ import com.lawkeys.hcfcore.util.Cooldowns;
 import com.lawkeys.hcfcore.util.Durations;
 import com.lawkeys.hcfcore.util.ItemText;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.UseCooldown;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -71,6 +83,10 @@ public final class AbilityModule {
     public static final String ITEM_KEY = "ability";
     private static final String POCKET_KEY = "pocket_bard";
     private static final String PROJECTILE_KEY = "ability_projectile";
+    private static final String FIREWORK_KEY = "ability_firework";
+    private static final String PUMPKIN_KEY = "ability_pumpkin";
+    /** The fastest a pull carries a player, in blocks a tick. */
+    private static final double MAX_PULL = 4.0;
     private static final String GLOBAL_COOLDOWN = "*";
     public static final String ADMIN_PERMISSION = "hcfcore.ability.admin";
     /** Hits counted towards {@code hits-required} must come this close together. */
@@ -90,6 +106,18 @@ public final class AbilityModule {
 
     /** Crafting chaos on a victim: {@code attacker}'s hits may open a crafting table on them. */
     private record Chaos(UUID attacker, long until, double chance) {
+    }
+
+    /** Thorns on a player: {@code percent} of what they deal {@code owner} goes back to them. */
+    private record Thorns(UUID owner, long until, double percent) {
+    }
+
+    /** A Combo Fish running: the players its user hits can be hit again after {@code delayTicks}. */
+    private record ComboFish(long until, int delayTicks) {
+    }
+
+    /** A helmet taken for a pumpkin, and the task that gives it back. */
+    private record Pumpkin(ItemStack helmet, BukkitTask task) {
     }
 
     /** A combo running: hits counted until {@code until}. */
@@ -115,6 +143,8 @@ public final class AbilityModule {
     private final NamespacedKey itemKey;
     private final NamespacedKey pocketKey;
     private final NamespacedKey projectileKey;
+    private final NamespacedKey fireworkKey;
+    private final NamespacedKey pumpkinKey;
     private final Cooldowns cooldowns = new Cooldowns();
     private final HitCounter hits = new HitCounter();
 
@@ -133,6 +163,11 @@ public final class AbilityModule {
     /** Whom each player hit last: {@code attacker} is then the one hit. */
     private final Map<UUID, Hit> lastVictim = new ConcurrentHashMap<>();
     private final Map<UUID, Pearl> lastPearl = new HashMap<>();
+    private final Map<UUID, Long> noFall = new HashMap<>();
+    private final Map<UUID, ComboFish> comboFish = new HashMap<>();
+    /** By the player under thorns: the one who put them there is {@code owner}. */
+    private final Map<UUID, Thorns> thorns = new HashMap<>();
+    private final Map<UUID, Pumpkin> pumpkins = new HashMap<>();
     private BukkitTask ticker;
 
     public AbilityModule(Plugin plugin, LangManager lang, TeamModule teams, ClaimModule claims, PvpModule pvp,
@@ -147,6 +182,8 @@ public final class AbilityModule {
         this.itemKey = new NamespacedKey(plugin, ITEM_KEY);
         this.pocketKey = new NamespacedKey(plugin, POCKET_KEY);
         this.projectileKey = new NamespacedKey(plugin, PROJECTILE_KEY);
+        this.fireworkKey = new NamespacedKey(plugin, FIREWORK_KEY);
+        this.pumpkinKey = new NamespacedKey(plugin, PUMPKIN_KEY);
     }
 
     public LangManager getLang() {
@@ -194,6 +231,13 @@ public final class AbilityModule {
             }
         }
         invisible.clear();
+        for (UUID id : new ArrayList<>(pumpkins.keySet())) {
+            Player player = Bukkit.getPlayer(id);
+            if (player != null) {
+                giveHelmetBack(player, false);
+            }
+        }
+        pumpkins.clear();
         cooldowns.clearAll();
     }
 
@@ -279,6 +323,14 @@ public final class AbilityModule {
             // Breaks after so many shots: the game wears a bow by one per shot.
             item.setData(DataComponentTypes.MAX_DAMAGE, (int) Math.max(1, ability.params().whole("uses")));
             item.setData(DataComponentTypes.DAMAGE, 0);
+        }
+        if (ability.type() == AbilityType.FAKE_PEARL) {
+            // Its own cooldown group: throwing it does not hold back the real pearls.
+            item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(1.0f)
+                    .cooldownGroup(new NamespacedKey(plugin, "fake_pearl")).build());
+        }
+        if (ability.type() == AbilityType.GRAPPLING_HOOK) {
+            item.setData(DataComponentTypes.UNBREAKABLE);
         }
         item.editPersistentDataContainer(data -> data.set(itemKey, PersistentDataType.STRING, ability.id()));
         return item;
@@ -422,11 +474,7 @@ public final class AbilityModule {
                 lang.send(player, AbilityMessages.FOCUS, "player", target.get().getName(), "seconds", String.valueOf(seconds));
                 lang.send(target.get(), AbilityMessages.FOCUSED, "player", player.getName(), "seconds", String.valueOf(seconds));
             }
-            case NINJA, TELEPORT_EYE, SAMURAI, ANTI_TRAP_STAR -> {
-                if (ability.type() == AbilityType.TELEPORT_EYE && !player.isInWater()) {
-                    lang.send(player, AbilityMessages.NOT_IN_WATER, "ability", display(ability));
-                    return;
-                }
+            case NINJA, ANTI_TRAP_STAR -> {
                 // The Ninja goes to whom you hit; the others to who hit you.
                 boolean ninja = ability.type() == AbilityType.NINJA;
                 long within = p.whole("hit-within-seconds");
@@ -491,13 +539,127 @@ public final class AbilityModule {
                 lang.send(player, AbilityMessages.AREA_USED, "ability", display(ability),
                         "count", String.valueOf(reached.size()));
             }
+            case EFFECTS -> {
+                apply(player, p.effects("effects"));
+                lang.send(player, AbilityMessages.USED, "ability", display(ability));
+            }
+            case TEAM_EFFECTS -> {
+                List<Player> reached = teammatesAround(player, p.decimal("radius"), p.bool("include-self"));
+                for (Player teammate : reached) {
+                    apply(teammate, p.effects("effects"));
+                }
+                lang.send(player, AbilityMessages.AREA_USED, "ability", display(ability),
+                        "count", String.valueOf(reached.size()));
+            }
+            case LUCKY_BARD -> {
+                boolean lucky = AbilityRules.chance(p.decimal("positive-chance"), ThreadLocalRandom.current().nextDouble());
+                List<AbilityEffect> effects = p.effects(lucky ? "good-effects" : "bad-effects");
+                apply(player, effects);
+                lang.send(player, lucky ? AbilityMessages.LUCKY : AbilityMessages.UNLUCKY, "ability", display(ability),
+                        "effects", String.join(", ", effects.stream().map(AbilityModule::effectName).toList()));
+            }
+            case CLEANSE -> {
+                int removed = 0;
+                for (PotionEffect effect : List.copyOf(player.getActivePotionEffects())) {
+                    if (effect.getType().getEffectCategory() == PotionEffectType.Category.HARMFUL) {
+                        player.removePotionEffect(effect.getType());
+                        removed++;
+                    }
+                }
+                lang.send(player, AbilityMessages.CLEANSED, "count", String.valueOf(removed));
+            }
+            case NO_FALL -> {
+                long seconds = p.whole("seconds");
+                noFall.put(player.getUniqueId(), now + seconds * 1000L);
+                lang.send(player, AbilityMessages.ACTIVE, "ability", display(ability), "seconds", String.valueOf(seconds));
+            }
+            case ROCKET -> {
+                Vector velocity = player.getVelocity();
+                player.setVelocity(new Vector(velocity.getX(), AbilityRules.launchSpeed(p.decimal("height")),
+                        velocity.getZ()));
+                noFall.put(player.getUniqueId(), now + p.whole("no-fall-seconds") * 1000L);
+                player.getWorld().spawnParticle(Particle.FIREWORK, player.getLocation(), 30, 0.2, 0.1, 0.2, 0.05);
+                lang.send(player, AbilityMessages.USED, "ability", display(ability));
+            }
+            case HULK_SMASH -> {
+                List<Player> reached = enemiesAround(player, player.getLocation(), p.decimal("radius"));
+                double up = AbilityRules.launchSpeed(p.decimal("height"));
+                for (Player enemy : reached) {
+                    Vector away = enemy.getLocation().toVector().subtract(player.getLocation().toVector()).setY(0);
+                    Vector push = away.lengthSquared() < 1e-6 ? new Vector() : away.normalize().multiply(0.3);
+                    enemy.setVelocity(push.setY(up));
+                    lang.send(enemy, AbilityMessages.AREA_HIT, "player", player.getName(), "ability", display(ability));
+                }
+                player.getWorld().spawnParticle(Particle.EXPLOSION, player.getLocation(), 3, 1, 0.2, 1);
+                lang.send(player, AbilityMessages.AREA_USED, "ability", display(ability),
+                        "count", String.valueOf(reached.size()));
+            }
+            case COMBO_FISH -> {
+                long seconds = p.whole("seconds");
+                comboFish.put(player.getUniqueId(), new ComboFish(now + seconds * 1000L,
+                        (int) Math.max(0, p.whole("hit-delay-ticks"))));
+                lang.send(player, AbilityMessages.ACTIVE, "ability", display(ability), "seconds", String.valueOf(seconds));
+            }
+            case SHOTGUN -> shotgun(player, ability);
+            case SUN -> sun(player, ability);
             default -> {
-                // Thrown, hit with or shot: not a right-click ability.
+                // Thrown, hit with, shot or reeled in: not a right-click ability.
                 return;
             }
         }
         started(player, ability, now);
         consume(ability, item);
+    }
+
+    /** Eggs in a fan, and the user pushed back. */
+    private void shotgun(Player player, Ability ability) {
+        AbilityParams p = ability.params();
+        Location eye = player.getEyeLocation();
+        for (double turn : AbilityRules.fan((int) p.whole("projectiles"), p.decimal("spread"))) {
+            Location aim = eye.clone();
+            aim.setYaw(eye.getYaw() + (float) turn);
+            Egg egg = player.launchProjectile(Egg.class, aim.getDirection().multiply(1.5));
+            egg.getPersistentDataContainer().set(projectileKey, PersistentDataType.STRING, ability.id());
+        }
+        player.setVelocity(player.getVelocity().add(eye.getDirection().multiply(-p.decimal("recoil"))));
+        player.getWorld().spawnParticle(Particle.FLAME, eye.clone().add(eye.getDirection()), 15, 0.2, 0.2, 0.2, 0.05);
+    }
+
+    /** Fireworks burst around the user; the enemies in range pay for each other. */
+    private void sun(Player player, Ability ability) {
+        AbilityParams p = ability.params();
+        double radius = p.decimal("radius");
+        Location center = player.getLocation();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        FireworkEffect burst = FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE)
+                .withColor(Color.YELLOW, Color.ORANGE).withFade(Color.RED).withFlicker().build();
+        for (int i = 0; i < 6; i++) {
+            Location at = center.clone().add(random.nextDouble(-radius / 2, radius / 2), 1.5 + random.nextDouble(2),
+                    random.nextDouble(-radius / 2, radius / 2));
+            Firework firework = center.getWorld().spawn(at, Firework.class, spawned -> {
+                spawned.getPersistentDataContainer().set(fireworkKey, PersistentDataType.BYTE, (byte) 1);
+                spawned.setShooter(player);
+                FireworkMeta meta = spawned.getFireworkMeta();
+                meta.addEffect(burst);
+                spawned.setFireworkMeta(meta);
+            });
+            firework.detonate();
+        }
+        List<Player> caught = enemiesAround(player, center, radius);
+        double damage = AbilityRules.sunDamage(caught.size(), (int) p.whole("max-players"),
+                p.decimal("damage-hearts-per-player"));
+        for (Player enemy : caught) {
+            trueDamage(enemy, player, damage);
+            enemy.setFireTicks((int) Math.max(enemy.getFireTicks(), p.whole("fire-seconds") * 20));
+            apply(enemy, List.of(new AbilityEffect("blindness", 1, (int) p.whole("blindness-seconds"))));
+            lang.send(enemy, AbilityMessages.AREA_HIT, "player", player.getName(), "ability", display(ability));
+        }
+        lang.send(player, AbilityMessages.AREA_USED, "ability", display(ability), "count", String.valueOf(caught.size()));
+    }
+
+    /** Whether this is one of the Sun's fireworks: they burst, and hurt nobody. */
+    public boolean isAbilityFirework(Entity entity) {
+        return entity instanceof Firework && entity.getPersistentDataContainer().has(fireworkKey);
     }
 
     /** Pocket Bard: a set is picked from its menu - now the ability is spent. */
@@ -567,7 +729,7 @@ public final class AbilityModule {
     }
 
     // ------------------------------------------------------------------
-    // Delayed teleports: Ninja, Teleport Eye, Samurai, Anti Trap Star, Time Warp
+    // Delayed teleports: Ninja, Anti Trap Star, Time Warp
     // ------------------------------------------------------------------
 
     private void teleportLater(Player player, Ability ability, Player target) {
@@ -584,12 +746,6 @@ public final class AbilityModule {
             }
             player.teleport(now.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             lang.send(player, AbilityMessages.TELEPORTED, "player", now.getName());
-            if (ability.type() == AbilityType.SAMURAI) {
-                AbilityParams p = ability.params();
-                applyAntiBuild(now, p.whole("anti-build-seconds"));
-                now.setCooldown(Material.ENDER_PEARL, (int) (p.whole("ender-pearl-cooldown-seconds") * 20));
-                apply(player, p.effects("effects"));
-            }
         });
     }
 
@@ -628,7 +784,7 @@ public final class AbilityModule {
     }
 
     // ------------------------------------------------------------------
-    // Throws: Switcher, Rage Ball
+    // Throws: Switcher, Rage Ball, Thrown Effects, Fake Pearl - and the Shotgun's eggs
     // ------------------------------------------------------------------
 
     /** @return whether the throw goes ahead: marked, and its cooldown started */
@@ -689,7 +845,66 @@ public final class AbilityModule {
                 count++;
             }
             lang.send(thrower, AbilityMessages.AREA_USED, "ability", display(ability), "count", String.valueOf(count));
+        } else if (ability.type() == AbilityType.THROWN_EFFECTS || ability.type() == AbilityType.SHOTGUN) {
+            if (hitPlayer == null || hitPlayer.equals(thrower)
+                    || (pvp != null && pvp.judgeHarm(thrower, hitPlayer).isPresent())) {
+                return;
+            }
+            if (ability.type() == AbilityType.THROWN_EFFECTS) {
+                apply(hitPlayer, p.effects("effects"));
+                lang.send(thrower, AbilityMessages.APPLIED, "ability", display(ability), "player", hitPlayer.getName());
+                lang.send(hitPlayer, AbilityMessages.RECEIVED, "ability", display(ability), "player", thrower.getName());
+            } else {
+                trueDamage(hitPlayer, thrower, p.decimal("damage-hearts") * 2.0);
+                hitPlayer.setFireTicks((int) Math.max(hitPlayer.getFireTicks(), p.whole("fire-seconds") * 20));
+            }
         }
+    }
+
+    /** Whether a projectile is a fake pearl: where it comes down, it is gone and nobody moves. */
+    public boolean isFakePearl(Projectile projectile) {
+        return thrownAbility(projectile).map(a -> a.type() == AbilityType.FAKE_PEARL).orElse(false);
+    }
+
+    // ------------------------------------------------------------------
+    // Grappling Hook, fall damage
+    // ------------------------------------------------------------------
+
+    /** A Grappling Hook reeled in, its hook stuck in a block: the player flies to it. */
+    public void grapple(Player player, Ability ability, FishHook hook) {
+        long now = System.currentTimeMillis();
+        if (!mayUse(player, ability, now)) {
+            return;
+        }
+        Location from = player.getLocation();
+        Location to = hook.getLocation();
+        if (!Objects.equals(from.getWorld(), to.getWorld())) {
+            return;
+        }
+        double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
+                to.getZ() - from.getZ(), ability.params().decimal("pull"), MAX_PULL);
+        player.setVelocity(new Vector(v[0], v[1], v[2]));
+        started(player, ability, now);
+    }
+
+    /** Whether a fall does this player no harm: a Sticky Web or a Rocket running, a Grappling Hook in hand. */
+    public boolean cancelsFall(Player player) {
+        Long until = noFall.get(player.getUniqueId());
+        if (until != null) {
+            if (until >= System.currentTimeMillis()) {
+                return true;
+            }
+            noFall.remove(player.getUniqueId());
+        }
+        for (ItemStack held : List.of(player.getInventory().getItemInMainHand(),
+                player.getInventory().getItemInOffHand())) {
+            Optional<Ability> ability = abilityOf(held);
+            if (ability.isPresent() && ability.get().type() == AbilityType.GRAPPLING_HOOK
+                    && ability.get().params().bool("no-fall-while-held")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ------------------------------------------------------------------
@@ -749,6 +964,20 @@ public final class AbilityModule {
         if (combo != null && combo.until >= now) {
             combo.hits = (int) Math.min(combo.ability.params().whole("max-hits"), combo.hits + 1L);
         }
+        ComboFish fish = comboFish.get(attacker.getUniqueId());
+        if (fish != null) {
+            if (fish.until() < now) {
+                comboFish.remove(attacker.getUniqueId());
+            } else {
+                // The game makes them untouchable for 10 ticks after this hit: shortened, once it has.
+                int delay = fish.delayTicks();
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (victim.isOnline()) {
+                        victim.setNoDamageTicks(Math.max(0, victim.getMaximumNoDamageTicks() / 2 + delay - 1));
+                    }
+                });
+            }
+        }
         Chaos under = chaos.get(victim.getUniqueId());
         if (under != null) {
             if (under.until() < now) {
@@ -762,7 +991,7 @@ public final class AbilityModule {
         return multiplier;
     }
 
-    /** Crafting Chaos, Anti Build, Magic Rock: a hit with the item in hand. */
+    /** The abilities used by hitting a player with the item in hand, once or {@code hits-required} times. */
     private void hitWithItem(Player attacker, Player victim, long now) {
         ItemStack held = attacker.getInventory().getItemInMainHand();
         Ability ability = abilityOf(held).filter(a -> a.type().trigger() == AbilityType.Trigger.HIT).orElse(null);
@@ -770,25 +999,7 @@ public final class AbilityModule {
             return;
         }
         AbilityParams p = ability.params();
-        if (ability.type() == AbilityType.MAGIC_ROCK) {
-            if (!mayUse(attacker, ability, now)) {
-                return;
-            }
-            int space = freeBlocksAbove(victim);
-            List<AbilityEffect> effects = AbilityRules.magicRock(p.effectTable("effects-by-space"), space);
-            if (effects.isEmpty()) {
-                lang.send(attacker, AbilityMessages.MAGIC_ROCK_NOTHING, "ability", display(ability),
-                        "space", String.valueOf(space), "player", victim.getName());
-                return;
-            }
-            apply(attacker, effects);
-            lang.send(attacker, AbilityMessages.MAGIC_ROCK, "ability", display(ability),
-                    "space", String.valueOf(space), "player", victim.getName());
-            started(attacker, ability, now);
-            consume(ability, held);
-            return;
-        }
-        // Crafting Chaos and Anti Build need several hits; the gate is asked on the first.
+        // The gate is asked on the first hit of a count.
         long required = Math.max(1, p.whole("hits-required"));
         int count = hits.hit(attacker.getUniqueId(), ability.id(), victim.getUniqueId(), now, HIT_WINDOW_MILLIS);
         if (count == 1 && !mayUse(attacker, ability, now)) {
@@ -801,33 +1012,237 @@ public final class AbilityModule {
             return;
         }
         hits.reset(attacker.getUniqueId(), ability.id());
-        long seconds = p.whole("seconds");
-        if (ability.type() == AbilityType.CRAFTING_CHAOS) {
-            chaos.put(victim.getUniqueId(), new Chaos(attacker.getUniqueId(), now + seconds * 1000L, p.decimal("chance")));
-            lang.send(attacker, AbilityMessages.CHAOS_APPLIED, "player", victim.getName(), "seconds", String.valueOf(seconds));
-            lang.send(victim, AbilityMessages.CHAOS_RECEIVED, "player", attacker.getName());
-        } else if (ability.type() == AbilityType.ANTI_BUILD) {
-            applyAntiBuild(victim, seconds);
-            apply(attacker, p.effects("user-effects"));
-            lang.send(attacker, AbilityMessages.ANTI_BUILD_APPLIED, "player", victim.getName(),
-                    "seconds", String.valueOf(seconds));
+        if (!landHit(attacker, victim, ability, now)) {
+            return;
         }
         started(attacker, ability, now);
         consume(ability, held);
     }
 
-    /** Free blocks straight above a player's head, up to ten. */
-    private static int freeBlocksAbove(Player player) {
-        Block head = player.getEyeLocation().getBlock();
-        int free = 0;
-        for (int i = 1; i <= 10; i++) {
-            if (head.getRelative(0, i, 0).isPassable()) {
-                free++;
-            } else {
-                break;
+    /**
+     * What a hit ability does to the player hit. A chance missed still spends it;
+     * a player it cannot work on - not in its class, no helmet - does not.
+     *
+     * @return whether the ability is spent
+     */
+    private boolean landHit(Player attacker, Player victim, Ability ability, long now) {
+        AbilityParams p = ability.params();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        String name = display(ability);
+        switch (ability.type()) {
+            case CRAFTING_CHAOS -> {
+                long seconds = p.whole("seconds");
+                chaos.put(victim.getUniqueId(), new Chaos(attacker.getUniqueId(), now + seconds * 1000L, p.decimal("chance")));
+                lang.send(attacker, AbilityMessages.CHAOS_APPLIED, "player", victim.getName(), "seconds", String.valueOf(seconds));
+                lang.send(victim, AbilityMessages.CHAOS_RECEIVED, "player", attacker.getName());
+                return true;
+            }
+            case ANTI_BUILD -> {
+                long seconds = p.whole("seconds");
+                applyAntiBuild(victim, seconds);
+                apply(attacker, p.effects("user-effects"));
+                lang.send(attacker, AbilityMessages.ANTI_BUILD_APPLIED, "player", victim.getName(),
+                        "seconds", String.valueOf(seconds));
+                return true;
+            }
+            case THORNS -> {
+                long seconds = p.whole("seconds");
+                String percent = formatNumber(p.decimal("reflect-percent"));
+                thorns.put(victim.getUniqueId(), new Thorns(attacker.getUniqueId(), now + seconds * 1000L,
+                        p.decimal("reflect-percent")));
+                lang.send(attacker, AbilityMessages.THORNS_APPLIED, "player", victim.getName(), "percent", percent,
+                        "seconds", String.valueOf(seconds));
+                lang.send(victim, AbilityMessages.THORNS_RECEIVED, "player", attacker.getName(), "percent", percent,
+                        "seconds", String.valueOf(seconds));
+                return true;
+            }
+            case PUMPKIN -> {
+                List<String> allowed = p.strings("classes").stream().map(c -> c.toLowerCase(Locale.ROOT)).toList();
+                if (!allowed.isEmpty() && classes != null && classes.getManager() != null) {
+                    boolean inClass = classes.getManager().active(victim.getUniqueId())
+                            .map(c -> allowed.contains(c.id().toLowerCase(Locale.ROOT))).orElse(false);
+                    if (!inClass) {
+                        lang.send(attacker, AbilityMessages.WRONG_CLASS, "ability", name,
+                                "classes", String.join(", ", p.strings("classes")));
+                        return false;
+                    }
+                }
+                ItemStack helmet = victim.getInventory().getHelmet();
+                if (helmet == null || helmet.isEmpty() || pumpkins.containsKey(victim.getUniqueId())) {
+                    lang.send(attacker, AbilityMessages.NO_HELMET, "ability", name, "player", victim.getName());
+                    return false;
+                }
+                if (missed(attacker, victim, ability, random)) {
+                    return true;
+                }
+                pumpkin(victim, helmet, p.whole("seconds"));
+            }
+            case HIT_EFFECTS -> {
+                if (missed(attacker, victim, ability, random)) {
+                    return true;
+                }
+                apply(victim, p.effects("effects"));
+            }
+            case DISARM -> {
+                if (missed(attacker, victim, ability, random)) {
+                    return true;
+                }
+                disarm(victim, random);
+            }
+            case SCRAMBLE -> {
+                PlayerInventory inventory = victim.getInventory();
+                List<ItemStack> hotbar = new ArrayList<>();
+                for (int slot = 0; slot < 9; slot++) {
+                    hotbar.add(inventory.getItem(slot));
+                }
+                Collections.shuffle(hotbar, random);
+                for (int slot = 0; slot < 9; slot++) {
+                    inventory.setItem(slot, hotbar.get(slot));
+                }
+            }
+            case STARVE -> {
+                victim.setFoodLevel((int) Math.max(0, Math.min(20, p.whole("food-left"))));
+                victim.setSaturation(0f);
+            }
+            case GRAB -> {
+                double pull = p.decimal("pull");
+                // After the hit's own knockback, which would undo it.
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!victim.isOnline() || !attacker.isOnline() || !victim.getWorld().equals(attacker.getWorld())) {
+                        return;
+                    }
+                    Location from = victim.getLocation();
+                    Location to = attacker.getLocation();
+                    double[] v = AbilityRules.pullVelocity(to.getX() - from.getX(), to.getY() - from.getY(),
+                            to.getZ() - from.getZ(), pull, MAX_PULL);
+                    victim.setVelocity(new Vector(v[0], v[1], v[2]));
+                });
+            }
+            default -> {
+                return false;
             }
         }
-        return free;
+        lang.send(attacker, AbilityMessages.APPLIED, "ability", name, "player", victim.getName());
+        lang.send(victim, AbilityMessages.RECEIVED, "ability", name, "player", attacker.getName());
+        return true;
+    }
+
+    /** Rolls an ability's {@code chance}: {@code true}, and told, when it misses. */
+    private boolean missed(Player attacker, Player victim, Ability ability, ThreadLocalRandom random) {
+        if (AbilityRules.chance(ability.params().decimal("chance"), random.nextDouble())) {
+            return false;
+        }
+        lang.send(attacker, AbilityMessages.NO_LUCK, "ability", display(ability), "player", victim.getName());
+        return true;
+    }
+
+    /** The weapon in hand swaps places with another item: from the inventory above the hotbar if it can. */
+    private static void disarm(Player victim, ThreadLocalRandom random) {
+        PlayerInventory inventory = victim.getInventory();
+        int hand = inventory.getHeldItemSlot();
+        List<Integer> filled = new ArrayList<>();
+        List<Integer> any = new ArrayList<>();
+        for (int slot = 9; slot < 36; slot++) {
+            any.add(slot);
+            ItemStack item = inventory.getItem(slot);
+            if (item != null && !item.isEmpty()) {
+                filled.add(slot);
+            }
+        }
+        List<Integer> from = filled.isEmpty() ? any : filled;
+        int other = from.get(random.nextInt(from.size()));
+        ItemStack weapon = inventory.getItem(hand);
+        inventory.setItem(hand, inventory.getItem(other));
+        inventory.setItem(other, weapon);
+    }
+
+    /** Damage one player dealt another: partly back to them, if the other put thorns on them. */
+    public void reflect(Player attacker, Player victim, double damage) {
+        Thorns state = thorns.get(attacker.getUniqueId());
+        if (state == null) {
+            return;
+        }
+        if (state.until() < System.currentTimeMillis()) {
+            thorns.remove(attacker.getUniqueId());
+            return;
+        }
+        double back = damage * state.percent() / 100.0;
+        if (state.owner().equals(victim.getUniqueId()) && back > 0) {
+            trueDamage(attacker, victim, back);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Pumpkin Reaper: a helmet swapped for a pumpkin
+    // ------------------------------------------------------------------
+
+    private void pumpkin(Player victim, ItemStack helmet, long seconds) {
+        ItemStack pumpkin = ItemStack.of(Material.CARVED_PUMPKIN);
+        Enchantment binding = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)
+                .get(NamespacedKey.minecraft("binding_curse"));
+        if (binding != null) {
+            // Worn until given back: it cannot be taken off.
+            pumpkin.addUnsafeEnchantment(binding, 1);
+            pumpkin.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
+        }
+        pumpkin.editPersistentDataContainer(data -> data.set(pumpkinKey, PersistentDataType.BYTE, (byte) 1));
+        victim.getInventory().setHelmet(pumpkin);
+        UUID id = victim.getUniqueId();
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Player player = Bukkit.getPlayer(id);
+            if (player != null) {
+                giveHelmetBack(player, true);
+            }
+        }, Math.max(1L, seconds * 20L));
+        pumpkins.put(id, new Pumpkin(helmet.clone(), task));
+    }
+
+    private boolean isLentPumpkin(ItemStack item) {
+        return item != null && !item.isEmpty() && item.getPersistentDataContainer().has(pumpkinKey);
+    }
+
+    /** The pumpkin goes, wherever it is; the helmet goes back on - or in the inventory, if the head is taken. */
+    private void giveHelmetBack(Player player, boolean tell) {
+        Pumpkin lent = pumpkins.remove(player.getUniqueId());
+        if (lent == null) {
+            return;
+        }
+        lent.task().cancel();
+        PlayerInventory inventory = player.getInventory();
+        if (isLentPumpkin(inventory.getHelmet())) {
+            inventory.setHelmet(null);
+        }
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            if (isLentPumpkin(inventory.getItem(slot))) {
+                inventory.setItem(slot, null);
+            }
+        }
+        ItemStack helmet = inventory.getHelmet();
+        if (helmet == null || helmet.isEmpty()) {
+            inventory.setHelmet(lent.helmet());
+        } else {
+            inventory.addItem(lent.helmet()).values()
+                    .forEach(left -> player.getWorld().dropItemNaturally(player.getLocation(), left));
+        }
+        if (tell) {
+            lang.send(player, AbilityMessages.HELMET_BACK);
+        }
+    }
+
+    /** A death under a pumpkin: the helmet drops, not the pumpkin - or stays, if the inventory does. */
+    public void pumpkinDeath(PlayerDeathEvent event) {
+        Player player = event.getPlayer();
+        if (!pumpkins.containsKey(player.getUniqueId())) {
+            return;
+        }
+        if (event.getKeepInventory()) {
+            giveHelmetBack(player, false);
+            return;
+        }
+        Pumpkin lent = pumpkins.remove(player.getUniqueId());
+        lent.task().cancel();
+        event.getDrops().removeIf(this::isLentPumpkin);
+        event.getDrops().add(lent.helmet());
     }
 
     /** Damage that goes through armour, credited to the attacker when it kills. */
@@ -1007,6 +1422,9 @@ public final class AbilityModule {
         chaos.remove(id);
         antiBuild.remove(id);
         berserk.remove(id);
+        noFall.remove(id);
+        comboFish.remove(id);
+        thorns.remove(id);
         if (invisible.remove(id) != null) {
             showArmor(player);
         }
@@ -1019,6 +1437,7 @@ public final class AbilityModule {
 
     /** On logout only: the cooldowns and what others did to them go as well. */
     public void forgetAll(Player player) {
+        giveHelmetBack(player, false);
         forget(player);
         cooldowns.forget(player.getUniqueId());
         lastHit.remove(player.getUniqueId());

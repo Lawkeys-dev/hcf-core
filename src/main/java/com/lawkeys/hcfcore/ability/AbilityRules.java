@@ -2,7 +2,6 @@ package com.lawkeys.hcfcore.ability;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.function.Predicate;
 
 /** The rules of the abilities that need no server. */
@@ -21,14 +20,6 @@ public final class AbilityRules {
         double low = Math.min(minPercent, maxPercent);
         double high = Math.max(minPercent, maxPercent);
         return Math.max(0.0, 1.0 + (low + (high - low) * random) / 100.0);
-    }
-
-    /**
-     * Magic Rock: the effects for this many free blocks above a player's head; none
-     * when the table has no line for it.
-     */
-    public static List<AbilityEffect> magicRock(Map<Integer, List<AbilityEffect>> table, int freeBlocks) {
-        return table.getOrDefault(freeBlocks, List.of());
     }
 
     /**
@@ -54,5 +45,51 @@ public final class AbilityRules {
     /** Thunderbolt and the others: whether a roll of {@code random} (0 to 1) falls within {@code percent}. */
     public static boolean chance(double percent, double random) {
         return random * 100.0 < percent;
+    }
+
+    /**
+     * Rocket, Hulk Smash: the upward speed that lifts a player about {@code 3 * height}
+     * blocks - a height grows with the square of the speed.
+     */
+    public static double launchSpeed(double height) {
+        return 0.8 * Math.sqrt(Math.max(0.0, height));
+    }
+
+    /**
+     * Grappling Hook, Grabber: the velocity that carries a player from one point to
+     * another, arcing as a thrown thing does; {@code pull} scales it, and it is capped
+     * at {@code max} blocks a tick.
+     *
+     * @return {x, y, z}
+     */
+    public static double[] pullVelocity(double dx, double dy, double dz, double pull, double max) {
+        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (distance < 1e-6) {
+            return new double[] {0, 0, 0};
+        }
+        double x = (1.0 + 0.07 * distance) * dx / distance * pull;
+        double y = ((1.0 + 0.03 * distance) * dy / distance + 0.04 * distance) * pull;
+        double z = (1.0 + 0.07 * distance) * dz / distance * pull;
+        double speed = Math.sqrt(x * x + y * y + z * z);
+        if (speed > max) {
+            double scale = max / speed;
+            return new double[] {x * scale, y * scale, z * scale};
+        }
+        return new double[] {x, y, z};
+    }
+
+    /** Sun: the damage, in health points, each enemy takes when {@code caught} enemies are in range. */
+    public static double sunDamage(int caught, int maxPlayers, double heartsPerPlayer) {
+        return Math.min(Math.max(0, caught), Math.max(0, maxPlayers)) * heartsPerPlayer * 2.0;
+    }
+
+    /** Shotgun: each projectile's turn from where the player looks, spread evenly across the fan. */
+    public static double[] fan(int projectiles, double spreadDegrees) {
+        int count = Math.max(1, projectiles);
+        double[] out = new double[count];
+        for (int i = 0; i < count; i++) {
+            out[i] = count == 1 ? 0.0 : -spreadDegrees / 2.0 + spreadDegrees * i / (count - 1);
+        }
+        return out;
     }
 }

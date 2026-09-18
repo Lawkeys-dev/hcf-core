@@ -2,7 +2,7 @@
 
 *Configured in [`abilities.yml`](../reference/configuration/abilities.md). Commands: `/ability`, `/ability give`.*
 
-A partner item is an item that **does something when it is used**: right-clicked, thrown, hit with, or shot from. What it does is its **type**, built into the plugin; which ones a server runs, and every value they read, are `abilities.yml`'s. The plugin ships 21, one of each type.
+A partner item is an item that **does something when it is used**: right-clicked, thrown, hit with, shot from, or reeled in. What it does is its **type**, built into the plugin; which ones a server runs, and every value they read, are `abilities.yml`'s. The plugin ships 43 — several share a type, such as the four that only give effects.
 
 | Command | Does | Permission |
 |---|---|---|
@@ -23,7 +23,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 - An ability item is never placed as a block — a Crafting Chaos stays a crafting table in hand.
 - Lunar Client players see each cooldown as an icon ([Integrations](../server/integrations.md)).
 
-## The 21 abilities
+## The 43 abilities
 
 | Ability | Item | Used by | Does |
 |---|---|---|---|
@@ -35,7 +35,6 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Crafting Chaos | crafting table | 3 hits with it | 10 s: each of your hits has 20% to open a crafting table on them |
 | Focus Mode | gold nugget | right-click | The last player who hit you takes 25% more damage from you, 10 s |
 | Ninja Ability | nether star | right-click | Teleport to the last player **you** hit (10 s), 3 s later |
-| Exotic Bone | bone | 3 hits with it | They cannot build, break or open chests, gates, trapdoors for 15 s; you get Speed III |
 | Portable Archer | bow | shooting | Its arrows archer-tag who they hit, 10 s; breaks after 5 shots |
 | Invisibility | ink sac | right-click | Invisible 2 minutes, armour hidden too, until a player hits you |
 | Time Warp | feather | right-click | Back to where you threw your last pearl, 2 s later |
@@ -43,13 +42,36 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Berserk | red dye | right-click | Strength II, Resistance III, Regeneration III — and no Healing II potion — for 8 s |
 | Close Call | cookie | right-click | Strength II and Regeneration V for 6 s, at 3.5 hearts or less only |
 | Switch Stick | stick | right-click | 10 s: each hit has 20% to turn the player hit around |
-| Teleport Eye | purple dye | right-click, in water | Teleport to the last player who hit you, 3 s later |
-| Samurai | diamond sword | right-click | Teleport to the last player who hit you: anti-build 15 s and no pearl 16 s for them, Strength II and Speed III for you. Kept after use |
-| Magic Rock | coal | a hit with it | Strength II for you, longer the less space there is above their head |
 | Belch Bomb | slime ball | right-click | Slowness II and Blindness II for every enemy within 8 blocks, 6 s |
 | Anti Trap Star | nether star | right-click | Teleport to the last player who hit **you** (10 s), 3 s later — out of a trap |
+| Rose Thorn | rose bush | a hit with it | 10 s: 30% of the damage that player deals you goes back to them |
+| Pumpkin Reaper | carved pumpkin | a hit with it | On a Diamond: 50% that their helmet becomes a pumpkin for 10 s |
+| Strength II | blaze powder | right-click | Strength II for you and your teammates within 20 blocks, 5 s |
+| Hulk Smash | piston | right-click | Every enemy within 10 blocks thrown about 6 blocks up |
+| Sticky Web | cobweb | right-click | No fall damage for 10 s |
+| Med Kit | glistering melon | right-click | Regeneration III and Absorption V for 10 s |
+| Grappling Hook | fishing rod | reeling in | Fly to where the hook is stuck; no fall damage while in hand. Kept after use |
+| Nausea Axe | iron axe | a hit with it | 50%: Nausea for 10 s |
+| Bunny Hop | rabbit's foot | right-click | Speed III and Jump Boost IV for 10 s |
+| Ice Berg | blue ice | 3 hits with it | Slowness III for 5 s |
+| Antidote | milk bucket | right-click | Takes off your negative effects only |
+| Golden Head | golden apple | right-click | Eaten at once: Regeneration II 10 s, Absorption 2 minutes |
+| Grabber | tripwire hook | a hit with it | Pulls the player hit towards you |
+| Potato | potato | 3 hits with it | Slowness II, Poison II and Nausea for 10 s |
+| Fake Pearl | ender pearl | throwing it | Flies as a pearl, teleports nobody |
+| Rocket | firework rocket | right-click | About 10 blocks up, no fall damage for 6 s |
+| Combo Fish | tropical fish | right-click | 5 s: the players you hit can be hit again after 2 ticks |
+| Anti-Build Bone | bone | 3 hits with it | For 15 s they cannot build, break, or open chests, doors, gates, trapdoors, buttons, levers |
+| Rotten Egg | egg | throwing it | The player hit: Slowness and Poison for 10 s |
+| Rage Strength | nether wart | right-click | Strength II for 8 s |
+| Olympia | iron horse armour | right-click | A shotgun: 10 burning eggs, half a heart each; the recoil pushes you back |
+| Baguette | bread | 3 hits with it | Their hunger bar drops to 6 of 20 |
+| Sun | sunflower | right-click | Enemies within 8 blocks: 0.9 heart for each enemy caught (9 at most), burning 5 s, blind 2 s |
+| Scrambler | blaze rod | 3 hits with it | Shuffles their hotbar |
+| Lucky Bard | golden carrot | right-click | Heads: Strength II, Speed II, Regeneration II — tails: Slowness II, Weakness I, Poison I — 8 s |
+| Disarmer Wand | breeze rod | a hit with it | 50%: their weapon swaps places with another item of their inventory |
 
-"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`) — 10 for the two stars. Every value in this table is a setting — the pages below quote each ability as shipped.
+"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`) — 10 for the two stars. A chance that misses still spends the item and starts its cooldown: a Nausea Axe cannot be tried again at once. Every value in this table is a setting — the pages below quote each ability as shipped.
 
 ## Right-click
 
@@ -81,29 +103,17 @@ Lightning is only a sight: it sets nothing on fire. The damage goes through armo
 
 Both players are told. With nobody who hit you lately, nothing is spent.
 
-### Ninja Ability, Teleport Eye, Anti Trap Star
+### Ninja Ability, Anti Trap Star
 
 ```yaml title="abilities.yml"
 --8<-- "src/main/resources/abilities.yml:ninja"
 ```
 
 ```yaml title="abilities.yml"
---8<-- "src/main/resources/abilities.yml:teleport-eye"
-```
-
-```yaml title="abilities.yml"
 --8<-- "src/main/resources/abilities.yml:anti-trap-star"
 ```
 
-The **Ninja** goes to the last player you hit; the **Anti Trap Star** and the **Teleport Eye** to the last player who hit you. The teleport happens after the delay, to where the player stands then. It is cancelled if they have left, changed world, or stepped where you may not reach them — a safe zone.
-
-### Samurai
-
-```yaml title="abilities.yml"
---8<-- "src/main/resources/abilities.yml:samurai"
-```
-
-The pearl cooldown is the game's own, shown on the pearl in their hotbar.
+The **Ninja** goes to the last player you hit; the **Anti Trap Star** to the last player who hit you. The teleport happens after the delay, to where the player stands then. It is cancelled if they have left, changed world, or stepped where you may not reach them — a safe zone.
 
 ### Invisibility
 
@@ -159,6 +169,90 @@ For those 8 seconds, drinking or throwing a potion listed in `denied-potions` is
 --8<-- "src/main/resources/abilities.yml:belch-bomb"
 ```
 
+### Effects for you: Med Kit, Bunny Hop, Golden Head, Rage Strength
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:med-kit"
+```
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:bunny-hop"
+```
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:golden-head"
+```
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:rage-strength"
+```
+
+The Golden Head is eaten at once, on the click, rather than as a golden apple is.
+
+### Strength II
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:strength-bard"
+```
+
+A Bard's burst in anybody's hand. Without a team, it is for you alone.
+
+### Lucky Bard
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:lucky-bard"
+```
+
+### Antidote
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:antidote"
+```
+
+Drunk at once, on the click. What the game counts as a harmful effect goes — Poison, Wither, Slowness, Weakness, Nausea, Blindness, Mining Fatigue…; Strength, Speed and the other good ones stay, where a plain milk bucket would take everything.
+
+### Sticky Web, Rocket
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:sticky-web"
+```
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:rocket"
+```
+
+### Hulk Smash
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:hulk-smash"
+```
+
+They are thrown a little away from you too. Their fall is theirs: a Hulk Smash is also a way to hurt.
+
+### Combo Fish
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:combo-fish"
+```
+
+After a hit, the game makes a player untouchable for 10 ticks. For the Combo Fish's 5 seconds, a player you hit can be hit again after 2 ticks (`hit-delay-ticks`), as in a practice server's combo mode.
+
+### Olympia
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:olympia"
+```
+
+The eggs hatch nothing. Each one that hits a player you could hit sets them on fire and takes its damage through armour. The recoil pushes you away from where you aim: aimed at the ground, it throws you up.
+
+### Sun
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:sun"
+```
+
+The fireworks are only a sight: they hurt nobody. The damage goes through armour, and a death is credited to you. With 3 enemies around you, each takes 2.7 hearts; with 10 or more, 9.
+
 ## Thrown
 
 ### Switcher
@@ -177,9 +271,25 @@ It works wherever it lands, on a player or on the ground. An egg hatches no chic
 
 Thrown on cooldown, it stays in hand.
 
+### Rotten Egg
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:rotten-egg"
+```
+
+### Fake Pearl
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:fake-pearl"
+```
+
+Nothing tells it from a real pearl until it lands, and vanishes. Its short cooldown between two throws is its own: your real pearls stay ready. Time Warp never goes back to where a fake pearl was thrown.
+
 ## Hit with
 
-### Crafting Chaos, Exotic Bone
+When it takes several hits, they must land on the same player, 10 seconds apart at most; you are told how many are left.
+
+### Crafting Chaos, Anti-Build Bone
 
 ```yaml title="abilities.yml"
 --8<-- "src/main/resources/abilities.yml:crafting-chaos"
@@ -189,15 +299,61 @@ Thrown on cooldown, it stays in hand.
 --8<-- "src/main/resources/abilities.yml:anti-build"
 ```
 
-The hits must land on the same player, 10 seconds apart at most; you are told how many are left. Anti-build refuses placing and breaking blocks, buckets, and opening the blocks listed: a block's own name (`CHEST`) is that block alone; a family's end (`FENCE_GATE`, `TRAPDOOR`) is every one of them.
+Anti-build is on the player hit alone. It refuses placing and breaking blocks, buckets, and using the blocks listed: a block's own name (`CHEST`) is that block alone; a family's end (`FENCE_GATE`, `DOOR`, `BUTTON`) is every one of them.
 
-### Magic Rock
+### Effects for them: Nausea Axe, Ice Berg, Potato
 
 ```yaml title="abilities.yml"
---8<-- "src/main/resources/abilities.yml:magic-rock"
+--8<-- "src/main/resources/abilities.yml:nausea-axe"
 ```
 
-The free blocks are counted straight up from above the player's head. A count with no line gives nothing, and nothing is spent.
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:ice-berg"
+```
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:potato"
+```
+
+### Rose Thorn
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:rose-thorn"
+```
+
+What comes back is 30% of the damage they really dealt you, after armour; it goes through theirs.
+
+### Pumpkin Reaper
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:pumpkin-reaper"
+```
+
+Only on a player whose Diamond class is on (`classes`); on anybody else, or a bare head, nothing is spent. The pumpkin carries Curse of Binding: it stays on until the helmet comes back — then it is gone, wherever it was. If the head is taken by then, the helmet goes in the inventory. A death meanwhile drops the helmet, never the pumpkin.
+
+### Grabber
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:grabber"
+```
+
+The pull comes right after the hit's own knockback, so it wins over it.
+
+### Baguette, Scrambler, Disarmer Wand
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:baguette"
+```
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:scrambler"
+```
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:disarmer-wand"
+```
+
+The Scrambler shuffles the nine hotbar slots. The Disarmer Wand swaps the item in hand with one from the inventory above the hotbar, a filled slot if there is one: nothing ever falls on the ground.
 
 ## Shot from
 
@@ -208,6 +364,16 @@ The free blocks are counted straight up from above the player's head. A count wi
 ```
 
 The tag is the Archer class's own: the scoreboard shows it, and every player's damage on the target is multiplied. The bow wears one use per shot, and a shot on cooldown is refused.
+
+## Reeled in
+
+### Grappling Hook
+
+```yaml title="abilities.yml"
+--8<-- "src/main/resources/abilities.yml:grappling-hook"
+```
+
+Cast the hook at a block; once it is stuck, or lying on the ground, reel in: you fly to it, in an arc. Casting costs nothing — the cooldown starts on the pull. The rod never breaks.
 
 ## Your own: `commands`
 

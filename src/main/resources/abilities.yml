@@ -181,26 +181,6 @@ abilities:
     hit-within-seconds: 10
   # --8<-- [end:ninja]
 
-  # --8<-- [start:anti-build]
-  # Hit a player 3 times with it: for 15 seconds they cannot build, break, or
-  # open the blocked blocks - a block (CHEST) is that block alone; FENCE_GATE
-  # covers every fence gate, TRAPDOOR every trapdoor. You get Speed III.
-  exotic-bone:
-    type: anti-build
-    material: BONE
-    name: "&d&lExotic Bone"
-    lore:
-      - "&7Hit a player with this item 3 times and"
-      - "&7they will not be able to build, place or"
-      - "&7open blocks for 15s. You also get Speed 3."
-    cooldown-seconds: 120
-    hits-required: 3
-    seconds: 15
-    blocked-blocks: [CHEST, TRAPPED_CHEST, FENCE_GATE, TRAPDOOR]
-    user-effects:
-      - {effect: speed, level: 3, seconds: 10}
-  # --8<-- [end:anti-build]
-
   # --8<-- [start:portable-archer]
   # A bow whose arrows archer-tag the player they hit for 10 seconds; it breaks
   # after 5 shots.
@@ -313,63 +293,6 @@ abilities:
     degrees: 180
   # --8<-- [end:switch-stick]
 
-  # --8<-- [start:teleport-eye]
-  # In water only: teleports you, 3 seconds later, to the last player who hit you.
-  teleport-eye:
-    type: teleport-eye
-    material: PURPLE_DYE
-    name: "&d&lTeleport Eye"
-    lore:
-      - "&7Right click this item when in water to teleport"
-      - "&7to the last player who hit you."
-    cooldown-seconds: 120
-    delay-seconds: 3
-    hit-within-seconds: 15
-  # --8<-- [end:teleport-eye]
-
-  # --8<-- [start:samurai]
-  # Teleports you, 3 seconds later, to the last player who hit you: they are
-  # under anti-build for 15 seconds and cannot pearl for 16; you get Strength II
-  # and Speed III. Not used up: the sword stays.
-  samurai:
-    type: samurai
-    material: DIAMOND_SWORD
-    name: "&d&lSamurai"
-    lore:
-      - "&7Right click this item to teleport to the last"
-      - "&7player who hit you while putting them under"
-      - "&7antibuild and enderpearl cooldown and receive"
-      - "&7overpowered effects."
-    cooldown-seconds: 120
-    consume: false
-    delay-seconds: 3
-    hit-within-seconds: 15
-    anti-build-seconds: 15
-    ender-pearl-cooldown-seconds: 16
-    effects:
-      - {effect: strength, level: 2, seconds: 8}
-      - {effect: speed, level: 3, seconds: 8}
-  # --8<-- [end:samurai]
-
-  # --8<-- [start:magic-rock]
-  # Hit a player with it: effects for you by how many free blocks are above
-  # their head - the less space, the longer.
-  magic-rock:
-    type: magic-rock
-    material: COAL
-    name: "&d&lMagic Rock"
-    lore:
-      - "&7Hit a player with this item and you will receive"
-      - "&7effects dependent on the block above that player,"
-      - "&7the less space above the players head the more effects."
-    cooldown-seconds: 120
-    effects-by-space:
-      2: [{effect: strength, level: 2, seconds: 8}]
-      3: [{effect: strength, level: 2, seconds: 6}]
-      4: [{effect: strength, level: 2, seconds: 4}]
-      5: [{effect: strength, level: 2, seconds: 2}]
-  # --8<-- [end:magic-rock]
-
   # --8<-- [start:belch-bomb]
   # Slowness II and Blindness II for 6 seconds, for every enemy within 8 blocks.
   belch-bomb:
@@ -400,6 +323,403 @@ abilities:
     delay-seconds: 3
     hit-within-seconds: 10
   # --8<-- [end:anti-trap-star]
+
+  # --8<-- [start:rose-thorn]
+  # Hit a player with it: for 10 seconds, 30% of the damage they deal you goes
+  # back to them, through armour.
+  rose-thorn:
+    type: thorns
+    material: ROSE_BUSH
+    name: "&c&lRose Thorn"
+    lore:
+      - "&7Hit a player with this item: for 10 seconds,"
+      - "&730% of the damage they deal you goes back to them."
+    cooldown-seconds: 120
+    seconds: 10
+    reflect-percent: 30
+  # --8<-- [end:rose-thorn]
+
+  # --8<-- [start:pumpkin-reaper]
+  # Hit a Diamond with it: a 50% chance their helmet is swapped for a pumpkin,
+  # which cannot be taken off, for 10 seconds. The helmet comes back after -
+  # and drops as itself if they die meanwhile.
+  pumpkin-reaper:
+    type: pumpkin
+    material: CARVED_PUMPKIN
+    name: "&c&lPumpkin Reaper"
+    lore:
+      - "&7Hit a Diamond with this item: 50% chance"
+      - "&7their helmet becomes a pumpkin for 10 seconds."
+    cooldown-seconds: 30
+    chance: 50
+    seconds: 10
+    classes: [diamond]         # the classes it works on; [] for anybody
+  # --8<-- [end:pumpkin-reaper]
+
+  # --8<-- [start:strength-bard]
+  # Strength II for 5 seconds, for you and your teammates within 20 blocks.
+  strength-bard:
+    type: team-effects
+    material: BLAZE_POWDER
+    name: "&6&lStrength II"
+    lore:
+      - "&7Right click to give Strength II to you and"
+      - "&7your teammates within 20 blocks for 5 seconds."
+    cooldown-seconds: 60
+    radius: 20
+    include-self: true
+    effects:
+      - {effect: strength, level: 2, seconds: 5}
+  # --8<-- [end:strength-bard]
+
+  # --8<-- [start:hulk-smash]
+  # Every enemy within 10 blocks is thrown about 6 blocks in the air.
+  hulk-smash:
+    type: hulk-smash
+    material: PISTON
+    name: "&2&lHulk Smash"
+    lore:
+      - "&7Right click to throw every enemy within"
+      - "&710 blocks in the air."
+    cooldown-seconds: 30
+    radius: 10
+    height: 2                  # 1 is about 3 blocks
+  # --8<-- [end:hulk-smash]
+
+  # --8<-- [start:sticky-web]
+  # No fall damage for 10 seconds.
+  sticky-web:
+    type: no-fall
+    material: COBWEB
+    name: "&f&lSticky Web"
+    lore:
+      - "&7Right click: no fall damage for 10 seconds."
+    cooldown-seconds: 30
+    seconds: 10
+  # --8<-- [end:sticky-web]
+
+  # --8<-- [start:med-kit]
+  # Regeneration III and Absorption V for 10 seconds.
+  med-kit:
+    type: effects
+    material: GLISTERING_MELON_SLICE
+    name: "&c&lMed Kit"
+    lore:
+      - "&7Right click to receive Regeneration III"
+      - "&7and Absorption V for 10 seconds."
+    cooldown-seconds: 120
+    effects:
+      - {effect: regeneration, level: 3, seconds: 10}
+      - {effect: absorption, level: 5, seconds: 10}
+  # --8<-- [end:med-kit]
+
+  # --8<-- [start:grappling-hook]
+  # Cast it at a block and reel in: you fly to the hook. No fall damage while
+  # it is in hand. It never breaks, and stays.
+  grappling-hook:
+    type: grappling-hook
+    material: FISHING_ROD      # a grappling-hook is a FISHING_ROD
+    name: "&6&lGrappling Hook"
+    lore:
+      - "&7Cast at a block and reel in to fly to it."
+      - "&7No fall damage while in hand."
+    cooldown-seconds: 15
+    consume: false
+    pull: 1.0                  # stronger above 1, weaker below
+    no-fall-while-held: true
+  # --8<-- [end:grappling-hook]
+
+  # --8<-- [start:nausea-axe]
+  # Hit a player with it: a 50% chance of Nausea for 10 seconds.
+  nausea-axe:
+    type: hit-effects
+    material: IRON_AXE
+    name: "&e&lNausea Axe"
+    lore:
+      - "&7Hit a player with this item: 50% chance"
+      - "&7to give them Nausea for 10 seconds."
+    cooldown-seconds: 45
+    chance: 50
+    effects:
+      - {effect: nausea, level: 1, seconds: 10}
+  # --8<-- [end:nausea-axe]
+
+  # --8<-- [start:bunny-hop]
+  # Speed III and Jump Boost IV for 10 seconds.
+  bunny-hop:
+    type: effects
+    material: RABBIT_FOOT
+    name: "&a&lBunny Hop"
+    lore:
+      - "&7Right click to receive Speed III and"
+      - "&7Jump Boost IV for 10 seconds."
+    cooldown-seconds: 90
+    effects:
+      - {effect: speed, level: 3, seconds: 10}
+      - {effect: jump_boost, level: 4, seconds: 10}
+  # --8<-- [end:bunny-hop]
+
+  # --8<-- [start:ice-berg]
+  # Hit a player 3 times with it: Slowness III for 5 seconds.
+  ice-berg:
+    type: hit-effects
+    material: BLUE_ICE
+    name: "&b&lIce Berg"
+    lore:
+      - "&7Hit a player 3 times with this item to"
+      - "&7give them Slowness III for 5 seconds."
+    cooldown-seconds: 45
+    hits-required: 3
+    effects:
+      - {effect: slowness, level: 3, seconds: 5}
+  # --8<-- [end:ice-berg]
+
+  # --8<-- [start:antidote]
+  # Takes off your negative effects - Poison, Slowness, Weakness and the like;
+  # the others stay. Drunk at once.
+  antidote:
+    type: cleanse
+    material: MILK_BUCKET
+    name: "&f&lAntidote"
+    lore:
+      - "&7Right click to remove your negative effects."
+    cooldown-seconds: 60
+  # --8<-- [end:antidote]
+
+  # --8<-- [start:golden-head]
+  # Eaten at once: Regeneration II for 10 seconds and Absorption I for 2 minutes.
+  golden-head:
+    type: effects
+    material: GOLDEN_APPLE
+    name: "&6&lGolden Head"
+    lore:
+      - "&7Right click to eat it at once: Regeneration II"
+      - "&7for 10 seconds and Absorption for 2 minutes."
+    cooldown-seconds: 60
+    effects:
+      - {effect: regeneration, level: 2, seconds: 10}
+      - {effect: absorption, level: 1, seconds: 120}
+  # --8<-- [end:golden-head]
+
+  # --8<-- [start:grabber]
+  # Hit a player with it: they are pulled towards you.
+  grabber:
+    type: grab
+    material: TRIPWIRE_HOOK
+    name: "&9&lGrabber"
+    lore:
+      - "&7Hit a player with this item to pull"
+      - "&7them towards you."
+    cooldown-seconds: 15
+    pull: 1.0                  # stronger above 1, weaker below
+  # --8<-- [end:grabber]
+
+  # --8<-- [start:potato]
+  # Hit a player 3 times with it: Slowness II, Poison II and Nausea for 10
+  # seconds.
+  potato:
+    type: hit-effects
+    material: POTATO
+    name: "&c&lPotato"
+    lore:
+      - "&7Hit a player 3 times with this item: Slowness II,"
+      - "&7Poison II and Nausea for 10 seconds."
+    cooldown-seconds: 120
+    hits-required: 3
+    effects:
+      - {effect: slowness, level: 2, seconds: 10}
+      - {effect: poison, level: 2, seconds: 10}
+      - {effect: nausea, level: 1, seconds: 10}
+  # --8<-- [end:potato]
+
+  # --8<-- [start:fake-pearl]
+  # Thrown as an ender pearl, flies as one, teleports nobody. Its cooldown is
+  # its own: your real pearls are not held back by it.
+  fake-pearl:
+    type: fake-pearl
+    material: ENDER_PEARL      # a fake-pearl is an ENDER_PEARL
+    name: "&5&lFake Pearl"
+    lore:
+      - "&7Throw it: it flies as a pearl and"
+      - "&7teleports nobody."
+    cooldown-seconds: 15
+  # --8<-- [end:fake-pearl]
+
+  # --8<-- [start:rocket]
+  # Launches you about 10 blocks up, with no fall damage for 6 seconds.
+  rocket:
+    type: rocket
+    material: FIREWORK_ROCKET
+    name: "&c&lRocket"
+    lore:
+      - "&7Right click to boost yourself into the air."
+    cooldown-seconds: 30
+    height: 3.5                # 1 is about 3 blocks
+    no-fall-seconds: 6
+  # --8<-- [end:rocket]
+
+  # --8<-- [start:combo-fish]
+  # For 5 seconds, the players you hit can be hit again after 2 ticks instead
+  # of the game's 10: combos as in a combo-fly practice mode.
+  combo-fish:
+    type: combo-fish
+    material: TROPICAL_FISH
+    name: "&e&lCombo Fish"
+    lore:
+      - "&7Right click: for 5 seconds your hits"
+      - "&7follow each other much faster."
+    cooldown-seconds: 90
+    seconds: 5
+    hit-delay-ticks: 2
+  # --8<-- [end:combo-fish]
+
+  # --8<-- [start:anti-build]
+  # Hit a player 3 times with it: for 15 seconds they alone cannot build, break
+  # or use the blocked blocks - a block (CHEST) is that block alone; FENCE_GATE
+  # covers every fence gate, DOOR every door, BUTTON every button.
+  anti-build-bone:
+    type: anti-build
+    material: BONE
+    name: "&a&lAnti-Build Bone"
+    lore:
+      - "&7Hit a player 3 times with this item: for 15"
+      - "&7seconds they cannot build, break or open blocks."
+    cooldown-seconds: 120
+    hits-required: 3
+    seconds: 15
+    blocked-blocks: [CHEST, TRAPPED_CHEST, BARREL, FENCE_GATE, TRAPDOOR, DOOR, BUTTON, LEVER]
+    user-effects: []
+  # --8<-- [end:anti-build]
+
+  # --8<-- [start:rotten-egg]
+  # Throw it: the player it hits gets Slowness and Poison for 10 seconds.
+  rotten-egg:
+    type: thrown-effects
+    material: EGG              # SNOWBALL or EGG: it is thrown
+    name: "&2&lRotten Egg"
+    lore:
+      - "&7Throw it at a player: Slowness and"
+      - "&7Poison for 10 seconds."
+    cooldown-seconds: 30
+    effects:
+      - {effect: slowness, level: 1, seconds: 10}
+      - {effect: poison, level: 1, seconds: 10}
+  # --8<-- [end:rotten-egg]
+
+  # --8<-- [start:rage-strength]
+  # Strength II for 8 seconds.
+  rage-strength:
+    type: effects
+    material: NETHER_WART
+    name: "&4&lRage Strength"
+    lore:
+      - "&7Right click to receive Strength II"
+      - "&7for 8 seconds."
+    cooldown-seconds: 120
+    effects:
+      - {effect: strength, level: 2, seconds: 8}
+  # --8<-- [end:rage-strength]
+
+  # --8<-- [start:olympia]
+  # A shotgun: 10 burning eggs in a fan 10 degrees wide. Each one that hits a
+  # player deals half a heart through armour and sets them on fire for 10
+  # seconds. The shot pushes you back - aim down to jump.
+  olympia:
+    type: shotgun
+    material: IRON_HORSE_ARMOR
+    name: "&e&lOlympia"
+    lore:
+      - "&7A shotgun that fires incendiary eggs."
+      - "&7The recoil pushes you back."
+    cooldown-seconds: 15
+    projectiles: 10
+    spread: 10                 # degrees, from the leftmost egg to the rightmost
+    damage-hearts: 0.5
+    fire-seconds: 10
+    recoil: 1.0
+  # --8<-- [end:olympia]
+
+  # --8<-- [start:baguette]
+  # Hit a player 3 times with it: their hunger bar drops to 6 (of 20).
+  baguette:
+    type: starve
+    material: BREAD
+    name: "&6&lBaguette"
+    lore:
+      - "&7Hit a player 3 times with this item"
+      - "&7to empty their hunger bar."
+    cooldown-seconds: 120
+    hits-required: 3
+    food-left: 6
+  # --8<-- [end:baguette]
+
+  # --8<-- [start:sun]
+  # Fireworks burst around you. Every enemy within 8 blocks takes 0.9 heart
+  # through armour for each enemy caught - 9 hearts with 10 or more - burns for
+  # 5 seconds and is blinded for 2.
+  sun:
+    type: sun
+    material: SUNFLOWER
+    name: "&6&lSun"
+    lore:
+      - "&7Right click to explode the sun: the more"
+      - "&7enemies around you, the more it hurts."
+    cooldown-seconds: 45
+    radius: 8
+    damage-hearts-per-player: 0.9
+    max-players: 10
+    fire-seconds: 5
+    blindness-seconds: 2
+  # --8<-- [end:sun]
+
+  # --8<-- [start:scrambler]
+  # Hit a player 3 times with it: their hotbar is shuffled.
+  scrambler:
+    type: scramble
+    material: BLAZE_ROD
+    name: "&a&lScrambler"
+    lore:
+      - "&7Hit a player 3 times with this item"
+      - "&7to scramble their hotbar."
+    cooldown-seconds: 90
+    hits-required: 3
+  # --8<-- [end:scrambler]
+
+  # --8<-- [start:lucky-bard]
+  # Heads or tails, for you: Strength II, Speed II and Regeneration II - or
+  # Slowness II, Weakness I and Poison I - for 8 seconds.
+  lucky-bard:
+    type: lucky-bard
+    material: GOLDEN_CARROT
+    name: "&6&lLucky Bard"
+    lore:
+      - "&7Test your luck to receive either"
+      - "&7positive or negative effects."
+    cooldown-seconds: 60
+    positive-chance: 50
+    good-effects:
+      - {effect: strength, level: 2, seconds: 8}
+      - {effect: speed, level: 2, seconds: 8}
+      - {effect: regeneration, level: 2, seconds: 8}
+    bad-effects:
+      - {effect: slowness, level: 2, seconds: 8}
+      - {effect: weakness, level: 1, seconds: 8}
+      - {effect: poison, level: 1, seconds: 8}
+  # --8<-- [end:lucky-bard]
+
+  # --8<-- [start:disarmer-wand]
+  # Hit a player with it: a 50% chance the weapon in their hand swaps places
+  # with another item of their inventory. Nothing is dropped.
+  disarmer-wand:
+    type: disarm
+    material: BREEZE_ROD
+    name: "&6&lDisarmer Wand"
+    lore:
+      - "&7Hit a player with this item: 50% chance"
+      - "&7to disarm them."
+    cooldown-seconds: 15
+    chance: 50
+  # --8<-- [end:disarmer-wand]
 
   # --8<-- [start:commands-example]
   # A "commands" ability runs console commands, with %player%:

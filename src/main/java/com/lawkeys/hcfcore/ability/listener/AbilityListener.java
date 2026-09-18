@@ -14,6 +14,7 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.PotionContents;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.ThrownPotion;
@@ -34,6 +35,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -102,8 +104,8 @@ public final class AbilityListener implements Listener {
             }
             // Used by hitting with it: its click places nothing - a crafting table stays in hand.
             case HIT -> event.setCancelled(true);
-            // Thrown or drawn as usual; the launch and the shot are where it is used.
-            case THROW, SHOOT -> {
+            // Thrown, drawn or cast as usual; the launch, the shot and the reel are where it is used.
+            case THROW, SHOOT, FISH -> {
             }
         }
     }
@@ -120,7 +122,9 @@ public final class AbilityListener implements Listener {
     public void onLaunch(PlayerLaunchProjectileEvent event) {
         Player player = event.getPlayer();
         Projectile projectile = event.getProjectile();
-        if (projectile instanceof EnderPearl) {
+        Optional<Ability> thrown = module.abilityOf(event.getItemStack())
+                .filter(a -> a.type().trigger() == AbilityType.Trigger.THROW);
+        if (projectile instanceof EnderPearl && thrown.isEmpty()) {
             module.recordPearl(player);
             return;
         }
@@ -129,9 +133,7 @@ public final class AbilityListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        Optional<Ability> ability = module.abilityOf(event.getItemStack())
-                .filter(a -> a.type().trigger() == AbilityType.Trigger.THROW);
-        if (ability.isPresent() && !module.launch(player, ability.get(), projectile)) {
+        if (thrown.isPresent() && !module.launch(player, thrown.get(), projectile)) {
             event.setShouldConsume(false);
             event.setCancelled(true);
         }
@@ -145,11 +147,22 @@ public final class AbilityListener implements Listener {
         }
     }
 
+    /** A fake pearl comes down: gone before it can teleport anybody. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onFakePearl(ProjectileHitEvent event) {
+        Projectile projectile = event.getEntity();
+        if (projectile instanceof EnderPearl && module.isFakePearl(projectile)) {
+            event.setCancelled(true);
+            projectile.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, projectile.getLocation(), 20);
+            projectile.remove();
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onLand(ProjectileHitEvent event) {
         Projectile projectile = event.getEntity();
         module.thrownAbility(projectile)
-                .filter(a -> a.type().trigger() == AbilityType.Trigger.THROW)
+                .filter(a -> a.type().trigger() == AbilityType.Trigger.THROW || a.type() == AbilityType.SHOTGUN)
                 .ifPresent(ability -> module.landed(projectile, ability,
                         event.getHitEntity() instanceof Player hit ? hit : null));
     }
@@ -167,9 +180,40 @@ public final class AbilityListener implements Listener {
         }
     }
 
+    /** A Grappling Hook reeled in while its hook is stuck in a block, or lies on one. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onReel(PlayerFishEvent event) {
+        FishHook hook = event.getHook();
+        boolean stuck = event.getState() == PlayerFishEvent.State.IN_GROUND
+                || (event.getState() == PlayerFishEvent.State.REEL_IN && hook.isOnGround());
+        if (!stuck || event.getHand() == null) {
+            return;
+        }
+        Player player = event.getPlayer();
+        module.abilityOf(player.getInventory().getItem(event.getHand()))
+                .filter(a -> a.type() == AbilityType.GRAPPLING_HOOK)
+                .ifPresent(ability -> module.grapple(player, ability, hook));
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onFall(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL && event.getEntity() instanceof Player player
+                && module.cancelsFall(player)) {
+            event.setCancelled(true);
+        }
+    }
+
     // ------------------------------------------------------------------
     // Hits
     // ------------------------------------------------------------------
+
+    /** The Sun's fireworks only show. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    public void onFirework(EntityDamageByEntityEvent event) {
+        if (module.isAbilityFirework(event.getDamager())) {
+            event.setCancelled(true);
+        }
+    }
 
     /**
      * A blow between two players, not refused: the abilities running change it -
@@ -215,6 +259,7 @@ public final class AbilityListener implements Listener {
         }
         module.recordHit(attacker, victim);
         module.hitWhileInvisible(victim);
+        module.reflect(attacker, victim, event.getFinalDamage());
     }
 
     // ------------------------------------------------------------------
@@ -335,6 +380,12 @@ public final class AbilityListener implements Listener {
     }
 
     // ------------------------------------------------------------------
+
+    /** A helmet lent to a pumpkin drops as itself. */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPumpkinDeath(PlayerDeathEvent event) {
+        module.pumpkinDeath(event);
+    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDeath(PlayerDeathEvent event) {

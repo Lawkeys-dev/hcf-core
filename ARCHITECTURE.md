@@ -41,7 +41,7 @@ hcf-core/
 │   ├── ui/                             # scoreboard, tab list
 │   ├── staff/                          # staff mode, vanish, freeze, invsee, lastinv; ticket/; strike/
 │   ├── kit/                            # kits, layouts, refill signs
-│   ├── ability/                        # partner items: 21 built-in types, abilities.yml
+│   ├── ability/                        # partner items: 39 built-in types, abilities.yml
 │   ├── killstreak/                     # rewards, plugged into stats/
 │   ├── enchant/                        # custom enchants (effect, Hellforged, Implanted, Recover, Autosmelt), books
 │   ├── limiter/                        # enchantment, potion and effect caps, blocks per claim

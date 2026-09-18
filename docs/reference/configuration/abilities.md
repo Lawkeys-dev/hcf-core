@@ -29,7 +29,7 @@ Each block under `abilities:` is one ability; its key is its id — stored on th
 | Key | Default | What it does |
 |---|---|---|
 | `type` | — | What it does: one of the types below |
-| `material` | — | The item. A thrown type is a `SNOWBALL` or an `EGG`; `portable-archer` a `BOW` |
+| `material` | — | The item. `switcher`, `rage-ball` and `thrown-effects` are a `SNOWBALL` or an `EGG`; `portable-archer` a `BOW`; `fake-pearl` an `ENDER_PEARL`; `grappling-hook` a `FISHING_ROD` |
 | `name` · `lore` | the id · none | Shown on the item; colour codes allowed |
 | `glow` | `true` | Shines as an enchanted item does |
 | `enchantments` | none | On the item itself: `{infinity: 1}` |
@@ -128,13 +128,13 @@ Teleports, after `delay-seconds`, to the last player you hit (within `hit-within
 
 #### `anti-build`
 
-`hits-required` hits with it: they cannot build, break or open `blocked-blocks` for `seconds`. Used by hitting a player with it.
+`hits-required` hits with it: they cannot build, break or use `blocked-blocks` for `seconds`. Used by hitting a player with it.
 
 | Key | Default | What it does |
 |---|---|---|
 | `hits-required` | `3` | Hits on the same player it takes, 10 s apart at most |
 | `seconds` | `15` | How long it runs |
-| `blocked-blocks` | as shipped | Blocks that may not be opened: a block's name, or a family's end (`FENCE_GATE`) |
+| `blocked-blocks` | as shipped | Blocks that may not be used: a block's name, or a family's end (`FENCE_GATE`) |
 | `user-effects` | as shipped | Effects for the user |
 
 #### `portable-archer`
@@ -201,35 +201,6 @@ For `seconds`, each hit has `chance`% to turn the player hit by `degrees`. Used 
 | `chance` | `20` | Percent chance per hit |
 | `degrees` | `180` | How far the player hit is turned |
 
-#### `teleport-eye`
-
-In water only: teleports, after `delay-seconds`, to the last player who hit you. Used by a right-click.
-
-| Key | Default | What it does |
-|---|---|---|
-| `delay-seconds` | `3` | Seconds before the teleport |
-| `hit-within-seconds` | `15` | How recent the hit must be |
-
-#### `samurai`
-
-Teleports to the last player who hit you, puts them under anti-build and a pearl cooldown; `effects` for you. Used by a right-click.
-
-| Key | Default | What it does |
-|---|---|---|
-| `delay-seconds` | `3` | Seconds before the teleport |
-| `hit-within-seconds` | `15` | How recent the hit must be |
-| `anti-build-seconds` | `15` | Anti-build on the target |
-| `ender-pearl-cooldown-seconds` | `16` | Pearl cooldown on the target |
-| `effects` | as shipped | The effects |
-
-#### `magic-rock`
-
-A hit with it: `effects-by-space`, by how many free blocks are above the player's head. Used by hitting a player with it.
-
-| Key | Default | What it does |
-|---|---|---|
-| `effects-by-space` | as shipped | Free blocks above the head → effects |
-
 #### `belch-bomb`
 
 `effects` for every enemy within `radius`. Used by a right-click.
@@ -247,6 +218,183 @@ Teleports, after `delay-seconds`, to the last player who hit you (within `hit-wi
 |---|---|---|
 | `delay-seconds` | `3` | Seconds before the teleport |
 | `hit-within-seconds` | `10` | How recent the hit must be |
+
+#### `effects`
+
+`effects` for you. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `effects` | as shipped | The effects |
+
+#### `team-effects`
+
+`effects` for your teammates within `radius` - and you, with `include-self`. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `radius` | `20` | Blocks around the user it reaches |
+| `include-self` | `true` | The user gets it too |
+| `effects` | as shipped | The effects |
+
+#### `lucky-bard`
+
+`positive-chance`% to get `good-effects`; `bad-effects` otherwise. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `positive-chance` | `50` | Percent chance of the good effects |
+| `good-effects` · `bad-effects` | as shipped | The effects of either side |
+
+#### `cleanse`
+
+Takes off your negative effects; the others stay. Used by a right-click. It reads nothing of its own.
+
+#### `no-fall`
+
+No fall damage for `seconds`. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `seconds` | `10` | How long it runs |
+
+#### `rocket`
+
+Launches you up, with no fall damage for `no-fall-seconds`. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `height` | `3.5` | How high: `1` is about 3 blocks |
+| `no-fall-seconds` | `6` | No fall damage for so long |
+
+#### `hulk-smash`
+
+Throws every enemy within `radius` in the air. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `radius` | `10` | Blocks around the user it reaches |
+| `height` | `2` | How high: `1` is about 3 blocks |
+
+#### `combo-fish`
+
+For `seconds`, the players you hit can be hit again after `hit-delay-ticks`, not the game's 10. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `seconds` | `5` | How long it runs |
+| `hit-delay-ticks` | `2` | Ticks before a player you hit can be hit again |
+
+#### `shotgun`
+
+Fires `projectiles` eggs in a fan `spread` degrees wide; each sets the player it hits on fire and deals `damage-hearts`; you are pushed back by `recoil`. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `projectiles` | `10` | Eggs per shot |
+| `spread` | `10` | Degrees from the leftmost egg to the rightmost |
+| `damage-hearts` | `0.5` | Hearts an egg takes, through armour |
+| `fire-seconds` | `10` | Seconds on fire |
+| `recoil` | `1.0` | How hard the user is pushed back; `0` for none |
+
+#### `sun`
+
+Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per-player` for each enemy caught (at most `max-players`), burns and is blinded. Used by a right-click.
+
+| Key | Default | What it does |
+|---|---|---|
+| `radius` | `8` | Blocks around the user it reaches |
+| `damage-hearts-per-player` | `0.9` | Hearts, through armour, per enemy caught |
+| `max-players` | `10` | Enemies counted at most |
+| `fire-seconds` | `5` | Seconds on fire |
+| `blindness-seconds` | `2` | Seconds of Blindness |
+
+#### `hit-effects`
+
+`hits-required` hits: `chance`% to give the player hit `effects`. Used by hitting a player with it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `hits-required` | `1` | Hits on the same player it takes, 10 s apart at most |
+| `chance` | `100` | Percent chance; a miss spends it all the same |
+| `effects` | as shipped | Effects for the player hit |
+
+#### `pumpkin`
+
+A hit: `chance`% that the player hit - in one of `classes` - has their helmet swapped for a pumpkin, given back after `seconds`. Used by hitting a player with it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `hits-required` | `1` | Hits on the same player it takes |
+| `chance` | `50` | Percent chance; a miss spends it all the same |
+| `seconds` | `10` | How long the pumpkin stays |
+| `classes` | `[diamond]` | The classes it works on, by id; `[]` for anybody |
+
+#### `disarm`
+
+A hit: `chance`% that the weapon of the player hit swaps places with another item of theirs. Used by hitting a player with it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `hits-required` | `1` | Hits on the same player it takes |
+| `chance` | `50` | Percent chance; a miss spends it all the same |
+
+#### `scramble`
+
+`hits-required` hits: the hotbar of the player hit is shuffled. Used by hitting a player with it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `hits-required` | `3` | Hits on the same player it takes, 10 s apart at most |
+
+#### `starve`
+
+`hits-required` hits: the hunger bar of the player hit drops to `food-left`. Used by hitting a player with it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `hits-required` | `3` | Hits on the same player it takes, 10 s apart at most |
+| `food-left` | `6` | Hunger left, of 20 |
+
+#### `grab`
+
+A hit: the player hit is pulled towards you. Used by hitting a player with it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `hits-required` | `1` | Hits on the same player it takes |
+| `pull` | `1.0` | How hard: stronger above 1, weaker below |
+
+#### `thorns`
+
+A hit: for `seconds`, `reflect-percent`% of the damage that player deals you goes back to them. Used by hitting a player with it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `hits-required` | `1` | Hits on the same player it takes |
+| `seconds` | `10` | How long it runs |
+| `reflect-percent` | `30` | Percent of the damage, after armour, sent back through theirs |
+
+#### `thrown-effects`
+
+Thrown: the player it hits gets `effects`. Used by throwing it.
+
+| Key | Default | What it does |
+|---|---|---|
+| `effects` | as shipped | Effects for the player hit |
+
+#### `fake-pearl`
+
+An ender pearl that flies as one and teleports nobody. Used by throwing it. It reads nothing of its own.
+
+#### `grappling-hook`
+
+A fishing rod: reeling in a hook stuck in a block pulls you to it. Used by reeling in.
+
+| Key | Default | What it does |
+|---|---|---|
+| `pull` | `1.0` | How hard: stronger above 1, weaker below |
+| `no-fall-while-held` | `true` | No fall damage while it is in hand |
 
 ## Pocket Bard's sets
 
