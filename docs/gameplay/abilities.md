@@ -19,7 +19,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 
 - **Two cooldowns**: each ability's own (`cooldown-seconds`), and a **shared one** after any ability — 10 seconds before the next, whichever it is. The Pocket Bard itself takes no part in it — the items it gives do.
 - **Where no ability works**: a safe zone (spawn), a Citadel's claim, the zone of a running KOTH, Citadel or Conquest, the Nether, the End — and the warzone if you switch it on.
-- **An enemy is only reached if you could hit them**: never a teammate, nobody on a safe zone, nobody during SOTW, an ally only in an event area — the rules of a blow ([Combat](combat.md)). The Sun alone spares no side: it catches teammates and its user too, safe zones and SOTW aside. A teleport to a player who has since stepped onto a safe zone is cancelled.
+- **An enemy is only reached if you could hit them**: never a teammate, nobody on a safe zone, nobody during SOTW, an ally only in an event area — the rules of a blow ([Combat](combat.md)). A teleport to a player who has since stepped onto a safe zone is cancelled.
 - **Nothing is spent on a refusal**: on cooldown, in a refused zone, no target — the item stays, and no cooldown starts.
 - An ability item is never placed as a block — a Crafting Chaos stays a crafting table in hand.
 - Most are used up — one taken from the stack. Some stay: the Grappling Hook for good, and those with `uses` — the Olympia (30), the Pumpkin Reaper and the Nausea Axe (10), the Portable Archer (5) — until their durability bar, which counts the uses left, runs out. Hits and shots do not wear them, nor a chance that misses.
@@ -67,7 +67,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Rage Strength | nether wart | right-click | Strength II for 8 s |
 | Olympia | iron horse armour | right-click | A shotgun: 10 burning eggs scattered in a cone, 2.5 hearts if all hit; the recoil pushes you back. Kept: 30 shots |
 | Baguette | bread | 3 hits with it | Hunger that drains 14 food points over 10 s — time to eat |
-| Sun | sunflower | right-click | **Everyone** within 8 blocks — you and your team too: 0.9 heart for each player caught (9 at most), blind 2 s |
+| Sun | sunflower | right-click | Enemies within 8 blocks: 0.9 heart for each enemy caught (9 at most), blind 2 s |
 | Scrambler | blaze rod | 3 hits with it | Shuffles their hotbar |
 | Lucky Bard | golden carrot | right-click | Heads: Strength II, Speed II, Regeneration II — tails: Slowness II, Weakness I, Poison I — 8 s |
 | Disarmer Wand | breeze rod | a hit with it | 50%: their weapon swaps places with another item of their inventory |
@@ -244,7 +244,7 @@ The eggs scatter in a cone, as a shotgun's pellets, and hatch nothing. Each one 
 --8<-- "src/main/resources/abilities.yml:sun"
 ```
 
-A weapon of last resort: it catches **everyone** within 8 blocks — you and your teammates as much as your enemies (`hits-everyone: false` spares all but enemies) — and each player caught makes it hurt more. You alone with 2 enemies: 3 players, 2.7 hearts each, yours included; 10 or more, 9. The fireworks are only a sight. The damage goes through armour, and an enemy's death is credited to you. Nobody in a safe zone is caught, nor anybody during SOTW.
+Only the enemies are caught, and **only they are counted**: you with 2 teammates and 4 enemies around you, each of the 4 takes 3.6 hearts — 4 players, not 7 — and you and your teammates nothing. With 10 enemies or more, 9 hearts. The fireworks are only a sight. The damage goes through armour, and a death is credited to you.
 
 ## Thrown
 

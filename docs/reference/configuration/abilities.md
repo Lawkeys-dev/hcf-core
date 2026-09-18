@@ -293,7 +293,7 @@ Fires `projectiles` eggs scattered in a cone `spread` degrees wide, as a shotgun
 
 #### `sun`
 
-Fireworks burst around you; every player within `radius` - the user and teammates too, with `hits-everyone` - takes `damage-hearts-per-player` for each player caught (at most `max-players`) and is blinded - and burns, with `fire-seconds`. Used by a right-click.
+Fireworks burst around you; every enemy within `radius` takes `damage-hearts-per-player` for each enemy caught (at most `max-players`) - the user and teammates count for nothing - and is blinded - and burns, with `fire-seconds`. Used by a right-click.
 
 | Key | Default | What it does |
 |---|---|---|
@@ -303,7 +303,6 @@ Fireworks burst around you; every player within `radius` - the user and teammate
 | `fire-seconds` | `0` | Seconds on fire; `0` for none |
 | `blindness-seconds` | `2` | Seconds of Blindness |
 | `fireworks` | `6` | Fireworks bursting around the user: only a sight |
-| `hits-everyone` | `true` | The user and teammates are caught and counted too; `false` for enemies only |
 
 #### `hit-effects`
 

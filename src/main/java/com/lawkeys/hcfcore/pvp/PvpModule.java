@@ -223,31 +223,21 @@ public final class PvpModule {
      * @return why not - the message for the attacker - or empty when the harm may land
      */
     public Optional<Refusal> judgeHarm(Player attacker, Player victim) {
-        Optional<Refusal> whateverSide = judgeHarmAnySide(attacker, victim);
-        if (whateverSide.isPresent() || !settings.enabled()) {
-            return whateverSide;
+        Optional<String> protectedBy = protection.refusal(attacker.getUniqueId(), victim.getUniqueId());
+        if (protectedBy.isPresent()) {
+            return Optional.of(new Refusal(protectedBy.get()));
+        }
+        if (!settings.enabled()) {
+            return Optional.empty();
+        }
+        if (settings.safeZones().enabled() && (isInSafeZone(victim) || isInSafeZone(attacker))) {
+            return Optional.of(new Refusal(PvpMessages.SAFE_ZONE_ATTACKER));
         }
         FriendlyFire sameSide = judgeFriendlyFire(attacker, victim);
         if (sameSide != FriendlyFire.ALLOW) {
             return Optional.of(new Refusal(sameSide == FriendlyFire.TEAMMATE
                     ? PvpMessages.FRIENDLY_FIRE_TEAMMATE : PvpMessages.FRIENDLY_FIRE_ALLY,
                     "player", victim.getName()));
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * {@link #judgeHarm} without the sides: the moment's protection (SOTW) and the
-     * safe zones only - for what hurts a teammate as much as an enemy, a partner
-     * item's Sun.
-     */
-    public Optional<Refusal> judgeHarmAnySide(Player attacker, Player victim) {
-        Optional<String> protectedBy = protection.refusal(attacker.getUniqueId(), victim.getUniqueId());
-        if (protectedBy.isPresent()) {
-            return Optional.of(new Refusal(protectedBy.get()));
-        }
-        if (settings.enabled() && settings.safeZones().enabled() && (isInSafeZone(victim) || isInSafeZone(attacker))) {
-            return Optional.of(new Refusal(PvpMessages.SAFE_ZONE_ATTACKER));
         }
         return Optional.empty();
     }

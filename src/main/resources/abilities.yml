@@ -658,10 +658,9 @@ abilities:
   # --8<-- [end:baguette]
 
   # --8<-- [start:sun]
-  # Fireworks burst around you. Every player within 8 blocks - you and your
-  # teammates too: it is a weapon of last resort - takes 0.9 heart through armour
-  # for each player caught - 9 hearts with 10 or more - and is blinded for 2
-  # seconds. Nobody in a safe zone, nor during SOTW.
+  # Fireworks burst around you. Every enemy within 8 blocks takes 0.9 heart
+  # through armour for each enemy caught - 9 hearts with 10 or more - and is
+  # blinded for 2 seconds. You and your teammates are neither hurt nor counted.
   sun:
     type: sun
     material: SUNFLOWER
@@ -676,7 +675,6 @@ abilities:
     fire-seconds: 0            # seconds on fire; 0 for none
     blindness-seconds: 2
     fireworks: 6               # how many burst around you: only a sight
-    hits-everyone: true        # false: enemies only
   # --8<-- [end:sun]
 
   # --8<-- [start:scrambler]

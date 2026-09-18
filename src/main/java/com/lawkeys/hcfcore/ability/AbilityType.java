@@ -111,14 +111,13 @@ public enum AbilityType {
             Param.whole("projectiles", 10), Param.decimal("spread", 10), Param.decimal("speed", 1.5),
             Param.decimal("damage-hearts", 0.25), Param.whole("fire-seconds", 10), Param.decimal("recoil", 1.0)),
     /**
-     * Fireworks burst around you; every player within {@code radius} - with {@code hits-everyone}, you
-     * and your teammates too; enemies only without - takes {@code damage-hearts-per-player} for each
-     * player caught (at most {@code max-players}), is blinded - and burns, with {@code fire-seconds}.
+     * Fireworks burst around you; every enemy within {@code radius} takes {@code damage-hearts-per-player}
+     * for each enemy caught (at most {@code max-players}) - you and your teammates count for nothing -
+     * and is blinded - and burns, with {@code fire-seconds}.
      */
     SUN(Trigger.RIGHT_CLICK,
             Param.decimal("radius", 8), Param.decimal("damage-hearts-per-player", 0.9), Param.whole("max-players", 10),
-            Param.whole("fire-seconds", 0), Param.whole("blindness-seconds", 2), Param.whole("fireworks", 6),
-            Param.bool("hits-everyone", true)),
+            Param.whole("fire-seconds", 0), Param.whole("blindness-seconds", 2), Param.whole("fireworks", 6)),
     /** {@code hits-required} hits: {@code chance}% to give the player hit {@code effects}. */
     HIT_EFFECTS(Trigger.HIT,
             Param.whole("hits-required", 1), Param.decimal("chance", 100),
