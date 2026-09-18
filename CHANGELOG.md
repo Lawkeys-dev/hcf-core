@@ -14,6 +14,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - Classes: the warmup and the energy show on the scoreboard only (`%class_line%`, `%class_energy_line%` in `ui.yml`); the warmup chat message ships empty. A burst says the energy it cost and what is left. *An existing `lang/en.yml` keeps its warmup message: set `classes.warmup: ""` to silence it; an existing `ui.yml` needs the two lines added to its scoreboard to show them.*
 
 ### Fixed
+- Classic combat: the modern regeneration still spent a hurt player's hunger fast — the game charges it even when its heal is refused. The food bar's own regeneration is now held off while classic regeneration is on, and given back otherwise.
+- Classic combat: a rod's bobber stayed on the player it hit until reeled in, pulling them. It comes back at once (`fishing-rod.remove-hook`, on as shipped).
 - The effect commands' messages showed their raw key (`effect-commands.on`): YAML reads a key `on` or `off` as a boolean. They are `given` and `taken` now, and a test refuses such a key in every shipped file.
 
 ### Documentation

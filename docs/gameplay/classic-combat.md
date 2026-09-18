@@ -125,7 +125,10 @@ Ender pearls also lose the modern one-second cooldown. A pearl cooldown of the H
 --8<-- "src/main/resources/pvp.yml:legacy-regeneration"
 ```
 
-The modern game heals fast while saturation lasts. 1.7 healed half a heart every 4 seconds while the food bar was at 18 or more, each heal costing some hunger — which is why a fight was decided by pots and apples, not by waiting. Classic combat refuses the modern regeneration and heals the 1.7 way, wherever the world's natural health regeneration gamerule is on.
+The modern game heals fast while saturation lasts. 1.7 healed half a heart every 4 seconds while the food bar was at 18 or more, each heal costing some hunger — which is why a fight was decided by pots and apples, not by waiting. Classic combat holds the modern regeneration off — the food bar neither heals nor spends hunger for it — and heals the 1.7 way, wherever the world's natural health regeneration gamerule is on.
+
+!!! note "Peaceful"
+    On Peaceful difficulty the game itself gives every player a point of health a second, as 1.7 did: classic regeneration only shows on Easy and above.
 
 ## Golden apples
 
@@ -160,6 +163,8 @@ So the two nerfs differ too. The modern `strength-nerf` of `pvp.yml` takes point
 ```
 
 In 1.7, a rod's hook hitting a player was a hit of no damage: it knocked them back and counted as combat — "rodding". Classic combat does the same: the hooked player is pushed away from the angler with the 1.7 knockback, shown hurt, and both are combat-tagged. Only a player the angler could hit: not on a safe zone, not during SOTW, never a teammate.
+
+The bobber then comes back at once, ready to cast again (`remove-hook`), rather than staying on the player until reeled in — which would also pull them.
 
 ## What stays modern
 

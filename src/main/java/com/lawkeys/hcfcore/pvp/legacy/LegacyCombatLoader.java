@@ -90,7 +90,8 @@ public final class LegacyCombatLoader {
                                 d.strength().nerfEnabled()),
                         Math.max(0.0, number(strength == null ? null : strength.getConfigurationSection("nerf"),
                                 "per-level", d.strength().nerfPerLevel()))),
-                new LegacyCombatSettings.FishingRod(bool(rod, "enabled", d.fishingRod().enabled())));
+                new LegacyCombatSettings.FishingRod(bool(rod, "enabled", d.fishingRod().enabled()),
+                        bool(rod, "remove-hook", d.fishingRod().removeHook())));
     }
 
     private static LegacyCombatSettings.WeaponDamage readWeapons(ConfigurationSection section,

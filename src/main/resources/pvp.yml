@@ -331,7 +331,10 @@ legacy-combat:
   # --8<-- [start:legacy-rod]
   # A fishing rod's hook hitting a player knocks them back, shows them hurt and
   # tags both, as in 1.7 - "rodding". Only a player the angler could hit.
+  # remove-hook takes the bobber back at once, ready to cast again, instead of
+  # leaving it on the player until reeled in - which also pulls them.
   fishing-rod:
     enabled: true
+    remove-hook: true
   # --8<-- [end:legacy-rod]
 # --8<-- [end:legacy-combat]

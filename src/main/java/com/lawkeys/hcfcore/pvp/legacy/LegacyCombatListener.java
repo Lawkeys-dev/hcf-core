@@ -402,6 +402,7 @@ public final class LegacyCombatListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         syncHands(event.getPlayer());
+        syncRegeneration(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
@@ -496,7 +497,44 @@ public final class LegacyCombatListener implements Listener {
     // Natural regeneration
     // ------------------------------------------------------------------
 
-    /** The modern fast regeneration from saturation, refused: {@link #regenerate} heals instead. */
+    /**
+     * The game's own regeneration rates, while classic regeneration holds them off:
+     * set so high the food bar never heals. A cancelled heal is not enough - the
+     * game charges its hunger all the same (26.2 {@code FoodData#tick} calls
+     * {@code causeFoodExhaustion} after {@code heal}, cancelled or not), so a hurt
+     * player's saturation drained fast while {@link #regenerate} healed slowly.
+     */
+    private static final int HELD_OFF_RATE = 1_000_000_000;
+    /** The game's defaults (Paper 26.2 {@code HumanEntity} javadoc): 10 ticks saturated, 80 unsaturated. */
+    private static final int SATURATED_RATE = 10;
+    private static final int UNSATURATED_RATE = 80;
+
+    /**
+     * Holds the game's own regeneration off while classic regeneration is on, and
+     * gives it back otherwise - only rates this listener set, so another plugin's
+     * stay as they are.
+     */
+    public void syncRegeneration(Player player) {
+        boolean classicRegen = classic().map(c -> c.regeneration().enabled()).orElse(false);
+        if (classicRegen) {
+            player.setSaturatedRegenRate(HELD_OFF_RATE);
+            player.setUnsaturatedRegenRate(HELD_OFF_RATE);
+        } else {
+            restoreRegeneration(player);
+        }
+    }
+
+    /** Gives the game its own regeneration back, if classic combat held it off. */
+    public static void restoreRegeneration(Player player) {
+        if (player.getSaturatedRegenRate() == HELD_OFF_RATE) {
+            player.setSaturatedRegenRate(SATURATED_RATE);
+        }
+        if (player.getUnsaturatedRegenRate() == HELD_OFF_RATE) {
+            player.setUnsaturatedRegenRate(UNSATURATED_RATE);
+        }
+    }
+
+    /** The modern regeneration, refused as well should another path heal: {@link #regenerate} heals instead. */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onRegain(EntityRegainHealthEvent event) {
         if (event.getEntity() instanceof Player
@@ -517,11 +555,13 @@ public final class LegacyCombatListener implements Listener {
                 .filter(LegacyCombatSettings.Regeneration::enabled);
         if (rules.isEmpty()) {
             regenerating.clear();
+            Bukkit.getOnlinePlayers().forEach(LegacyCombatListener::restoreRegeneration);
             return;
         }
         long now = System.currentTimeMillis();
         long interval = Math.round(rules.get().intervalSeconds() * 1000.0);
         for (Player player : Bukkit.getOnlinePlayers()) {
+            syncRegeneration(player);
             AttributeInstance maximum = player.getAttribute(Attribute.MAX_HEALTH);
             double max = maximum == null ? 20.0 : maximum.getValue();
             boolean eligible = !player.isDead() && player.getHealth() > 0 && player.getHealth() < max
@@ -625,6 +665,17 @@ public final class LegacyCombatListener implements Listener {
         float fromYaw = (float) Math.toDegrees(Math.atan2(-towardsX, towardsZ));
         victim.playHurtAnimation(fromYaw - victim.getLocation().getYaw());
         module.tagForHit(angler, victim);
+        if (settings.get().fishingRod().removeHook()) {
+            // The game hooks the player it hit, and the bobber stays on them until reeled
+            // in, pulling them - a PvP rod hits and comes back to be cast again. A tick
+            // later: the game hooks the player right after this event.
+            FishHook hook = (FishHook) event.getEntity();
+            Bukkit.getScheduler().runTask(module.getPlugin(), () -> {
+                if (hook.isValid()) {
+                    hook.remove();
+                }
+            });
+        }
     }
 
     // ------------------------------------------------------------------
@@ -633,6 +684,7 @@ public final class LegacyCombatListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         regenerating.remove(event.getPlayer().getUniqueId());
         refusals.forget(event.getPlayer().getUniqueId());
+        restoreRegeneration(event.getPlayer());
     }
 
     private void tell(Player player, String key) {

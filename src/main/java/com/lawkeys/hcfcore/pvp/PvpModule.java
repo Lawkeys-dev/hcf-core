@@ -406,6 +406,7 @@ public final class PvpModule {
         // weapon at its 1.7 damage - in the inventories of those online.
         for (Player player : Bukkit.getOnlinePlayers()) {
             LegacyCombatListener.stripItems(player);
+            LegacyCombatListener.restoreRegeneration(player);
             AttributeInstance attribute = player.getAttribute(Attribute.ATTACK_SPEED);
             if (attribute != null) {
                 attribute.removeModifier(attackSpeedKey);

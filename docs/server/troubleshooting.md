@@ -87,6 +87,9 @@ It must be listed under `weapon-damage.damage`, by its item name. A weapon whose
 **Players regenerate too slowly, or not at all.**
 Classic regeneration heals half a heart every 4 seconds with 18 food or more, as 1.7 did, and only where the natural health regeneration gamerule is on.
 
+**Players regenerate a point of health every second.**
+The world is on Peaceful: the game heals everybody there, whatever the plugin does. `/difficulty easy` (or above) — a world's difficulty can differ from `server.properties` once changed in game.
+
 ## Events
 
 **The KOTH is never captured.**

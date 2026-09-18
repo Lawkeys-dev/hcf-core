@@ -140,6 +140,7 @@ Used only while `config.yml` says `combat: classic`. Every value ships at what 1
 | `strength.enabled`, `per-level` | `true`, `1.3` | 1.7 Strength, a percentage of the weapon's damage: +130% per level; replaces `strength-nerf` while on |
 | `strength.nerf.enabled`, `per-level` | `true`, `0.65` | The HCF nerf of 1.7 Strength, a percentage too: +65% per level instead. Off gives 1.7.10's own |
 | `fishing-rod.enabled` | `true` | A rod's hook knocks a player back and tags both |
+| `fishing-rod.remove-hook` | `true` | The bobber comes back at once after the hit, instead of staying on the player until reeled in |
 
 ## The whole shipped file
 

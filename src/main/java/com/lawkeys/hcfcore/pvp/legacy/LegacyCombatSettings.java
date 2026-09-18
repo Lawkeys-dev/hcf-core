@@ -173,8 +173,12 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
         }
     }
 
-    /** A fishing rod's hook hitting a player knocks them back and counts as a hit. */
-    public record FishingRod(boolean enabled) {
+    /**
+     * A fishing rod's hook hitting a player knocks them back and counts as a hit;
+     * {@code removeHook} takes the bobber back at once, rather than leaving it on
+     * the player until reeled in.
+     */
+    public record FishingRod(boolean enabled, boolean removeHook) {
     }
 
     /** @return every mechanic on, with the 1.7.10 game's values */
@@ -200,6 +204,6 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
                                 new AppleEffect("resistance", 1, 300),
                                 new AppleEffect("fire_resistance", 1, 300)))),
                 new Strength(true, 1.3, true, 0.65),
-                new FishingRod(true));
+                new FishingRod(true, true));
     }
 }
