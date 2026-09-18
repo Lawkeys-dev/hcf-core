@@ -6,7 +6,7 @@ package com.lawkeys.hcfcore.pvpclass;
  *
  * @param seconds          how long the mark lasts; a new hit starts it over
  * @param damageMultiplier what the damage the marked player takes is multiplied by -
- *                         {@code 1.25} is 25% more
+ *                         {@code 1.15} is 15% more
  */
 public record ArcherTag(int seconds, double damageMultiplier) {
 
@@ -19,7 +19,7 @@ public record ArcherTag(int seconds, double damageMultiplier) {
         }
     }
 
-    /** @return the extra damage as a whole percentage: 25 for 1.25 */
+    /** @return the extra damage as a whole percentage: 15 for 1.15 */
     public long percent() {
         return Math.round((damageMultiplier - 1.0) * 100.0);
     }

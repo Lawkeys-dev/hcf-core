@@ -7,9 +7,8 @@ import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.util.Cooldowns;
 import com.lawkeys.hcfcore.util.Durations;
 import com.lawkeys.hcfcore.util.EffectCaps;
+import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -66,7 +65,6 @@ public final class EnchantModule {
     private static final int EFFECT_TICKS = 400;
     private static final int REFRESH_BELOW_TICKS = 300;
     private static final Pattern VALID_ID = Pattern.compile("[a-z0-9_-]{1,32}");
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
 
     private final Plugin plugin;
     private final LangManager lang;
@@ -327,7 +325,7 @@ public final class EnchantModule {
     }
 
     private static Component line(String legacy) {
-        return LEGACY.deserialize(legacy).decoration(TextDecoration.ITALIC, false);
+        return ItemText.line(legacy);
     }
 
     /** @return a book that gives this enchant at this level when dragged onto an item */

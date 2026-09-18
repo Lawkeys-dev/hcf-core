@@ -52,7 +52,7 @@ hcf-core/
 │   ├── crowbar/                        # End portal frames
 │   ├── hologram/                       # unsaved TextDisplays, stored in the database; leaderboard lines
 │   ├── integration/                    # vault/ (Economy), luckperms/ (chat prefix), lunar/ (Apollo)
-│   └── util/                           # Cuboid, ChunkPosition, WorldPosition, Durations, ColorCodes, TextWrap...
+│   └── util/                           # Cuboid, ChunkPosition, WorldPosition, Durations, ColorCodes, TextWrap, ItemText...
 ├── src/main/resources/
 │   ├── plugin.yml
 │   ├── config.yml + 24 module files (teams.yml, claims.yml, dtr.yml...)
@@ -218,6 +218,7 @@ The manager never talks to a player: it returns a `TeamResult` carrying a **lang
 - **A handler that draws a consequence from an event ignores it when cancelled** (`ignoreCancelled = true`). `EntityDeathEvent` is cancellable in 26.2 — the player is revived — and a cancelled death must not ban, cost DTR or count.
 - **Two listeners competing for an event are ordered by priority, and the order is written down**: the staff channel (`LOW`) comes before team chat routing (`NORMAL`).
 - **A refusal message on a repeated action** — a held click, a held key, a pushed border — goes through `util/RefusalThrottle`.
+- **An item's name or lore line** goes through `util/ItemText`: the game draws them in italics unless told otherwise, and a menu or a plugin's item should not read as a renamed one.
 - **A player command that finds someone by name goes through `command/VisiblePlayers`**: vanished staff are neither found nor completed.
 - **An offline name is resolved with `Bukkit#getOfflinePlayerIfCached`**, never with `getOfflinePlayer(String)` (a blocking web request) nor by walking `getOfflinePlayers()` (which lists the `playerdata` folder on every call).
 - **Text typed by a player and inserted into a message for another is escaped** (`ColorCodes.escape`) unless the player holds the colour permission: templates are coloured after substitution.

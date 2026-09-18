@@ -172,7 +172,7 @@ public final class ClassConfig {
         if (entry.get("archer-tag") != null) {
             Map<String, ?> section = map(entry.get("archer-tag"), at + ".archer-tag");
             long seconds = seconds(section.get("seconds"), 10, at + ".archer-tag.seconds");
-            double multiplier = decimal(section.get("damage-multiplier"), 1.25, at + ".archer-tag.damage-multiplier");
+            double multiplier = decimal(section.get("damage-multiplier"), 1.15, at + ".archer-tag.damage-multiplier");
             if (seconds > 0 && multiplier >= 1.0) {
                 archerTag = new ArcherTag((int) Math.min(Integer.MAX_VALUE, seconds), multiplier);
             } else {
@@ -235,8 +235,11 @@ public final class ClassConfig {
                     + " leather; the colours will never match.");
         }
 
+        // A class's own warmup, over the shared one: none for the Diamond, which gives nothing.
+        Long warmup = entry.get("warmup-seconds") == null ? null
+                : seconds(entry.get("warmup-seconds"), 10, at + ".warmup-seconds");
         return new PvpClass(id, displayName, armor, permission, maxPerTeam, passive, energy, held, clicks,
-                archerTag, backstab, invisibleBelowY, dyes);
+                archerTag, backstab, invisibleBelowY, dyes, warmup);
     }
 
     private static boolean entryHasEnergy(Map<String, ?> entry) {

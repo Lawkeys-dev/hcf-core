@@ -98,7 +98,7 @@ public final class ClassManager {
                 state.pendingSince = now;
                 changes.add(new Change(Kind.WARMUP_STARTED, wearing));
             }
-            if (now - state.pendingSince >= settings.get().warmupSeconds() * 1000L) {
+            if (now - state.pendingSince >= settings.get().warmupOf(wearing) * 1000L) {
                 state.pending = null;
                 if (!room.hasRoomFor(wearing)) {
                     state.refused = wearing;
@@ -135,7 +135,7 @@ public final class ClassManager {
         if (state == null || state.pending == null) {
             return 0;
         }
-        long left = state.pendingSince + settings.get().warmupSeconds() * 1000L - now;
+        long left = state.pendingSince + settings.get().warmupOf(state.pending) * 1000L - now;
         return left <= 0 ? 0 : (left + 999) / 1000;
     }
 

@@ -1,5 +1,6 @@
 package com.lawkeys.hcfcore.settings;
 
+import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -70,12 +71,12 @@ public final class SettingsMenu implements InventoryHolder {
         ItemStack item = ItemStack.of(on ? Material.LIME_DYE : Material.GRAY_DYE);
         String state = module.getLang().get(on ? SettingsMessages.STATE_ON : SettingsMessages.STATE_OFF);
         List<Component> lore = new ArrayList<>();
-        lore.add(LEGACY.deserialize(module.getLang().get(SettingsMessages.description(setting))));
+        lore.add(ItemText.line(module.getLang().get(SettingsMessages.description(setting))));
         lore.add(Component.empty());
-        lore.add(LEGACY.deserialize(module.getLang().get(SettingsMessages.LORE_STATE, "state", state)));
-        lore.add(LEGACY.deserialize(module.getLang().get(SettingsMessages.LORE_CLICK)));
+        lore.add(ItemText.line(module.getLang().get(SettingsMessages.LORE_STATE, "state", state)));
+        lore.add(ItemText.line(module.getLang().get(SettingsMessages.LORE_CLICK)));
         item.editMeta(meta -> {
-            meta.customName(LEGACY.deserialize(module.displayName(setting)));
+            meta.customName(ItemText.line(module.displayName(setting)));
             meta.lore(lore);
         });
         return item;

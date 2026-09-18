@@ -1,9 +1,9 @@
 package com.lawkeys.hcfcore.events.king;
 
 import com.lawkeys.hcfcore.lang.LangManager;
+import com.lawkeys.hcfcore.util.ItemText;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -105,8 +105,7 @@ final class KingKitFactory {
             }
         }
         if (spec.name() != null) {
-            item.editMeta(meta -> meta.customName(
-                    LegacyComponentSerializer.legacySection().deserialize(LangManager.colorize(spec.name()))));
+            item.editMeta(meta -> meta.customName(ItemText.line(LangManager.colorize(spec.name()))));
         }
         item.editPersistentDataContainer(data -> data.set(marker, PersistentDataType.BYTE, (byte) 1));
         return item;

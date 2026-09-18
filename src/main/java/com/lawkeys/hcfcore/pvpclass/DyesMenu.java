@@ -1,5 +1,6 @@
 package com.lawkeys.hcfcore.pvpclass;
 
+import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -99,15 +100,15 @@ public final class DyesMenu implements InventoryHolder {
                 lang.get(ClassMessages.DYES_LORE_CHANCE, "chance", ClassModule.formatNumber(entry.effect().chance())),
                 "",
                 lang.get(ClassMessages.DYES_LORE_HOWTO, "colour", colour))) {
-            lore.add(line.isEmpty() ? Component.empty() : LEGACY.deserialize(line));
+            lore.add(line.isEmpty() ? Component.empty() : ItemText.line(line));
         }
         if (worn.map(entry.colour()::equals).orElse(false)
                 && wornClass.map(entry.pvpClass().id()::equals).orElse(false)) {
             lore.add(Component.empty());
-            lore.add(LEGACY.deserialize(lang.get(ClassMessages.DYES_LORE_YOURS)));
+            lore.add(ItemText.line(lang.get(ClassMessages.DYES_LORE_YOURS)));
         }
         item.editMeta(meta -> {
-            meta.customName(LEGACY.deserialize(lang.get(ClassMessages.DYES_ITEM_NAME, "colour", colour)));
+            meta.customName(ItemText.line(lang.get(ClassMessages.DYES_ITEM_NAME, "colour", colour)));
             meta.lore(lore);
         });
         return item;

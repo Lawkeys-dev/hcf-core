@@ -51,6 +51,7 @@ held-effect-interval-ticks: 5
 #     display-name: "&dMy Class"
 #     permission: ""                  needed to use it; empty for everybody
 #     max-per-team: 0                 members of one team in it at once; 0 = no limit
+#     warmup-seconds: 10              this class's own warmup; the shared one if absent
 #     armor:                          the four pieces, as the server names items
 #       helmet: NETHERITE_HELMET
 #       chestplate: NETHERITE_CHESTPLATE
@@ -87,7 +88,7 @@ held-effect-interval-ticks: 5
 #
 #     archer-tag:                     a player hit by this class's arrows takes more
 #       seconds: 10                   damage, from everybody, for a while
-#       damage-multiplier: 1.25       1.25 = 25% more
+#       damage-multiplier: 1.15       1.15 = 15% more
 #
 #     backstab:                       a melee hit from behind with the weapon deals
 #       weapon: GOLDEN_SWORD          fixed damage that armour does not reduce
@@ -127,6 +128,8 @@ classes:
   # --8<-- [start:diamond]
   diamond:
     display-name: "&bDiamond"
+    # No warmup: the Diamond gives no effect, so there is nothing to wait for.
+    warmup-seconds: 0
     # --8<-- [start:diamond-armor]
     armor:
       helmet: DIAMOND_HELMET
@@ -281,7 +284,7 @@ classes:
     # --8<-- [start:archer-tag]
     archer-tag:
       seconds: 10
-      damage-multiplier: 1.25
+      damage-multiplier: 1.15
     # --8<-- [end:archer-tag]
     # --8<-- [start:archer-dyes]
     dye-effects:

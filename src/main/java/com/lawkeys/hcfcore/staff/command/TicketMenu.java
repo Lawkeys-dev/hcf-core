@@ -7,6 +7,7 @@ import com.lawkeys.hcfcore.staff.ticket.TicketStatus;
 import com.lawkeys.hcfcore.staff.ticket.TicketType;
 import com.lawkeys.hcfcore.util.ColorCodes;
 import com.lawkeys.hcfcore.util.TextWrap;
+import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
@@ -135,10 +136,10 @@ public final class TicketMenu implements InventoryHolder {
 
         List<Component> components = new ArrayList<>(lore.size());
         for (String line : lore) {
-            components.add(LEGACY.deserialize(line));
+            components.add(ItemText.line(line));
         }
         item.editMeta(meta -> {
-            meta.customName(LEGACY.deserialize(name));
+            meta.customName(ItemText.line(name));
             meta.lore(components);
         });
         return item;

@@ -14,8 +14,8 @@ import com.lawkeys.hcfcore.team.TeamType;
 import com.lawkeys.hcfcore.util.ChunkPosition;
 import com.lawkeys.hcfcore.util.Cooldowns;
 import com.lawkeys.hcfcore.util.Durations;
+import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -52,8 +52,6 @@ import java.util.UUID;
 public final class CrowbarModule {
 
     public static final String ADMIN_PERMISSION = "hcfcore.crowbar.admin";
-
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
 
     /** @param uses uses a new crowbar has; {@code 0} is no limit */
     public record Settings(boolean enabled, Material material, String name, List<String> lore, int uses,
@@ -161,10 +159,10 @@ public final class CrowbarModule {
         String usesText = uses <= 0 ? lang.get(CrowbarMessages.UNLIMITED) : String.valueOf(uses);
         List<Component> lore = new ArrayList<>();
         for (String line : settings.lore()) {
-            lore.add(LEGACY.deserialize(LangManager.colorize(line.replace("%uses%", usesText))));
+            lore.add(ItemText.line(LangManager.colorize(line.replace("%uses%", usesText))));
         }
         item.editMeta(meta -> {
-            meta.customName(LEGACY.deserialize(LangManager.colorize(settings.name())));
+            meta.customName(ItemText.line(LangManager.colorize(settings.name())));
             meta.lore(lore);
         });
     }

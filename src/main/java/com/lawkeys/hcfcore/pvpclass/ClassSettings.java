@@ -30,6 +30,11 @@ public record ClassSettings(boolean enabled, long warmupSeconds, boolean abiliti
         return new ClassSettings(true, 10, false, HELD_INTERVAL_TICKS, List.of());
     }
 
+    /** @return a class's own warmup when it has one ({@code warmup-seconds} on the class), else the shared one */
+    public long warmupOf(PvpClass pvpClass) {
+        return pvpClass.warmupSeconds() != null ? pvpClass.warmupSeconds() : warmupSeconds;
+    }
+
     /** @return the class whose armour set these four pieces are, helmet to boots */
     public Optional<PvpClass> matching(List<String> worn) {
         return classes.stream().filter(pvpClass -> pvpClass.isWornAs(worn)).findFirst();

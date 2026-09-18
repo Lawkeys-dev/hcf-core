@@ -34,7 +34,7 @@ public record PvpClass(String id, String displayName, List<String> armor, String
                        Map<String, Integer> passiveEffects, Energy energy,
                        Map<String, HeldEffect> heldEffects, Map<String, ClickEffect> clickEffects,
                        ArcherTag archerTag, Backstab backstab, Integer invisibleBelowY,
-                       Map<String, DyeEffect> dyeEffects) {
+                       Map<String, DyeEffect> dyeEffects, Long warmupSeconds) {
 
     public static final int ARMOR_PIECES = 4;
 

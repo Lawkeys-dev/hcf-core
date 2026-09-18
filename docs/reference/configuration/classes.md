@@ -28,6 +28,7 @@ Every class sits under `classes:`, with an **id** — 1 to 32 lower-case letters
 | `display-name` | text, `&` colours | the id | The name players see |
 | `permission` | permission node | none | Needed to use the class; without it, wearing the set gives no class. Any node works |
 | `max-per-team` | whole number | `0` | How many members of one team may be in the class at once. `0` is no limit |
+| `warmup-seconds` | whole seconds | the shared `warmup-seconds` | This class's own warmup. The shipped Diamond has `0`: it gives nothing, so there is nothing to wait for |
 | `armor` | four items | — | The set, see below. **Required** |
 | `passive-effects` | effects | none | [Passive effects](#passive-effects) |
 | `energy` | section | none | [Energy](#energy) |
@@ -151,7 +152,7 @@ A player hit by the class's arrows is **marked**, and takes more damage from eve
 | Key | Type | Default | What it does |
 |---|---|---|---|
 | `seconds` | seconds | `10` | How long the mark lasts; a new hit starts it over |
-| `damage-multiplier` | number, 1.0 or more | `1.25` | What the damage the marked player takes is multiplied by — `1.25` is 25% more, `1.5` is 50% more |
+| `damage-multiplier` | number, 1.0 or more | `1.15` | What the damage the marked player takes is multiplied by — `1.15` is 15% more, `1.5` is 50% more |
 
 ### Dyed sets
 

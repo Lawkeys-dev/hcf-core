@@ -38,7 +38,7 @@ import com.lawkeys.hcfcore.team.TeamManager;
 import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.team.TeamResult;
 import com.lawkeys.hcfcore.team.TeamMessages;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import com.lawkeys.hcfcore.util.ItemText;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -577,14 +577,12 @@ public final class StaffModule {
         }
         ItemStack item = ItemStack.of(material);
         if (spec.name() != null) {
-            item.editMeta(meta -> meta.customName(LegacyComponentSerializer.legacySection()
-                    .deserialize(LangManager.colorize(spec.name()))));
+            item.editMeta(meta -> meta.customName(ItemText.line(LangManager.colorize(spec.name()))));
         }
         if (!spec.lore().isEmpty()) {
             List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
             for (String line : spec.lore()) {
-                lore.add(LegacyComponentSerializer.legacySection()
-                        .deserialize(LangManager.colorize(line)));
+                lore.add(ItemText.line(LangManager.colorize(line)));
             }
             item.editMeta(meta -> meta.lore(lore));
         }

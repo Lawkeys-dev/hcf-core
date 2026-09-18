@@ -4,7 +4,7 @@ import com.lawkeys.hcfcore.command.VisiblePlayers;
 import com.lawkeys.hcfcore.general.GeneralMessages;
 import com.lawkeys.hcfcore.general.GeneralModule;
 import com.lawkeys.hcfcore.lang.LangManager;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import com.lawkeys.hcfcore.util.ItemText;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
@@ -167,8 +167,7 @@ public final class ToolboxCommand implements TabExecutor {
                     "max", String.valueOf(module.getSettings().renameMaxLength()));
             return;
         }
-        held.editMeta(meta -> meta.customName(LegacyComponentSerializer.legacySection()
-                .deserialize(LangManager.colorize(name))));
+        held.editMeta(meta -> meta.customName(ItemText.line(LangManager.colorize(name))));
         module.getLang().send(player, GeneralMessages.RENAMED, "name", name);
     }
 

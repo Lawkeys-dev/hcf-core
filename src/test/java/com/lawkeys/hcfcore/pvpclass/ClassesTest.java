@@ -22,6 +22,7 @@ class ClassesTest {
             "GOLDEN_HELMET", "GOLDEN_CHESTPLATE", "GOLDEN_LEGGINGS", "GOLDEN_BOOTS",
             "LEATHER_HELMET", "LEATHER_CHESTPLATE", "LEATHER_LEGGINGS", "LEATHER_BOOTS",
             "CHAINMAIL_HELMET", "CHAINMAIL_CHESTPLATE", "CHAINMAIL_LEGGINGS", "CHAINMAIL_BOOTS",
+            "DIAMOND_HELMET", "DIAMOND_CHESTPLATE", "DIAMOND_LEGGINGS", "DIAMOND_BOOTS",
             "SUGAR", "SPIDER_EYE", "GOLDEN_SWORD", "FEATHER", "BLAZE_POWDER");
     private static final Set<String> EFFECTS = Set.of("speed", "strength", "resistance", "wither", "jump_boost",
             "poison");
@@ -159,6 +160,26 @@ class ClassesTest {
             PvpClass loaded = config.parse(root(Map.of("rogue", rogue))).find("rogue").orElseThrow();
             assertTrue(loaded.clickEffects().get("FEATHER").includeSelf());
             assertEquals(1, warnings.size());
+        }
+
+        @Test
+        void aClassMayHaveItsOwnWarmup() {
+            Map<String, Object> diamond = new LinkedHashMap<>();
+            diamond.put("armor", armor("DIAMOND"));
+            diamond.put("warmup-seconds", 0);
+            ClassSettings settings = config.parse(root(Map.of("diamond", diamond, "bard", bard())));
+            assertEquals(0, settings.warmupOf(settings.find("diamond").orElseThrow()), "the Diamond turns on at once");
+            assertEquals(10, settings.warmupOf(settings.find("bard").orElseThrow()), "the shared warmup otherwise");
+        }
+
+        @Test
+        void anArcherTagIsFifteenPercentUnlessSetOtherwise() {
+            Map<String, Object> archer = new LinkedHashMap<>();
+            archer.put("armor", armor("LEATHER"));
+            archer.put("archer-tag", Map.of("seconds", 10));
+            PvpClass loaded = config.parse(root(Map.of("archer", archer))).find("archer").orElseThrow();
+            assertEquals(1.15, loaded.archerTag().damageMultiplier());
+            assertEquals(15, loaded.archerTag().percent());
         }
 
         @Test
@@ -316,6 +337,17 @@ class ClassesTest {
             assertEquals(1, manager.warmupRemaining(player, 9_001));
             assertEquals(List.of(ClassManager.Kind.ACTIVATED), kinds(manager.update(player, bard, 10_000, always)));
             assertEquals("bard", manager.active(player).orElseThrow().id());
+        }
+
+        @Test
+        void aClassWithoutWarmupTurnsOnAtOnce() {
+            ClassSettings noWarmup = config.parse(root(Map.of("diamond",
+                    Map.of("armor", armor("DIAMOND"), "warmup-seconds", 0))));
+            ClassManager instant = new ClassManager(() -> noWarmup);
+            PvpClass diamond = noWarmup.find("diamond").orElseThrow();
+            assertEquals(List.of(ClassManager.Kind.WARMUP_STARTED, ClassManager.Kind.ACTIVATED),
+                    kinds(instant.update(player, diamond, 0, always)));
+            assertEquals("diamond", instant.active(player).orElseThrow().id());
         }
 
         @Test

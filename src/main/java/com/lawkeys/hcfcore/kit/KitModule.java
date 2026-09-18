@@ -11,7 +11,7 @@ import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.startup.StartupBarrier;
 import com.lawkeys.hcfcore.startup.StartupGate;
 import com.lawkeys.hcfcore.util.Cooldowns;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import com.lawkeys.hcfcore.util.ItemText;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -255,13 +255,12 @@ public final class KitModule {
         }
         ItemStack item = ItemStack.of(material, Math.max(1, amount));
         if (ability.displayName() != null) {
-            item.editMeta(meta -> meta.customName(LegacyComponentSerializer.legacySection()
-                    .deserialize(LangManager.colorize(ability.displayName()))));
+            item.editMeta(meta -> meta.customName(ItemText.line(LangManager.colorize(ability.displayName()))));
         }
         if (!ability.lore().isEmpty()) {
             List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
             for (String line : ability.lore()) {
-                lore.add(LegacyComponentSerializer.legacySection().deserialize(LangManager.colorize(line)));
+                lore.add(ItemText.line(LangManager.colorize(line)));
             }
             item.editMeta(meta -> meta.lore(lore));
         }

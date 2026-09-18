@@ -4,8 +4,8 @@ import com.lawkeys.hcfcore.kit.Kit;
 import com.lawkeys.hcfcore.kit.KitLayout;
 import com.lawkeys.hcfcore.kit.KitMessages;
 import com.lawkeys.hcfcore.kit.KitModule;
+import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,7 +18,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -146,6 +145,6 @@ public final class KitLayoutMenu implements InventoryHolder {
     }
 
     private static Component line(String legacy) {
-        return LEGACY.deserialize(Objects.requireNonNullElse(legacy, "")).decoration(TextDecoration.ITALIC, false);
+        return ItemText.line(legacy);
     }
 }

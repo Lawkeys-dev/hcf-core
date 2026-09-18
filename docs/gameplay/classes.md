@@ -37,7 +37,7 @@ A logout or a death drops the class; the next time you wear the set, the warmup 
 
 ## Diamond
 
-Full diamond armour. No effects: the ordinary PvP set, listed so the scoreboard and `/class` name it.
+Full diamond armour. No effects: the ordinary PvP set, listed so the scoreboard and `/class` name it. **No warmup**: it turns on as soon as the set is on.
 
 ??? example "Diamond — as shipped in `classes.yml`"
 
@@ -95,7 +95,7 @@ Full **leather** armour. Fast and fragile.
 
 **Always**: Speed III, Resistance II.
 
-**Archer tag**: an arrow hit from an Archer **marks** the target for **10 seconds**. A marked player takes **25% more damage from everybody**, not only the Archer. A new hit starts the mark over. Both players are told, and the marked player's scoreboard shows the time left (`%archer_tag_line%`).
+**Archer tag**: an arrow hit from an Archer **marks** the target for **10 seconds**. A marked player takes **15% more damage from everybody**, not only the Archer. A new hit starts the mark over. Both players are told, and the marked player's scoreboard shows the time left (`%archer_tag_line%`).
 
 **Right-click Sugar**: Speed IV for 8 seconds, every 30 seconds.
 
