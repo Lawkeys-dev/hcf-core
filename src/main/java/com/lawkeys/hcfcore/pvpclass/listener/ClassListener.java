@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link #onHit} ({@code HIGHEST}) <em>decides</em> - after {@code pvp/} has refused
  * what it refuses at {@code HIGH}, so a hit that may not land is never a backstab -
  * and {@link #onLanded} ({@code MONITOR}) <em>records</em> a hit that went through:
- * the backstab's damage, its broken weapon, the archer tag.
+ * the backstab's damage, its broken weapon, the archer tag, an arrow's dye effect.
  */
 public final class ClassListener implements Listener {
 
@@ -166,6 +166,9 @@ public final class ClassListener implements Listener {
         }
         if (event.getDamager() instanceof AbstractArrow) {
             tagWithArrow(attacker, victim);
+            if (module.getSettings().enabled()) {
+                module.onArrowHit(attacker, victim);
+            }
         }
     }
 

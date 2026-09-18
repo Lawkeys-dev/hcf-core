@@ -10,6 +10,7 @@ import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.util.Cooldowns;
 import com.lawkeys.hcfcore.util.Durations;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -19,6 +20,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Classes: Diamond, Bard, Archer, Rogue, Miner - and any class an operator writes in
@@ -151,7 +154,7 @@ public final class ClassModule {
             return;
         }
         ClassConfig config = new ClassConfig(ClassModule::isItem, key -> lookUpEffect(key) != null,
-                message -> plugin.getLogger().warning("classes.yml: " + message));
+                DYE_PALETTE::containsKey, message -> plugin.getLogger().warning("classes.yml: " + message));
         ClassSettings loaded = config.parse(toMap(section));
         Map<String, PotionEffectType> types = new HashMap<>();
         for (PvpClass pvpClass : loaded.classes()) {
@@ -160,6 +163,8 @@ public final class ClassModule {
                     lookUpEffect(held.effect().effect())));
             pvpClass.clickEffects().values().forEach(click -> types.put(click.effect().effect(),
                     lookUpEffect(click.effect().effect())));
+            pvpClass.dyeEffects().values().forEach(dye -> types.put(dye.effect().effect(),
+                    lookUpEffect(dye.effect().effect())));
         }
         types.values().removeIf(Objects::isNull);
         this.effectTypes = Map.copyOf(types);
@@ -495,6 +500,60 @@ public final class ClassModule {
         String namespace = anyPluginKey.getNamespace();
         Set<NamespacedKey> keys = item.getItemMeta().getPersistentDataContainer().getKeys();
         return keys.stream().anyMatch(key -> key.getNamespace().equals(namespace));
+    }
+
+    // ------------------------------------------------------------------
+    // Dyed sets
+    // ------------------------------------------------------------------
+
+    /** Every dye the game has, by name, with the colour one dye gives leather. */
+    private static final Map<String, Integer> DYE_PALETTE = dyePalette();
+
+    private static Map<String, Integer> dyePalette() {
+        Map<String, Integer> palette = new LinkedHashMap<>();
+        for (DyeColor dye : DyeColor.values()) {
+            palette.put(dye.name(), dye.getColor().asRGB());
+        }
+        return Map.copyOf(palette);
+    }
+
+    /** @return the dye this player's set reads as - all four pieces dyed, all nearest the same dye */
+    public Optional<String> dyeColour(Player player) {
+        PlayerInventory inventory = player.getInventory();
+        List<Integer> colours = new ArrayList<>();
+        for (ItemStack piece : new ItemStack[] {inventory.getHelmet(), inventory.getChestplate(),
+                inventory.getLeggings(), inventory.getBoots()}) {
+            colours.add(piece != null && piece.getItemMeta() instanceof LeatherArmorMeta leather && leather.isDyed()
+                    ? leather.getColor().asRGB() : null);
+        }
+        return DyeColours.ofSet(colours, DYE_PALETTE);
+    }
+
+    /**
+     * An arrow from a class with dye effects hit somebody: the effect of the colour
+     * the shooter's set is dyed, if the roll allows it. The hit has landed, so the
+     * rules of combat have already let it through.
+     */
+    public void onArrowHit(Player shooter, Player victim) {
+        Optional<PvpClass> active = manager.active(shooter.getUniqueId());
+        if (active.isEmpty() || active.get().dyeEffects().isEmpty()) {
+            return;
+        }
+        Optional<String> colour = dyeColour(shooter);
+        DyeEffect dye = colour.map(active.get().dyeEffects()::get).orElse(null);
+        if (dye == null || !dye.applies(ThreadLocalRandom.current().nextDouble())) {
+            return;
+        }
+        PotionEffectType type = effectTypes.get(dye.effect().effect());
+        if (type == null) {
+            return;
+        }
+        pulse(victim, type, dye.effect());
+        String effectName = dye.effect().displayName();
+        lang.send(shooter, ClassMessages.DYE_SHOOTER, "player", victim.getName(), "effect", effectName,
+                "seconds", String.valueOf(dye.effect().seconds()));
+        lang.send(victim, ClassMessages.DYE_VICTIM, "player", shooter.getName(), "effect", effectName,
+                "seconds", String.valueOf(dye.effect().seconds()));
     }
 
     // ------------------------------------------------------------------

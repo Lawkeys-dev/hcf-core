@@ -27,11 +27,14 @@ import java.util.Optional;
  * @param archerTag       the Archer's mark on an arrow hit, or {@code null}
  * @param backstab        the Rogue's backstab, or {@code null}
  * @param invisibleBelowY invisible while below this height, or {@code null}
+ * @param dyeEffects      dye name to the effect this class's arrows may add while
+ *                        its set is dyed that colour (leather only)
  */
 public record PvpClass(String id, String displayName, List<String> armor, String permission, int maxPerTeam,
                        Map<String, Integer> passiveEffects, Energy energy,
                        Map<String, HeldEffect> heldEffects, Map<String, ClickEffect> clickEffects,
-                       ArcherTag archerTag, Backstab backstab, Integer invisibleBelowY) {
+                       ArcherTag archerTag, Backstab backstab, Integer invisibleBelowY,
+                       Map<String, DyeEffect> dyeEffects) {
 
     public static final int ARMOR_PIECES = 4;
 
@@ -47,6 +50,7 @@ public record PvpClass(String id, String displayName, List<String> armor, String
         passiveEffects = Map.copyOf(passiveEffects);
         heldEffects = Map.copyOf(heldEffects);
         clickEffects = Map.copyOf(clickEffects);
+        dyeEffects = Map.copyOf(dyeEffects);
     }
 
     /** @return whether these four pieces, helmet to boots, are this class's set */

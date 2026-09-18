@@ -67,6 +67,9 @@ Leaving while frozen bans. Lift it with `/freeze unban <player>`.
 **A class does not turn on.**
 All four pieces must be the class's exact items (a netherite set is not a diamond one), worn for the whole warmup (10 s): `/class` shows the countdown. A class with a `permission` needs it; a class with `max-per-team` stays off while the team is full — take a piece off to try again. `/class info <class>` shows the set.
 
+**An Archer's dyed set gives no effect.**
+All four pieces must be leather, dyed, and read as the same colour: `/class` shows the colour the set reads as, if any. The effect is a chance per hit (20% for green as shipped), and an arrow the rules of combat refuse gives nothing.
+
 **A Bard's items do nothing.**
 Held and click effects need the class on, and do not work on a safe zone (`abilities-in-safe-zones`). A click costs energy: the scoreboard (`%class_energy_line%`) and `/class` show how much is left.
 

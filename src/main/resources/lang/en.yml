@@ -1133,6 +1133,10 @@ classes:
   archer-tag:
     shooter: "&aArcher-tagged &f%player% &afor &f%seconds%s&a: they take &f+%percent%%&a damage."
     victim: "&cArcher-tagged by &f%player% &cfor &f%seconds%s&c: you take &f+%percent%% &cdamage."
+  # An archer's arrow, with the set dyed a colour that has an effect (classes.yml, dye-effects).
+  dye-effect:
+    shooter: "&aYour arrow gave &f%player% &f%effect% &afor &f%seconds%s&a."
+    victim: "&f%player%&c's arrow gave you &f%effect% &cfor &f%seconds%s&c."
   backstab:
     attacker: "&aYou backstabbed &f%player%&a!"
     victim: "&cYou were backstabbed by &f%player%&c!"
@@ -1148,6 +1152,7 @@ classes:
     active: "&7Class: &f%class%"
     warmup: "&7Class: &f%class% &7- on in &f%time%"
     energy: "&7Energy: &f%energy%&7/&f%max%"
+    dye: "&7Dyed &f%colour%&7: &f%chance%% &7chance of &f%effect% &7(%seconds%s) on an arrow hit"
     list-header: "&9Classes &7(wear the whole set):"
     list-entry: "&7- &f%class% &8(%id%)&7: %armor%"
     list-entry-set: "&7- &f%class% &8(%id%)&7: full %set% armour"
@@ -1163,6 +1168,7 @@ classes:
     info-cooldown: "&7, every &f%seconds%s"
     info-archer-tag: "&7Arrow hit: archer tag, &f+%percent%% &7damage taken for &f%seconds%s"
     info-backstab: "&7Backstab with &f%item%&7: &f%hearts% &7hearts through armour, every &f%cooldown%s"
+    info-dye: "&7Set dyed &f%colour%&7: &f%chance%% &7chance of &f%effect% &7for &f%seconds%s &7on an arrow hit"
     info-invisible: "&7Invisible below &fY %y%"
     info-limit: "&7At most &f%max% &7per team"
     info-permission: "&7Needs &f%permission%"

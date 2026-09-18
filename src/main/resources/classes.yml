@@ -85,6 +85,13 @@ abilities-in-safe-zones: false
 #
 #     invisible-below-y: 20           invisible while below this height
 #
+#     dye-effects:                    LEATHER sets only: while all four pieces are
+#       GREEN:                        dyed this colour, each arrow hit has a chance
+#         effect: poison              to give the target an effect
+#         level: 1
+#         seconds: 10
+#         chance: 20                  percent, 0 to 100
+#
 # Targets: "team" is the user and their teammates in range; "team-and-allies"
 # adds allied teams; "enemies" is everybody else in range whom the user could
 # hit; "self" is the user alone (radius unused). Effects use the server's names:
@@ -215,6 +222,13 @@ classes:
   # ------------------------------------------------------------------
   # Archer: fast and fragile. An arrow hit archer-tags the target, who
   # then takes more damage from everybody.
+  #
+  # Dye the leather set to give its arrows an effect (dye-effects below): all
+  # four pieces the same colour, in the inventory's crafting grid or at a
+  # crafting table - dyeing keeps the enchantments. A piece dyed with several
+  # dyes counts as the dye its colour is closest to. Colours are the game's
+  # dyes: WHITE, LIGHT_GRAY, GRAY, BLACK, BROWN, RED, ORANGE, YELLOW, LIME,
+  # GREEN (made from cactus), CYAN, LIGHT_BLUE, BLUE, PURPLE, MAGENTA, PINK.
   # ------------------------------------------------------------------
   archer:
     display-name: "&aArcher"
@@ -230,6 +244,28 @@ classes:
     archer-tag:
       seconds: 10
       damage-multiplier: 1.25
+    dye-effects:
+      GREEN:
+        effect: poison
+        level: 1
+        seconds: 10
+        chance: 20
+      # More colours, if your server wants them:
+      # BLACK:
+      #   effect: blindness
+      #   level: 1
+      #   seconds: 3
+      #   chance: 15
+      # LIGHT_BLUE:
+      #   effect: slowness
+      #   level: 1
+      #   seconds: 5
+      #   chance: 20
+      # GRAY:
+      #   effect: weakness
+      #   level: 1
+      #   seconds: 5
+      #   chance: 20
     click-effects:
       SUGAR:
         effect: speed

@@ -29,16 +29,20 @@ public final class ClassConfig {
 
     private final Predicate<String> knownItem;
     private final Predicate<String> knownEffect;
+    private final Predicate<String> knownDye;
     private final Consumer<String> warn;
 
     /**
      * @param knownItem   whether the server knows an item by this name (upper case)
      * @param knownEffect whether the server knows an effect by this key (lower case, no namespace)
+     * @param knownDye    whether the server knows a dye colour by this name (upper case)
      * @param warn        where problems are reported
      */
-    public ClassConfig(Predicate<String> knownItem, Predicate<String> knownEffect, Consumer<String> warn) {
+    public ClassConfig(Predicate<String> knownItem, Predicate<String> knownEffect, Predicate<String> knownDye,
+                       Consumer<String> warn) {
         this.knownItem = Objects.requireNonNull(knownItem, "knownItem");
         this.knownEffect = Objects.requireNonNull(knownEffect, "knownEffect");
+        this.knownDye = Objects.requireNonNull(knownDye, "knownDye");
         this.warn = Objects.requireNonNull(warn, "warn");
     }
 
@@ -199,8 +203,33 @@ public final class ClassConfig {
             }
         }
 
+        Map<String, DyeEffect> dyes = new LinkedHashMap<>();
+        map(entry.get("dye-effects"), at + ".dye-effects").forEach((key, value) -> {
+            String where = at + ".dye-effects." + key;
+            String dye = key.trim().toUpperCase(Locale.ROOT).replace('-', '_').replace(' ', '_');
+            if (!knownDye.test(dye)) {
+                warn.accept(where + ": '" + key + "' is not a dye colour (WHITE, RED, GREEN...); ignored.");
+                return;
+            }
+            Map<String, ?> section = map(value, where);
+            ClassEffect effect = effect(section, 10, where);
+            if (effect == null) {
+                return;
+            }
+            double chance = decimal(section.get("chance"), 0.0, where + ".chance");
+            if (chance < 0 || chance > 100) {
+                warn.accept(where + ".chance: must be from 0 to 100; ignored.");
+                return;
+            }
+            dyes.put(dye, new DyeEffect(effect, chance));
+        });
+        if (!dyes.isEmpty() && !armor.stream().allMatch(piece -> piece.startsWith("LEATHER_"))) {
+            warn.accept(at + ".dye-effects: only leather armour can be dyed, and this set is not all"
+                    + " leather; the colours will never match.");
+        }
+
         return new PvpClass(id, displayName, armor, permission, maxPerTeam, passive, energy, held, clicks,
-                archerTag, backstab, invisibleBelowY);
+                archerTag, backstab, invisibleBelowY, dyes);
     }
 
     private static boolean entryHasEnergy(Map<String, ?> entry) {

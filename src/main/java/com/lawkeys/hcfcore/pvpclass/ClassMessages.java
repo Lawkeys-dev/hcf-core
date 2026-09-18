@@ -21,6 +21,9 @@ public final class ClassMessages {
     public static final String ARCHER_TAGGED_SHOOTER = "classes.archer-tag.shooter";
     public static final String ARCHER_TAGGED_VICTIM = "classes.archer-tag.victim";
 
+    public static final String DYE_SHOOTER = "classes.dye-effect.shooter";
+    public static final String DYE_VICTIM = "classes.dye-effect.victim";
+
     public static final String BACKSTAB_ATTACKER = "classes.backstab.attacker";
     public static final String BACKSTAB_VICTIM = "classes.backstab.victim";
     public static final String BACKSTAB_COOLDOWN = "classes.backstab.cooldown";
@@ -34,6 +37,7 @@ public final class ClassMessages {
     public static final String STATUS_ACTIVE = "classes.command.active";
     public static final String STATUS_WARMUP = "classes.command.warmup";
     public static final String STATUS_ENERGY = "classes.command.energy";
+    public static final String STATUS_DYE = "classes.command.dye";
     public static final String LIST_HEADER = "classes.command.list-header";
     public static final String LIST_ENTRY = "classes.command.list-entry";
     public static final String LIST_ENTRY_SET = "classes.command.list-entry-set";
@@ -48,6 +52,7 @@ public final class ClassMessages {
     public static final String INFO_COOLDOWN = "classes.command.info-cooldown";
     public static final String INFO_ARCHER_TAG = "classes.command.info-archer-tag";
     public static final String INFO_BACKSTAB = "classes.command.info-backstab";
+    public static final String INFO_DYE = "classes.command.info-dye";
     public static final String INFO_INVISIBLE = "classes.command.info-invisible";
     public static final String INFO_LIMIT = "classes.command.info-limit";
     public static final String INFO_PERMISSION = "classes.command.info-permission";

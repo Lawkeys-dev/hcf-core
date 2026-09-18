@@ -11,6 +11,7 @@ Classes: Diamond, Bard, Archer, Rogue and Miner as shipped, and any class you wr
 - `max-per-team` is `0` (no limit) for every shipped class.
 - `abilities-in-safe-zones: false`: held and click effects do not work at spawn. Passive effects always do.
 - A debuff (`targets: enemies`) reaches only players the user could hit.
+- `archer.dye-effects`: per dye colour of the leather set, a chance per arrow hit to give an effect — green gives Poison I for 10 s, 20% of the time.
 
 Changes apply with `/hcf reload`, to classes already on too.
 

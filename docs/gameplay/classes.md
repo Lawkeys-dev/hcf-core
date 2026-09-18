@@ -79,6 +79,22 @@ Full **leather** armour. Fast and fragile.
 
 **Right-click Sugar**: Speed IV for 8 seconds, every 30 seconds.
 
+### Dyed sets
+
+Dye the whole leather set one colour and the Archer's arrows may add an effect to whoever they hit. As shipped:
+
+| Colour | Chance per arrow hit | Effect |
+|---|---|---|
+| **Green** (the dye made from cactus) | 20% | Poison I, 10 s |
+
+Every colour can have its own effect, chance and duration — `dye-effects` in `classes.yml`, with black, light blue and gray given as commented examples. `/class` shows the colour your set reads as and its effect; `/class info archer` lists them all.
+
+- **All four pieces** must be dyed and read as the same colour. A piece dyed with several dyes counts as the dye its colour is closest to — one green and one lime dye still read as green, one green and two lime as lime.
+- The effect follows the hit: an arrow refused by the rules of combat (safe zone, SOTW, a teammate) gives nothing.
+- The archer tag and the dye effect are independent: a hit always tags, and may also poison.
+
+**Dyeing keeps the enchantments.** Dye a piece the vanilla way — the piece and a dye in the inventory's crafting grid, or at a crafting table — and it keeps everything it carried: enchantments, custom enchants, name and lore. The game builds the dyed piece from the original, only changing its colour.
+
 ## Rogue
 
 Full **chainmail** armour. Fast, agile, and dangerous from behind.
@@ -150,6 +166,7 @@ classes:
 | `archer-tag` | Arrow hits mark the target, who takes more damage |
 | `backstab` | A hit from behind with a weapon deals fixed damage through armour |
 | `invisible-below-y` | Invisible below a height |
+| `dye-effects` | Leather sets: per dye colour, a chance for the class's arrows to give an effect |
 
 **Targets** of held and click effects: `self` (the user alone), `team` (the user and teammates in range), `team-and-allies`, or `enemies` (everybody else in range the user could hit).
 

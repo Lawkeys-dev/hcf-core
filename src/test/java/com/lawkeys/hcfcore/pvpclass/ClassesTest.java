@@ -23,13 +23,18 @@ class ClassesTest {
             "LEATHER_HELMET", "LEATHER_CHESTPLATE", "LEATHER_LEGGINGS", "LEATHER_BOOTS",
             "CHAINMAIL_HELMET", "CHAINMAIL_CHESTPLATE", "CHAINMAIL_LEGGINGS", "CHAINMAIL_BOOTS",
             "SUGAR", "SPIDER_EYE", "GOLDEN_SWORD", "FEATHER");
-    private static final Set<String> EFFECTS = Set.of("speed", "strength", "resistance", "wither", "jump_boost");
+    private static final Set<String> EFFECTS = Set.of("speed", "strength", "resistance", "wither", "jump_boost",
+            "poison");
+    /** The game's colours for a few dyes, as Paper's DyeColor#getColor gives them. */
+    private static final Map<String, Integer> PALETTE = Map.of(
+            "GREEN", 0x5E7C16, "LIME", 0x80C71F, "RED", 0xB02E26, "BLACK", 0x1D1D21, "WHITE", 0xF9FFFE);
 
     private static final List<String> GOLD = List.of("GOLDEN_HELMET", "GOLDEN_CHESTPLATE", "GOLDEN_LEGGINGS", "GOLDEN_BOOTS");
     private static final List<String> LEATHER = List.of("LEATHER_HELMET", "LEATHER_CHESTPLATE", "LEATHER_LEGGINGS", "LEATHER_BOOTS");
 
     private final List<String> warnings = new ArrayList<>();
-    private final ClassConfig config = new ClassConfig(ITEMS::contains, EFFECTS::contains, warnings::add);
+    private final ClassConfig config = new ClassConfig(ITEMS::contains, EFFECTS::contains, PALETTE::containsKey,
+            warnings::add);
 
     private static Map<String, Object> armor(String prefix) {
         Map<String, Object> armor = new LinkedHashMap<>();
@@ -158,6 +163,87 @@ class ClassesTest {
             ClassSettings settings = config.parse(root(Map.of("My Class", Map.of("armor", armor("LEATHER")))));
             assertTrue(settings.classes().isEmpty());
             assertEquals(1, warnings.size());
+        }
+    }
+
+    @Nested
+    class Dyes {
+
+        private Map<String, Object> archer(Map<String, Object> dyeEffects) {
+            Map<String, Object> archer = new LinkedHashMap<>();
+            archer.put("armor", armor("LEATHER"));
+            archer.put("dye-effects", dyeEffects);
+            return archer;
+        }
+
+        @Test
+        void aColourGivesItsEffectAndChance() {
+            PvpClass archer = config.parse(root(Map.of("archer", archer(Map.of("green",
+                    Map.of("effect", "poison", "level", 1, "seconds", 10, "chance", 20)))))).find("archer").orElseThrow();
+            DyeEffect green = archer.dyeEffects().get("GREEN");
+            assertEquals("poison", green.effect().effect());
+            assertEquals(10, green.effect().seconds());
+            assertEquals(20.0, green.chance());
+            assertTrue(warnings.isEmpty(), warnings::toString);
+        }
+
+        @Test
+        void anUnknownColourIsLeftOut() {
+            PvpClass archer = config.parse(root(Map.of("archer", archer(Map.of("CACTUS",
+                    Map.of("effect", "poison", "chance", 20)))))).find("archer").orElseThrow();
+            assertTrue(archer.dyeEffects().isEmpty());
+            assertEquals(1, warnings.size());
+        }
+
+        @Test
+        void aChanceAboveAHundredIsRefused() {
+            PvpClass archer = config.parse(root(Map.of("archer", archer(Map.of("GREEN",
+                    Map.of("effect", "poison", "chance", 150)))))).find("archer").orElseThrow();
+            assertTrue(archer.dyeEffects().isEmpty());
+            assertEquals(1, warnings.size());
+        }
+
+        @Test
+        void aSetThatCannotBeDyedIsReported() {
+            Map<String, Object> bard = bard();
+            bard.put("dye-effects", Map.of("GREEN", Map.of("effect", "poison", "chance", 20)));
+            config.parse(root(Map.of("bard", bard)));
+            assertEquals(1, warnings.size(), "gold cannot be dyed");
+        }
+
+        @Test
+        void theChanceDecidesTheRoll() {
+            DyeEffect twenty = new DyeEffect(new ClassEffect("poison", 1, 10), 20);
+            assertTrue(twenty.applies(0.0));
+            assertTrue(twenty.applies(0.1999));
+            assertFalse(twenty.applies(0.2));
+            assertFalse(new DyeEffect(new ClassEffect("poison", 1, 10), 0).applies(0.0), "0% never applies");
+            assertTrue(new DyeEffect(new ClassEffect("poison", 1, 10), 100).applies(0.9999), "100% always does");
+        }
+
+        @Test
+        void oneDyeReadsAsItself() {
+            assertEquals("GREEN", DyeColours.nearest(0x5E7C16, PALETTE));
+        }
+
+        @Test
+        void aMixReadsAsTheClosestDye() {
+            // One green and one lime dye: the game averages them to #6FA11A (its brightening
+            // changes nothing here, both dyes peak in the green channel), a hair closer to green.
+            assertEquals("GREEN", DyeColours.nearest(0x6FA11A, PALETTE));
+            // One green and two lime average to #74AE1C: lime.
+            assertEquals("LIME", DyeColours.nearest(0x74AE1C, PALETTE));
+        }
+
+        @Test
+        void aSetHasAColourOnlyWhenAllFourPiecesShareIt() {
+            List<Integer> green = List.of(0x5E7C16, 0x5E7C16, 0x5A7A18, 0x5E7C16);
+            assertEquals("GREEN", DyeColours.ofSet(green, PALETTE).orElseThrow());
+            List<Integer> oneRed = List.of(0x5E7C16, 0xB02E26, 0x5E7C16, 0x5E7C16);
+            assertTrue(DyeColours.ofSet(oneRed, PALETTE).isEmpty());
+            List<Integer> oneUndyed = new ArrayList<>(green);
+            oneUndyed.set(2, null);
+            assertTrue(DyeColours.ofSet(oneUndyed, PALETTE).isEmpty(), "an undyed piece means no colour");
         }
     }
 

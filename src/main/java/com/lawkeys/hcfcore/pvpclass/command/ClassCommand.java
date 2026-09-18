@@ -4,6 +4,7 @@ import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.pvpclass.ClassManager;
 import com.lawkeys.hcfcore.pvpclass.ClassMessages;
 import com.lawkeys.hcfcore.pvpclass.ClassModule;
+import com.lawkeys.hcfcore.pvpclass.DyeEffect;
 import com.lawkeys.hcfcore.pvpclass.PvpClass;
 import com.lawkeys.hcfcore.pvpclass.ClassEffect;
 import com.lawkeys.hcfcore.util.Durations;
@@ -80,6 +81,13 @@ public final class ClassCommand implements TabExecutor {
                         "energy", String.valueOf((int) Math.floor(manager.energy(player.getUniqueId(), now))),
                         "max", ClassModule.formatNumber(active.get().energy().max()));
             }
+            Optional<String> colour = module.dyeColour(player);
+            DyeEffect dye = colour.map(active.get().dyeEffects()::get).orElse(null);
+            if (dye != null) {
+                lang.send(player, ClassMessages.STATUS_DYE, "colour", PvpClass.readableItem(colour.get()),
+                        "effect", dye.effect().displayName(), "chance", ClassModule.formatNumber(dye.chance()),
+                        "seconds", String.valueOf(dye.effect().seconds()));
+            }
             return;
         }
         Optional<PvpClass> pending = manager.pending(player.getUniqueId());
@@ -153,6 +161,9 @@ public final class ClassCommand implements TabExecutor {
                     "hearts", ClassModule.formatNumber(pvpClass.backstab().damage() / 2.0),
                     "cooldown", String.valueOf(pvpClass.backstab().cooldownSeconds()));
         }
+        pvpClass.dyeEffects().forEach((colour, dye) -> lang.send(sender, ClassMessages.INFO_DYE,
+                "colour", PvpClass.readableItem(colour), "effect", dye.effect().displayName(),
+                "chance", ClassModule.formatNumber(dye.chance()), "seconds", String.valueOf(dye.effect().seconds())));
         if (pvpClass.invisibleBelowY() != null) {
             lang.send(sender, ClassMessages.INFO_INVISIBLE, "y", String.valueOf(pvpClass.invisibleBelowY()));
         }
