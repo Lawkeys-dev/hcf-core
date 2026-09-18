@@ -62,6 +62,9 @@ dependencies {
     // --- Tests ---
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    // The YAML parser Paper 26.2 ships (libraries/org/yaml/snakeyaml/2.6): the tests read
+    // the shipped files as the server does, YAML 1.1 and all.
+    testImplementation("org.yaml:snakeyaml:2.6")
     // Gradle 9 no longer puts the JUnit Platform launcher on the test runtime
     // classpath by itself: without this, every test task fails before running a
     // single test with "Failed to load JUnit Platform". The version comes from the

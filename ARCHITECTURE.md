@@ -44,7 +44,7 @@ hcf-core/
 │   ├── killstreak/                     # rewards, plugged into stats/
 │   ├── enchant/                        # custom enchants (effect, Hellforged, Implanted, Recover, Autosmelt), books
 │   ├── limiter/                        # enchantment, potion and effect caps, blocks per claim
-│   ├── general/                        # utility commands
+│   ├── general/                        # utility and everyday commands (/spawn, /msg, /heal, /ci, /fly, /ec...)
 │   ├── schedule/                       # tips, scheduled announcements, custom timers, key-all
 │   ├── settings/                       # player settings (/settings, /cobble)
 │   ├── lives/                          # lives (absent in kitmap)

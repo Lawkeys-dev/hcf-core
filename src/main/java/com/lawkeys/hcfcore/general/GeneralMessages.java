@@ -54,6 +54,27 @@ public final class GeneralMessages {
     public static final String LOGOUT_CANCELLED = "general-commands.logout.cancelled";
     public static final String LOGOUT_KICK = "general-commands.logout.kick";
 
+    public static final String DONE_FOR_OTHER = "general-commands.done-for-other";
+    public static final String CLEARED = "general-commands.cleared";
+    public static final String FED = "general-commands.fed";
+    public static final String FLY_ENABLED = "general-commands.fly.enabled";
+    public static final String FLY_DISABLED = "general-commands.fly.disabled";
+    public static final String GOD_ENABLED = "general-commands.god.enabled";
+    public static final String GOD_DISABLED = "general-commands.god.disabled";
+    public static final String EXTINGUISHED = "general-commands.extinguished";
+    public static final String SPEED_FLY = "general-commands.speed.fly";
+    public static final String SPEED_WALK = "general-commands.speed.walk";
+    public static final String SPEED_INVALID = "general-commands.speed.invalid";
+    public static final String HAT_ON = "general-commands.hat.worn";
+    public static final String HAT_NOTHING = "general-commands.hat.nothing-held";
+    public static final String ITEM_GIVEN = "general-commands.item.given";
+    public static final String ITEM_UNKNOWN = "general-commands.item.unknown";
+    public static final String ITEM_AMOUNT = "general-commands.item.amount";
+    public static final String TPPOS_INVALID = "general-commands.tppos.invalid";
+    public static final String TIME_DAY = "general-commands.time.day";
+    public static final String TIME_NIGHT = "general-commands.time.night";
+    public static final String WEATHER_SUN = "general-commands.weather.sun";
+    public static final String WEATHER_RAIN = "general-commands.weather.rain";
     public static final String PLAYER_NOT_FOUND = "general-commands.player-not-found";
     public static final String USAGE = "general-commands.usage";
     public static final String DISABLED = "general-commands.disabled";

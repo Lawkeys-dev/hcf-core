@@ -133,6 +133,22 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/rename <name>` | | Rename the held item | `hcfcore.general.rename` |
 | `/more` | | Fill the held stack | `hcfcore.general.more` |
 | `/repair [all]` | `/fix` | Repair the held item, or everything | `hcfcore.general.repair`, `hcfcore.general.repair.all` |
+| `/clearinventory [player]` | `/ci`, `/clearinv` | Clear an inventory | `hcfcore.general.clearinventory` |
+| `/feed [player]` | `/eat` | Food and saturation to full | `hcfcore.general.feed` |
+| `/fly [player]` | | Flight on or off | `hcfcore.general.fly` |
+| `/god [player]` | `/godmode` | God mode on or off: no damage, no hunger — until logout | `hcfcore.general.god` |
+| `/flyspeed <0-10> [player]` · `/walkspeed <0-10> [player]` | | Flying or walking speed; `1` is the game's own, `10` the fastest | `hcfcore.general.speed` |
+| `/hat` | | Wear the held item | `hcfcore.general.hat` |
+| `/suicide` | | Die — a normal death: deathban, DTR, stats | `hcfcore.general.suicide` |
+| `/extinguish [player]` | `/ext` | Put out a fire | `hcfcore.general.extinguish` |
+| `/workbench` · `/anvil` | `/wb`, `/craft` | A crafting table or an anvil, anywhere | `hcfcore.general.workbench`, `hcfcore.general.anvil` |
+| `/enderchest [player]` | `/ec`, `/echest` | Your ender chest, or a player's — live, changes included | `hcfcore.general.enderchest` |
+| `/item <item> [amount]` | `/i` | Give yourself an item; a full stack without an amount | `hcfcore.general.item` |
+| `/tphere <player>` | `/s` | Bring a player to you | `hcfcore.general.tphere` |
+| `/tppos <x> <y> <z> [world]` | | Teleport to coordinates | `hcfcore.general.tppos` |
+| `/gmc` · `/gms` · `/gma` · `/gmsp` `[player]` | | Creative, survival, adventure, spectator | `hcfcore.general.admin` |
+| `/day` · `/night` `[world]` | | Time | `hcfcore.general.time` |
+| `/sun` · `/rain` `[world]` | | Weather | `hcfcore.general.weather` |
 
 `general.yml`'s `enabled: false` turns off every command in this table except `/settings` and `/cobble` — they then answer that they are disabled — for servers whose essentials plugin already provides them. `private-messages: false` turns off the four private-message commands alone, and `spawn.enabled: false` `/spawn` alone.
 

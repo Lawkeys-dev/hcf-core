@@ -7,6 +7,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **Everyday commands**, as an essentials plugin gives them: `/clearinventory` (`/ci`, `/clearinv`), `/feed` (`/eat`), `/fly`, `/god`, `/flyspeed`, `/walkspeed`, `/hat`, `/suicide`, `/extinguish` (`/ext`), `/workbench` (`/wb`, `/craft`), `/anvil`, `/enderchest` (`/ec`, `/echest`), `/item` (`/i`), `/tphere` (`/s`), `/tppos`, `/gmc`, `/gms`, `/gma`, `/gmsp`, `/day`, `/night`, `/sun`, `/rain`. One permission each, `hcfcore.general.<command>`, and `.others` to act on another player; operators by default. `/tpa`, `/home`, `/back` and `/near` are left out on purpose.
+- A test reads every shipped YAML file with the parser the server uses: a file that does not parse fails the build.
 - Classes: a class may have its own `warmup-seconds`. The shipped Diamond has none — it gives no effect, so there is nothing to wait for. *In an existing `classes.yml`, add `warmup-seconds: 0` under `diamond`.*
 - Classes: `include-self` on a held or click effect decides whether a team effect reaches its user too. The shipped Bard gives Strength I to the team but not to itself; its Strength II burst reaches it as well. *In an existing `classes.yml`, add `include-self: false` under the Bard's held `BLAZE_POWDER`.*
 

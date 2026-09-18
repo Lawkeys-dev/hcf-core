@@ -860,6 +860,38 @@ general-commands:
     list-empty: "&7You are not ignoring anybody."
     unknown: "&cNobody called '%player%' has played here."
 
+  # The everyday commands (/clearinventory, /feed, /fly, /god...). Keys are never
+  # "on" or "off": YAML reads those as true and false.
+  done-for-other: "&7Done for &b%player%&7."
+  cleared: "&7Inventory cleared."
+  fed: "&aFed."
+  fly:
+    enabled: "&aFlight on."
+    disabled: "&7Flight off."
+  god:
+    enabled: "&aGod mode on: no damage, no hunger."
+    disabled: "&7God mode off."
+  extinguished: "&7Fire put out."
+  speed:
+    fly: "&7Flying speed set to &f%speed%&7."
+    walk: "&7Walking speed set to &f%speed%&7."
+    invalid: "&c'%value%' is not a speed from 0 to 10."
+  hat:
+    worn: "&7Enjoy your new hat."
+    nothing-held: "&cHold the item first."
+  item:
+    given: "&7Given &f%amount% %item%&7."
+    unknown: "&c'%item%' is not an item."
+    amount: "&cThe amount must be from 1 to %max%."
+  tppos:
+    invalid: "&c'%value%' is not a coordinate."
+  time:
+    day: "&7It is day in &f%world%&7."
+    night: "&7It is night in &f%world%&7."
+  weather:
+    sun: "&7The sky clears in &f%world%&7."
+    rain: "&7It rains in &f%world%&7."
+
   renamed: "&7Renamed to &r%name%&7."
   rename-nothing-held: "&cHold the item first."
   rename-too-long: "&cThat name is too long (max %max%)."

@@ -179,6 +179,106 @@ commands:
   ping:
     description: Your ping, or another player's.
     usage: /<command> [player]
+  clearinventory:
+    aliases: [ci, clearinv]
+    description: Clear your inventory, or another player's.
+    usage: /<command> [player]
+    permission: hcfcore.general.clearinventory
+  feed:
+    aliases: [eat]
+    description: Fill your food and saturation, or another player's.
+    usage: /<command> [player]
+    permission: hcfcore.general.feed
+  fly:
+    description: Turn flight on or off, for you or another player.
+    usage: /<command> [player]
+    permission: hcfcore.general.fly
+  god:
+    aliases: [godmode]
+    description: "Turn god mode on or off: no damage, no hunger."
+    usage: /<command> [player]
+    permission: hcfcore.general.god
+  flyspeed:
+    description: Set a flying speed from 0 to 10; 1 is the game's own.
+    usage: /<command> <0-10> [player]
+    permission: hcfcore.general.speed
+  walkspeed:
+    description: Set a walking speed from 0 to 10; 1 is the game's own.
+    usage: /<command> <0-10> [player]
+    permission: hcfcore.general.speed
+  hat:
+    description: Wear the held item on your head.
+    usage: /<command>
+    permission: hcfcore.general.hat
+  suicide:
+    description: Die, as any other death.
+    usage: /<command>
+    permission: hcfcore.general.suicide
+  extinguish:
+    aliases: [ext]
+    description: Put out a fire on you or another player.
+    usage: /<command> [player]
+    permission: hcfcore.general.extinguish
+  workbench:
+    aliases: [wb, craft]
+    description: Open a crafting table anywhere.
+    usage: /<command>
+    permission: hcfcore.general.workbench
+  anvil:
+    description: Open an anvil anywhere.
+    usage: /<command>
+    permission: hcfcore.general.anvil
+  enderchest:
+    aliases: [ec, echest]
+    description: Open your ender chest, or another player's.
+    usage: /<command> [player]
+    permission: hcfcore.general.enderchest
+  item:
+    aliases: [i]
+    description: Give yourself an item.
+    usage: /<command> <item> [amount]
+    permission: hcfcore.general.item
+  tphere:
+    aliases: [s]
+    description: Bring a player to you.
+    usage: /<command> <player>
+    permission: hcfcore.general.tphere
+  tppos:
+    description: Teleport to coordinates.
+    usage: /<command> <x> <y> <z> [world]
+    permission: hcfcore.general.tppos
+  gmc:
+    description: Creative mode, for you or another player.
+    usage: /<command> [player]
+    permission: hcfcore.general.admin
+  gms:
+    description: Survival mode, for you or another player.
+    usage: /<command> [player]
+    permission: hcfcore.general.admin
+  gma:
+    description: Adventure mode, for you or another player.
+    usage: /<command> [player]
+    permission: hcfcore.general.admin
+  gmsp:
+    description: Spectator mode, for you or another player.
+    usage: /<command> [player]
+    permission: hcfcore.general.admin
+  day:
+    description: Make it day in your world, or the one named.
+    usage: /<command> [world]
+    permission: hcfcore.general.time
+  night:
+    description: Make it night in your world, or the one named.
+    usage: /<command> [world]
+    permission: hcfcore.general.time
+  sun:
+    description: Clear the weather in your world, or the one named.
+    usage: /<command> [world]
+    permission: hcfcore.general.weather
+  rain:
+    description: Make it rain in your world, or the one named.
+    usage: /<command> [world]
+    permission: hcfcore.general.weather
   logout:
     description: Log out safely after a countdown any damage or movement cancels.
     usage: /<command>
@@ -272,6 +372,29 @@ permissions:
       hcfcore.general.more: true
       hcfcore.general.repair: true
       hcfcore.general.repair.all: true
+      hcfcore.general.clearinventory: true
+      hcfcore.general.clearinventory.others: true
+      hcfcore.general.feed: true
+      hcfcore.general.feed.others: true
+      hcfcore.general.fly: true
+      hcfcore.general.fly.others: true
+      hcfcore.general.god: true
+      hcfcore.general.god.others: true
+      hcfcore.general.speed: true
+      hcfcore.general.speed.others: true
+      hcfcore.general.hat: true
+      hcfcore.general.suicide: true
+      hcfcore.general.extinguish: true
+      hcfcore.general.extinguish.others: true
+      hcfcore.general.workbench: true
+      hcfcore.general.anvil: true
+      hcfcore.general.enderchest: true
+      hcfcore.general.enderchest.others: true
+      hcfcore.general.item: true
+      hcfcore.general.tphere: true
+      hcfcore.general.tppos: true
+      hcfcore.general.time: true
+      hcfcore.general.weather: true
       hcfcore.kit.admin: true
       hcfcore.kit.sign: true
       hcfcore.chat.color: true
@@ -344,6 +467,89 @@ permissions:
     default: op
   hcfcore.general.repair:
     description: Repair the held item with /repair.
+    default: op
+  hcfcore.general.clearinventory:
+    description: Clear your own inventory with /clearinventory.
+    default: op
+  hcfcore.general.clearinventory.others:
+    description: Clear another player's inventory.
+    children:
+      hcfcore.general.clearinventory: true
+    default: op
+  hcfcore.general.feed:
+    description: Fill your own food with /feed.
+    default: op
+  hcfcore.general.feed.others:
+    description: Feed another player.
+    children:
+      hcfcore.general.feed: true
+    default: op
+  hcfcore.general.fly:
+    description: Turn your own flight on or off with /fly.
+    default: op
+  hcfcore.general.fly.others:
+    description: Turn another player's flight on or off.
+    children:
+      hcfcore.general.fly: true
+    default: op
+  hcfcore.general.god:
+    description: Turn your own god mode on or off with /god.
+    default: op
+  hcfcore.general.god.others:
+    description: Turn another player's god mode on or off.
+    children:
+      hcfcore.general.god: true
+    default: op
+  hcfcore.general.speed:
+    description: Set your own flying and walking speed.
+    default: op
+  hcfcore.general.speed.others:
+    description: Set another player's flying and walking speed.
+    children:
+      hcfcore.general.speed: true
+    default: op
+  hcfcore.general.hat:
+    description: Wear the held item with /hat.
+    default: op
+  hcfcore.general.suicide:
+    description: Die with /suicide.
+    default: op
+  hcfcore.general.extinguish:
+    description: Put out a fire on yourself with /extinguish.
+    default: op
+  hcfcore.general.extinguish.others:
+    description: Put out a fire on another player.
+    children:
+      hcfcore.general.extinguish: true
+    default: op
+  hcfcore.general.workbench:
+    description: Open a crafting table anywhere with /workbench.
+    default: op
+  hcfcore.general.anvil:
+    description: Open an anvil anywhere with /anvil.
+    default: op
+  hcfcore.general.enderchest:
+    description: Open your own ender chest with /enderchest.
+    default: op
+  hcfcore.general.enderchest.others:
+    description: Open another player's ender chest, and change it.
+    children:
+      hcfcore.general.enderchest: true
+    default: op
+  hcfcore.general.item:
+    description: Give yourself items with /item.
+    default: op
+  hcfcore.general.tphere:
+    description: Bring a player to you with /tphere.
+    default: op
+  hcfcore.general.tppos:
+    description: Teleport to coordinates with /tppos.
+    default: op
+  hcfcore.general.time:
+    description: Set the time with /day and /night.
+    default: op
+  hcfcore.general.weather:
+    description: Set the weather with /sun and /rain.
     default: op
   hcfcore.general.repair.all:
     description: Repair everything carried and worn with /repair all - and the held item, since /repair needs it.

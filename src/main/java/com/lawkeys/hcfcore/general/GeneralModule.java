@@ -2,9 +2,11 @@ package com.lawkeys.hcfcore.general;
 
 import com.lawkeys.hcfcore.claim.ClaimModule;
 import com.lawkeys.hcfcore.config.ConfigManager;
+import com.lawkeys.hcfcore.general.command.BasicsCommand;
 import com.lawkeys.hcfcore.general.command.MessageCommand;
 import com.lawkeys.hcfcore.general.command.TeleportCommand;
 import com.lawkeys.hcfcore.general.command.ToolboxCommand;
+import com.lawkeys.hcfcore.general.listener.GodModeListener;
 import com.lawkeys.hcfcore.general.listener.MessageListener;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.warmup.WarmupModule;
@@ -40,6 +42,8 @@ public final class GeneralModule {
     private volatile SpawnGuard spawnGuard = SpawnGuard.ALLOW;
     private volatile LogoutGuard logoutGuard = LogoutGuard.ALLOW;
     private final PrivateMessages messages = new PrivateMessages();
+    /** Players in /god mode; for the session only, a logout ends it. */
+    private final java.util.Set<java.util.UUID> gods = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private volatile java.util.function.BiConsumer<java.util.UUID, Boolean> messagesToggled = (player, on) -> {
     };
 
@@ -89,6 +93,7 @@ public final class GeneralModule {
     public void enable() {
         reloadSettings();
         plugin.getServer().getPluginManager().registerEvents(new MessageListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new GodModeListener(this), plugin);
 
         TeleportCommand teleports = new TeleportCommand(this);
         register("spawn", teleports);
@@ -105,6 +110,9 @@ public final class GeneralModule {
         for (String name : new String[] {"heal", "kill", "gamemode", "rename", "more", "repair", "ping", "logout"}) {
             register(name, toolbox);
         }
+
+        BasicsCommand basics = new BasicsCommand(this);
+        BasicsCommand.commands().forEach(name -> register(name, basics));
     }
 
     private void register(String name, TabExecutor executor) {
@@ -212,7 +220,30 @@ public final class GeneralModule {
                 warning -> plugin.getLogger().warning("general.yml: " + warning));
     }
 
+    /** @return whether this player is in /god mode */
+    public boolean isGod(java.util.UUID player) {
+        return gods.contains(player);
+    }
+
+    public void setGod(java.util.UUID player, boolean god) {
+        if (god) {
+            gods.add(player);
+        } else {
+            gods.remove(player);
+        }
+    }
+
+    /** @return whether the player is in god mode now */
+    public boolean toggleGod(java.util.UUID player) {
+        if (gods.remove(player)) {
+            return false;
+        }
+        gods.add(player);
+        return true;
+    }
+
     public void disable() {
         // The countdowns belong to the warmup module, which stops its own.
+        gods.clear();
     }
 }

@@ -34,13 +34,29 @@ Commands that need no node — `/team` and its player subcommands, `/pay`, `/bal
 | `hcfcore.crowbar.admin` | op | `/crowbar give` | ✓ |
 | `hcfcore.lives.admin` | op | `/lives give`, `take`, `set` | ✓ |
 | `hcfcore.limiter.bypass` | op | Place blocks past `limiters.yml`'s blocks-per-claim limits — only while `/staffbuild` is on | ✓ |
-| `hcfcore.general.admin` | op | `/heal`, `/kill`, `/gamemode` | ✓ |
+| `hcfcore.general.admin` | op | `/heal`, `/kill`, `/gamemode`, `/gmc`, `/gms`, `/gma`, `/gmsp` | ✓ |
 | `hcfcore.general.world` | op | `/world` | ✓ |
 | `hcfcore.general.top` | op | `/top`. It has no countdown — only a combat tag refuses it — so given to players it lifts them out of any trap and onto any roof | ✓ |
 | `hcfcore.general.rename` | op | `/rename` | ✓ |
 | `hcfcore.general.more` | op | `/more` | ✓ |
 | `hcfcore.general.repair` | op | `/repair` | ✓ |
 | `hcfcore.general.repair.all` | op | `/repair all`; includes `hcfcore.general.repair` | ✓ |
+| `hcfcore.general.clearinventory` · `.others` | op | `/clearinventory` for yourself · for others | ✓ |
+| `hcfcore.general.feed` · `.others` | op | `/feed` | ✓ |
+| `hcfcore.general.fly` · `.others` | op | `/fly` | ✓ |
+| `hcfcore.general.god` · `.others` | op | `/god` | ✓ |
+| `hcfcore.general.speed` · `.others` | op | `/flyspeed` and `/walkspeed` | ✓ |
+| `hcfcore.general.hat` | op | `/hat` | ✓ |
+| `hcfcore.general.suicide` | op | `/suicide` | ✓ |
+| `hcfcore.general.extinguish` · `.others` | op | `/extinguish` | ✓ |
+| `hcfcore.general.workbench` | op | `/workbench` | ✓ |
+| `hcfcore.general.anvil` | op | `/anvil` | ✓ |
+| `hcfcore.general.enderchest` · `.others` | op | `/enderchest`; another player's, which can be changed | ✓ |
+| `hcfcore.general.item` | op | `/item` | ✓ |
+| `hcfcore.general.tphere` | op | `/tphere` | ✓ |
+| `hcfcore.general.tppos` | op | `/tppos` | ✓ |
+| `hcfcore.general.time` | op | `/day`, `/night` | ✓ |
+| `hcfcore.general.weather` | op | `/sun`, `/rain` | ✓ |
 | `hcfcore.chat.color` | op | `&` colour and format codes in chat, in private messages (`/msg`, `/reply`), in the staff channel and in `/broadcast`. Without it, what a player types is shown as typed | ✓ |
 
 ## Nodes nobody holds by default
