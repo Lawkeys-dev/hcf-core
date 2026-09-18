@@ -350,8 +350,8 @@ public final class PvpModule {
             plugin.getLogger().info("Combat: " + combatMode.name().toLowerCase(java.util.Locale.ROOT) + ".");
         }
         if (previous == CombatMode.CLASSIC && combatMode == CombatMode.MODERN) {
-            // Every sword a player carries loses the blocking classic combat gave it.
-            Bukkit.getOnlinePlayers().forEach(LegacyCombatListener::stripSwords);
+            // Every item a player carries loses what classic combat gave it: blocking, weapon damage.
+            Bukkit.getOnlinePlayers().forEach(LegacyCombatListener::stripItems);
         }
         if (legacyListener != null) {
             Bukkit.getOnlinePlayers().forEach(legacyListener::syncHands);
@@ -401,10 +401,11 @@ public final class PvpModule {
             legacyTask = null;
         }
         // Transient, so a restart clears it anyway; this is for a plugin disabled
-        // while the server keeps running. The swords lose the blocking classic combat
-        // gave them, so a plugin removed leaves no sword that blocks.
+        // while the server keeps running. The items lose what classic
+        // combat gave them, so a plugin removed leaves no sword that blocks and no
+        // weapon at its 1.7 damage - in the inventories of those online.
         for (Player player : Bukkit.getOnlinePlayers()) {
-            LegacyCombatListener.stripSwords(player);
+            LegacyCombatListener.stripItems(player);
             AttributeInstance attribute = player.getAttribute(Attribute.ATTACK_SPEED);
             if (attribute != null) {
                 attribute.removeModifier(attackSpeedKey);

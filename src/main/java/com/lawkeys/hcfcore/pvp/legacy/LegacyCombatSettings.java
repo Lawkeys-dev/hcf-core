@@ -1,6 +1,8 @@
 package com.lawkeys.hcfcore.pvp.legacy;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -14,6 +16,7 @@ import java.util.Objects;
 public record LegacyCombatSettings(AttackCooldown attackCooldown,
                                    boolean noSweepAttacks,
                                    Criticals criticals,
+                                   WeaponDamage weaponDamage,
                                    SwordBlocking swordBlocking,
                                    Knockback knockback,
                                    boolean disableOffhand,
@@ -28,6 +31,7 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
     public LegacyCombatSettings {
         Objects.requireNonNull(attackCooldown, "attackCooldown");
         Objects.requireNonNull(criticals, "criticals");
+        Objects.requireNonNull(weaponDamage, "weaponDamage");
         Objects.requireNonNull(swordBlocking, "swordBlocking");
         Objects.requireNonNull(knockback, "knockback");
         Objects.requireNonNull(potions, "potions");
@@ -44,6 +48,45 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
 
     /** A critical hit while sprinting too, as 1.7 allowed; the modern game refuses it. */
     public record Criticals(boolean enabled, double multiplier) {
+    }
+
+    /**
+     * 1.7.10 weapon damage: what a hit with each item deals, the player's own 1 point
+     * included - as the old game counted it, a diamond sword's "+7 Attack Damage" on
+     * top of the player's 1. Keyed by item name in lower case; an item not listed
+     * keeps its modern damage.
+     */
+    public record WeaponDamage(boolean enabled, Map<String, Double> damage) {
+        public WeaponDamage {
+            damage = Map.copyOf(damage);
+        }
+
+        /** @return the 1.7 damage of an item, if it is listed */
+        public java.util.OptionalDouble of(String item) {
+            Double value = damage.get(item.toLowerCase(java.util.Locale.ROOT));
+            return value == null ? java.util.OptionalDouble.empty() : java.util.OptionalDouble.of(value);
+        }
+    }
+
+    /**
+     * The 1.7.10 values: a sword dealt 4 + its material's bonus, an axe 3 +, a pickaxe
+     * 2 +, a shovel 1 + (wood and gold 0, stone 1, iron 2, diamond 3), each plus the
+     * player's 1. Read from the 1.7.10 item classes; not in any official
+     * documentation. Netherite did not exist: one step above diamond, as each
+     * material was above the last.
+     */
+    public static Map<String, Double> weaponDamage17() {
+        Map<String, Double> table = new LinkedHashMap<>();
+        String[] materials = {"wooden", "golden", "stone", "iron", "diamond", "netherite"};
+        int[] bonus = {0, 0, 1, 2, 3, 4};
+        String[] tools = {"sword", "axe", "pickaxe", "shovel"};
+        int[] base = {4, 3, 2, 1};
+        for (int t = 0; t < tools.length; t++) {
+            for (int m = 0; m < materials.length; m++) {
+                table.put(materials[m] + "_" + tools[t], (double) (1 + base[t] + bonus[m]));
+            }
+        }
+        return table;
     }
 
     /**
@@ -120,6 +163,7 @@ public record LegacyCombatSettings(AttackCooldown attackCooldown,
                 new AttackCooldown(true, 1024.0),
                 true,
                 new Criticals(true, 1.5),
+                new WeaponDamage(true, weaponDamage17()),
                 new SwordBlocking(true, -0.5, 0.5),
                 new Knockback(true, 2.0, 0.4, 0.4, 0.4, 0.5, 0.1),
                 true,

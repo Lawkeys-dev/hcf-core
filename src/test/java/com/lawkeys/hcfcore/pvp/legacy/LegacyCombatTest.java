@@ -162,6 +162,27 @@ class LegacyCombatTest {
         }
 
         @Test
+        void weaponsDealTheOldGamesDamage() {
+            var weapons = SETTINGS.weaponDamage();
+            assertEquals(8.0, weapons.of("diamond_sword").orElseThrow(), "4 + diamond's 3 + the player's 1");
+            assertEquals(5.0, weapons.of("wooden_sword").orElseThrow());
+            assertEquals(7.0, weapons.of("diamond_axe").orElseThrow(), "an axe hit softer than a sword");
+            assertEquals(6.0, weapons.of("iron_axe").orElseThrow());
+            assertEquals(6.0, weapons.of("diamond_pickaxe").orElseThrow());
+            assertEquals(5.0, weapons.of("diamond_shovel").orElseThrow());
+            assertEquals(4.0, weapons.of("golden_axe").orElseThrow(), "gold was wood's damage");
+            assertEquals(9.0, weapons.of("netherite_sword").orElseThrow());
+        }
+
+        @Test
+        void anItemNotListedKeepsItsModernDamage() {
+            var weapons = SETTINGS.weaponDamage();
+            assertEquals(8.0, weapons.of("DIAMOND_SWORD").orElseThrow(), "item names are read without case");
+            assertTrue(weapons.of("trident").isEmpty());
+            assertTrue(weapons.of("wooden_hoe").isEmpty());
+        }
+
+        @Test
         void theModeIsReadWithoutCase() {
             assertEquals(CombatMode.CLASSIC, CombatMode.parse(" Classic ").orElseThrow());
             assertEquals(CombatMode.MODERN, CombatMode.parse("modern").orElseThrow());

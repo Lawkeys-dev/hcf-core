@@ -30,7 +30,7 @@ flowchart LR
 -   :material-map-marker-radius: [__Territory__](territory.md) — claims, protection, HQ, stuck, lock, server land and the warzone
 -   :material-shield-half-full: [__DTR and raids__](dtr-and-raids.md) — how many deaths a team takes, regeneration, the raid cycle
 -   :material-sword: [__Combat__](combat.md) — combat tag, combat logging, safe zones, friendly fire, loot protection
--   :material-sword-cross: [__Classic combat (1.7.10)__](classic-combat.md) — no attack cooldown, sword blocking, 1.7 knockback, regeneration and pots
+-   :material-sword-cross: [__Classic combat (1.7.10)__](classic-combat.md) — no attack cooldown, sword blocking, 1.7 weapon damage, knockback, regeneration and pots
 -   :material-shield-star: [__Classes__](classes.md) — Diamond, Bard, Archer, Rogue, Miner, and your own
 -   :material-skull: [__Deathbans and lives__](deathbans-and-lives.md) — ban length, rank tiers, lives and revives
 -   :material-calendar-clock: [__SOTW, EOTW and the Purge__](map-phases.md) — opening, closing and purging the map

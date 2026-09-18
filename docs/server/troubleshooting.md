@@ -81,6 +81,9 @@ Held and click effects need the class on, and do not work on a safe zone (`abili
 **A sword does not block.**
 Swords gain blocking while held, within half a second; switch items once. `sword-blocking.enabled` must be on.
 
+**A weapon keeps its modern damage.**
+It must be listed under `weapon-damage.damage`, by its item name. A weapon whose attributes a kit or another plugin set is left alone on purpose: give the kit a plain weapon.
+
 **Players regenerate too slowly, or not at all.**
 Classic regeneration heals half a heart every 4 seconds with 18 food or more, as 1.7 did, and only where the natural health regeneration gamerule is on.
 

@@ -32,6 +32,26 @@ Every click is a full-strength hit, as in 1.7: the attack-speed attribute is set
 
 The sword's sweep attack is refused — its damage and its push — so a hit only ever reaches the player hit.
 
+## Weapon damage
+
+```yaml title="pvp.yml"
+--8<-- "src/main/resources/pvp.yml:legacy-weapons"
+```
+
+Each weapon deals its 1.7.10 damage — the value listed, the player's own point included. **Swords hit harder than today and axes much softer**: in 1.7 the sword was the weapon, the axe a tool.
+
+| | Sword | Axe | Pickaxe | Shovel |
+|---|---|---|---|---|
+| Wood, gold | 5 | 4 | 3 | 2 |
+| Stone | 6 | 5 | 4 | 3 |
+| Iron | 7 | 6 | 5 | 4 |
+| Diamond | 8 | 7 | 6 | 5 |
+| Netherite | 9 | 8 | 7 | 6 |
+
+Netherite did not exist in 1.7: it is one step above diamond, as each material was above the last. An item left out of the list — a trident, a mace — keeps its modern damage; remove a line to keep that weapon modern.
+
+The damage is put on the weapon itself while it is held, so **the tooltip shows it** ("+7 Attack Damage" on a diamond sword, on top of the player's 1, as 1.7 showed it), and critical hits, Strength and Sharpness count from it. A weapon whose attributes a kit or another plugin set on purpose is left alone. The weapon goes back to its modern damage as soon as classic combat or the part is switched off.
+
 ## Critical hits
 
 ```yaml title="pvp.yml"
@@ -116,4 +136,7 @@ In 1.7, a rod's hook hitting a player was a hit of no damage: it knocked them ba
 
 ## What stays modern
 
-Weapon damage (a diamond axe hits harder than in 1.7), the armour formula, and the Sharpness bonus stay as the current game has them. The armour formula of 1.7 could only be reproduced through an API Paper has deprecated.
+The armour formula and the Sharpness bonus stay as the current game has them. The armour formula of 1.7 could only be reproduced through an API Paper has deprecated.
+
+!!! warning "Removing the plugin"
+    A sword's blocking and a weapon's 1.7 damage are set on the item. Switching classic combat off, or disabling the plugin, takes them back from the items **held by the players online** — and from any item as soon as it is held again while the plugin runs. An item lying in a chest or in an offline player's inventory when the plugin is removed keeps them.

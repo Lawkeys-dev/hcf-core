@@ -162,6 +162,46 @@ legacy-combat:
   no-sweep-attacks: true
   # --8<-- [end:legacy-sweep]
 
+  # --8<-- [start:legacy-weapons]
+  # 1.7 weapon damage: what a hit with each item deals, the player's own 1 point
+  # included (a diamond sword's "+7 Attack Damage" on top of the player's 1 = 8).
+  # Swords hit harder than today, axes much softer: the sword was the weapon.
+  # Values from the 1.7.10 game's item classes. Netherite did not exist: one step
+  # above diamond. An item not listed keeps its modern damage; remove one to keep
+  # it modern. A weapon whose attributes a kit or another plugin set is left alone.
+  weapon-damage:
+    enabled: true
+    damage:
+      # swords
+      wooden_sword: 5
+      golden_sword: 5
+      stone_sword: 6
+      iron_sword: 7
+      diamond_sword: 8
+      netherite_sword: 9
+      # axes
+      wooden_axe: 4
+      golden_axe: 4
+      stone_axe: 5
+      iron_axe: 6
+      diamond_axe: 7
+      netherite_axe: 8
+      # pickaxes
+      wooden_pickaxe: 3
+      golden_pickaxe: 3
+      stone_pickaxe: 4
+      iron_pickaxe: 5
+      diamond_pickaxe: 6
+      netherite_pickaxe: 7
+      # shovels
+      wooden_shovel: 2
+      golden_shovel: 2
+      stone_shovel: 3
+      iron_shovel: 4
+      diamond_shovel: 5
+      netherite_shovel: 6
+  # --8<-- [end:legacy-weapons]
+
   # --8<-- [start:legacy-criticals]
   # A critical hit while falling - sprinting included, which the modern game
   # refuses. Hits the modern game already counts as critical are left as they are.

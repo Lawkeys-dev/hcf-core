@@ -26,6 +26,7 @@ public final class LegacyCombatLoader {
         }
         ConfigurationSection cooldown = section.getConfigurationSection("attack-cooldown");
         ConfigurationSection crits = section.getConfigurationSection("critical-hits");
+        ConfigurationSection weapons = section.getConfigurationSection("weapon-damage");
         ConfigurationSection blocking = section.getConfigurationSection("sword-blocking");
         ConfigurationSection knockback = section.getConfigurationSection("knockback");
         ConfigurationSection potions = section.getConfigurationSection("thrown-potions");
@@ -44,6 +45,7 @@ public final class LegacyCombatLoader {
                 new LegacyCombatSettings.Criticals(
                         bool(crits, "enabled", d.criticals().enabled()),
                         positive(crits, "multiplier", d.criticals().multiplier(), "critical-hits", warn)),
+                readWeapons(weapons, d.weaponDamage(), warn),
                 new LegacyCombatSettings.SwordBlocking(
                         bool(blocking, "enabled", d.swordBlocking().enabled()),
                         number(blocking, "base", d.swordBlocking().base()),
@@ -80,6 +82,29 @@ public final class LegacyCombatLoader {
                         bool(strength, "enabled", d.strength().enabled()),
                         Math.max(0.0, number(strength, "per-level", d.strength().perLevel()))),
                 new LegacyCombatSettings.FishingRod(bool(rod, "enabled", d.fishingRod().enabled())));
+    }
+
+    private static LegacyCombatSettings.WeaponDamage readWeapons(ConfigurationSection section,
+                                                                 LegacyCombatSettings.WeaponDamage fallback,
+                                                                 Consumer<String> warn) {
+        if (section == null) {
+            return fallback;
+        }
+        ConfigurationSection table = section.getConfigurationSection("damage");
+        Map<String, Double> damage = new java.util.LinkedHashMap<>();
+        if (table == null) {
+            damage.putAll(fallback.damage());
+        } else {
+            for (String item : table.getKeys(false)) {
+                double value = table.getDouble(item, -1);
+                if (!(value > 0) || !Double.isFinite(value)) {
+                    warn.accept("legacy-combat.weapon-damage.damage." + item + " must be above 0; ignored.");
+                    continue;
+                }
+                damage.put(item.trim().toLowerCase(java.util.Locale.ROOT), value);
+            }
+        }
+        return new LegacyCombatSettings.WeaponDamage(section.getBoolean("enabled", fallback.enabled()), damage);
     }
 
     private static Throw readThrow(ConfigurationSection section, Throw fallback, String where, Consumer<String> warn) {

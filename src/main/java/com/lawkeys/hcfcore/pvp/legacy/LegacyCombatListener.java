@@ -7,6 +7,7 @@ import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings.AppleEffect;
 import com.lawkeys.hcfcore.util.RefusalThrottle;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.BlocksAttacks;
+import io.papermc.paper.datacomponent.item.ItemAttributeModifiers;
 import io.papermc.paper.datacomponent.item.blocksattacks.DamageReduction;
 import io.papermc.paper.datacomponent.item.blocksattacks.ItemDamageFunction;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
@@ -20,6 +21,7 @@ import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.FishHook;
@@ -47,6 +49,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
@@ -71,6 +74,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class LegacyCombatListener implements Listener {
 
     private static final long MESSAGE_EVERY_MILLIS = 2_000L;
+    /** The attack modifier classic combat puts on a weapon; how its own is told from any other. */
+    private static final NamespacedKey WEAPON_DAMAGE_KEY =
+            Objects.requireNonNull(NamespacedKey.fromString("hcfcore:legacy_damage"));
+    /** A player's own attack damage, which a weapon's modifier adds to. */
+    private static final double PLAYER_BASE_DAMAGE = 1.0;
 
     private final PvpModule module;
     private final RefusalThrottle refusals = new RefusalThrottle(MESSAGE_EVERY_MILLIS);
@@ -215,21 +223,22 @@ public final class LegacyCombatListener implements Listener {
     }
 
     // ------------------------------------------------------------------
-    // Sword blocking, no off-hand, no shields
+    // Weapon damage, sword blocking, no off-hand, no shields
     // ------------------------------------------------------------------
 
     /**
-     * Gives the swords a player holds the ability to block, the way a shield does
-     * (Paper's {@code blocks_attacks} item component, 26.2), or takes it back when
-     * classic combat or sword blocking is off. Only the swords in hand: those are the
-     * ones that can be used, and this runs whenever the hand changes and twice a
-     * second.
+     * Gives the items a player holds what classic combat puts on them - a sword's
+     * ability to block, the way a shield does (Paper's {@code blocks_attacks} item
+     * component, 26.2), and a weapon's 1.7 damage - or takes it back when classic
+     * combat or the part is off. Only the items in hand: those are the ones that can
+     * be used, and this runs whenever the hand changes and twice a second.
      */
     public void syncHands(Player player) {
         Optional<LegacyCombatSettings> settings = classic();
         boolean block = settings.map(c -> c.swordBlocking().enabled()).orElse(false);
         PlayerInventory inventory = player.getInventory();
         syncSword(inventory.getItemInMainHand(), block ? settings.get().swordBlocking() : null);
+        syncWeapon(inventory.getItemInMainHand(), weaponDamage(settings));
         if (settings.map(LegacyCombatSettings::disableOffhand).orElse(false)) {
             ItemStack offhand = inventory.getItemInOffHand();
             if (!offhand.isEmpty()) {
@@ -271,10 +280,66 @@ public final class LegacyCombatListener implements Listener {
                 .build());
     }
 
-    /** Takes blocking back from every sword a player carries: classic combat is being switched off. */
-    public static void stripSwords(Player player) {
+    private static LegacyCombatSettings.WeaponDamage weaponDamage(Optional<LegacyCombatSettings> settings) {
+        return settings.map(LegacyCombatSettings::weaponDamage).filter(LegacyCombatSettings.WeaponDamage::enabled)
+                .orElse(null);
+    }
+
+    /**
+     * Gives a weapon its 1.7 damage: the item's own attribute modifiers, its attack
+     * damage replaced by one of classic combat's - the attack speed and anything else
+     * kept. The tooltip shows it, and a critical hit or Strength count from it as
+     * from any weapon's. A weapon whose modifiers someone else changed (a kit's, another
+     * plugin's) is left as it is; one classic combat changed goes back to its
+     * default when the part is off, or the item is not listed.
+     */
+    private static void syncWeapon(ItemStack item, LegacyCombatSettings.WeaponDamage weapons) {
+        if (item == null || item.isEmpty()) {
+            return;
+        }
+        boolean overridden = item.isDataOverridden(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+        ItemAttributeModifiers current = item.getData(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+        AttributeModifier ours = current == null ? null : current.modifiers().stream()
+                .map(ItemAttributeModifiers.Entry::modifier)
+                .filter(modifier -> WEAPON_DAMAGE_KEY.equals(modifier.getKey()))
+                .findFirst().orElse(null);
+        if (overridden && ours == null) {
+            return;
+        }
+        java.util.OptionalDouble damage = weapons == null
+                ? java.util.OptionalDouble.empty() : weapons.of(item.getType().getKey().getKey());
+        if (damage.isEmpty()) {
+            if (ours != null) {
+                item.resetData(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+            }
+            return;
+        }
+        double amount = damage.getAsDouble() - PLAYER_BASE_DAMAGE;
+        if (ours != null && ours.getAmount() == amount) {
+            return;
+        }
+        ItemAttributeModifiers defaults = item.getType().getDefaultData(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.itemAttributes();
+        if (defaults != null) {
+            for (ItemAttributeModifiers.Entry entry : defaults.modifiers()) {
+                if (entry.attribute() != Attribute.ATTACK_DAMAGE) {
+                    builder.addModifier(entry.attribute(), entry.modifier(), entry.getGroup(), entry.display());
+                }
+            }
+        }
+        builder.addModifier(Attribute.ATTACK_DAMAGE, new AttributeModifier(WEAPON_DAMAGE_KEY, amount,
+                AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+        item.setData(DataComponentTypes.ATTRIBUTE_MODIFIERS, builder.build());
+    }
+
+    /**
+     * Takes back from every item a player carries what classic combat put on it -
+     * blocking, weapon damage: classic combat is being switched off.
+     */
+    public static void stripItems(Player player) {
         for (ItemStack item : player.getInventory().getContents()) {
             syncSword(item, null);
+            syncWeapon(item, null);
         }
     }
 
@@ -286,6 +351,7 @@ public final class LegacyCombatListener implements Listener {
         Optional<LegacyCombatSettings> settings = classic();
         syncSword(next, settings.filter(c -> c.swordBlocking().enabled())
                 .map(LegacyCombatSettings::swordBlocking).orElse(null));
+        syncWeapon(next, weaponDamage(settings));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
