@@ -3,6 +3,9 @@ package com.lawkeys.hcfcore.pvp;
 /** Every language key the PvP module can produce. Audited against {@code lang/en.yml}. */
 public final class PvpMessages {
 
+    public static final String LEGACY_NO_OFFHAND = "pvp.legacy.no-offhand";
+    public static final String LEGACY_NO_SHIELD = "pvp.legacy.no-shield";
+
     private PvpMessages() {
     }
 

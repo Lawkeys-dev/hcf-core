@@ -1,0 +1,532 @@
+package com.lawkeys.hcfcore.pvp.legacy;
+
+import com.lawkeys.hcfcore.pvp.PvpMessages;
+import com.lawkeys.hcfcore.pvp.PvpModule;
+import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings.Apple;
+import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings.AppleEffect;
+import com.lawkeys.hcfcore.util.RefusalThrottle;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.BlocksAttacks;
+import io.papermc.paper.datacomponent.item.blocksattacks.DamageReduction;
+import io.papermc.paper.datacomponent.item.blocksattacks.ItemDamageFunction;
+import io.papermc.paper.event.entity.EntityKnockbackEvent;
+import io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.GameRules;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Registry;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.FishHook;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+/**
+ * The 1.7.10 combat (config.yml, {@code combat: classic}): each handler asks the
+ * module for the classic settings, and does nothing in {@code modern}.
+ *
+ * <p>What a player may not harm is decided before any of this, by
+ * {@link PvpModule#judgeHarm}: the handlers that shape a hit run after it has been
+ * let through ({@code ignoreCancelled}), and the fishing rod asks the judge itself.
+ */
+public final class LegacyCombatListener implements Listener {
+
+    private static final long MESSAGE_EVERY_MILLIS = 2_000L;
+
+    private final PvpModule module;
+    private final RefusalThrottle refusals = new RefusalThrottle(MESSAGE_EVERY_MILLIS);
+    /** When each player's current stretch of regeneration began; main thread only. */
+    private final Map<UUID, Long> regenerating = new HashMap<>();
+    /** Victims of a melee hit that landed this tick, whose next push is the hit's own; main thread only. */
+    private final java.util.Set<UUID> awaitingBasePush = new java.util.HashSet<>();
+
+    public LegacyCombatListener(PvpModule module) {
+        this.module = Objects.requireNonNull(module, "module");
+    }
+
+    private Optional<LegacyCombatSettings> classic() {
+        return module.classicCombat();
+    }
+
+    // ------------------------------------------------------------------
+    // Hits: no sweeping, critical hits
+    // ------------------------------------------------------------------
+
+    /** 1.7 had no sweep attack: the sweep's damage to the players around is refused. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    public void onSweep(EntityDamageByEntityEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK
+                && classic().map(LegacyCombatSettings::noSweepAttacks).orElse(false)) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * And the sweep's push: the game pushes the players around before it hurts them
+     * (26.2 sources, {@code Player#attack}, cause {@code SWEEP_ATTACK}), so refusing
+     * the damage alone would leave the push.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    public void onSweepPush(EntityKnockbackEvent event) {
+        if (event.getCause() == EntityKnockbackEvent.Cause.SWEEP_ATTACK
+                && classic().map(LegacyCombatSettings::noSweepAttacks).orElse(false)) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * A critical hit by 1.7's rules - sprinting included, which the modern game
+     * refuses. After the rules of combat and Strength ({@code HIGH}), since a
+     * critical multiplies the whole hit.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onCritical(EntityDamageByEntityEvent event) {
+        if (event.isCritical() || !(event.getDamager() instanceof Player attacker)
+                || !(event.getEntity() instanceof LivingEntity victim)
+                || event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+            return;
+        }
+        Optional<LegacyCombatSettings> settings = classic().filter(c -> c.criticals().enabled());
+        if (settings.isEmpty()) {
+            return;
+        }
+        // Standing is read from the block under the feet, not from Player#isOnGround,
+        // which Paper deprecates: it is what the client claims.
+        boolean standing = attacker.getLocation().subtract(0, 0.05, 0).getBlock().isCollidable();
+        boolean critical = LegacyMath.isCritical(attacker.getFallDistance(), standing,
+                attacker.isClimbing(), attacker.isInWater(), attacker.hasPotionEffect(PotionEffectType.BLINDNESS),
+                attacker.isInsideVehicle());
+        if (critical) {
+            event.setDamage(event.getDamage() * settings.get().criticals().multiplier());
+            Location at = victim.getLocation().add(0, victim.getHeight() / 2, 0);
+            victim.getWorld().spawnParticle(Particle.CRIT, at, 12, 0.3, 0.4, 0.3, 0.1);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Knockback
+    // ------------------------------------------------------------------
+
+    /**
+     * Marks the victim of a melee hit that landed: the next push it gets is the hit's
+     * own. A melee hit pushes up to twice, and Paper names both pushes
+     * {@code ENTITY_ATTACK} (26.2 sources: {@code LivingEntity#hurtServer} deals the
+     * hit's push, with {@code DAMAGE} only when there is no direct attacker, then
+     * {@code Player#attack} adds a sprint or enchantment push with
+     * {@code causeExtraKnockback}) - but always in that order, the hit's first, and
+     * after this event. The mark lasts until the next tick.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onHitLanded(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player && event.getEntity() instanceof LivingEntity victim
+                && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK
+                && classic().map(c -> c.knockback().enabled()).orElse(false)) {
+            UUID id = victim.getUniqueId();
+            if (awaitingBasePush.add(id)) {
+                Bukkit.getScheduler().runTask(module.getPlugin(), () -> awaitingBasePush.remove(id));
+            }
+        }
+    }
+
+    /**
+     * 1.7.10 knockback for a melee hit. Before the knockback multipliers of
+     * {@code pvp.yml} ({@code HIGH}), which then scale the 1.7 push like any other.
+     *
+     * <p>Paper hands the push as what is added to the victim's velocity (26.2
+     * sources, {@code LivingEntity#knockback}): the 1.7 velocity minus the current one.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onKnockback(EntityKnockbackEvent event) {
+        if (!(event instanceof EntityPushedByEntityAttackEvent pushed)
+                || !(pushed.getPushedBy() instanceof Player attacker)
+                || !(event.getEntity() instanceof LivingEntity victim)
+                || event.getCause() != EntityKnockbackEvent.Cause.ENTITY_ATTACK) {
+            return;
+        }
+        Optional<LegacyCombatSettings.Knockback> rules = classic().map(LegacyCombatSettings::knockback)
+                .filter(LegacyCombatSettings.Knockback::enabled);
+        if (rules.isEmpty()) {
+            return;
+        }
+        if (awaitingBasePush.remove(victim.getUniqueId())) {
+            LegacyMath.Velocity current = velocity(victim.getVelocity());
+            LegacyMath.Velocity wanted = LegacyMath.knockback(current,
+                    attacker.getLocation().getX() - victim.getLocation().getX(),
+                    attacker.getLocation().getZ() - victim.getLocation().getZ(),
+                    knockbackResistance(victim), rules.get());
+            event.setKnockback(vector(wanted.minus(current)));
+        } else {
+            int level = attacker.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.KNOCKBACK)
+                    + (attacker.isSprinting() ? 1 : 0);
+            event.setKnockback(vector(LegacyMath.extraKnockback(attacker.getLocation().getYaw(), level, rules.get())));
+        }
+    }
+
+    private static double knockbackResistance(LivingEntity entity) {
+        AttributeInstance attribute = entity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+        return attribute == null ? 0.0 : attribute.getValue();
+    }
+
+    private static LegacyMath.Velocity velocity(Vector vector) {
+        return new LegacyMath.Velocity(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    private static Vector vector(LegacyMath.Velocity velocity) {
+        return new Vector(velocity.x(), velocity.y(), velocity.z());
+    }
+
+    // ------------------------------------------------------------------
+    // Sword blocking, no off-hand, no shields
+    // ------------------------------------------------------------------
+
+    /**
+     * Gives the swords a player holds the ability to block, the way a shield does
+     * (Paper's {@code blocks_attacks} item component, 26.2), or takes it back when
+     * classic combat or sword blocking is off. Only the swords in hand: those are the
+     * ones that can be used, and this runs whenever the hand changes and twice a
+     * second.
+     */
+    public void syncHands(Player player) {
+        Optional<LegacyCombatSettings> settings = classic();
+        boolean block = settings.map(c -> c.swordBlocking().enabled()).orElse(false);
+        PlayerInventory inventory = player.getInventory();
+        syncSword(inventory.getItemInMainHand(), block ? settings.get().swordBlocking() : null);
+        if (settings.map(LegacyCombatSettings::disableOffhand).orElse(false)) {
+            ItemStack offhand = inventory.getItemInOffHand();
+            if (!offhand.isEmpty()) {
+                inventory.setItemInOffHand(null);
+                inventory.addItem(offhand).values()
+                        .forEach(left -> player.getWorld().dropItemNaturally(player.getLocation(), left));
+            }
+        } else {
+            syncSword(inventory.getItemInOffHand(), block ? settings.get().swordBlocking() : null);
+        }
+    }
+
+    private static void syncSword(ItemStack item, LegacyCombatSettings.SwordBlocking blocking) {
+        if (item == null || item.isEmpty() || !item.getType().name().endsWith("_SWORD")) {
+            return;
+        }
+        boolean has = item.hasData(DataComponentTypes.BLOCKS_ATTACKS);
+        if (blocking == null) {
+            if (has) {
+                // Back to what a sword is by default: no blocking.
+                item.resetData(DataComponentTypes.BLOCKS_ATTACKS);
+            }
+            return;
+        }
+        if (has) {
+            return;
+        }
+        item.setData(DataComponentTypes.BLOCKS_ATTACKS, BlocksAttacks.blocksAttacks()
+                .blockDelaySeconds(0f)
+                .disableCooldownScale(0f)
+                .addDamageReduction(DamageReduction.damageReduction()
+                        .horizontalBlockingAngle(180f)
+                        .base((float) blocking.base())
+                        .factor((float) blocking.factor())
+                        .build())
+                // A sword did not wear out from blocking.
+                .itemDamage(ItemDamageFunction.itemDamageFunction().threshold(Float.MAX_VALUE).base(0f).factor(0f)
+                        .build())
+                .build());
+    }
+
+    /** Takes blocking back from every sword a player carries: classic combat is being switched off. */
+    public static void stripSwords(Player player) {
+        for (ItemStack item : player.getInventory().getContents()) {
+            syncSword(item, null);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onHeld(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+        // The new slot's item, now: by the next tick the player may already block.
+        ItemStack next = player.getInventory().getItem(event.getNewSlot());
+        Optional<LegacyCombatSettings> settings = classic();
+        syncSword(next, settings.filter(c -> c.swordBlocking().enabled())
+                .map(LegacyCombatSettings::swordBlocking).orElse(null));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onJoin(PlayerJoinEvent event) {
+        syncHands(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onSwapHands(PlayerSwapHandItemsEvent event) {
+        if (classic().map(LegacyCombatSettings::disableOffhand).orElse(false)) {
+            event.setCancelled(true);
+            tell(event.getPlayer(), PvpMessages.LEGACY_NO_OFFHAND);
+        }
+    }
+
+    /** No item into the off-hand slot through the inventory either - a click, a key, or a drag. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!classic().map(LegacyCombatSettings::disableOffhand).orElse(false)
+                || !(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
+        boolean offhandSlot = event.getClickedInventory() instanceof PlayerInventory
+                && event.getSlot() == OFFHAND_SLOT;
+        if (offhandSlot || event.getClick() == ClickType.SWAP_OFFHAND) {
+            event.setCancelled(true);
+            tell(player, PvpMessages.LEGACY_NO_OFFHAND);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (classic().map(LegacyCombatSettings::disableOffhand).orElse(false)
+                && event.getInventory().getType() == org.bukkit.event.inventory.InventoryType.CRAFTING
+                && event.getInventorySlots().contains(OFFHAND_SLOT)) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** The off-hand slot's index in a player's inventory (Bukkit's {@code PlayerInventory} layout). */
+    private static final int OFFHAND_SLOT = 40;
+
+    /** 1.7 had no shields: raising one is refused. Before partner items and classes ({@code LOW}). */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onUseShield(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        ItemStack item = event.getItem();
+        if (item != null && item.getType() == Material.SHIELD
+                && classic().map(LegacyCombatSettings::disableShields).orElse(false)) {
+            event.setUseItemInHand(Event.Result.DENY);
+            tell(event.getPlayer(), PvpMessages.LEGACY_NO_SHIELD);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Thrown potions and ender pearls
+    // ------------------------------------------------------------------
+
+    /**
+     * A splash potion or an ender pearl leaves the hand as it did in 1.7: straight
+     * where the player looks, without the player's own movement added.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onThrow(ProjectileLaunchEvent event) {
+        Projectile projectile = event.getEntity();
+        if (!(projectile.getShooter() instanceof Player player)) {
+            return;
+        }
+        Optional<LegacyCombatSettings> settings = classic();
+        if (settings.isEmpty()) {
+            return;
+        }
+        LegacyCombatSettings.Throw rules = null;
+        if (projectile instanceof ThrownPotion) {
+            rules = settings.get().potions();
+        } else if (projectile instanceof EnderPearl) {
+            rules = settings.get().pearls().throwing();
+            if (settings.get().pearls().noCooldown()) {
+                // The game starts the pearl's cooldown after this event: clear it a tick later.
+                Bukkit.getScheduler().runTask(module.getPlugin(),
+                        () -> player.setCooldown(ItemStack.of(Material.ENDER_PEARL), 0));
+            }
+        }
+        if (rules == null || !rules.enabled()) {
+            return;
+        }
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Location eye = player.getLocation();
+        LegacyMath.Velocity velocity = LegacyMath.throwVelocity(eye.getYaw(), eye.getPitch(), rules,
+                new double[] {random.nextGaussian(), random.nextGaussian(), random.nextGaussian()});
+        projectile.setVelocity(vector(velocity));
+    }
+
+    // ------------------------------------------------------------------
+    // Natural regeneration
+    // ------------------------------------------------------------------
+
+    /** The modern fast regeneration from saturation, refused: {@link #regenerate} heals instead. */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onRegain(EntityRegainHealthEvent event) {
+        if (event.getEntity() instanceof Player
+                && event.getRegainReason() == EntityRegainHealthEvent.RegainReason.SATIATED
+                && classic().map(c -> c.regeneration().enabled()).orElse(false)) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * 1.7.10's natural regeneration, every half-second: a player whose food is high
+     * enough, and who is hurt, heals {@code amount} each time {@code interval-seconds}
+     * have passed that way - the count starts over as soon as they are not. Only
+     * where the world lets health regenerate by itself.
+     */
+    public void regenerate() {
+        Optional<LegacyCombatSettings.Regeneration> rules = classic().map(LegacyCombatSettings::regeneration)
+                .filter(LegacyCombatSettings.Regeneration::enabled);
+        if (rules.isEmpty()) {
+            regenerating.clear();
+            return;
+        }
+        long now = System.currentTimeMillis();
+        long interval = Math.round(rules.get().intervalSeconds() * 1000.0);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            AttributeInstance maximum = player.getAttribute(Attribute.MAX_HEALTH);
+            double max = maximum == null ? 20.0 : maximum.getValue();
+            boolean eligible = !player.isDead() && player.getHealth() > 0 && player.getHealth() < max
+                    && player.getFoodLevel() >= rules.get().minimumFood()
+                    && Boolean.TRUE.equals(player.getWorld().getGameRuleValue(GameRules.NATURAL_HEALTH_REGENERATION));
+            if (!eligible) {
+                regenerating.remove(player.getUniqueId());
+                continue;
+            }
+            Long since = regenerating.putIfAbsent(player.getUniqueId(), now);
+            if (since != null && now - since >= interval) {
+                player.setHealth(Math.min(max, player.getHealth() + rules.get().amount()));
+                player.setExhaustion(player.getExhaustion() + (float) rules.get().exhaustion());
+                regenerating.put(player.getUniqueId(), now);
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Golden apples
+    // ------------------------------------------------------------------
+
+    /**
+     * A golden apple eaten the 1.7.10 way: the game's own eating is refused, and the
+     * apple is used up here with its 1.7 food and effects.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onEat(PlayerItemConsumeEvent event) {
+        Material type = event.getItem().getType();
+        if (type != Material.GOLDEN_APPLE && type != Material.ENCHANTED_GOLDEN_APPLE) {
+            return;
+        }
+        Optional<LegacyCombatSettings.GoldenApples> apples = classic().map(LegacyCombatSettings::goldenApples)
+                .filter(LegacyCombatSettings.GoldenApples::enabled);
+        if (apples.isEmpty()) {
+            return;
+        }
+        Apple apple = type == Material.GOLDEN_APPLE ? apples.get().golden() : apples.get().enchanted();
+        event.setCancelled(true);
+        Player player = event.getPlayer();
+        EquipmentSlot hand = event.getHand();
+        ItemStack held = player.getInventory().getItem(hand);
+        if (held.getType() != type) {
+            return;
+        }
+        held.setAmount(held.getAmount() - 1);
+        player.getInventory().setItem(hand, held.getAmount() <= 0 ? null : held);
+        int food = Math.min(20, player.getFoodLevel() + apple.food());
+        player.setFoodLevel(food);
+        player.setSaturation((float) Math.min(food, player.getSaturation() + apple.saturation()));
+        for (AppleEffect effect : apple.effects()) {
+            PotionEffectType effectType = effectType(effect.effect());
+            if (effectType != null) {
+                player.addPotionEffect(new PotionEffect(effectType, effect.seconds() * 20, effect.level() - 1));
+            }
+        }
+    }
+
+    private PotionEffectType effectType(String key) {
+        try {
+            PotionEffectType type = Registry.MOB_EFFECT.get(NamespacedKey.minecraft(key));
+            if (type == null) {
+                module.getPlugin().getLogger().warning("pvp.yml: legacy-combat.golden-apples names an unknown"
+                        + " effect '" + key + "'; left out.");
+            }
+            return type;
+        } catch (IllegalArgumentException invalid) {
+            return null;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Fishing rod
+    // ------------------------------------------------------------------
+
+    /**
+     * A rod's hook hitting a player knocks them back, shows them hurt and tags both,
+     * as in 1.7 - where the hook dealt a hit of no damage. Only a player the angler
+     * could hit.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onHook(ProjectileHitEvent event) {
+        if (!(event.getEntity() instanceof FishHook)
+                || !(event.getEntity().getShooter() instanceof Player angler)
+                || !(event.getHitEntity() instanceof Player victim)
+                || angler.getUniqueId().equals(victim.getUniqueId())) {
+            return;
+        }
+        Optional<LegacyCombatSettings> settings = classic().filter(c -> c.fishingRod().enabled());
+        if (settings.isEmpty() || module.judgeHarm(angler, victim).isPresent()) {
+            return;
+        }
+        LegacyMath.Velocity current = velocity(victim.getVelocity());
+        double towardsX = angler.getLocation().getX() - victim.getLocation().getX();
+        double towardsZ = angler.getLocation().getZ() - victim.getLocation().getZ();
+        LegacyMath.Velocity pushed = LegacyMath.knockback(current, towardsX, towardsZ,
+                knockbackResistance(victim), settings.get().knockback());
+        victim.setVelocity(vector(pushed));
+        // Paper's hurt animation takes where the hit comes from relative to the victim's facing;
+        // Minecraft's yaw of a direction (dx, dz) is atan2(-dx, dz).
+        float fromYaw = (float) Math.toDegrees(Math.atan2(-towardsX, towardsZ));
+        victim.playHurtAnimation(fromYaw - victim.getLocation().getYaw());
+        module.tagForHit(angler, victim);
+    }
+
+    // ------------------------------------------------------------------
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent event) {
+        regenerating.remove(event.getPlayer().getUniqueId());
+        refusals.forget(event.getPlayer().getUniqueId());
+    }
+
+    private void tell(Player player, String key) {
+        if (refusals.tryTell(player.getUniqueId(), System.currentTimeMillis())) {
+            module.getLang().send(player, key);
+        }
+    }
+}

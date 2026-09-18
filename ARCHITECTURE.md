@@ -29,7 +29,7 @@ hcf-core/
 │   ├── team/                           # teams, roles, alliances, focus, rally, bank, points
 │   ├── claim/                          # territory, protection, HQ/base, server land, warzone, lockclaim
 │   ├── dtr/                            # DTR, regeneration, raid announcements
-│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire
+│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire; legacy/ (classic 1.7.10 combat)
 │   ├── pvpclass/                       # classes: Diamond, Bard, Archer, Rogue, Miner and those classes.yml defines
 │   ├── economy/                        # balances, /pay, /eco, /team deposit|withdraw
 │   ├── events/                         # family A: KOTH/Citadel; conquest/; king/ (Kill the King)

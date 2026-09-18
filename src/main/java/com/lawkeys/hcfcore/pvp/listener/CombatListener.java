@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.pvp.listener;
 
 import com.lawkeys.hcfcore.pvp.CombatMath;
+import com.lawkeys.hcfcore.pvp.legacy.LegacyMath;
 import com.lawkeys.hcfcore.pvp.PvpMessages;
 import com.lawkeys.hcfcore.pvp.PvpModule;
 import com.lawkeys.hcfcore.pvp.PvpModule.Refusal;
@@ -72,9 +73,14 @@ public final class CombatListener implements Listener {
             return;
         }
 
-        // 2. The strength nerf adjusts the damage the server already computed.
-        int strengthLevel = getStrengthLevel(attacker);
-        if (strengthLevel > 0) {
+        // 2. Strength: 1.7's +130% per level in classic combat, else the HCF nerf.
+        // Both adjust the damage the server already computed.
+        int strengthLevel = strengthLevel(attacker);
+        var classic = module.classicCombat().filter(legacy -> legacy.strength().enabled());
+        if (strengthLevel > 0 && classic.isPresent()) {
+            event.setDamage(LegacyMath.strength(event.getDamage(), strengthLevel,
+                    settings.strength().vanillaBonusPerLevel(), classic.get().strength().perLevel()));
+        } else if (strengthLevel > 0 && settings.strength().enabled()) {
             event.setDamage(CombatMath.nerfStrength(event.getDamage(), strengthLevel,
                     settings.strength()));
         }
@@ -98,19 +104,7 @@ public final class CombatListener implements Listener {
         if (attacker == null || attacker.getUniqueId().equals(victim.getUniqueId())) {
             return;
         }
-        PvpSettings settings = module.getSettings();
-        if (!settings.enabled()) {
-            return;
-        }
-        if (module.getCombatTags().tag(victim.getUniqueId())) {
-            module.getLang().send(victim, PvpMessages.TAGGED,
-                    "seconds", String.valueOf(settings.combatTag().durationSeconds()));
-        }
-        if (settings.combatTag().tagAttacker()
-                && module.getCombatTags().tag(attacker.getUniqueId())) {
-            module.getLang().send(attacker, PvpMessages.TAGGED,
-                    "seconds", String.valueOf(settings.combatTag().durationSeconds()));
-        }
+        module.tagForHit(attacker, victim);
     }
 
     /**
@@ -307,10 +301,7 @@ public final class CombatListener implements Listener {
      *
      * @return the level, where amplifier 0 means level 1, or {@code 0} for none
      */
-    private int getStrengthLevel(Player attacker) {
-        if (!module.getSettings().strength().enabled()) {
-            return 0;
-        }
+    private static int strengthLevel(Player attacker) {
         PotionEffect strength = attacker.getPotionEffect(PotionEffectType.STRENGTH);
         return strength == null ? 0 : strength.getAmplifier() + 1;
     }

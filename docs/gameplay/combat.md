@@ -2,6 +2,9 @@
 
 *Configured in [`pvp.yml`](../reference/configuration/pvp.md). Command: `/pvp`.*
 
+!!! tip "The 1.7.10 feel"
+    `combat: classic` in `config.yml` switches the server to the 1.7.10 combat HCF grew up on — no attack cooldown, sword blocking, 1.7 knockback and regeneration, fast pots. See [Classic combat](classic-combat.md).
+
 ## Combat tag
 
 A hit tags **both players for 30 seconds** (`combat-tag.duration-seconds`; `tag-attacker` decides whether the attacker is tagged too). `/pvp` shows your tag and deathban status.

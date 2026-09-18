@@ -24,6 +24,17 @@ language: en
 kitmap-mode: false
 # --8<-- [end:kitmap-mode]
 
+# --8<-- [start:combat]
+# Which combat the server plays:
+#   modern  - the game's own combat, as it comes: attack cooldown, sweeping,
+#             shields, the off-hand.
+#   classic - the 1.7.10 feel HCF grew up on: no attack cooldown, no sweep, sword
+#             blocking, 1.7 knockback, criticals, regeneration, golden apples and
+#             Strength. Every part, and its numbers, is in pvp.yml (legacy-combat).
+# /hcf reload applies it; switching back to modern takes blocking off the swords.
+combat: modern
+# --8<-- [end:combat]
+
 # --8<-- [start:storage]
 # This whole section is read at startup only: changing it needs a restart, not
 # /hcf reload. Switching type starts from an empty database - nothing copies the

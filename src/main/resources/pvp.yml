@@ -137,3 +137,142 @@ friendly-fire:
   # Where can allies hurt each other? ALWAYS, EVENT_AREAS or NEVER.
   allies: EVENT_AREAS
 # --8<-- [end:friendly-fire]
+
+# --8<-- [start:legacy-combat]
+# ---------------------------------------------------------------------------
+# Classic combat - the 1.7.10 feel
+# ---------------------------------------------------------------------------
+# Used only while config.yml says "combat: classic"; in "modern", nothing below
+# applies. Every value ships at what 1.7.10 did; each part can be switched off on
+# its own, and its numbers tuned, as HCF servers always tuned their combat.
+#
+# The knockback multipliers and attack speed above still apply on top of it.
+legacy-combat:
+
+  # --8<-- [start:legacy-cooldown]
+  # No wait between two full-strength hits: the attack-speed attribute is set so
+  # high that every click is a full hit, as in 1.7. Replaces attack-speed above.
+  attack-cooldown:
+    remove: true
+    attack-speed: 1024.0
+  # --8<-- [end:legacy-cooldown]
+
+  # --8<-- [start:legacy-sweep]
+  # 1.7 had no sweep attack: the sweep's damage to the players around is refused.
+  no-sweep-attacks: true
+  # --8<-- [end:legacy-sweep]
+
+  # --8<-- [start:legacy-criticals]
+  # A critical hit while falling - sprinting included, which the modern game
+  # refuses. Hits the modern game already counts as critical are left as they are.
+  critical-hits:
+    enabled: true
+    multiplier: 1.5
+  # --8<-- [end:legacy-criticals]
+
+  # --8<-- [start:legacy-blocking]
+  # Right-click with a sword to block, as in 1.7: it takes (damage + 1) / 2, from
+  # every direction, with no delay, no sound and no wear on the sword. What is
+  # blocked is base + factor x damage. Swords get this while held; it is taken off
+  # when classic combat or blocking is switched off.
+  sword-blocking:
+    enabled: true
+    base: -0.5
+    factor: 0.5
+  # --8<-- [end:legacy-blocking]
+
+  # --8<-- [start:legacy-knockback]
+  # 1.7.10 knockback for a melee hit. The victim's velocity is divided by friction,
+  # then pushed "horizontal" away and "vertical" up - capped at vertical-limit -
+  # in the air as on the ground: that is what makes 1.7 combos. The modern game
+  # only lifts a victim who stands on the ground. A sprint hit, or a Knockback
+  # enchantment, adds extra-horizontal per level and extra-vertical up.
+  knockback:
+    enabled: true
+    friction: 2.0
+    horizontal: 0.4
+    vertical: 0.4
+    vertical-limit: 0.4
+    extra-horizontal: 0.5
+    extra-vertical: 0.1
+  # --8<-- [end:legacy-knockback]
+
+  # --8<-- [start:legacy-offhand]
+  # 1.7 had neither an off-hand nor shields. Whatever sits in the off-hand is moved
+  # into the inventory (or dropped when it is full).
+  disable-offhand: true
+  disable-shields: true
+  # --8<-- [end:legacy-offhand]
+
+  # --8<-- [start:legacy-potions]
+  # Splash and lingering potions leave the hand as in 1.7: straight where the
+  # player looks, lifted by pitch-offset degrees, at "speed" - WITHOUT the player's
+  # own movement, which the modern game adds and which makes pots fly ahead of a
+  # running player. Raise speed for faster pots.
+  thrown-potions:
+    enabled: true
+    speed: 0.5
+    pitch-offset: -20.0
+    inaccuracy: 1.0
+  # --8<-- [end:legacy-potions]
+
+  # --8<-- [start:legacy-pearls]
+  # Ender pearls: no one-second cooldown (1.7 had none - an HCF pearl cooldown is
+  # a separate matter), and thrown as 1.7 threw them.
+  ender-pearls:
+    no-cooldown: true
+    enabled: true
+    speed: 1.5
+    pitch-offset: 0.0
+    inaccuracy: 1.0
+  # --8<-- [end:legacy-pearls]
+
+  # --8<-- [start:legacy-regeneration]
+  # 1.7.10's natural regeneration: "amount" health (1.0 is half a heart) every
+  # interval-seconds while the food bar is at minimum-food or more, each costing
+  # "exhaustion" - instead of the modern fast regeneration from saturation. Only
+  # where the world's natural health regeneration gamerule is on.
+  natural-regeneration:
+    enabled: true
+    interval-seconds: 4.0
+    amount: 1.0
+    minimum-food: 18
+    exhaustion: 3.0
+  # --8<-- [end:legacy-regeneration]
+
+  # --8<-- [start:legacy-apples]
+  # Golden apples as in 1.7.10. The enchanted (Notch) apple gave Regeneration V.
+  # Each effect is an effect name, a level and seconds.
+  golden-apples:
+    enabled: true
+    golden-apple:
+      food: 4
+      saturation: 9.6
+      effects:
+        - {effect: regeneration, level: 2, seconds: 5}
+        - {effect: absorption, level: 1, seconds: 120}
+    enchanted-golden-apple:
+      food: 4
+      saturation: 9.6
+      effects:
+        - {effect: regeneration, level: 5, seconds: 30}
+        - {effect: absorption, level: 1, seconds: 120}
+        - {effect: resistance, level: 1, seconds: 300}
+        - {effect: fire_resistance, level: 1, seconds: 300}
+  # --8<-- [end:legacy-apples]
+
+  # --8<-- [start:legacy-strength]
+  # 1.7 Strength: the hit multiplied by 1 + per-level x level - Strength I was
+  # +130%. Replaces strength-nerf above while on; switch it off to keep the nerf.
+  strength:
+    enabled: true
+    per-level: 1.3
+  # --8<-- [end:legacy-strength]
+
+  # --8<-- [start:legacy-rod]
+  # A fishing rod's hook hitting a player knocks them back, shows them hurt and
+  # tags both, as in 1.7 - "rodding". Only a player the angler could hit.
+  fishing-rod:
+    enabled: true
+  # --8<-- [end:legacy-rod]
+# --8<-- [end:legacy-combat]

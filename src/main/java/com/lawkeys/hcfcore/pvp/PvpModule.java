@@ -13,6 +13,10 @@ import com.lawkeys.hcfcore.pvp.listener.AttackSpeedListener;
 import com.lawkeys.hcfcore.pvp.listener.CombatListener;
 import com.lawkeys.hcfcore.pvp.listener.DeathbanListener;
 import com.lawkeys.hcfcore.pvp.listener.LootProtectionListener;
+import com.lawkeys.hcfcore.pvp.legacy.CombatMode;
+import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatListener;
+import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatLoader;
+import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -56,6 +60,12 @@ public final class PvpModule {
     private volatile DeathbanPolicy deathbanPolicy = DeathbanPolicy.USUAL;
     private volatile DeathbanWaiver deathbanWaiver = DeathbanWaiver.NONE;
     private volatile AllyCombatZone allyCombatZone = AllyCombatZone.NOWHERE;
+    /** Which combat the server plays: config.yml, {@code combat}. */
+    private volatile CombatMode combatMode = CombatMode.MODERN;
+    /** The 1.7.10 combat's settings: pvp.yml, {@code legacy-combat}. Used in {@link CombatMode#CLASSIC} only. */
+    private volatile LegacyCombatSettings legacy = LegacyCombatSettings.defaults();
+    private LegacyCombatListener legacyListener;
+    private BukkitTask legacyTask;
 
     private DeathbanManager deathbans;
     private CombatTagManager combatTags;
@@ -204,6 +214,35 @@ public final class PvpModule {
         }
     }
 
+    /** @return which combat the server plays */
+    public CombatMode getCombatMode() {
+        return combatMode;
+    }
+
+    /**
+     * @return the 1.7.10 combat's settings while the server plays classic combat and
+     *         this module is on; empty in modern combat
+     */
+    public Optional<LegacyCombatSettings> classicCombat() {
+        return combatMode == CombatMode.CLASSIC && settings.enabled() ? Optional.of(legacy) : Optional.empty();
+    }
+
+    /**
+     * Tags both sides of a hit that landed, telling each only when the tag is new -
+     * a blow, or a classic fishing rod's hook.
+     */
+    public void tagForHit(Player attacker, Player victim) {
+        if (!settings.enabled() || combatTags == null) {
+            return;
+        }
+        if (combatTags.tag(victim.getUniqueId())) {
+            lang.send(victim, PvpMessages.TAGGED, "seconds", String.valueOf(settings.combatTag().durationSeconds()));
+        }
+        if (settings.combatTag().tagAttacker() && combatTags.tag(attacker.getUniqueId())) {
+            lang.send(attacker, PvpMessages.TAGGED, "seconds", String.valueOf(settings.combatTag().durationSeconds()));
+        }
+    }
+
     /**
      * @return whether this player stands on server land its team marks as safe -
      *         spawn, typically. Server land marked as a combat zone (warzone, roads,
@@ -270,6 +309,14 @@ public final class PvpModule {
         plugin.getServer().getPluginManager().registerEvents(new DeathbanListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new AttackSpeedListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new LootProtectionListener(this), plugin);
+        this.legacyListener = new LegacyCombatListener(this);
+        plugin.getServer().getPluginManager().registerEvents(legacyListener, plugin);
+        // Twice a second: 1.7 regeneration, and the swords in hand kept able to block
+        // (or not) whatever put them there - a pickup, a kit, a chest.
+        this.legacyTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            legacyListener.regenerate();
+            Bukkit.getOnlinePlayers().forEach(legacyListener::syncHands);
+        }, 10L, 10L);
 
         registerCommand();
     }
@@ -290,6 +337,25 @@ public final class PvpModule {
         var section = ConfigManager.loadFile(plugin, "pvp.yml");
         this.settings = PvpSettingsLoader.load(section,
                 warning -> plugin.getLogger().warning("pvp.yml: " + warning));
+        this.legacy = LegacyCombatLoader.load(section == null ? null : section.getConfigurationSection("legacy-combat"),
+                warning -> plugin.getLogger().warning("pvp.yml: " + warning));
+        CombatMode previous = combatMode;
+        var config = ConfigManager.loadFile(plugin, "config.yml");
+        String word = config == null ? "modern" : config.getString("combat", "modern");
+        this.combatMode = CombatMode.parse(word).orElseGet(() -> {
+            plugin.getLogger().warning("config.yml: combat '" + word + "' is neither modern nor classic; using modern.");
+            return CombatMode.MODERN;
+        });
+        if (combatMode != previous || legacyListener != null) {
+            plugin.getLogger().info("Combat: " + combatMode.name().toLowerCase(java.util.Locale.ROOT) + ".");
+        }
+        if (previous == CombatMode.CLASSIC && combatMode == CombatMode.MODERN) {
+            // Every sword a player carries loses the blocking classic combat gave it.
+            Bukkit.getOnlinePlayers().forEach(LegacyCombatListener::stripSwords);
+        }
+        if (legacyListener != null) {
+            Bukkit.getOnlinePlayers().forEach(legacyListener::syncHands);
+        }
         // Everyone online, so /hcf reload turns attack speed on, off or to a new
         // value without anybody having to rejoin.
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -313,9 +379,16 @@ public final class PvpModule {
         }
         attribute.removeModifier(attackSpeedKey);
         PvpSettings current = settings;
-        double amount = current.enabled()
-                ? CombatMath.attackSpeedModifier(attribute.getBaseValue(), current.attackSpeed())
-                : 0.0;
+        Optional<LegacyCombatSettings> classic = classicCombat();
+        double amount;
+        if (classic.isPresent() && classic.get().attackCooldown().remove()) {
+            // 1.7 had no attack cooldown: an attack speed high enough that every hit is a full one.
+            amount = classic.get().attackCooldown().attackSpeed() - attribute.getBaseValue();
+        } else {
+            amount = current.enabled()
+                    ? CombatMath.attackSpeedModifier(attribute.getBaseValue(), current.attackSpeed())
+                    : 0.0;
+        }
         if (amount != 0.0) {
             attribute.addTransientModifier(
                     new AttributeModifier(attackSpeedKey, amount, AttributeModifier.Operation.ADD_NUMBER));
@@ -323,9 +396,15 @@ public final class PvpModule {
     }
 
     public void disable() {
+        if (legacyTask != null) {
+            legacyTask.cancel();
+            legacyTask = null;
+        }
         // Transient, so a restart clears it anyway; this is for a plugin disabled
-        // while the server keeps running.
+        // while the server keeps running. The swords lose the blocking classic combat
+        // gave them, so a plugin removed leaves no sword that blocks.
         for (Player player : Bukkit.getOnlinePlayers()) {
+            LegacyCombatListener.stripSwords(player);
             AttributeInstance attribute = player.getAttribute(Attribute.ATTACK_SPEED);
             if (attribute != null) {
                 attribute.removeModifier(attackSpeedKey);

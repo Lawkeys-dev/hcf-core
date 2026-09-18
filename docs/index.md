@@ -41,9 +41,9 @@ hide:
 
     ---
 
-    Deathbans with rank tiers, combat tag and combat logging, safe zones, friendly fire rules, loot protection, the strength nerf, and optional knockback and attack speed tuning.
+    Deathbans with rank tiers, combat tag and combat logging, safe zones, friendly fire rules, loot protection, the strength nerf — and a **classic 1.7.10 combat** mode: no attack cooldown, sword blocking, 1.7 knockback.
 
-    [:octicons-arrow-right-24: Combat](gameplay/combat.md)
+    [:octicons-arrow-right-24: Combat](gameplay/combat.md) · [Classic combat](gameplay/classic-combat.md)
 
 -   :material-shield-star:{ .lg .middle } __Classes__
 

@@ -165,5 +165,6 @@ See [Holograms](../server/holograms.md).
 - [ ] Staff ranks hold their nodes.
 - [ ] The neutral values of step 10 chosen.
 - [ ] Kits created, rewards filled.
+- [ ] The combat chosen: `combat: modern` or `classic` in `config.yml` ([Classic combat](../gameplay/classic-combat.md)).
 - [ ] MySQL in production, with the password in `HCFCORE_MYSQL_PASSWORD` ([Installation](installation.md#keep-the-password-out-of-the-file)).
 - [ ] A SOTW scheduled or ready to start.

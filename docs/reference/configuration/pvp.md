@@ -100,6 +100,42 @@ Every example on this page is **taken from the shipped `pvp.yml`**. Changes appl
 | `teammates` | `false` | Whether teammates can hurt each other |
 | `allies` | `EVENT_AREAS` | Where allies can hurt each other: `ALWAYS`, `EVENT_AREAS` (a running KOTH, Citadel or Conquest zone, and the King) or `NEVER` |
 
+## Classic combat
+
+Used only while `config.yml` says `combat: classic`. Every value ships at what 1.7.10 did. See [Classic combat](../../gameplay/classic-combat.md) for how each part plays.
+
+```yaml title="pvp.yml"
+--8<-- "src/main/resources/pvp.yml:legacy-combat"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `attack-cooldown.remove` | `true` | No attack cooldown: every click is a full hit. Replaces `attack-speed` |
+| `attack-cooldown.attack-speed` | `1024.0` | The attack speed that gives it |
+| `no-sweep-attacks` | `true` | Refuse the sweep attack's damage and push |
+| `critical-hits.enabled` | `true` | A critical while falling, sprinting included |
+| `critical-hits.multiplier` | `1.5` | What a critical multiplies the hit by |
+| `sword-blocking.enabled` | `true` | Right-click with a sword to block |
+| `sword-blocking.base`, `factor` | `-0.5`, `0.5` | What is blocked: `base + factor × damage` — 1.7 took `(damage + 1) / 2` |
+| `knockback.enabled` | `true` | The 1.7.10 knockback for a melee hit |
+| `knockback.friction` | `2.0` | What the victim's velocity is divided by |
+| `knockback.horizontal`, `vertical` | `0.4`, `0.4` | The push away, and up — in the air as on the ground |
+| `knockback.vertical-limit` | `0.4` | The most a hit lifts |
+| `knockback.extra-horizontal`, `extra-vertical` | `0.5`, `0.1` | A sprint hit's or a Knockback level's extra push |
+| `disable-offhand` | `true` | No off-hand |
+| `disable-shields` | `true` | No shields |
+| `thrown-potions.enabled` | `true` | Potions thrown the 1.7 way, without the thrower's movement |
+| `thrown-potions.speed`, `pitch-offset`, `inaccuracy` | `0.5`, `-20.0`, `1.0` | How fast, how high above the aim, how spread |
+| `ender-pearls.no-cooldown` | `true` | No one-second pearl cooldown |
+| `ender-pearls.enabled`, `speed`, `pitch-offset`, `inaccuracy` | `true`, `1.5`, `0.0`, `1.0` | Pearls thrown the 1.7 way |
+| `natural-regeneration.enabled` | `true` | 1.7 regeneration instead of the modern fast one |
+| `natural-regeneration.interval-seconds`, `amount` | `4.0`, `1.0` | Half a heart every 4 seconds |
+| `natural-regeneration.minimum-food`, `exhaustion` | `18`, `3.0` | The food it needs, and the hunger each heal costs |
+| `golden-apples.enabled` | `true` | Golden apples with their 1.7 effects |
+| `golden-apples.<apple>.food`, `saturation`, `effects` | 1.7 values | Per apple; each effect is an `effect`, a `level` and `seconds` |
+| `strength.enabled`, `per-level` | `true`, `1.3` | 1.7 Strength, +130% per level; replaces `strength-nerf` while on |
+| `fishing-rod.enabled` | `true` | A rod's hook knocks a player back and tags both |
+
 ## The whole shipped file
 
 [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/pvp.yml).
