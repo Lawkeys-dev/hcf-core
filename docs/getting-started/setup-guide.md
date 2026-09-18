@@ -151,7 +151,7 @@ Most of these ship neutral or empty on purpose — the plugin does not decide yo
 | `staff.yml` | the strike ladder | half the team's points at strikes 1 and 2, disbanded at 3 |
 | every reward list | `reward-commands` of events | empty |
 
-Also worth a look: `economy.yml` (starting balance 100), `pvp.yml` (deathban 1 hour, combat tag 30 seconds), `chat.yml` (format), `ui.yml` (scoreboard lines), `staff.yml` (staff mode toolbar).
+Also worth a look: `classes.yml` (the five classes and their numbers, no team limit), `economy.yml` (starting balance 100), `pvp.yml` (deathban 1 hour, combat tag 30 seconds), `chat.yml` (format), `ui.yml` (scoreboard lines), `staff.yml` (staff mode toolbar).
 
 ## 11. Holograms and leaderboards
 

@@ -66,6 +66,9 @@ public final class UiModule {
 
     private volatile UiSettings settings = UiSettings.defaults();
     private volatile java.util.function.Predicate<Player> wantsBoard = player -> true;
+    /** Placeholders other modules add, read on the main thread when a board is drawn. */
+    private final List<java.util.function.Function<Player, Map<String, String>>> placeholderSources =
+            new java.util.concurrent.CopyOnWriteArrayList<>();
     private final Map<UUID, PlayerBoard> boards = new ConcurrentHashMap<>();
     private BukkitTask updateTask;
 
@@ -107,6 +110,17 @@ public final class UiModule {
         }
         long period = Math.max(1L, rules.updateTicks());
         this.updateTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateAll, period, period);
+    }
+
+    /**
+     * Adds placeholders a module draws itself - the classes' {@code %class_line%}, for
+     * one - so this module need not know every module that exists. The source is
+     * asked once per board and per redraw, on the main thread, and must answer every
+     * key it owns, with an empty value when there is nothing to show: a row whose
+     * placeholders are all empty is dropped.
+     */
+    public void addPlaceholderSource(java.util.function.Function<Player, Map<String, String>> source) {
+        placeholderSources.add(Objects.requireNonNull(source, "source"));
     }
 
     /**
@@ -196,6 +210,9 @@ public final class UiModule {
         renderEvents(out);
         renderTerritory(out, player);
         renderTimers(out, now);
+        for (var source : placeholderSources) {
+            source.apply(player).forEach(out::with);
+        }
         return out;
     }
 

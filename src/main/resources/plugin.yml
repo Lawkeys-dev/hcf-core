@@ -186,6 +186,10 @@ commands:
     aliases: [kits]
     description: Take a kit; staff create them from their own inventory.
     usage: /<command> [kit|layout <kit> [reset]|create|delete|give|resetcooldown|ability]
+  class:
+    aliases: [classes, pvpclass]
+    description: Your class, the classes and what each does. A class is worn, not chosen.
+    usage: /<command> [list|info <class>]
   cenchant:
     aliases: [customenchant, ce]
     description: Custom enchants - list them; staff apply, remove and give books.

@@ -30,6 +30,10 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 | `%king_line%` | The King and the time left, during Kill the King |
 | `%conquest_line%` | The running Conquest's leading team and its points |
 | `%conquest_zone_1%` … `%conquest_zone_4%` | Each Conquest zone's countdown |
+| `%class%` | Your class's name; empty in none |
+| `%class_line%` | Your class, or the class warming up with its time left |
+| `%class_energy_line%` | Your class's energy, for a class that has some (the Bard) |
+| `%archer_tag_line%` | How long you stay archer-tagged |
 | `%timer_1%` `%timer_2%` `%timer_3%` | The custom timers (`/timer`, `/keyall`), the one ending soonest first |
 
 The `*_line` placeholders, and the Conquest and timer rows, are whole rows whose wording is in `lang/en.yml` under `ui.scoreboard`, so it is changed in one place.

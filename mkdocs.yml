@@ -120,6 +120,7 @@ nav:
       - Capture events: gameplay/events.md
       - Mountains: gameplay/mountains.md
       - Economy: gameplay/economy.md
+      - Classes: gameplay/classes.md
       - Kits and abilities: gameplay/kits.md
       - Enchants, limits and the crowbar: gameplay/items.md
       - Chat, scoreboard and settings: gameplay/interface.md
@@ -145,6 +146,7 @@ nav:
           - claims.yml: reference/configuration/claims.md
           - dtr.yml: reference/configuration/dtr.md
           - pvp.yml: reference/configuration/pvp.md
+          - classes.yml: reference/configuration/classes.md
           - economy.yml: reference/configuration/economy.md
           - events.yml: reference/configuration/events.md
           - resourcenodes.yml: reference/configuration/resourcenodes.md

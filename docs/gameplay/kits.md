@@ -25,6 +25,7 @@
 
 Staff commands need `hcfcore.kit.admin`.
 
+- **A kit can make a class**: a kit holding a class's whole armour set turns the [class](classes.md) on once worn, after its warmup.
 - **Cooldowns run while the server is off**, like a deathban: a daily kit would be worthless on a server that restarts every night.
 - **`clear-before-giving: true`** empties the inventory first — the kitmap behaviour, you get exactly the kit. `false` adds the kit to what you carry and drops the overflow at your feet rather than eating it.
 

@@ -164,6 +164,61 @@ public final class PvpModule {
                 () -> covers(attacker) || covers(victim), settings.friendlyFire());
     }
 
+    /**
+     * Whether this attacker may harm this victim at all: the rules a hit is refused
+     * by, which a harmful potion, a rod's pull, a blast's push and a class's debuff
+     * follow as well (the project owner's decision, 15/09/2026).
+     *
+     * <p>The moment's protection (SOTW) first, and before this module's own switch:
+     * it is the map's rule, not one of this module's combat tweaks, and phases.yml
+     * promises no PvP during SOTW whatever pvp.yml says. Then the ground (safe
+     * zones), then the same side: teammates never, allies only in an event area
+     * (pvp.yml, friendly-fire).
+     *
+     * @return why not - the message for the attacker - or empty when the harm may land
+     */
+    public Optional<Refusal> judgeHarm(Player attacker, Player victim) {
+        Optional<String> protectedBy = protection.refusal(attacker.getUniqueId(), victim.getUniqueId());
+        if (protectedBy.isPresent()) {
+            return Optional.of(new Refusal(protectedBy.get()));
+        }
+        if (!settings.enabled()) {
+            return Optional.empty();
+        }
+        if (settings.safeZones().enabled() && (isInSafeZone(victim) || isInSafeZone(attacker))) {
+            return Optional.of(new Refusal(PvpMessages.SAFE_ZONE_ATTACKER));
+        }
+        FriendlyFire sameSide = judgeFriendlyFire(attacker, victim);
+        if (sameSide != FriendlyFire.ALLOW) {
+            return Optional.of(new Refusal(sameSide == FriendlyFire.TEAMMATE
+                    ? PvpMessages.FRIENDLY_FIRE_TEAMMATE : PvpMessages.FRIENDLY_FIRE_ALLY,
+                    "player", victim.getName()));
+        }
+        return Optional.empty();
+    }
+
+    /** Why a player may not harm another: the message to send them, with its placeholders. */
+    public record Refusal(String key, String... placeholders) {
+        public void tell(LangManager lang, Player attacker) {
+            lang.send(attacker, key, placeholders);
+        }
+    }
+
+    /**
+     * @return whether this player stands on server land its team marks as safe -
+     *         spawn, typically. Server land marked as a combat zone (warzone, roads,
+     *         event grounds) is fought on like anywhere else. Reusing the claim
+     *         module's system teams means an operator defines both the same way they
+     *         define any territory.
+     */
+    public boolean isInSafeZone(Player player) {
+        if (claims == null || claims.getManager() == null) {
+            return false;
+        }
+        Optional<Team> owner = claims.getManager().getOwner(ClaimModule.toChunk(player.getLocation()));
+        return owner.isPresent() && owner.get().isSafeZone();
+    }
+
     private boolean covers(Player player) {
         var at = player.getLocation();
         return allyCombatZone.covers(player.getUniqueId(), at.getWorld().getName(), at.getX(), at.getY(), at.getZ());

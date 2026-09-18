@@ -1,0 +1,293 @@
+# ---------------------------------------------------------------------------
+# classes.yml - Diamond, Bard, Archer, Rogue, Miner, and your own classes
+#
+# A player is in a class while wearing its WHOLE armour set - helmet,
+# chestplate, leggings and boots - once the warmup below is over. Taking one
+# piece off turns the class off at once; putting on another set means a new
+# warmup. Nothing is stored: a logout or a death drops the class, and the next
+# look at the player's armour starts the warmup again.
+#
+#   /class                   your class, its energy, the warmup left
+#   /class list              every class and its armour
+#   /class info <class>      everything a class does
+#
+# Scoreboard rows (ui.yml): %class_line%, %class_energy_line%, %archer_tag_line%.
+#
+# /hcf reload applies changes at once, to classes already active too.
+# ---------------------------------------------------------------------------
+
+enabled: true
+
+# How long a whole set must be worn before its class turns on.
+warmup-seconds: 10
+
+# Whether held and right-click effects work while their user stands in a safe
+# zone (spawn). Passive effects always do. A debuff never reaches somebody the
+# user could not hit, wherever it is used: safe zones, SOTW and friendly fire
+# apply to it exactly as to a blow.
+abilities-in-safe-zones: false
+
+# ---------------------------------------------------------------------------
+# Making a class
+#
+# Every class needs an armour set; everything else is optional, and ANY class
+# may use ANY part - the classes below are the usual combinations, not the only
+# possible ones. The first class listed wins when two share a set (the second is
+# reported and skipped).
+#
+#   my-class:                         id: 1 to 32 letters, digits, - or _
+#     display-name: "&dMy Class"
+#     permission: ""                  needed to use it; empty for everybody
+#     max-per-team: 0                 members of one team in it at once; 0 = no limit
+#     armor:                          the four pieces, as the server names items
+#       helmet: NETHERITE_HELMET
+#       chestplate: NETHERITE_CHESTPLATE
+#       leggings: NETHERITE_LEGGINGS
+#       boots: NETHERITE_BOOTS
+#
+#     passive-effects:                kept for as long as the class is on
+#       speed: 2                      effect: level (2 = Speed II)
+#
+#     energy:                         fills while the class is on; clicks spend it
+#       max: 100
+#       per-second: 1.0
+#
+#     held-effects:                   while an item is held in the main hand
+#       SUGAR:
+#         effect: speed
+#         level: 2
+#         seconds: 5                  each pulse, renewed every second while held
+#         radius: 20
+#         targets: team               self | team | team-and-allies | enemies
+#
+#     click-effects:                  on a right-click with an item
+#       SUGAR:
+#         effect: speed
+#         level: 3
+#         seconds: 8
+#         radius: 20
+#         targets: team
+#         energy: 20                  spent from the class's energy (needs energy:)
+#         cooldown-seconds: 0         wait before this item can be used again
+#         consume: true               take one item from the stack
+#
+#     archer-tag:                     a player hit by this class's arrows takes more
+#       seconds: 10                   damage, from everybody, for a while
+#       damage-multiplier: 1.25       1.25 = 25% more
+#
+#     backstab:                       a melee hit from behind with the weapon deals
+#       weapon: GOLDEN_SWORD          fixed damage that armour does not reduce
+#       damage: 6.0                   half-hearts: 6.0 is three hearts
+#       cooldown-seconds: 15
+#       break-weapon: true
+#       max-angle: 60                 how far the attacker may face away from the
+#                                     victim's facing and still be "behind"
+#
+#     invisible-below-y: 20           invisible while below this height
+#
+# Targets: "team" is the user and their teammates in range; "team-and-allies"
+# adds allied teams; "enemies" is everybody else in range whom the user could
+# hit; "self" is the user alone (radius unused). Effects use the server's names:
+# speed, strength, resistance, regeneration, jump_boost, fire_resistance,
+# invisibility, night_vision, haste, wither, poison, slowness, weakness...
+# An unknown effect or item is reported in the console and left out.
+#
+# Effects never cut a stronger one short: a Speed II pulse does not replace a
+# Speed III potion, and a weaker, longer effect comes back once a stronger one
+# ends.
+# ---------------------------------------------------------------------------
+
+classes:
+
+  # ------------------------------------------------------------------
+  # Diamond: the ordinary PvP set. No effects - it is here so the
+  # scoreboard and /class name it.
+  # ------------------------------------------------------------------
+  diamond:
+    display-name: "&bDiamond"
+    armor:
+      helmet: DIAMOND_HELMET
+      chestplate: DIAMOND_CHESTPLATE
+      leggings: DIAMOND_LEGGINGS
+      boots: DIAMOND_BOOTS
+
+  # ------------------------------------------------------------------
+  # Bard: the team's support. Holding an item buffs the teammates around;
+  # right-clicking it spends energy for a stronger burst - or, with a
+  # spider eye, withers the enemies around.
+  # ------------------------------------------------------------------
+  bard:
+    display-name: "&6Bard"
+    max-per-team: 0
+    armor:
+      helmet: GOLDEN_HELMET
+      chestplate: GOLDEN_CHESTPLATE
+      leggings: GOLDEN_LEGGINGS
+      boots: GOLDEN_BOOTS
+    passive-effects:
+      speed: 2
+      regeneration: 1
+      resistance: 2
+    energy:
+      max: 100
+      per-second: 1.0
+    held-effects:
+      SUGAR:
+        effect: speed
+        level: 2
+        seconds: 5
+        radius: 20
+        targets: team
+      BLAZE_POWDER:
+        effect: strength
+        level: 1
+        seconds: 5
+        radius: 20
+        targets: team
+      IRON_INGOT:
+        effect: resistance
+        level: 1
+        seconds: 5
+        radius: 20
+        targets: team
+      GHAST_TEAR:
+        effect: regeneration
+        level: 1
+        seconds: 5
+        radius: 20
+        targets: team
+      FEATHER:
+        effect: jump_boost
+        level: 2
+        seconds: 5
+        radius: 20
+        targets: team
+      MAGMA_CREAM:
+        effect: fire_resistance
+        level: 1
+        seconds: 5
+        radius: 20
+        targets: team
+    click-effects:
+      SUGAR:
+        effect: speed
+        level: 3
+        seconds: 8
+        radius: 20
+        targets: team
+        energy: 20
+      BLAZE_POWDER:
+        effect: strength
+        level: 2
+        seconds: 5
+        radius: 20
+        targets: team
+        energy: 45
+      IRON_INGOT:
+        effect: resistance
+        level: 3
+        seconds: 5
+        radius: 20
+        targets: team
+        energy: 40
+      GHAST_TEAR:
+        effect: regeneration
+        level: 3
+        seconds: 5
+        radius: 20
+        targets: team
+        energy: 40
+      FEATHER:
+        effect: jump_boost
+        level: 7
+        seconds: 5
+        radius: 20
+        targets: team
+        energy: 25
+      SPIDER_EYE:
+        effect: wither
+        level: 2
+        seconds: 5
+        radius: 20
+        targets: enemies
+        energy: 35
+
+  # ------------------------------------------------------------------
+  # Archer: fast and fragile. An arrow hit archer-tags the target, who
+  # then takes more damage from everybody.
+  # ------------------------------------------------------------------
+  archer:
+    display-name: "&aArcher"
+    max-per-team: 0
+    armor:
+      helmet: LEATHER_HELMET
+      chestplate: LEATHER_CHESTPLATE
+      leggings: LEATHER_LEGGINGS
+      boots: LEATHER_BOOTS
+    passive-effects:
+      speed: 3
+      resistance: 2
+    archer-tag:
+      seconds: 10
+      damage-multiplier: 1.25
+    click-effects:
+      SUGAR:
+        effect: speed
+        level: 4
+        seconds: 8
+        targets: self
+        cooldown-seconds: 30
+
+  # ------------------------------------------------------------------
+  # Rogue: gets behind people. A hit from behind with a golden sword is a
+  # backstab: three hearts through armour, and the sword breaks.
+  # ------------------------------------------------------------------
+  rogue:
+    display-name: "&7Rogue"
+    max-per-team: 0
+    armor:
+      helmet: CHAINMAIL_HELMET
+      chestplate: CHAINMAIL_CHESTPLATE
+      leggings: CHAINMAIL_LEGGINGS
+      boots: CHAINMAIL_BOOTS
+    passive-effects:
+      speed: 3
+      jump_boost: 2
+      resistance: 1
+    backstab:
+      weapon: GOLDEN_SWORD
+      damage: 6.0
+      cooldown-seconds: 15
+      break-weapon: true
+      max-angle: 60
+    click-effects:
+      SUGAR:
+        effect: speed
+        level: 4
+        seconds: 8
+        targets: self
+        cooldown-seconds: 30
+      FEATHER:
+        effect: jump_boost
+        level: 5
+        seconds: 8
+        targets: self
+        cooldown-seconds: 30
+
+  # ------------------------------------------------------------------
+  # Miner: for mining, not fighting. Sees in the dark, digs fast, and is
+  # invisible deep underground.
+  # ------------------------------------------------------------------
+  miner:
+    display-name: "&eMiner"
+    max-per-team: 0
+    armor:
+      helmet: IRON_HELMET
+      chestplate: IRON_CHESTPLATE
+      leggings: IRON_LEGGINGS
+      boots: IRON_BOOTS
+    passive-effects:
+      haste: 2
+      night_vision: 1
+      fire_resistance: 1
+    invisible-below-y: 20

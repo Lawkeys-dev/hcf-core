@@ -45,6 +45,14 @@ hide:
 
     [:octicons-arrow-right-24: Combat](gameplay/combat.md)
 
+-   :material-shield-star:{ .lg .middle } __Classes__
+
+    ---
+
+    Diamond, Bard, Archer, Rogue and Miner, chosen by the armour you wear: Bard buffs and energy, the archer tag, the Rogue's backstab. Create your own from scratch in one file.
+
+    [:octicons-arrow-right-24: Classes](gameplay/classes.md)
+
 -   :material-flag-variant:{ .lg .middle } __Events__
 
     ---

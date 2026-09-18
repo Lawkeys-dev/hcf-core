@@ -23,6 +23,7 @@ import com.lawkeys.hcfcore.settings.SettingsModule;
 import com.lawkeys.hcfcore.warmup.WarmupModule;
 import com.lawkeys.hcfcore.kit.KitModule;
 import com.lawkeys.hcfcore.pvp.PvpModule;
+import com.lawkeys.hcfcore.pvpclass.ClassModule;
 import com.lawkeys.hcfcore.resourcenode.ResourceNodeModule;
 import com.lawkeys.hcfcore.config.ConfigManager;
 import com.lawkeys.hcfcore.database.DatabaseManager;
@@ -85,6 +86,7 @@ public final class HCFCore extends JavaPlugin {
     private LivesModule livesModule;
     private HologramModule hologramModule;
     private EnchantModule enchantModule;
+    private ClassModule classModule;
     private LunarIntegration lunarIntegration;
     private UiModule uiModule;
     private GeneralModule generalModule;
@@ -283,6 +285,11 @@ public final class HCFCore extends JavaPlugin {
         this.enchantModule = new EnchantModule(this, this.langManager);
         this.enchantModule.enable();
 
+        // Classes read teams (whom a Bard buffs) and pvp/ (whom a debuff may reach),
+        // both running by now, so they call them directly (ARCHITECTURE.md section 14).
+        this.classModule = new ClassModule(this, this.langManager, this.teamModule, this.pvpModule);
+        this.classModule.enable();
+
         // Holograms read the leaderboards of the stats module, and nothing else.
         this.hologramModule = new HologramModule(this, this.langManager, this.startupGate, this.statsModule);
         this.hologramModule.enable(dataSource, saveInterval);
@@ -324,6 +331,8 @@ public final class HCFCore extends JavaPlugin {
                 this.pvpModule, this.economyModule, this.statsModule, this.claimModule,
                 this.phaseModule, this.scheduleModule, this.eventModule);
         this.uiModule.enable();
+        // The class rows (%class_line%...) are drawn by the class module itself.
+        this.uiModule.addPlaceholderSource(this.classModule::placeholders);
 
         // Player settings switch things the scoreboard, the utility commands and the
         // schedule do, through their seams - so it comes after all three.
@@ -360,6 +369,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (this.hologramModule != null) {
             this.hologramModule.disable();
+        }
+        if (this.classModule != null) {
+            this.classModule.disable();
         }
         if (this.enchantModule != null) {
             this.enchantModule.disable();
@@ -508,6 +520,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (hologramModule != null) {
             hologramModule.reloadSettings();
+        }
+        if (classModule != null) {
+            classModule.reloadSettings();
         }
         if (enchantModule != null) {
             enchantModule.reloadSettings();

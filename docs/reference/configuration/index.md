@@ -26,6 +26,7 @@ The files are written on the first start and **never overwritten** afterwards.
 | [`claims.yml`](claims.md) | Claim limits, placement rules, protection, HQ and base, `/team hq` and `/team stuck` countdowns, claimable worlds, roles for claiming, the warzone | `enabled` |
 | [`dtr.yml`](dtr.md) | Maximum DTR, loss per death, floor, regeneration, announcements | `enabled` |
 | [`pvp.yml`](pvp.md) | Deathban and its tiers, combat tag, strength nerf, knockback, attack speed, safe zones, loot protection, friendly fire | `enabled`, and one per part |
+| [`classes.yml`](classes.md) | Classes: armour sets, warmup, passive, held and click effects, energy, archer tag, backstab, team limits | `enabled` |
 | [`economy.yml`](economy.md) | Starting balance, ceiling, currency, `/pay` | `enabled` |
 | [`events.yml`](events.md) | KOTH and Citadel zones, Kill the King, Conquest, schedules, rewards, zone holograms | `enabled` |
 | [`resourcenodes.yml`](resourcenodes.md) | Mountains: regions, block palettes, refill times, protection, refill speed | `enabled` |

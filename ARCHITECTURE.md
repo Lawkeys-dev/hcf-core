@@ -30,6 +30,7 @@ hcf-core/
 │   ├── claim/                          # territory, protection, HQ/base, server land, warzone, lockclaim
 │   ├── dtr/                            # DTR, regeneration, raid announcements
 │   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire
+│   ├── pvpclass/                       # classes: Diamond, Bard, Archer, Rogue, Miner and those classes.yml defines
 │   ├── economy/                        # balances, /pay, /eco, /team deposit|withdraw
 │   ├── events/                         # family A: KOTH/Citadel; conquest/; king/ (Kill the King)
 │   ├── resourcenode/                   # family B: Mountains
@@ -53,7 +54,7 @@ hcf-core/
 │   └── util/                           # Cuboid, ChunkPosition, WorldPosition, Durations, ColorCodes, TextWrap...
 ├── src/main/resources/
 │   ├── plugin.yml
-│   ├── config.yml + 23 module files (teams.yml, claims.yml, dtr.yml...)
+│   ├── config.yml + 24 module files (teams.yml, claims.yml, dtr.yml...)
 │   └── lang/en.yml
 └── src/test/java/...                   # unit tests (pure logic, SQLite round trips)
 ```
@@ -266,6 +267,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel or Conquest zone, and the King during Kill the King) |
 | `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW and the Purge make everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |
+| Scoreboard placeholder sources | `ui/` | only `ui/`'s own placeholders | `pvpclass/` (`%class_line%`, `%class_energy_line%`, `%archer_tag_line%`) |
 | Tips filter | `schedule/` | everybody receives them | `settings/` |
 | `/togglepm` observer | `general/` | the choice lasts the session | `settings/` (keeps it) |
 
@@ -276,5 +278,7 @@ The table reads in one direction only: the "declared in" column never depends on
 **A seam can grow without breaking its default.** The warzone needed a second question from `ReservedRegionPolicy` — "does this *block* belong to a region governed elsewhere?", so that a Mountain inside the warzone stays minable. It was added as a `default` method answering "no": `NONE` and every existing implementation stay valid without a line more, and only the module that has something to say overrides it. The resulting decision order in `ClaimManager#checkBuild` — **the most specific wins**: a claimed chunk follows its team's rules; on unclaimed land, a block of a region governed elsewhere is left to that module; the rest of the warzone radius follows the warzone's rule; beyond it is the wilderness. This order only describes what the territory module decides: a node's own listener still applies its own rules inside its region.
 
 **A seam for a question about a person, not about land.** `BuildOverride` is the first seam of `claim/` about a **player** rather than a chunk or a map state. The `hcfcore.claim.bypass` permission answers "may this rank ignore protection"; `BuildOverride` answers "does this staff member want to, right now". The distinction is what makes `/staffbuild` useful: a staff member holding the permission still wants to be stopped when breaking a wall by accident while looking around. Both are needed. That is also why the question is asked in the server layer (`ClaimModule#bypassesProtection`) and not in `ClaimManager`: the manager reasons about territory, not about who holds the pickaxe.
+
+**One judge for every way of reaching a player.** Whether a player may harm another — SOTW, safe zones, friendly fire — is decided in one place, `PvpModule#judgeHarm`. A blow, a harmful potion, a rod's pull, a blast's push and a class's debuff (a Bard's Wither) all ask it, so a new way of reaching a player cannot forget a rule.
 
 **When NOT to use a seam.** `pvp/` asks `claim/` **directly** for safe zones, with no interface in between, although `claim/` declares two seams (`RaidabilityPolicy`, `TeleportGuard`). That is not an inconsistency: a seam exists to **invert a development-order problem**, not to be applied mechanically. When the answering module already exists when the asking one starts, a direct call is simpler, clearer and just as correct. The useful rule: *a seam when the answering module does not exist yet, a direct call otherwise.*

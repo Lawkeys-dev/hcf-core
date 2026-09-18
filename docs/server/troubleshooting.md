@@ -62,6 +62,14 @@ Loot protection: for 10 seconds after a kill, drops belong to the killer and the
 **A frozen player disconnected and is now banned.**
 Leaving while frozen bans. Lift it with `/freeze unban <player>`.
 
+## Classes
+
+**A class does not turn on.**
+All four pieces must be the class's exact items (a netherite set is not a diamond one), worn for the whole warmup (10 s): `/class` shows the countdown. A class with a `permission` needs it; a class with `max-per-team` stays off while the team is full — take a piece off to try again. `/class info <class>` shows the set.
+
+**A Bard's items do nothing.**
+Held and click effects need the class on, and do not work on a safe zone (`abilities-in-safe-zones`). A click costs energy: the scoreboard (`%class_energy_line%`) and `/class` show how much is left.
+
 ## Events
 
 **The KOTH is never captured.**

@@ -14,6 +14,7 @@ import com.lawkeys.hcfcore.kit.KitMessages;
 import com.lawkeys.hcfcore.lives.LivesMessages;
 import com.lawkeys.hcfcore.phase.PhaseMessages;
 import com.lawkeys.hcfcore.pvp.PvpMessages;
+import com.lawkeys.hcfcore.pvpclass.ClassMessages;
 import com.lawkeys.hcfcore.redeem.RedeemMessages;
 import com.lawkeys.hcfcore.resourcenode.ResourceNodeMessages;
 import com.lawkeys.hcfcore.schedule.ScheduleMessages;
@@ -57,6 +58,7 @@ class TeamMessagesTest {
     /** Every class of language-key constants. */
     private static final List<Class<?>> MESSAGE_CLASSES = List.of(
             ClaimMessages.class,
+            ClassMessages.class,
             ConquestMessages.class,
             CrowbarMessages.class,
             DtrMessages.class,

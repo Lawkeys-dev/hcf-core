@@ -72,6 +72,10 @@ deathban:
     myserver.rank.mvp: 600
 ```
 
+### Class permissions
+
+A class in `classes.yml` can name any node under `permission`; a player without it wearing that class's set simply gets no class. The shipped classes need none. See [Classes](../gameplay/classes.md#creating-your-own).
+
 ### Kit permissions
 
 `/kit create <id> [cooldown-seconds] [permission]` can name any node; a player then needs it to take that kit.

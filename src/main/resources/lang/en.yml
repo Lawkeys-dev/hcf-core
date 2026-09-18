@@ -1114,3 +1114,57 @@ limiter:
     header: "&9Block limits &7for &b%team%&7:"
     entry: "&7- &f%block%&7: &f%count%&7/&f%limit%"
     none: "&7This server limits no blocks in claims."
+
+# ---------------------------------------------------------------------------
+# Classes (classes.yml): Diamond, Bard, Archer, Rogue, Miner and your own.
+# ---------------------------------------------------------------------------
+classes:
+  warmup: "&7Wearing the &f%class% &7set: the class turns on in &f%time%&7."
+  activated: "&a%class% &aclass on."
+  deactivated: "&c%class% &cclass off."
+  team-limit: "&cYour team already has &f%max% %class%&c: the class stays off. Take a piece off to try again."
+  disabled: "&cClasses are disabled on this server."
+  safe-zone: "&cClass abilities do not work in a safe zone."
+  not-enough-energy: "&cNot enough energy: &f%energy%&c/&f%cost%&c."
+  cooldown: "&cYou can use that again in &f%time%&c."
+  effect-used: "&aUsed &f%effect%&a - &f%count% &aplayer(s) reached."
+  effect-received: "&f%player% &agave you &f%effect%&a."
+  effect-inflicted: "&f%player% &cinflicted &f%effect% &con you."
+  archer-tag:
+    shooter: "&aArcher-tagged &f%player% &afor &f%seconds%s&a: they take &f+%percent%%&a damage."
+    victim: "&cArcher-tagged by &f%player% &cfor &f%seconds%s&c: you take &f+%percent%% &cdamage."
+  backstab:
+    attacker: "&aYou backstabbed &f%player%&a!"
+    victim: "&cYou were backstabbed by &f%player%&c!"
+    cooldown: "&cBackstab ready in &f%time%&c."
+  # Scoreboard rows: %class_line%, %class_energy_line% and %archer_tag_line% in ui.yml.
+  scoreboard:
+    class: "&cClass: &f%class%"
+    warmup: "&cClass: &f%class% &7(%time%)"
+    energy: "&6Energy: &f%energy%&7/&f%max%"
+    archer-tag: "&6Archer tag: &f%time%"
+  command:
+    none: "&7You are in no class. Wear a class's whole armour set - &f/class list &7shows them."
+    active: "&7Class: &f%class%"
+    warmup: "&7Class: &f%class% &7- on in &f%time%"
+    energy: "&7Energy: &f%energy%&7/&f%max%"
+    list-header: "&9Classes &7(wear the whole set):"
+    list-entry: "&7- &f%class% &8(%id%)&7: %armor%"
+    list-entry-set: "&7- &f%class% &8(%id%)&7: full %set% armour"
+    list-empty: "&7This server has no classes."
+    info-header: "&7&m--------&r %class% &7&m--------"
+    info-armor: "&7Armour: &f%armor%"
+    info-passive: "&7Always: &f%effects%"
+    info-energy: "&7Energy: &f%max% &7max, &f+%per-second%&7/s"
+    info-held: "&7Hold &f%item%&7: &f%effect% &7to %targets% (%radius% blocks)"
+    info-click: "&7Right-click &f%item%&7: &f%effect% &7for %seconds%s to %targets%%cost%%cooldown%"
+    # Appended to info-click when the item costs energy, or has a cooldown.
+    info-cost: "&7, &f%energy% &7energy"
+    info-cooldown: "&7, every &f%seconds%s"
+    info-archer-tag: "&7Arrow hit: archer tag, &f+%percent%% &7damage taken for &f%seconds%s"
+    info-backstab: "&7Backstab with &f%item%&7: &f%hearts% &7hearts through armour, every &f%cooldown%s"
+    info-invisible: "&7Invisible below &fY %y%"
+    info-limit: "&7At most &f%max% &7per team"
+    info-permission: "&7Needs &f%permission%"
+    unknown: "&cNo class called '%class%'. &f/class list &cshows them."
+    usage: "&cUsage: &f%usage%"

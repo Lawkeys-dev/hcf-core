@@ -41,6 +41,10 @@ scoreboard:
   #   %conquest_zone_1% to %conquest_zone_4%   each Conquest zone's countdown
   #   %timer_1% %timer_2% %timer_3%   the custom timers (/timer, /keyall), the
   #                   one ending soonest first - each a whole ready-made row
+  #   %class_line%    your class, or the class warming up and its time left
+  #   %class_energy_line%  your class's energy, for a class that has some (Bard)
+  #   %archer_tag_line%    how long you stay archer-tagged
+  #   %class%         your class's name, empty in none
   #
   # The *_line placeholders are whole rows from lang/en.yml, so the wording is
   # translated in one place rather than written twice here.
@@ -54,6 +58,9 @@ scoreboard:
     - "%focus_line%"
     - "%rally_line%"
     - "%combat_line%"
+    - "%class_line%"
+    - "%class_energy_line%"
+    - "%archer_tag_line%"
     - "%phase_line%"
     - "%event_line%"
     - "%king_line%"

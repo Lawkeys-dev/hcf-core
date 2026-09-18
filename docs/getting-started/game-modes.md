@@ -55,6 +55,19 @@ The usual kitmap choices, file by file:
 
     or keep the classic rules if your kitmap raids.
 
+=== "classes.yml"
+
+    Classes are central to kitmap: a kit holding a class's armour set (gold for Bard, leather for Archer, chainmail for Rogue) makes the class turn on once worn. Keep `warmup-seconds` short for kitmap, and set team limits if you want them:
+
+    ```yaml
+    warmup-seconds: 5
+    classes:
+      bard:
+        max-per-team: 2
+    ```
+
+    Then create one kit per class (`/kit create bard`...) with the matching armour, and a refill sign for each.
+
 === "killstreaks.yml"
 
     Killstreak rewards are a staple of kitmap. The table ships empty:

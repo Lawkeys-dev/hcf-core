@@ -1,14 +1,10 @@
 package com.lawkeys.hcfcore.pvp.listener;
 
-import com.lawkeys.hcfcore.claim.ClaimManager;
-import com.lawkeys.hcfcore.claim.ClaimModule;
 import com.lawkeys.hcfcore.pvp.CombatMath;
-import com.lawkeys.hcfcore.pvp.FriendlyFire;
 import com.lawkeys.hcfcore.pvp.PvpMessages;
 import com.lawkeys.hcfcore.pvp.PvpModule;
+import com.lawkeys.hcfcore.pvp.PvpModule.Refusal;
 import com.lawkeys.hcfcore.pvp.PvpSettings;
-import com.lawkeys.hcfcore.team.Team;
-import com.lawkeys.hcfcore.util.ChunkPosition;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent;
 import org.bukkit.entity.AreaEffectCloud;
@@ -32,7 +28,6 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Everything that happens when one player hits another: safe-zone enforcement,
@@ -69,7 +64,7 @@ public final class CombatListener implements Listener {
         Refusal refusal = judge(attacker, victim);
         if (refusal != null) {
             event.setCancelled(true);
-            refusal.tell(module, attacker);
+            refusal.tell(module.getLang(), attacker);
             return;
         }
         PvpSettings settings = module.getSettings();
@@ -174,7 +169,7 @@ public final class CombatListener implements Listener {
             }
         }
         if (first != null) {
-            first.tell(module, thrower);
+            first.tell(module.getLang(), thrower);
         }
     }
 
@@ -211,7 +206,7 @@ public final class CombatListener implements Listener {
         Refusal refusal = judge(angler, victim);
         if (refusal != null) {
             event.setCancelled(true);
-            refusal.tell(module, angler);
+            refusal.tell(module.getLang(), angler);
         }
     }
 
@@ -239,44 +234,14 @@ public final class CombatListener implements Listener {
     }
 
     /**
-     * Whether this attacker may harm this victim at all: the rules a hit is refused
-     * by, which a harmful potion, a rod's pull and a blast's push follow as well
-     * (the project owner's decision, 15/09/2026).
-     *
-     * <p>The moment's protection (SOTW) first, and before this module's own switch:
-     * it is the map's rule, not one of this module's combat tweaks, and phases.yml
-     * promises no PvP during SOTW whatever pvp.yml says. Then the ground (safe
-     * zones), then the same side: teammates never, allies only in an event area
-     * (pvp.yml, friendly-fire).
+     * Whether this attacker may harm this victim at all - see
+     * {@link PvpModule#judgeHarm}, where the rules live so that anything else able to
+     * reach a player (a Bard's debuff, for one) follows the same ones.
      *
      * @return why not, or {@code null} when the harm may land
      */
     private Refusal judge(Player attacker, Player victim) {
-        Optional<String> protectedBy = module.getProtection().refusal(attacker.getUniqueId(), victim.getUniqueId());
-        if (protectedBy.isPresent()) {
-            return new Refusal(protectedBy.get());
-        }
-        PvpSettings settings = module.getSettings();
-        if (!settings.enabled()) {
-            return null;
-        }
-        if (settings.safeZones().enabled() && (isInSafeZone(victim) || isInSafeZone(attacker))) {
-            return new Refusal(PvpMessages.SAFE_ZONE_ATTACKER);
-        }
-        FriendlyFire sameSide = module.judgeFriendlyFire(attacker, victim);
-        if (sameSide != FriendlyFire.ALLOW) {
-            return new Refusal(sameSide == FriendlyFire.TEAMMATE
-                    ? PvpMessages.FRIENDLY_FIRE_TEAMMATE : PvpMessages.FRIENDLY_FIRE_ALLY,
-                    "player", victim.getName());
-        }
-        return null;
-    }
-
-    /** Why a player may not harm another: the message to send them, with its placeholders. */
-    private record Refusal(String key, String... placeholders) {
-        void tell(PvpModule module, Player attacker) {
-            module.getLang().send(attacker, key, placeholders);
-        }
+        return module.judgeHarm(attacker, victim).orElse(null);
     }
 
     private static boolean isHarmful(Collection<PotionEffect> effects) {
@@ -328,21 +293,6 @@ public final class CombatListener implements Listener {
             return shooter;
         }
         return null;
-    }
-
-    private boolean isInSafeZone(Player player) {
-        ClaimModule claims = module.getClaims();
-        if (claims == null || claims.getManager() == null) {
-            return false;
-        }
-        ClaimManager manager = claims.getManager();
-        ChunkPosition chunk = ClaimModule.toChunk(player.getLocation());
-        Optional<Team> owner = manager.getOwner(chunk);
-        // A safe zone is server land its team marks as safe - spawn, typically.
-        // Server land marked as a combat zone (warzone, roads, event grounds) is
-        // fought on like anywhere else. Reusing the claim module's system teams
-        // means an operator defines both the same way they define any territory.
-        return owner.isPresent() && owner.get().isSafeZone();
     }
 
     /**
