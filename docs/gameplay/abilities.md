@@ -36,7 +36,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Rage Ball | egg | throwing it | Where it lands, 8 blocks: teammates Strength II and Resistance III, enemies Wither II |
 | Crafting Chaos | crafting table | 3 hits with it | 10 s: each of your hits has 20% to open a crafting table on them |
 | Focus Mode | gold nugget | right-click | The last player who hit you takes 25% more damage from you, 10 s |
-| Ninja Ability | nether star | right-click | Teleport to the last player **you** hit (10 s), 3 s later |
+| Ninja Track | nether star | right-click | Teleport to the last player **you** hit (10 s), 3 s later |
 | Portable Archer | bow | shooting | Its arrows archer-tag who they hit, 10 s; breaks after 5 shots |
 | Invisibility | ink sac | right-click | Invisible 2 minutes, armour hidden too, until a player hits you |
 | Time Warp | feather | right-click | Back to where you threw your last pearl, 2 s later |
@@ -45,7 +45,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Close Call | cookie | right-click | Strength II and Regeneration V for 6 s, at 3.5 hearts or less only |
 | Switch Stick | stick | right-click | 10 s: each hit has 20% to turn the player hit around |
 | Belch Bomb | slime ball | right-click | Slowness II and Blindness II for every enemy within 8 blocks, 6 s |
-| Anti Trap Star | nether star | right-click | Teleport to the last player who hit **you** (10 s), 3 s later — out of a trap |
+| Reverse Ninja Track | clock | right-click | Teleport to the last player who hit **you** (10 s), 3 s later — out of a trap |
 | Rose Thorn | rose bush | a hit with it | 10 s: 30% of the damage that player deals you goes back to them |
 | Pumpkin Reaper | diamond hoe | a hit with it | On a Diamond: 50% that their helmet becomes a pumpkin for 10 s. Kept: 10 uses |
 | Hulk Smash | piston | right-click | Every enemy within 10 blocks thrown about 6 blocks up |
@@ -72,7 +72,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 | Lucky Bard | golden carrot | right-click | Heads: Strength II, Speed II, Regeneration II — tails: Slowness II, Weakness I, Poison I — 8 s |
 | Disarmer Wand | breeze rod | a hit with it | 50%: their weapon swaps places with another item of their inventory |
 
-"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`) — 10 for the two stars. A chance that misses starts the cooldown — a Nausea Axe cannot be tried again at once — but keeps the item and its uses: only a success spends them. Every value in this table is a setting — the pages below quote each ability as shipped.
+"The last player who hit you" means within the last 15 seconds (`hit-within-seconds`) — 10 for the two Ninja Tracks. A chance that misses starts the cooldown — a Nausea Axe cannot be tried again at once — but keeps the item and its uses: only a success spends them. Every value in this table is a setting — the pages below quote each ability as shipped.
 
 ## Right-click
 
@@ -104,17 +104,17 @@ Lightning is only a sight: it sets nothing on fire. The damage goes through armo
 
 Both players are told. With nobody who hit you lately, nothing is spent.
 
-### Ninja Ability, Anti Trap Star
+### Ninja Track, Reverse Ninja Track
 
 ```yaml title="abilities.yml"
---8<-- "src/main/resources/abilities.yml:ninja"
+--8<-- "src/main/resources/abilities.yml:ninja-track"
 ```
 
 ```yaml title="abilities.yml"
---8<-- "src/main/resources/abilities.yml:anti-trap-star"
+--8<-- "src/main/resources/abilities.yml:reverse-ninja-track"
 ```
 
-The **Ninja** goes to the last player you hit; the **Anti Trap Star** to the last player who hit you. The teleport happens after the delay, to where the player stands then. It is cancelled if they have left, changed world, or stepped where you may not reach them — a safe zone.
+The **Ninja Track** goes to the last player you hit; the **Reverse Ninja Track** to the last player who hit you. The teleport happens after the delay, to where the player stands then. It is cancelled if they have left, changed world, or stepped where you may not reach them — a safe zone.
 
 ### Invisibility
 

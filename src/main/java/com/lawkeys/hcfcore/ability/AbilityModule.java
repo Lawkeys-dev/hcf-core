@@ -777,7 +777,7 @@ public final class AbilityModule {
     }
 
     // ------------------------------------------------------------------
-    // Delayed teleports: Ninja, Anti Trap Star, Time Warp
+    // Delayed teleports: Ninja Track, Reverse Ninja Track, Time Warp
     // ------------------------------------------------------------------
 
     private void teleportLater(Player player, Ability ability, Player target) {

@@ -122,7 +122,7 @@ The last player who hit you (within `hit-within-seconds`) takes `damage-multipli
 
 #### `ninja`
 
-Teleports, after `delay-seconds`, to the last player you hit (within `hit-within-seconds`). Used by a right-click.
+Teleports, after `delay-seconds`, to the last player you hit (within `hit-within-seconds`). Used by a right-click. Shipped as the Ninja Track.
 
 | Key | Default | What it does |
 |---|---|---|
@@ -214,7 +214,7 @@ For `seconds`, each hit has `chance`% to turn the player hit by `degrees`. Used 
 
 #### `anti-trap-star`
 
-Teleports, after `delay-seconds`, to the last player who hit you (within `hit-within-seconds`). Used by a right-click.
+Teleports, after `delay-seconds`, to the last player who hit you (within `hit-within-seconds`). Used by a right-click. Shipped as the Reverse Ninja Track.
 
 | Key | Default | What it does |
 |---|---|---|

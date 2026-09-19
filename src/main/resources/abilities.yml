@@ -173,20 +173,20 @@ abilities:
     hit-within-seconds: 15
   # --8<-- [end:focus-mode]
 
-  # --8<-- [start:ninja]
+  # --8<-- [start:ninja-track]
   # Teleports you, 3 seconds later, to the last player you hit (in the last 10
   # seconds).
-  ninja:
+  ninja-track:
     type: ninja
     material: NETHER_STAR
-    name: "&8&lNinja Ability"
+    name: "&8&lNinja Track"
     lore:
       - "&7Right click this item to teleport to"
       - "&7the last person you hit in 3s."
     cooldown-seconds: 120
     delay-seconds: 3
     hit-within-seconds: 10
-  # --8<-- [end:ninja]
+  # --8<-- [end:ninja-track]
 
   # --8<-- [start:portable-archer]
   # A bow whose arrows archer-tag the player they hit for 10 seconds; it breaks
@@ -316,20 +316,20 @@ abilities:
       - {effect: blindness, level: 2, seconds: 6}
   # --8<-- [end:belch-bomb]
 
-  # --8<-- [start:anti-trap-star]
+  # --8<-- [start:reverse-ninja-track]
   # Teleports you, 3 seconds later, to the last player who hit you (in the last
   # 10 seconds) - out of a trap, onto the one who put you there.
-  anti-trap-star:
+  reverse-ninja-track:
     type: anti-trap-star
-    material: NETHER_STAR
-    name: "&f&lAnti Trap Star"
+    material: CLOCK
+    name: "&3&lReverse Ninja Track"
     lore:
       - "&7Right click this item to teleport to the last"
       - "&7person who hit you in 3s."
     cooldown-seconds: 120
     delay-seconds: 3
     hit-within-seconds: 10
-  # --8<-- [end:anti-trap-star]
+  # --8<-- [end:reverse-ninja-track]
 
   # --8<-- [start:rose-thorn]
   # Hit a player with it: for 10 seconds, 30% of the damage they deal you goes

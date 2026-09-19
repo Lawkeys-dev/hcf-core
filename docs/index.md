@@ -65,7 +65,7 @@ hide:
 
     ---
 
-    Kits built from an inventory, refill signs, a layout editor, and 42 partner items built in — Switcher, Ninja, Pocket Bard, Grappling Hook… Custom enchants, effect commands such as `/speed`, enchantment, potion and effect caps, block limits per claim, and a crowbar for End portal frames.
+    Kits built from an inventory, refill signs, a layout editor, and 42 partner items built in — Switcher, Ninja Track, Pocket Bard, Grappling Hook… Custom enchants, effect commands such as `/speed`, enchantment, potion and effect caps, block limits per claim, and a crowbar for End portal frames.
 
     [:octicons-arrow-right-24: Kits](gameplay/kits.md) · [Items](gameplay/items.md)
 

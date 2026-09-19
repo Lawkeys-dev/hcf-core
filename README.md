@@ -29,7 +29,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 | **Lives** | Revive friends, or spend your own life by logging in (HCF mode) |
 | **Events** | KOTH, Citadel (fought in a claimed Citadel with no pearls or partner items), Conquest and Kill the King on daily schedules, with a hologram above every zone; Mountains that refill on a clock |
 | **Map phases** | SOTW, EOTW and the Purge, by command or by date, surviving restarts |
-| **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, 42 partner items built in (Switcher, Ninja, Rage Ball, Pocket Bard, Grappling Hook…) and your own, killstreak rewards, custom enchants, effect commands (`/speed`, `/strength`…), enchantment, potion and effect caps, block limits per claim, a crowbar |
+| **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, 42 partner items built in (Switcher, Ninja Track, Rage Ball, Pocket Bard, Grappling Hook…) and your own, killstreak rewards, custom enchants, effect commands (`/speed`, `/strength`…), enchantment, potion and effect caps, block limits per claim, a crowbar |
 | **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams |
 | **Everyday commands** | What an essentials plugin gives — `/ci`, `/feed`, `/fly`, `/god`, `/hat`, `/ec`, `/wb`, `/i`, `/tphere`, `/gmc`, `/day`… — each with its own permission, without what breaks HCF (`/tpa`, `/home`, `/back`, `/near`) |
 | **Interface** | Flicker-free scoreboard from template lines, each player hiding the sections they want in `/settings`, tab list, chat format with LuckPerms prefixes and kill counts, stats and leaderboards, holograms, player settings |
