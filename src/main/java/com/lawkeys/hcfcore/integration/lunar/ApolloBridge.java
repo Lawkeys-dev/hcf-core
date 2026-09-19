@@ -335,7 +335,12 @@ final class ApolloBridge implements LunarBridge, Listener {
     // Cooldowns
     // ------------------------------------------------------------------
 
-    /** The combat tag, the pearl cooldown, a running countdown ({@code /spawn}, {@code /team hq}...) and ability cooldowns. */
+    /**
+     * Every cooldown a player has running: the combat tag, the pearl, the item
+     * cooldowns, a countdown ({@code /spawn}, {@code /team hq}...), the partner items'
+     * - each, the shared one, the Pocket Bard's sets - the class's clicks and backstab,
+     * the crowbar.
+     */
     private void cooldowns(Player viewer, ApolloPlayer apollo, Viewer state, LunarSettings.Cooldowns rules, long now) {
         UUID id = viewer.getUniqueId();
         Map<String, CooldownSpec> wanted = new LinkedHashMap<>();
@@ -370,6 +375,28 @@ final class ApolloBridge implements LunarBridge, Listener {
                     wanted.put("hcf-ability-" + ability.id(), new CooldownSpec(now + left * 1000L,
                             ability.material().toUpperCase(Locale.ROOT)));
                 }
+            }
+            long global = sources.abilities().globalCooldownLeft(id);
+            if (global > 0) {
+                wanted.put("hcf-ability-global", new CooldownSpec(now + global * 1000L, rules.abilityGlobalIcon()));
+            }
+            for (var pocket : sources.abilities().getSettings().pocketBard()) {
+                long left = sources.abilities().pocketCooldownLeft(id, pocket);
+                if (left > 0) {
+                    wanted.put("hcf-pocket-" + pocket.id(), new CooldownSpec(now + left * 1000L,
+                            pocket.material().toUpperCase(Locale.ROOT)));
+                }
+            }
+        }
+        if (rules.classes() && sources.classes() != null) {
+            sources.classes().runningCooldowns(viewer).forEach((item, left) -> wanted.put(
+                    "hcf-class-" + item.toLowerCase(Locale.ROOT), new CooldownSpec(now + left * 1000L, item)));
+        }
+        if (rules.crowbar() && sources.crowbar() != null) {
+            long left = sources.crowbar().cooldownLeft(id);
+            if (left > 0) {
+                wanted.put("hcf-crowbar", new CooldownSpec(now + left * 1000L,
+                        sources.crowbar().getSettings().material().name()));
             }
         }
         SentState.Plan<CooldownSpec> plan = state.cooldowns.reconcile(wanted, (sent, next) ->

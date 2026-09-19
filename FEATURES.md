@@ -192,7 +192,7 @@ Checked against Apollo's official documentation (github.com/LunarClient/Apollo, 
 
 - **Waypoints**: the team's HQ, base and rally; a focused player (where they stand) and a focused team's HQ; KOTH, Citadel and Conquest zones; the King during Kill the King.
 - **Team**: teammates marked above their heads and on the minimap, position and name sent beyond tracking distance.
-- **Cooldowns**: the combat tag, a running countdown (`/spawn`, `/logout`, `/team hq`, `/team stuck`…) and ability cooldowns (each with its item).
+- **Cooldowns**: every cooldown the plugin keeps - the combat tag, the ender pearl, the item cooldowns (Gapple, Crapple…), a running countdown (`/spawn`, `/logout`, `/team hq`, `/team stuck`…), the partner items (each, the shared one, the Pocket Bard's sets), a class's click items and backstab, the crowbar - each with its own item, and each kind switchable in `apollo.yml`.
 - **Nametags**: a team line (name, DTR) and a name line, coloured by relation (self, ally, enemy, focus, neutral) — focus wins except for one's own team.
 
 Everything is computed on the main thread every `update-ticks` and **only what changed is sent** (`SentState`, pure and tested, with the nametag rule `NametagStyle`); what was sent is taken back **by name**, never through the modules' `reset*` calls, which would also erase what Apollo or another plugin put there. **It needs Lunar's Apollo plugin (`Apollo-Bukkit`) on the server**: the API is `provided` ("Apollo doesn't require shading") and its accessors throw until the plugin has started; `Apollo-Bukkit` and `Apollo-Folia` are declared as `softdepend`. Without Apollo, nothing changes.
@@ -238,7 +238,7 @@ Not used: Border, Combat, Marker/Notification/Title. **Apollo's Hologram module 
 - **The backstab** is true damage: the hit itself deals nothing and the damage is taken off absorption, then health, once the hit has landed — so armour, enchantments and Resistance do not reduce it. A backstab that would kill is dealt as the hit itself, overwhelming, so the death is the attacker's kill with its deathban, DTR and statistics. *From behind* means on the victim's back side **and** facing the way they face within `max-angle` — walking backwards into somebody's face is not a backstab.
 - **Team limits** (`max-per-team`) **ship at 0**, no limit: how many Bards a team may run is a balance decision. A player whose team is full is refused when the warmup ends, and not retried until a piece comes off.
 - **`/class`** (your class, energy, warmup), **`/class list`**, **`/class info <class>`**; scoreboard rows `%class_line%`, `%class_energy_line%` and `%archer_tag_line%`, drawn by the module itself through a `ui/` placeholder seam.
-- *Not covered*: Lunar Client cooldown icons for class items; a class that depends on held weapons rather than armour.
+- *Not covered*: a class that depends on held weapons rather than armour.
 
 ---
 

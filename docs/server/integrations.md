@@ -29,7 +29,7 @@ What is shown, each part switched in `apollo.yml`:
 |---|---|
 | **Waypoints** | Your team's HQ, base and rally point; a focused player where they stand, and a focused team's HQ; KOTH, Citadel and Conquest zones; the King during Kill the King. Each appears when it starts and disappears when it ends |
 | **Team view** | Teammates marked above their heads and on the minimap; beyond 48 blocks, where the client no longer tracks them, their position and name are sent |
-| **Cooldowns** | Lunar cooldown icons for the combat tag, a running countdown (`/spawn`, `/logout`, `/team hq`, `/team stuck`...) and ability cooldowns |
+| **Cooldowns** | Lunar cooldown icons for every cooldown: the combat tag, the ender pearl, the item cooldowns (Gapple, Crapple...), a running countdown (`/spawn`, `/logout`, `/team hq`, `/team stuck`...), partner items (each, the shared one, the Pocket Bard's sets), class items (a Bard's clicks, a Rogue's backstab) and the crowbar |
 | **Nametags** | A team line (`Team | DTR`) above each player's name, coloured by how their team relates to yours — your team, an ally, an enemy, a focused target or no team |
 
 Apollo's own configuration can switch each of its modules off for the whole server; a module off there stays off whatever `apollo.yml` says. `/hcf reload` takes back everything sent and sends it again as `apollo.yml` now says.

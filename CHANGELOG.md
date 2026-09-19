@@ -15,6 +15,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **`/cooldown reset <player> [what]`** ends a player's cooldowns — `all` (the default), `abilities`, `global`, `pearl`, `items`, or one ability's or item's id (`hcfcore.cooldown.admin`).
 - **The scoreboard, section by section, in `/settings`**: team, statistics, balance, combat tag, cooldowns, class, events, timers. A row of `ui.yml` belongs to a section by a tag at its start — `[team]&cTeam: &f%team%` — placed as you like. *In an existing `ui.yml`, tag the rows; in `settings.yml`, add the `scoreboard-<section>` switches to `offered`.*
 
+- **Lunar Client shows every cooldown**: besides the combat tag, countdowns and partner items, now the ender pearl, the item cooldowns, the shared partner item cooldown, the Pocket Bard's sets, a class's click items and backstab, and the crowbar — each switchable in `apollo.yml` (`ability-global-icon`, `classes`, `crowbar`). *An existing `apollo.yml` works without the new keys.*
+
 ### Changed
 - A class's held effect ignores an item carrying this plugin's data — a Pocket Bard's blaze powder in a Bard's hand gives the Pocket Bard's effect on a right-click, never the class's held Strength too, as its clicks already did.
 - Partner items moved from `kits.yml` to `abilities.yml`, and `/kit ability` became `/ability give` (permission `hcfcore.ability.admin`). *A `commands` ability of your `kits.yml` goes under `abilities:` in `abilities.yml` with `type: commands`; items already handed out keep working if their id is kept. A killstreak or redeem command using `kit ability` becomes `ability give`.*

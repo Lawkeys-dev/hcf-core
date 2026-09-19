@@ -420,6 +420,16 @@ public final class AbilityModule {
         }
     }
 
+    /** @return whole seconds before this player may use any ability again - the shared cooldown - or {@code 0} */
+    public long globalCooldownLeft(UUID playerId) {
+        return cooldowns.remaining(playerId, GLOBAL_COOLDOWN, System.currentTimeMillis());
+    }
+
+    /** @return whole seconds before this player may use this Pocket Bard set's items again, or {@code 0} */
+    public long pocketCooldownLeft(UUID playerId, PocketBardItem pocket) {
+        return cooldowns.remaining(playerId, "pocket:" + pocket.id(), System.currentTimeMillis());
+    }
+
     /** Every cooldown of a player's ends at once: each ability's, each Pocket Bard set's, the shared one. */
     public void resetCooldowns(UUID playerId) {
         cooldowns.forget(playerId);

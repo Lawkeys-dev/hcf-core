@@ -97,6 +97,11 @@ public final class CrowbarModule {
         return lang;
     }
 
+    /** @return whole seconds before this player may use a crowbar again, or {@code 0} */
+    public long cooldownLeft(java.util.UUID playerId) {
+        return cooldowns.remaining(playerId, COOLDOWN_KEY, System.currentTimeMillis());
+    }
+
     public Settings getSettings() {
         return settings;
     }

@@ -383,7 +383,7 @@ public final class HCFCore extends JavaPlugin {
         // Lunar Client, through Apollo when it is installed; reads the modules above.
         this.lunarIntegration = LunarIntegration.start(this, this.langManager, new LunarSources(
                 this.teamModule, this.claimModule, this.dtrModule, this.pvpModule, this.eventModule,
-                this.abilityModule, this.warmupModule));
+                this.abilityModule, this.warmupModule, this.classModule, this.crowbarModule));
 
         // Every module has declared its load by now. Sealing is what lets the gate
         // open: before it, a fast load could not tell that another was still to come.

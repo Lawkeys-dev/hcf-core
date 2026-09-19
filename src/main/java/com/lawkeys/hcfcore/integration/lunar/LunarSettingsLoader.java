@@ -72,9 +72,12 @@ public final class LunarSettingsLoader {
                 section.getBoolean("warmups", d.warmups()),
                 section.getString("warmup-icon", d.warmupIcon()).trim().toUpperCase(Locale.ROOT),
                 section.getBoolean("abilities", d.abilities()),
+                section.getString("ability-global-icon", d.abilityGlobalIcon()).trim().toUpperCase(Locale.ROOT),
                 section.getBoolean("ender-pearl", d.enderPearl()),
                 section.getString("ender-pearl-icon", d.enderPearlIcon()).trim().toUpperCase(Locale.ROOT),
-                section.getBoolean("item-cooldowns", d.itemCooldowns()));
+                section.getBoolean("item-cooldowns", d.itemCooldowns()),
+                section.getBoolean("classes", d.classes()),
+                section.getBoolean("crowbar", d.crowbar()));
     }
 
     private static LunarSettings.Nametags nametags(ConfigurationSection section, LunarSettings.Nametags d) {

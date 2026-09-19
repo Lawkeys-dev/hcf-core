@@ -54,9 +54,12 @@ Every example on this page is **taken from the shipped `apollo.yml`**. Changes a
 | `enabled` | `true` | Lunar cooldown icons |
 | `combat-tag`, `combat-tag-icon` | `true`, `DIAMOND_SWORD` | The combat tag, and its icon |
 | `warmups`, `warmup-icon` | `true`, `CLOCK` | Running countdowns (`/spawn`, `/team hq`...) |
-| `abilities` | `true` | Partner item cooldowns, each with its own item |
+| `abilities` | `true` | Partner item cooldowns, each with its own item — and the shared one, and the Pocket Bard's sets |
+| `ability-global-icon` | `NETHER_STAR` | The shared partner item cooldown's icon |
 | `ender-pearl`, `ender-pearl-icon` | `true`, `ENDER_PEARL` | The ender pearl cooldown, and its icon |
 | `item-cooldowns` | `true` | The item cooldowns of `pvp.yml`, each with its own item |
+| `classes` | `true` | A class's click items (a Bard's effects) and a Rogue's backstab, each with its own item |
+| `crowbar` | `true` | The crowbar's cooldown |
 
 ## Nametags
 

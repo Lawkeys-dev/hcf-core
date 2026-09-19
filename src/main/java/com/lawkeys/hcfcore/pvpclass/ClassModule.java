@@ -399,6 +399,32 @@ public final class ClassModule {
     }
 
     /**
+     * The cooldowns of this player's class that are running: each click item's, by
+     * its item's name, and the backstab's, by its weapon's - seconds left.
+     */
+    public Map<String, Long> runningCooldowns(Player player) {
+        Map<String, Long> out = new java.util.LinkedHashMap<>();
+        Optional<PvpClass> active = manager.active(player.getUniqueId());
+        if (active.isEmpty()) {
+            return out;
+        }
+        long now = System.currentTimeMillis();
+        for (String itemName : active.get().clickEffects().keySet()) {
+            long left = cooldowns.remaining(player.getUniqueId(), "click:" + itemName, now);
+            if (left > 0) {
+                out.put(itemName, left);
+            }
+        }
+        if (active.get().backstab() != null) {
+            long left = cooldowns.remaining(player.getUniqueId(), "backstab", now);
+            if (left > 0) {
+                out.put(active.get().backstab().weapon().toUpperCase(java.util.Locale.ROOT), left);
+            }
+        }
+        return out;
+    }
+
+    /**
      * A held item's effect, renewed while it stays in hand: on a timer, and at once
      * when the player's hand changes to {@code item}.
      */
