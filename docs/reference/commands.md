@@ -162,7 +162,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/report <player> <reason>` | | Report a player | everyone |
 | `/request <message>` | | Ask staff for help | everyone |
 | `/strike list [team\|player]` | `/strikes` | A team's strikes, your own by default | everyone |
-| `/strike add <team\|player> <reason>` · `pardon <id>` | | Strike a team (naming a member records them too); pardon a strike | `hcfcore.staff.strike` |
+| `/strike add <team\|player> <offence> [details]` · `pardon <id>` · `offences` | | Strike a team for an offence (naming a member records them too); pardon a strike; list the offences | `hcfcore.staff.strike` |
 | `/staff` | `/mod`, `/staffmode` | Enter or leave staff mode | `hcfcore.staff` |
 | `/staff list` | | Who is in staff mode | `hcfcore.staff` |
 | `/staff tp <player>` · `tphere <player>` · `tpall` · `tploc <x> <y> <z> [world]` | | Teleport to a player; bring one; bring everyone; go to coordinates | `hcfcore.staff` |

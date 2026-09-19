@@ -4,6 +4,7 @@ import com.lawkeys.hcfcore.command.VisiblePlayers;
 import com.lawkeys.hcfcore.staff.StaffMessages;
 import com.lawkeys.hcfcore.staff.StaffModule;
 import com.lawkeys.hcfcore.staff.strike.Strike;
+import com.lawkeys.hcfcore.staff.strike.StrikeOffences;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.util.ColorCodes;
@@ -24,18 +25,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * {@code /strike} - strikes against teams: {@code add <team|player> <reason>} and
- * {@code pardon <id>} for staff, {@code list [team|player]} for everybody.
+ * {@code /strike} - strikes against teams: {@code add <team|player> <offence> [details]},
+ * {@code pardon <id>} and {@code offences} for staff, {@code list [team|player]} for
+ * everybody.
  *
- * <p>A player's name strikes their team and records them as the reason - a cheater
- * banned typically. What the strike costs the team is {@code staff.yml}'s ladder,
- * applied by {@link StaffModule#strikeTeam}.
+ * <p>A player's name strikes their team and records them - a cheater banned
+ * typically. The offence decides the share of points the team loses; its count of
+ * active strikes, whatever they were for, whether it is disbanded ({@code staff.yml},
+ * applied by {@link StaffModule#strikeTeam}). What a strike was for is public in the
+ * list; the details staff add are for staff.
  */
 public final class StrikeCommand implements TabExecutor {
 
     public static final String PERMISSION = "hcfcore.staff.strike";
 
-    private static final List<String> STAFF_SUBCOMMANDS = List.of("add", "pardon");
+    private static final List<String> STAFF_SUBCOMMANDS = List.of("add", "pardon", "offences");
 
     private final StaffModule module;
 
@@ -73,8 +77,9 @@ public final class StrikeCommand implements TabExecutor {
             case "add" -> add(sender, args, label);
             case "list" -> list(sender, args, label);
             case "pardon" -> pardon(sender, args, label);
+            case "offences" -> offences(sender);
             default -> module.getLang().send(sender, StaffMessages.USAGE,
-                    "usage", "/" + label + " <list [team|player]|add <team|player> <reason>|pardon <id>>");
+                    "usage", "/" + label + " <list [team|player]|add <team|player> <offence> [details]|pardon <id>|offences>");
         }
         return true;
     }
@@ -82,7 +87,14 @@ public final class StrikeCommand implements TabExecutor {
     private void add(CommandSender sender, String[] args, String label) {
         if (args.length < 3) {
             module.getLang().send(sender, StaffMessages.USAGE,
-                    "usage", "/" + label + " add <team|player> <reason>");
+                    "usage", "/" + label + " add <team|player> <offence> [details]");
+            return;
+        }
+        StrikeOffences offences = module.getStrikeOffences();
+        StrikeOffences.Offence offence = offences.get(args[2]).orElse(null);
+        if (offence == null) {
+            module.getLang().send(sender, StaffMessages.STRIKE_UNKNOWN_OFFENCE, "input", args[2],
+                    "offences", String.join(", ", offences.all().stream().map(StrikeOffences.Offence::id).toList()));
             return;
         }
         Target target = resolve(sender, args[1]).orElse(null);
@@ -98,22 +110,22 @@ public final class StrikeCommand implements TabExecutor {
             module.getLang().send(sender, StaffMessages.STRIKE_SYSTEM_TEAM, "team", target.name());
             return;
         }
-        String reason = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
-        StaffModule.StrikeOutcome outcome = module.strikeTeam(target.team(), target.subject(), reason,
+        String details = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+        StaffModule.StrikeOutcome outcome = module.strikeTeam(target.team(), target.subject(), offence, details,
                 sender.getName());
 
         String team = target.name();
         String count = String.valueOf(outcome.active());
-        String max = module.getStrikeLadder().disbandAt().isPresent()
-                ? "/" + module.getStrikeLadder().disbandAt().getAsInt() : "";
-        String shownReason = ColorCodes.escape(outcome.strike().reason());
+        String max = offences.disbandAt() > 0 ? "/" + offences.disbandAt() : "";
+        String shownDetails = details(outcome.strike().reason());
         module.getLang().send(sender, StaffMessages.STRIKE_ISSUED,
-                "team", team, "count", count, "id", String.valueOf(outcome.strike().id()));
+                "team", team, "offence", offence.name(), "percent", String.valueOf(offence.pointsLossPercent()),
+                "count", count, "id", String.valueOf(outcome.strike().id()));
         module.sendToStaffChannel(module.getLang().get(StaffMessages.STRIKE_ANNOUNCE,
-                "team", team, "staff", sender.getName(), "count", count, "reason", shownReason,
-                "subject", subject(target.subject())));
+                "team", team, "staff", sender.getName(), "count", count, "offence", offence.name(),
+                "details", shownDetails, "subject", subject(target.subject())));
         broadcast(StaffMessages.STRIKE_BROADCAST, "team", team, "count", count, "max", max,
-                "reason", shownReason);
+                "offence", offence.name());
         if (outcome.pointsLost() > 0) {
             broadcast(StaffMessages.STRIKE_POINTS_LOST, "team", team, "points", String.valueOf(outcome.pointsLost()));
         }
@@ -162,13 +174,15 @@ public final class StrikeCommand implements TabExecutor {
                 "team", target.name(),
                 "active", String.valueOf(module.getStrikes().activeCount(target.teamId())),
                 "total", String.valueOf(history.size()));
+        boolean staff = sender.hasPermission(PERMISSION);
         for (Strike strike : history) {
             module.getLang().send(sender, StaffMessages.STRIKE_LIST_ENTRY,
                     "id", String.valueOf(strike.id()),
                     "staff", strike.issuedBy(),
                     "age", Durations.format(Math.max(0L, (now - strike.issuedAt()) / 1000L)),
                     "state", strike.isActiveAt(now) ? "active" : "expired",
-                    "reason", ColorCodes.escape(strike.reason()),
+                    "offence", offenceName(strike),
+                    "details", staff ? details(strike.reason()) : "",
                     "subject", subject(strike.subject()));
         }
     }
@@ -192,6 +206,30 @@ public final class StrikeCommand implements TabExecutor {
         }
         module.flushSoon();
         module.getLang().send(sender, StaffMessages.STRIKE_PARDONED, "id", String.valueOf(id));
+    }
+
+    private void offences(CommandSender sender) {
+        StrikeOffences offences = module.getStrikeOffences();
+        module.getLang().send(sender, StaffMessages.STRIKE_OFFENCES_HEADER,
+                "disband", offences.disbandAt() > 0 ? String.valueOf(offences.disbandAt()) : "-");
+        for (StrikeOffences.Offence offence : offences.all()) {
+            module.getLang().send(sender, StaffMessages.STRIKE_OFFENCES_ENTRY, "id", offence.id(),
+                    "name", offence.name(), "percent", String.valueOf(offence.pointsLossPercent()));
+        }
+    }
+
+    /** What a strike was for: its offence's name today, its id if since removed, its details for an old one. */
+    private String offenceName(Strike strike) {
+        if (strike.offence().isBlank()) {
+            return ColorCodes.escape(strike.reason());
+        }
+        return module.getStrikeOffences().get(strike.offence()).map(StrikeOffences.Offence::name)
+                .orElse(strike.offence());
+    }
+
+    private String details(String details) {
+        return details == null || details.isBlank() ? ""
+                : module.getLang().get(StaffMessages.STRIKE_DETAILS, "details", ColorCodes.escape(details));
     }
 
     private String subject(String subject) {
@@ -257,6 +295,8 @@ public final class StrikeCommand implements TabExecutor {
                     .filter(team -> !team.getType().isSystem())
                     .forEach(team -> options.add(team.getName()));
             options.addAll(VisiblePlayers.names(sender, args[1]));
+        } else if (args.length == 3 && staff && args[0].equalsIgnoreCase("add")) {
+            module.getStrikeOffences().all().forEach(offence -> options.add(offence.id()));
         }
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(Locale.ROOT);
         return options.stream().filter(option -> option.toLowerCase(Locale.ROOT).startsWith(prefix)).distinct().toList();

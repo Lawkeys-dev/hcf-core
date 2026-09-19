@@ -26,7 +26,7 @@ import com.lawkeys.hcfcore.staff.listener.InspectListener;
 import com.lawkeys.hcfcore.staff.listener.StaffListener;
 import com.lawkeys.hcfcore.staff.listener.TicketMenuListener;
 import com.lawkeys.hcfcore.staff.strike.Strike;
-import com.lawkeys.hcfcore.staff.strike.StrikeLadder;
+import com.lawkeys.hcfcore.staff.strike.StrikeOffences;
 import com.lawkeys.hcfcore.staff.strike.StrikeManager;
 import com.lawkeys.hcfcore.staff.strike.StrikeStore;
 import com.lawkeys.hcfcore.staff.ticket.TicketManager;
@@ -88,7 +88,7 @@ public final class StaffModule {
     private LastInventoryStore lastInventories = LastInventoryStore.NO_OP;
     private TicketManager tickets;
     private StrikeManager strikes;
-    private volatile StrikeLadder strikeLadder = StrikeLadder.empty();
+    private volatile StrikeOffences strikeOffences = StrikeOffences.defaults();
     private NamespacedKey toolbarMarker;
     private BukkitTask saveTask;
     private BukkitTask reminderTask;
@@ -149,8 +149,8 @@ public final class StaffModule {
         return strikes;
     }
 
-    public StrikeLadder getStrikeLadder() {
-        return strikeLadder;
+    public StrikeOffences getStrikeOffences() {
+        return strikeOffences;
     }
 
     public NamespacedKey getToolbarMarker() {
@@ -185,6 +185,10 @@ public final class StaffModule {
                 ? StrikeStore.NO_OP
                 : new JdbcStrikeStore(dataSource, message -> plugin.getLogger().info(message));
         this.strikes = new StrikeManager(strikeStore);
+        if (getTeams() != null) {
+            // /team show writes a team's count of strikes: the seam of team/ (ARCHITECTURE.md section 14).
+            getTeams().setStrikeCounter(this::activeStrikes);
+        }
 
         StartupBarrier.Load load = startup.expect("staff data");
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -261,14 +265,12 @@ public final class StaffModule {
         var section = ConfigManager.loadFile(plugin, "staff.yml");
         this.settings = StaffSettingsLoader.load(section,
                 warning -> plugin.getLogger().warning("staff.yml: " + warning));
-        this.strikeLadder = StaffSettingsLoader.loadStrikeLadder(section,
+        this.strikeOffences = StaffSettingsLoader.loadStrikeOffences(section,
                 warning -> plugin.getLogger().warning("staff.yml: strikes." + warning));
-        // Said out loud, because a strike that runs a ban is not something an
+        // Said out loud, because a strike that disbands a team is not something an
         // operator should discover by issuing one.
-        if (!strikeLadder.isEmpty()) {
-            plugin.getLogger().info("Strike sanctions are configured at " + strikeLadder.steps()
-                    + " active strikes.");
-        }
+        plugin.getLogger().info("Strikes: " + strikeOffences.all().size() + " offence(s); a team is disbanded at "
+                + (strikeOffences.disbandAt() > 0 ? strikeOffences.disbandAt() + " active strikes." : "no count."));
     }
 
     /**
@@ -388,42 +390,40 @@ public final class StaffModule {
      *
      * @param pointsLost      points taken from the team, {@code 0} for none
      * @param disbanded       the team was disbanded
-     * @param disbandRefused  the ladder said disband and something refused it
+     * @param disbandRefused  the count said disband and something refused it
      */
     public record StrikeOutcome(Strike strike, int active, long pointsLost, boolean disbanded,
                                 boolean disbandRefused) {
     }
 
     /**
-     * Strikes a team, and applies what the ladder says for its new count: points
-     * taken, console commands run, the team disbanded - in that order, so a command
-     * can still name the team.
+     * Strikes a team for an offence: the offence's share of its points taken, its
+     * console commands run, and the team disbanded if its active strikes reach
+     * {@code disband-at} - in that order, so a command can still name the team.
      *
      * @param subject the member it was for, or blank
+     * @param details what staff add, or blank - staff see them, players do not
      */
-    public StrikeOutcome strikeTeam(Team team, String subject, String reason, String issuedBy) {
+    public StrikeOutcome strikeTeam(Team team, String subject, StrikeOffences.Offence offence, String details,
+                                    String issuedBy) {
         TeamModule teams = Objects.requireNonNull(getTeams(), "teams");
         TeamManager manager = teams.getManager();
-        Strike strike = strikes.issue(team.getId(), team.getName(), subject, reason, issuedBy,
+        Strike strike = strikes.issue(team.getId(), team.getName(), subject, offence.id(), details, issuedBy,
                 settings.strikes().validSeconds());
         flushSoon();
         int active = strikes.activeCount(team.getId());
-        StrikeLadder.Sanction sanction = strikeLadder.at(active).orElse(null);
-        if (sanction == null) {
-            return new StrikeOutcome(strike, active, 0L, false, false);
-        }
-        long lost = StrikeLadder.pointsLost(team.getPoints(), sanction.pointsLossPercent());
+        long lost = StrikeOffences.pointsLost(team.getPoints(), offence.pointsLossPercent());
         if (lost > 0) {
             manager.addPoints(team, -lost);
         }
         // The name filled in is the team's own, never what was typed: it ends up in a
         // console command.
-        for (String command : StrikeLadder.fill(sanction.commands(), team.getName(), active)) {
+        for (String command : StrikeOffences.fill(offence.commands(), team.getName(), active, offence)) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
         }
         boolean disbanded = false;
         boolean refused = false;
-        if (sanction.disband()) {
+        if (strikeOffences.disbands(active)) {
             List<Player> members = teams.getOnlineMembers(team);
             TeamResult result = manager.disband(team, null);
             disbanded = result.isSuccess();
@@ -433,6 +433,11 @@ public final class StaffModule {
             }
         }
         return new StrikeOutcome(strike, active, lost, disbanded, refused);
+    }
+
+    /** @return how many strikes still count against this team - {@code /team show} writes it */
+    public int activeStrikes(UUID teamId) {
+        return strikes == null ? 0 : strikes.activeCount(teamId);
     }
 
     // ------------------------------------------------------------------

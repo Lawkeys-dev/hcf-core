@@ -501,6 +501,11 @@ final class TeamSubCommands {
             lang.send(sender, TeamMessages.INFO_POINTS, "points", String.valueOf(team.getPoints()));
             lang.send(sender, TeamMessages.INFO_KOTH_CAPTURES,
                     "captures", String.valueOf(team.getKothCaptures()));
+            // Shown from the first strike, as a number only: what it was for is staff's business.
+            int strikes = module.activeStrikes(team.getId());
+            if (strikes > 0) {
+                lang.send(sender, TeamMessages.INFO_STRIKES, "strikes", String.valueOf(strikes));
+            }
 
             List<String> allyNames = new ArrayList<>();
             for (UUID allyId : team.getAllies()) {

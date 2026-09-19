@@ -1,7 +1,7 @@
 package com.lawkeys.hcfcore.staff;
 
 import com.lawkeys.hcfcore.util.Durations;
-import com.lawkeys.hcfcore.staff.strike.StrikeLadder;
+import com.lawkeys.hcfcore.staff.strike.StrikeOffences;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
@@ -140,44 +140,41 @@ public final class StaffSettingsLoader {
     }
 
     /**
-     * Reads the strike ladder: what a team's strikes cost it, count by count.
-     *
-     * <p>Separate from {@link #load} because it is not a setting but a table. Each rung
-     * is {@code points-loss-percent}, {@code disband} and {@code commands}, any of them
-     * left out.
+     * Reads what a team can be struck for ({@code strikes.offences}) and how many
+     * strikes disband it ({@code strikes.disband-at}). Without offences in the file,
+     * the shipped ones are used: a strike always has something to be for.
      */
-    public static StrikeLadder loadStrikeLadder(ConfigurationSection section, Consumer<String> warn) {
-        if (section == null) {
-            return StrikeLadder.empty();
+    public static StrikeOffences loadStrikeOffences(ConfigurationSection section, Consumer<String> warn) {
+        StrikeOffences defaults = StrikeOffences.defaults();
+        ConfigurationSection strikes = section == null ? null : section.getConfigurationSection("strikes");
+        if (strikes == null) {
+            return defaults;
         }
-        ConfigurationSection strikes = section.getConfigurationSection("strikes");
-        ConfigurationSection ladder = strikes == null ? null : strikes.getConfigurationSection("ladder");
-        if (ladder == null) {
-            return StrikeLadder.empty();
+        if (strikes.contains("ladder")) {
+            warn.accept("strikes.ladder is no longer read: a strike is given for an offence (strikes.offences),"
+                    + " each with its points-loss-percent, and disband-at disbands the team - see staff.yml.");
         }
-        Map<Integer, StrikeLadder.Sanction> rungs = new LinkedHashMap<>();
-        for (String key : ladder.getKeys(false)) {
-            int count;
-            try {
-                count = Integer.parseInt(key.trim());
-            } catch (NumberFormatException e) {
-                warn.accept("ladder." + key + " is not a strike count; ignored.");
+        int disbandAt = strikes.getInt("disband-at", defaults.disbandAt());
+        ConfigurationSection listed = strikes.getConfigurationSection("offences");
+        if (listed == null || listed.getKeys(false).isEmpty()) {
+            return StrikeOffences.of(defaults.all(), disbandAt, warn);
+        }
+        List<StrikeOffences.Offence> offences = new ArrayList<>();
+        for (String id : listed.getKeys(false)) {
+            ConfigurationSection offence = listed.getConfigurationSection(id);
+            if (offence == null) {
+                warn.accept("offences." + id + " must list name and points-loss-percent; ignored.");
                 continue;
             }
-            ConfigurationSection rung = ladder.getConfigurationSection(key);
-            if (rung == null) {
-                warn.accept("ladder." + key + " must list points-loss-percent, disband or commands; ignored.");
-                continue;
-            }
-            int percent = rung.getInt("points-loss-percent", 0);
+            int percent = offence.getInt("points-loss-percent", 0);
             if (percent < 0 || percent > 100) {
-                warn.accept("ladder." + key + ".points-loss-percent must be 0 to 100, got " + percent
+                warn.accept("offences." + id + ".points-loss-percent must be 0 to 100, got " + percent
                         + "; brought within.");
             }
-            rungs.put(count, new StrikeLadder.Sanction(percent, rung.getBoolean("disband", false),
-                    rung.getStringList("commands")));
+            offences.add(new StrikeOffences.Offence(id, offence.getString("name", id), percent,
+                    offence.getStringList("commands")));
         }
-        return StrikeLadder.of(rungs, warn);
+        return StrikeOffences.of(offences, disbandAt, warn);
     }
 
     private static StaffSettings.TicketRules loadTickets(ConfigurationSection section,

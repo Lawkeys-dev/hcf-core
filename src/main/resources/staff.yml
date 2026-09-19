@@ -197,25 +197,45 @@ tickets:
 # A strike is announced to the whole server.
 strikes:
   enabled: true
-  # How long a strike counts towards the ladder below. 0 means for the whole map.
+  # How long a strike counts towards disband-at below. 0 means for the whole map.
   valid-seconds: 0
 
-  # --8<-- [start:strike-ladder]
-  # What each number of ACTIVE strikes costs the team. A rung fires at exactly its
-  # count - a team reaching 3 was already sanctioned at 1 and 2 on the way. Each
-  # rung takes any of:
-  #   points-loss-percent: share of the team's points taken (rounded down)
-  #   disband: true        the team is disbanded, as by /team forcedisband
-  #   commands: [...]      console commands, with %team% and %strikes% filled in
-  #
-  # Shipped as an example: half the team's points at the first
-  # and second strike, disbanded at the third.
-  ladder:
-    1:
+  # --8<-- [start:strike-offences]
+  # A team is disbanded when its ACTIVE strikes reach this number, whatever they
+  # were for. 0: never.
+  disband-at: 3
+
+  # What a team can be struck for: /strike add <team|player> <offence> [details].
+  # Each offence takes its share of the team's points (rounded down); everybody
+  # sees a strike and the team's count, and the offence in /strike list - the
+  # details staff add are for staff. Each offence takes:
+  #   name                 how messages write it
+  #   points-loss-percent  share of the team's points taken, 0 to 100
+  #   commands: [...]      console commands, with %team%, %strikes% and %offence%
+  offences:
+    cheating:
+      name: "Cheating"
       points-loss-percent: 50
-    2:
+    bug-abuse:
+      name: "Bug abuse"
       points-loss-percent: 50
-    3:
-      disband: true
-  # --8<-- [end:strike-ladder]
+    ban-evasion:
+      name: "Ban evasion"
+      points-loss-percent: 50
+    boosting:
+      name: "Kill boosting"
+      points-loss-percent: 40
+    teaming:
+      name: "Teaming"
+      points-loss-percent: 35
+    alt-abuse:
+      name: "Alt abuse"
+      points-loss-percent: 35
+    claim-abuse:
+      name: "Claim abuse"
+      points-loss-percent: 25
+    other:
+      name: "Other"
+      points-loss-percent: 25
+  # --8<-- [end:strike-offences]
 # --8<-- [end:strikes]

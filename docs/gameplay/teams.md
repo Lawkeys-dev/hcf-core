@@ -12,7 +12,7 @@ A team (or faction) is the unit of HCF: it owns land, shares a DTR, a bank and a
 
 A name is 3 to 16 characters, letters, digits and underscores (`names.pattern`), and cannot be one of the blacklisted words (`spawn`, `warzone`, `wilderness`, `staff`, `admin` by default, compared without case). `/team rename <name>` changes it, `/team disband` ends the team and releases its land.
 
-`/team info [team]` (aliases `who`, `show`) shows a team: its members by role and how many are online, its balance, points, counted KOTH captures, allies and rally point. `/team dtr [team]` shows its DTR.
+`/team info [team]` (aliases `who`, `show`) shows a team: its members by role and how many are online, its balance, points, counted KOTH captures, allies and rally point - and, from its first strike, how many strikes count against it (`Strikes: 1`), never what for ([Strikes](../server/moderation.md#strikes)). `/team dtr [team]` shows its DTR.
 
 ## Roles
 

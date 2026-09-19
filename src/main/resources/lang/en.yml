@@ -204,6 +204,8 @@ team:
     balance: "{muted}Balance: {secondary}%balance%"
     points: "{muted}Points: {secondary}%points%"
     koth-captures: "{muted}KOTH captures: {secondary}%captures%"
+    # Shown from a team's first active strike; what it was for is not said.
+    strikes: "{muted}Strikes: {error}%strikes%"
     allies: "{muted}Allies: {secondary}%allies%"
     rally: "{muted}Rally: {secondary}%world% %x%, %y%, %z%"
     none: "{muted}none"
@@ -765,17 +767,24 @@ staff:
 
   # Strikes against teams (staff.yml, strikes).
   strike:
-    issued: "{muted}Struck {error}%team%{muted} - {secondary}%count% {muted}active ({secondary}#%id%{muted})."
-    announce: "{dark}[{primary}Staff{dark}] {secondary}%staff% {muted}struck {error}%team%%subject% {muted}({secondary}%count% {muted}active): {secondary}%reason%"
-    # To everybody: a strike is public. %max% is "/3" when a count disbands, else empty.
-    broadcast: "{prefix}{error}&lSTRIKE {dark}» {error}%team% {muted}received a strike {dark}({secondary}%count%%max%{dark}){muted}: {secondary}%reason%"
+    issued: "{muted}Struck {error}%team% {muted}for {secondary}%offence% {muted}(-{secondary}%percent%% {muted}points) - {secondary}%count% {muted}active ({secondary}#%id%{muted})."
+    announce: "{dark}[{primary}Staff{dark}] {secondary}%staff% {muted}struck {error}%team%%subject% {muted}for {secondary}%offence% {muted}({secondary}%count% {muted}active)%details%"
+    # To everybody: a strike is public - what it was for is not said. %max% is "/3"
+    # when a count disbands, else empty. %offence% is there if you want it.
+    broadcast: "{prefix}{error}&lSTRIKE {dark}» {error}%team% {muted}received a strike {dark}({secondary}%count%%max%{dark})"
     points-lost: "{prefix}{error}%team% {muted}lost {secondary}%points% {muted}point(s)."
     disbanded: "{prefix}{error}%team% {muted}has been disbanded after {secondary}%count% {muted}strikes."
     disband-refused: "{error}The strike is recorded, but %team% could not be disbanded - another plugin refused it."
     # Appended after the team where a strike was for a member.
     subject: " {muted}(for {secondary}%player%{muted})"
     list-header: "{primary}Strikes {muted}for {error}%team% {muted}({secondary}%active% {muted}active of {secondary}%total%{muted}):"
-    list-entry: "{muted}#{secondary}%id% {muted}[{secondary}%state%{muted}] {secondary}%reason%%subject% {muted}- by {secondary}%staff%{muted}, {secondary}%age% {muted}ago"
+    # What each strike was for; %details% - what staff added - only for staff.
+    list-entry: "{muted}#{secondary}%id% {muted}[{secondary}%state%{muted}] {secondary}%offence%%subject%%details% {muted}- {secondary}%age% {muted}ago"
+    # Appended where staff added details, for staff only.
+    details: "{muted}: {secondary}%details%"
+    offences-header: "{primary}Offences {muted}- a team is disbanded at {secondary}%disband% {muted}active strikes:"
+    offences-entry: "{muted}- {secondary}%id% {dark}({muted}%name%{dark}) {muted}- {error}-%percent%% {muted}points"
+    unknown-offence: "{error}No offence called '%input%'. {muted}Offences: {secondary}%offences%"
     none: "{muted}%team% has no strikes."
     pardoned: "{muted}Pardoned strike {secondary}#%id%{muted}. Points taken, and a disband, are not given back."
     unknown: "{error}There is no strike #%id%."

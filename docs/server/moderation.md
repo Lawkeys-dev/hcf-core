@@ -142,24 +142,35 @@ Subcommands of `/staff`, so they never fight another plugin over `/tp` or `/near
 
 ## Strikes
 
-Strikes punish a **team** for what one of its members did — a member banned for cheating, typically.
+Strikes punish a **team** for what its members did. **A strike is given for an offence**, and each offence takes its own share of the team's points; **whatever the offences, a team is disbanded at its third active strike**.
 
 ```text
-/strike add <team|player> <reason>   # hcfcore.staff.strike
-/strike pardon <id>                  # hcfcore.staff.strike
-/strike list [team|player]           # everyone; your own team by default (alias /strikes)
+/strike add <team|player> <offence> [details]   # hcfcore.staff.strike
+/strike pardon <id>                             # hcfcore.staff.strike
+/strike offences                                # hcfcore.staff.strike: what a team can be struck for
+/strike list [team|player]                      # everyone; your own team by default (alias /strikes)
 ```
 
-Striking a player's name strikes their team and records the member. Every strike is **announced to the whole server**.
+As shipped:
 
-Each number of **active** strikes triggers its rung of the ladder — exactly at its count:
+| Offence | `/strike add … <offence>` | Points lost |
+|---|---|---|
+| Cheating | `cheating` | 50% |
+| Bug abuse | `bug-abuse` | 50% |
+| Ban evasion | `ban-evasion` | 50% |
+| Kill boosting | `boosting` | 40% |
+| Teaming | `teaming` | 35% |
+| Alt abuse | `alt-abuse` | 35% |
+| Claim abuse | `claim-abuse` | 25% |
+| Other | `other` | 25% |
 
 ```yaml title="staff.yml"
---8<-- "src/main/resources/staff.yml:strikes"
+--8<-- "src/main/resources/staff.yml:strike-offences"
 ```
 
-A rung can take any of `points-loss-percent`, `disband: true` (as by `/team forcedisband`), and `commands` (console commands with `%team%` and `%strikes%`). The shipped ladder is an example: half the team's points at the first and second strike, disbanded at the third.
-
+- **Who sees what.** Every strike is announced to the whole server, with the team's count — `STRIKE » Wizards received a strike (1/3)` — but not what it was for. `/team show` gives a struck team a `Strikes: 1` line, as a statistic. `/strike list` shows each strike's offence; the **details** staff add (`/strike add Wizards teaming allied with Raiders at the Citadel`) are for staff only.
+- Striking a player's name strikes their team and records the member.
+- The points are taken first, then the offence's `commands` run (with `%team%`, `%strikes%`, `%offence%`), then the team is disbanded if it reached `disband-at` — as by `/team forcedisband`.
 - A pardon does not give back points taken or undo a disband.
 - A strike outlives its team: a disbanded team is found by the name it had.
 - No strike is added automatically — the plugin cannot know that a ban made by another plugin was for cheating.

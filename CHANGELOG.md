@@ -13,7 +13,10 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **The Theme Builder** ([online](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)): design the whole look — colours and gradients, prefix, menus, scoreboard, tab list, chat, nametags, holograms — with live previews in the game's typeface, items and skins, from 14 palettes, and download a complete `theme.yml` and `ui.yml`, one by one or zipped. It reads a `theme.yml` you already have.
 - Menus page themselves when their items do not fit — `/ability` has two pages, `/tickets` is no longer capped at 54.
 
+- **Strikes by offence**: a strike is given for an offence — cheating, bug abuse, ban evasion (50% of the team's points), kill boosting (40%), teaming, alt abuse (35%), claim abuse, other (25%) — and a team is disbanded at its 3rd active strike, whatever they were for (`staff.yml`, `strikes.offences` and `disband-at`). `/strike add <team|player> <offence> [details]`; `/strike offences` lists them. `/team show` writes a struck team's `Strikes: N`; the announcement and the team's page never say what a strike was for, and the details staff add are for staff only.
+
 ### Changed
+- Strikes: the ladder (`strikes.ladder`, a sanction by number of strikes) is replaced by offences and `disband-at`. *A `staff.yml` with a `ladder` keeps working with the shipped offences, and says so: move its numbers to `strikes.offences` and `disband-at`. `/strike add` now takes an offence before the details.*
 - Every shipped message, menu, scoreboard row, hologram line and chat format uses the theme. The Lunar nametags' team line uses the theme too. *An existing `lang/en.yml`, `ui.yml` and the other files keep their look: take the new ones from the jar for the theme's, then put your changes back. The Pocket Bard menu is 27 slots, its sets at 10, 12, 14 and 16. `staff.ticket.menu.more` is gone.*
 
 ## [0.6.0] - 2026-09-19

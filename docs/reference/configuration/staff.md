@@ -1,6 +1,6 @@
 # staff.yml
 
-Moderation: staff mode and its toolbar, vanish, staff chat, broadcast, freeze, invsee, lastinv, tickets and the strike ladder.
+Moderation: staff mode and its toolbar, vanish, staff chat, broadcast, freeze, invsee, lastinv, tickets and strikes: offences, their share of points, the count that disbands.
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../server/moderation.md)
 
@@ -108,13 +108,14 @@ Every example on this page is **taken from the shipped `staff.yml`**. Changes ap
 |---|---|---|
 | `enabled` | `true` | Strikes |
 | `valid-seconds` | `0` | How long a strike counts; `0` for the whole map |
-| `ladder.<count>` | 1, 2, 3 | What reaching that many active strikes does |
+| `disband-at` | `3` | A team is disbanded when its active strikes reach this, whatever they were for; `0` for never |
+| `offences.<id>.name` | | How messages write the offence |
+| `offences.<id>.points-loss-percent` | 25 to 50 | Share of the team's points a strike for it takes, rounded down |
+| `offences.<id>.commands` | none | Console commands run with it: `%team%`, `%strikes%`, `%offence%` |
 
-**A rung of the ladder** takes any of `points-loss-percent` (share of the team's points taken), `disband: true`, and `commands` (console, with `%team%` and `%strikes%`):
+The shipped offences are `cheating`, `bug-abuse`, `ban-evasion` (50%), `boosting` (40%), `teaming`, `alt-abuse` (35%), `claim-abuse` and `other` (25%). Add, rename or remove any: the id is what staff type after `/strike add <team>`.
 
-```yaml title="staff.yml"
---8<-- "src/main/resources/staff.yml:strike-ladder"
-```
+*A `staff.yml` from before offences, with a `ladder`, keeps working with the shipped offences and a warning: move its numbers to `offences` and `disband-at`.*
 
 ## The whole shipped file
 

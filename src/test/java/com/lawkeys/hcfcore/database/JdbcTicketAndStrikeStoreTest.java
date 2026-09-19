@@ -90,15 +90,16 @@ class JdbcTicketAndStrikeStoreTest {
     void strikesOutliveTheServerAndAPardonIsGone() throws Exception {
         StrikeManager before = new StrikeManager(new JdbcStrikeStore(sqlite, log::add));
         before.loadAll();
-        long first = before.issue(alice, "Wizards", "Steve", "cheating", "Staff", 0L).id();
-        before.issue(alice, "Wizards", "", "insults", "Staff", 3_600L);
+        long first = before.issue(alice, "Wizards", "Steve", "cheating", "aimbot, banned", "Staff", 0L).id();
+        before.issue(alice, "Wizards", "", "other", "insults", "Staff", 3_600L);
         before.flush();
 
         StrikeManager after = new StrikeManager(new JdbcStrikeStore(sqlite, log::add));
         after.loadAll();
         assertEquals(2, after.activeCount(alice));
         Strike kept = after.get(first).orElseThrow();
-        assertEquals("cheating", kept.reason());
+        assertEquals("cheating", kept.offence());
+        assertEquals("aimbot, banned", kept.reason());
         assertEquals("Wizards", kept.teamName());
         assertEquals("Steve", kept.subject());
         assertEquals(Strike.NEVER, kept.expiresAt(), "for ever must survive the round trip as for ever");
@@ -131,7 +132,7 @@ class JdbcTicketAndStrikeStoreTest {
 
         JdbcStrikeStore strikes = new JdbcStrikeStore(sqlite, log::add);
         strikes.initSchema();
-        strikes.save(new Strike(1L, bob, "Knights", "", "r", "Staff", 1L, Strike.NEVER));
+        strikes.save(new Strike(1L, bob, "Knights", "", "other", "r", "Staff", 1L, Strike.NEVER));
         assertEquals(1, strikes.loadAll().size());
 
         assertArrayEquals(new byte[] {1, 2, 3}, stashes.loadAll().get(alice),
@@ -153,7 +154,7 @@ class JdbcTicketAndStrikeStoreTest {
         JdbcStrikeStore strikes = new JdbcStrikeStore(sqlite, log::add);
         strikes.initSchema();
         assertTrue(strikes.loadAll().isEmpty(), "player strikes are not team strikes");
-        strikes.save(new Strike(1L, bob, "Knights", "Bob", "r", "Staff", 1L, Strike.NEVER));
+        strikes.save(new Strike(1L, bob, "Knights", "Bob", "other", "r", "Staff", 1L, Strike.NEVER));
         assertEquals(1, strikes.loadAll().size());
         try (var connection = sqlite.getConnection();
              var tables = connection.getMetaData().getTables(null, null, "hcf_staff_strikes", null)) {

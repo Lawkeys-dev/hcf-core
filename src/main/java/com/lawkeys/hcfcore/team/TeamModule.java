@@ -43,6 +43,8 @@ public final class TeamModule {
     private final StartupGate startup;
 
     private volatile TeamSettings settings = TeamSettings.defaults();
+    /** How many strikes still count against a team: installed by the staff module; none until then. */
+    private volatile java.util.function.ToIntFunction<java.util.UUID> strikeCount = teamId -> 0;
     private TeamManager manager;
     private TeamCommand teamCommand;
     private BukkitTask saveTask;
@@ -81,6 +83,19 @@ public final class TeamModule {
 
     public TeamManager getManager() {
         return manager;
+    }
+
+    /**
+     * Installs how many strikes count against a team, for {@code /team show}. Called by
+     * the {@code staff/} module, which keeps the strikes.
+     */
+    public void setStrikeCounter(java.util.function.ToIntFunction<java.util.UUID> counter) {
+        this.strikeCount = java.util.Objects.requireNonNull(counter, "counter");
+    }
+
+    /** @return how many strikes still count against this team, {@code 0} without the staff module */
+    public int activeStrikes(java.util.UUID teamId) {
+        return strikeCount.applyAsInt(teamId);
     }
 
     public LangManager getLang() {

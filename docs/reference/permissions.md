@@ -14,7 +14,7 @@ Commands that need no node — `/team` and its player subcommands, `/pay`, `/bal
 | `hcfcore.staff` | op | Staff mode and its toolbar, `/vanish`, `/staffchat`, `/staffbuild` (which lifts protection only with `hcfcore.claim.bypass`), the `/staff` teleports and lists, `/freeze`, `/invsee` (read-only), `/lastinv`, `/tickets` | ✓ |
 | `hcfcore.staff.broadcast` | op | `/broadcast` | ✓ |
 | `hcfcore.staff.clearchat` | op | `/clearchat` | ✓ |
-| `hcfcore.staff.strike` | op | `/strike add` and `/strike pardon` | ✓ |
+| `hcfcore.staff.strike` | op | `/strike add`, `/strike pardon`, `/strike offences`, and a strike's details in `/strike list` | ✓ |
 | `hcfcore.team.admin` | op | `/team` staff verbs: `createsystem`, `setzone`, `force*`, `setpoints`, `addpoints`, `resetkoth`, `setdtr`, `setregen` | ✓ |
 | `hcfcore.claim.admin` | op | `/team forceclaim` and `/team forceunclaim` | ✓ |
 | `hcfcore.claim.bypass` | op | Build, break and interact in any territory — player land, server land, the warzone — **while `/staffbuild` is on**; walk into claims locked during SOTW | ✓ |

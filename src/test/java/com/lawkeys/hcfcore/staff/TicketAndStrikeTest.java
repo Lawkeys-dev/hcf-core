@@ -1,7 +1,7 @@
 package com.lawkeys.hcfcore.staff;
 
 import com.lawkeys.hcfcore.staff.strike.Strike;
-import com.lawkeys.hcfcore.staff.strike.StrikeLadder;
+import com.lawkeys.hcfcore.staff.strike.StrikeOffences;
 import com.lawkeys.hcfcore.staff.strike.StrikeManager;
 import com.lawkeys.hcfcore.staff.strike.StrikeStore;
 import com.lawkeys.hcfcore.staff.ticket.Ticket;
@@ -254,14 +254,14 @@ class TicketAndStrikeTest {
 
         @Test
         void aStrikeIsRecordedAgainstATeamAndCounts() {
-            strikes.issue(alice, "Wizards", "Steve", "cheating", "Staff", 0L);
+            strikes.issue(alice, "Wizards", "Steve", "other", "cheating", "Staff", 0L);
             assertEquals(1, strikes.activeCount(alice));
             assertEquals(0, strikes.activeCount(bob));
         }
 
         @Test
         void anExpiredStrikeStopsCountingButIsKept() {
-            strikes.issue(alice, "Wizards", "", "spam", "Staff", 3_600L);
+            strikes.issue(alice, "Wizards", "", "other", "spam", "Staff", 3_600L);
             assertEquals(1, strikes.activeCount(alice));
 
             now.addAndGet(3_600_001L);
@@ -271,24 +271,24 @@ class TicketAndStrikeTest {
 
         @Test
         void aStrikeWithNoDurationLastsTheMap() {
-            strikes.issue(alice, "Wizards", "", "cheating", "Staff", 0L);
+            strikes.issue(alice, "Wizards", "", "other", "cheating", "Staff", 0L);
             now.addAndGet(10L * 365 * 24 * 3_600_000L);
             assertEquals(1, strikes.activeCount(alice));
         }
 
         @Test
         void historyIsNewestFirst() {
-            strikes.issue(alice, "Wizards", "", "first", "Staff", 0L);
+            strikes.issue(alice, "Wizards", "", "other", "first", "Staff", 0L);
             now.addAndGet(1_000L);
-            strikes.issue(alice, "Wizards", "", "second", "Staff", 0L);
+            strikes.issue(alice, "Wizards", "", "other", "second", "Staff", 0L);
 
             assertEquals("second", strikes.history(alice).get(0).reason());
         }
 
         @Test
         void pardoningRemovesOneStrike() {
-            long id = strikes.issue(alice, "Wizards", "", "spam", "Staff", 0L).id();
-            strikes.issue(alice, "Wizards", "", "other", "Staff", 0L);
+            long id = strikes.issue(alice, "Wizards", "", "other", "spam", "Staff", 0L).id();
+            strikes.issue(alice, "Wizards", "", "other", "other", "Staff", 0L);
 
             assertTrue(strikes.pardon(id));
             assertEquals(1, strikes.activeCount(alice));
@@ -297,7 +297,7 @@ class TicketAndStrikeTest {
 
         @Test
         void aStrikeKeepsTheTeamNameAndTheMemberItWasFor() {
-            Strike strike = strikes.issue(alice, "Wizards", "Steve", "cheating", "Staff", 0L);
+            Strike strike = strikes.issue(alice, "Wizards", "Steve", "other", "cheating", "Staff", 0L);
             assertEquals("Wizards", strike.teamName());
             assertEquals("Steve", strike.subject());
             assertEquals("Staff", strike.issuedBy());
@@ -306,7 +306,7 @@ class TicketAndStrikeTest {
         /** Seconds times a thousand, added to the clock, must not wrap into the past. */
         @Test
         void anEnormousValidityMeansForeverRatherThanOverflowing() {
-            Strike strike = strikes.issue(alice, "Wizards", "", "spam", "Staff", Long.MAX_VALUE / 10);
+            Strike strike = strikes.issue(alice, "Wizards", "", "other", "spam", "Staff", Long.MAX_VALUE / 10);
             assertEquals(Strike.NEVER, strike.expiresAt());
             assertEquals(1, strikes.activeCount(alice));
         }
@@ -314,9 +314,9 @@ class TicketAndStrikeTest {
         /** A team disbanded by its strikes is still found by the name it had. */
         @Test
         void aTeamIsFoundByTheNameItsStrikesRecorded() {
-            strikes.issue(alice, "Wizards", "", "old", "Staff", 0L);
+            strikes.issue(alice, "Wizards", "", "other", "old", "Staff", 0L);
             now.addAndGet(1_000L);
-            strikes.issue(bob, "Wizards", "", "the name was taken again", "Staff", 0L);
+            strikes.issue(bob, "Wizards", "", "other", "the name was taken again", "Staff", 0L);
 
             assertEquals(bob, strikes.latestUnderTeamName("wizards").orElseThrow().teamId(),
                     "the most recent holder of the name");
@@ -325,76 +325,57 @@ class TicketAndStrikeTest {
     }
 
     @Nested
-    class Ladder {
+    class Offences {
 
-        private final StrikeLadder.Sanction halfThePoints = new StrikeLadder.Sanction(50, false, List.of());
-        private final StrikeLadder.Sanction disband = new StrikeLadder.Sanction(0, true, List.of());
-
-        /** The project owner's example: half the points at each of the first two, disbanded at the third. */
-        private StrikeLadder ownersExample() {
-            return StrikeLadder.of(Map.of(1, halfThePoints, 2, halfThePoints, 3, disband), m -> { });
+        @Test
+        void eachOffenceTakesItsOwnShare() {
+            StrikeOffences shipped = StrikeOffences.defaults();
+            assertEquals(50, shipped.get("cheating").orElseThrow().pointsLossPercent());
+            assertEquals(40, shipped.get("boosting").orElseThrow().pointsLossPercent());
+            assertEquals(35, shipped.get("TEAMING").orElseThrow().pointsLossPercent(), "whatever the case typed");
+            assertTrue(shipped.get("jaywalking").isEmpty());
         }
 
         @Test
-        void aRungFiresAtExactlyItsCount() {
-            StrikeLadder ladder = ownersExample();
-            assertEquals(halfThePoints, ladder.at(1).orElseThrow());
-            assertEquals(halfThePoints, ladder.at(2).orElseThrow());
-            assertTrue(ladder.at(3).orElseThrow().disband());
-            assertTrue(ladder.at(4).isEmpty(), "a team past its disband has nothing more to lose");
-            assertTrue(StrikeLadder.empty().at(1).isEmpty());
-        }
-
-        @Test
-        void theDisbandCountIsKnown() {
-            assertEquals(3, ownersExample().disbandAt().orElseThrow());
-            assertTrue(StrikeLadder.of(Map.of(1, halfThePoints), m -> { }).disbandAt().isEmpty());
+        void theThirdStrikeDisbandsWhateverTheOffences() {
+            StrikeOffences shipped = StrikeOffences.defaults();
+            assertEquals(3, shipped.disbandAt());
+            assertFalse(shipped.disbands(2));
+            assertTrue(shipped.disbands(3));
+            assertTrue(shipped.disbands(4), "a team past the count, from a count lowered since");
+            StrikeOffences never = StrikeOffences.of(shipped.all(), 0, m -> { });
+            assertFalse(never.disbands(10), "0 disbands nobody");
         }
 
         @Test
         void aShareOfThePointsIsRoundedDown() {
-            assertEquals(50L, StrikeLadder.pointsLost(100L, 50));
-            assertEquals(50L, StrikeLadder.pointsLost(101L, 50));
-            assertEquals(0L, StrikeLadder.pointsLost(1L, 50));
-            assertEquals(7L, StrikeLadder.pointsLost(7L, 100));
-            assertEquals(0L, StrikeLadder.pointsLost(0L, 50), "nothing from a team with nothing");
-            assertEquals(0L, StrikeLadder.pointsLost(-20L, 50), "nor from a team below zero");
-            assertEquals(Long.MAX_VALUE / 2, StrikeLadder.pointsLost(Long.MAX_VALUE, 50),
+            assertEquals(50L, StrikeOffences.pointsLost(100L, 50));
+            assertEquals(40L, StrikeOffences.pointsLost(101L, 40));
+            assertEquals(0L, StrikeOffences.pointsLost(1L, 50));
+            assertEquals(7L, StrikeOffences.pointsLost(7L, 100));
+            assertEquals(0L, StrikeOffences.pointsLost(0L, 50), "nothing from a team with nothing");
+            assertEquals(0L, StrikeOffences.pointsLost(-20L, 50), "nor from a team below zero");
+            assertEquals(Long.MAX_VALUE / 2, StrikeOffences.pointsLost(Long.MAX_VALUE, 50),
                     "no overflow, whatever the score");
         }
 
         @Test
         void placeholdersAreFilledIn() {
-            assertEquals(List.of("broadcast Wizards reached 3"),
-                    StrikeLadder.fill(List.of("broadcast %team% reached %strikes%"), "Wizards", 3));
+            StrikeOffences.Offence boosting = StrikeOffences.defaults().get("boosting").orElseThrow();
+            assertEquals(List.of("broadcast Wizards reached 3 for boosting"),
+                    StrikeOffences.fill(List.of("broadcast %team% reached %strikes% for %offence%"), "Wizards", 3, boosting));
         }
 
         @Test
-        void aRungThatDoesNothingIsDropped() {
+        void aBadOffenceIsDroppedAndAShareBroughtWithin() {
             List<String> warnings = new ArrayList<>();
-            StrikeLadder ladder = StrikeLadder.of(Map.of(3, new StrikeLadder.Sanction(0, false, List.of())),
-                    warnings::add);
-            assertTrue(ladder.isEmpty());
-            assertEquals(1, warnings.size());
-        }
-
-        @Test
-        void anUnreachableRungIsDropped() {
-            List<String> warnings = new ArrayList<>();
-            StrikeLadder ladder = StrikeLadder.of(Map.of(0, disband), warnings::add);
-            assertTrue(ladder.isEmpty());
-            assertEquals(1, warnings.size());
-        }
-
-        @Test
-        void aShareIsBroughtWithinZeroToAHundred() {
-            assertEquals(100, new StrikeLadder.Sanction(250, false, List.of()).pointsLossPercent());
-            assertEquals(0, new StrikeLadder.Sanction(-5, true, List.of()).pointsLossPercent());
-        }
-
-        @Test
-        void rungsAreListedLowestFirst() {
-            assertEquals(List.of(1, 2, 3), ownersExample().steps());
+            StrikeOffences read = StrikeOffences.of(List.of(
+                    new StrikeOffences.Offence("Bad Id!", "Bad", 10, List.of()),
+                    new StrikeOffences.Offence("x-ray", "X-ray", 250, List.of()),
+                    new StrikeOffences.Offence("x-ray", "Again", 10, List.of())), 3, warnings::add);
+            assertEquals(List.of("x-ray"), read.all().stream().map(StrikeOffences.Offence::id).toList());
+            assertEquals(100, read.get("x-ray").orElseThrow().pointsLossPercent());
+            assertEquals(2, warnings.size(), "a bad id, and one listed twice");
         }
     }
 
@@ -447,7 +428,7 @@ class TicketAndStrikeTest {
 
         @Test
         void aStrikePardonedBeforeItWasSavedIsNeverWritten() throws Exception {
-            long id = strikes.issue(alice, "Wizards", "", "mistake", "Staff", 0L).id();
+            long id = strikes.issue(alice, "Wizards", "", "other", "mistake", "Staff", 0L).id();
             strikes.pardon(id);
             strikes.flush();
 
@@ -457,7 +438,7 @@ class TicketAndStrikeTest {
 
         @Test
         void aFailedWriteIsRetried() throws Exception {
-            strikes.issue(alice, "Wizards", "", "spam", "Staff", 0L);
+            strikes.issue(alice, "Wizards", "", "other", "spam", "Staff", 0L);
             store.failuresLeft = 1;
 
             assertThrows(Exception.class, strikes::flush);
@@ -471,10 +452,10 @@ class TicketAndStrikeTest {
          */
         @Test
         void aStrikeIssuedDuringAFlushIsWrittenByTheNext() throws Exception {
-            strikes.issue(alice, "Wizards", "", "first", "Staff", 0L);
+            strikes.issue(alice, "Wizards", "", "other", "first", "Staff", 0L);
             store.duringSave = () -> {
                 store.duringSave = () -> { };
-                strikes.issue(alice, "Wizards", "", "during", "Staff", 0L);
+                strikes.issue(alice, "Wizards", "", "other", "during", "Staff", 0L);
             };
             strikes.flush();
             assertEquals(1, store.saved.size());
@@ -484,11 +465,11 @@ class TicketAndStrikeTest {
 
         @Test
         void numberingContinuesAfterARestart() throws Exception {
-            store.stored.add(new Strike(7L, alice, "Wizards", "", "old", "Staff", 1L, Strike.NEVER));
+            store.stored.add(new Strike(7L, alice, "Wizards", "", "other", "old", "Staff", 1L, Strike.NEVER));
             strikes.loadAll();
 
             assertEquals(1, strikes.activeCount(alice));
-            assertEquals(8L, strikes.issue(bob, "Knights", "", "new", "Staff", 0L).id());
+            assertEquals(8L, strikes.issue(bob, "Knights", "", "other", "new", "Staff", 0L).id());
         }
     }
 }

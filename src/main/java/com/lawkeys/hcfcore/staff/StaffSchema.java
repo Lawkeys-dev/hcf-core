@@ -129,7 +129,15 @@ public final class StaffSchema {
                         expires_at BIGINT NOT NULL
                     )"""));
 
+    /**
+     * A strike is given for an offence (the project owner's rules, 19/09/2026): its id
+     * is kept, blank for the strikes given before.
+     */
+    private static final Migration V7 = Migration.of(MODULE, 7,
+            "the offence a strike was given for",
+            List.of("ALTER TABLE hcf_team_strikes ADD COLUMN offence VARCHAR(32) NOT NULL DEFAULT ''"));
+
     public static List<Migration> migrations() {
-        return List.of(V1, V2, V3, V4, V5, V6);
+        return List.of(V1, V2, V3, V4, V5, V6, V7);
     }
 }

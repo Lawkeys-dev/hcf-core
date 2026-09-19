@@ -10,11 +10,10 @@
  * and the archive of inventories captured at death behind {@code /lastinv}.
  *
  * <p>Then reports and requests, one queue of tickets ({@code ticket/}) with a
- * management menu, and strikes ({@code strike/}). FEATURES.md forbade building the
- * strike system before its scale was specified, so it is a mechanism with the scale
- * left blank: the validity period is configuration, the sanctions are a ladder of
- * console commands in {@code staff.yml}, and that ladder ships empty - a strike
- * records itself and nothing more until an operator writes one.
+ * management menu, and strikes ({@code strike/}): a strike is given for an offence,
+ * which takes its share of the team's points, and a team is disbanded at its third
+ * active strike whatever they were for - the project owner's rules of 19/09/2026,
+ * every number of them in {@code staff.yml}.
  *
  * <p>The shipped toolbar binds only commands this module provides, since a slot
  * naming a command that does not exist would look like a tool and answer "unknown

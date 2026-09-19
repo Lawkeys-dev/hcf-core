@@ -148,7 +148,7 @@ public record StaffSettings(
     /**
      * Strikes.
      *
-     * @param validSeconds how long a strike counts towards the ladder; {@code 0}
+     * @param validSeconds how long a strike counts towards {@code disband-at}; {@code 0}
      *                     means for ever. FEATURES.md lists this as a decision to be
      *                     taken, so it is configuration rather than a rule in code
      */

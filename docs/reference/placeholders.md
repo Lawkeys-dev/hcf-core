@@ -87,7 +87,7 @@ These run from the console.
 | `killstreaks.yml` — `commands` and `broadcast` | `%player%`, `%streak%` |
 | `abilities.yml` — a `commands` ability | `%player%` |
 | `staff.yml` — toolbar `command` | `%player%` (the player clicked), `%staff%` (you). These run **as the staff member**, not the console |
-| `staff.yml` — strike ladder `commands` | `%team%`, `%strikes%` |
+| `staff.yml` — a strike offence's `commands` | `%team%`, `%strikes%`, `%offence%` |
 | `redeem` — a code's reward commands | `%player%` |
 | `schedule.yml` — `key-all.commands` | `%player%`; `key-all.broadcast` takes `%count%` |
 | `schedule.yml` — a timer's `end-commands` | `%timer%`, the timer's name |

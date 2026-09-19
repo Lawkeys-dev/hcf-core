@@ -19,7 +19,7 @@ import java.util.function.LongSupplier;
  *
  * <p>Pure Java. An expired strike is kept rather than deleted - the record of what a
  * team did is the point of a strike system. It simply stops counting towards the
- * ladder. A <em>pardoned</em> strike is deleted: pardoning says it should never have
+ * disband count. A <em>pardoned</em> strike is deleted: pardoning says it should never have
  * been issued. A strike outlives its team: a team disbanded by its third strike keeps
  * its record, found by the name it had.
  *
@@ -50,16 +50,17 @@ public final class StrikeManager {
      * Records a strike.
      *
      * @param subject      the member it was for, or blank
+     * @param offence      the offence's id
      * @param validSeconds how long it counts for; {@code 0} means for ever, and so does
      *                     a duration too long to add to the clock
      */
-    public Strike issue(UUID teamId, String teamName, String subject, String reason, String issuedBy,
-                        long validSeconds) {
+    public Strike issue(UUID teamId, String teamName, String subject, String offence, String reason,
+                        String issuedBy, long validSeconds) {
         long now = clock.getAsLong();
         long expiry = validSeconds <= 0 || validSeconds > (Strike.NEVER - now) / 1000L
                 ? Strike.NEVER
                 : now + validSeconds * 1000L;
-        Strike strike = new Strike(nextId.getAndIncrement(), teamId, teamName, subject, reason,
+        Strike strike = new Strike(nextId.getAndIncrement(), teamId, teamName, subject, offence, reason,
                 issuedBy, now, expiry);
         strikes.computeIfAbsent(teamId, id -> new CopyOnWriteArrayList<>()).add(strike);
         byId.put(strike.id(), strike);
@@ -67,7 +68,7 @@ public final class StrikeManager {
         return strike;
     }
 
-    /** @return how many of this team's strikes still count - what the ladder reads */
+    /** @return how many of this team's strikes still count - what disbands it at {@code disband-at} */
     public int activeCount(UUID teamId) {
         long now = clock.getAsLong();
         return (int) strikes.getOrDefault(teamId, List.of()).stream()

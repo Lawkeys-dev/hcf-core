@@ -34,7 +34,7 @@ The files are written on the first start and **never overwritten** afterwards.
 | [`resourcenodes.yml`](resourcenodes.md) | Mountains: regions, block palettes, refill times, protection, refill speed | `enabled` |
 | [`phases.yml`](phases.md) | SOTW length and date, EOTW date, the Purge | always on — nothing happens until one starts |
 | [`lives.yml`](lives.md) | Starting lives, using one at login, `/lives send` — HCF mode only | `enabled` |
-| [`staff.yml`](staff.md) | Staff mode and its toolbar, vanish, staff chat, broadcast format, freeze, invsee, lastinv, tickets, the strike ladder | `enabled`, and one per part |
+| [`staff.yml`](staff.md) | Staff mode and its toolbar, vanish, staff chat, broadcast format, freeze, invsee, lastinv, tickets, strike offences | `enabled`, and one per part |
 | [`chat.yml`](chat.md) | Public chat format, kill count, local chat range, team chat logging | `enabled` (team chat works either way) |
 | [`ui.yml`](ui.md) | Scoreboard title, lines and refresh rate; tab list header and footer | `scoreboard.enabled`, `tablist.enabled` |
 | [`general.yml`](general.md) | `/spawn`, `/logout`, `/rename`, private messages | `enabled` |

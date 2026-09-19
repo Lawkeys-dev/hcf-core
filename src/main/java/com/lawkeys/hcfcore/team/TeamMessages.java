@@ -135,6 +135,7 @@ public final class TeamMessages {
     public static final String INFO_BALANCE = "team.info.balance";
     public static final String INFO_POINTS = "team.info.points";
     public static final String INFO_KOTH_CAPTURES = "team.info.koth-captures";
+    public static final String INFO_STRIKES = "team.info.strikes";
     public static final String INFO_ALLIES = "team.info.allies";
     public static final String INFO_RALLY = "team.info.rally";
     public static final String INFO_NONE = "team.info.none";

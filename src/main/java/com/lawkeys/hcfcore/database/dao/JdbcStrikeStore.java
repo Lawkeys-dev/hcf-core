@@ -37,7 +37,7 @@ public final class JdbcStrikeStore implements StrikeStore {
         Collection<Strike> strikes = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "SELECT id, team_uuid, team_name, subject, reason, issued_by, issued_at, expires_at "
+                     "SELECT id, team_uuid, team_name, subject, offence, reason, issued_by, issued_at, expires_at "
                              + "FROM hcf_team_strikes");
              ResultSet rs = statement.executeQuery()) {
             while (rs.next()) {
@@ -46,6 +46,7 @@ public final class JdbcStrikeStore implements StrikeStore {
                         UUID.fromString(rs.getString("team_uuid")),
                         rs.getString("team_name"),
                         rs.getString("subject"),
+                        rs.getString("offence"),
                         rs.getString("reason"),
                         rs.getString("issued_by"),
                         rs.getLong("issued_at"),
@@ -60,18 +61,18 @@ public final class JdbcStrikeStore implements StrikeStore {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement update = connection.prepareStatement(
                     "UPDATE hcf_team_strikes SET team_uuid = ?, team_name = ?, subject = ?, reason = ?, "
-                            + "issued_by = ?, issued_at = ?, expires_at = ? WHERE id = ?")) {
+                            + "issued_by = ?, issued_at = ?, expires_at = ?, offence = ? WHERE id = ?")) {
                 bind(update, strike);
-                update.setLong(8, strike.id());
+                update.setLong(9, strike.id());
                 if (update.executeUpdate() > 0) {
                     return;
                 }
             }
             try (PreparedStatement insert = connection.prepareStatement(
                     "INSERT INTO hcf_team_strikes (team_uuid, team_name, subject, reason, issued_by, "
-                            + "issued_at, expires_at, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+                            + "issued_at, expires_at, offence, id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                 bind(insert, strike);
-                insert.setLong(8, strike.id());
+                insert.setLong(9, strike.id());
                 insert.executeUpdate();
             }
         }
@@ -85,6 +86,7 @@ public final class JdbcStrikeStore implements StrikeStore {
         statement.setString(5, strike.issuedBy());
         statement.setLong(6, strike.issuedAt());
         statement.setLong(7, strike.expiresAt());
+        statement.setString(8, strike.offence());
     }
 
     @Override

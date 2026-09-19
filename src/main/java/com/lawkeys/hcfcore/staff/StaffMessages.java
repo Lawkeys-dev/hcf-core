@@ -138,6 +138,10 @@ public final class StaffMessages {
     public static final String STRIKE_PARDONED = "staff.strike.pardoned";
     public static final String STRIKE_UNKNOWN = "staff.strike.unknown";
     public static final String STRIKE_UNKNOWN_TEAM = "staff.strike.unknown-team";
+    public static final String STRIKE_DETAILS = "staff.strike.details";
+    public static final String STRIKE_OFFENCES_HEADER = "staff.strike.offences-header";
+    public static final String STRIKE_OFFENCES_ENTRY = "staff.strike.offences-entry";
+    public static final String STRIKE_UNKNOWN_OFFENCE = "staff.strike.unknown-offence";
 
     // Command layer
     public static final String PLAYER_NOT_FOUND = "staff.error.player-not-found";
