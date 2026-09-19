@@ -373,6 +373,12 @@ public final class HCFCore extends JavaPlugin {
         this.uiModule = new UiModule(this, this.langManager, this.teamModule, this.dtrModule,
                 this.pvpModule, this.economyModule, this.statsModule, this.claimModule,
                 this.phaseModule, this.scheduleModule, this.eventModule);
+        // The tab list: auto means the grid on HCF, the classic list on a kitmap; the
+        // grid needs PacketEvents, and names carry LuckPerms prefixes.
+        ChatModule chat = this.chatModule;
+        this.uiModule.setTabSources(this.gameMode,
+                () -> chat == null ? com.lawkeys.hcfcore.chat.ChatDecorations.NONE : chat.getDecorations(),
+                com.lawkeys.hcfcore.ui.tab.GridTabs.start(this));
         this.uiModule.enable();
         // The class rows (%class_line%...) are drawn by the class module itself.
         this.uiModule.addPlaceholderSource(this.classModule::placeholders);

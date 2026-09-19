@@ -18,6 +18,9 @@ softdepend:
   # own plugin.yml; its API example soft-depends on the same two.
   - Apollo-Bukkit
   - Apollo-Folia
+  # PacketEvents, for the HCF tab list grid only (ui.yml, tablist.style). Without it
+  # the tab list is the classic one.
+  - packetevents
 
 commands:
   hcf:

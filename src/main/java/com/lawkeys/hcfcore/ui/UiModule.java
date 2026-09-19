@@ -74,6 +74,7 @@ public final class UiModule {
             new java.util.concurrent.CopyOnWriteArrayList<>();
     private final Map<UUID, PlayerBoard> boards = new ConcurrentHashMap<>();
     private BukkitTask updateTask;
+    private final TabList tabList;
 
     /** Every module here may be {@code null}: a missing one empties its placeholders. */
     public UiModule(Plugin plugin, LangManager lang, TeamModule teams, DtrModule dtr, PvpModule pvp,
@@ -90,6 +91,20 @@ public final class UiModule {
         this.phases = phases;
         this.schedule = schedule;
         this.events = events;
+        this.tabList = new TabList(plugin, this, lang, teams, stats, claims,
+                amount -> economy == null || economy.getManager() == null
+                        ? String.format(Locale.ROOT, "%.2f", amount) : economy.getManager().format(amount));
+    }
+
+    /**
+     * What the tab list needs from outside this module: the game mode (which style
+     * {@code auto} means), the players' LuckPerms prefixes, and the grid - {@code null}
+     * without PacketEvents. Set before {@link #enable()}.
+     */
+    public void setTabSources(com.lawkeys.hcfcore.mode.GameMode mode,
+                              java.util.function.Supplier<com.lawkeys.hcfcore.chat.ChatDecorations> decorations,
+                              com.lawkeys.hcfcore.ui.tab.GridTab grid) {
+        tabList.setSources(mode, decorations, grid);
     }
 
     public UiSettings getSettings() {
@@ -167,11 +182,11 @@ public final class UiModule {
                 id -> new PlayerBoard(LangManager.colorize(LangManager.theme().title(settings.scoreboard().title()))));
         board.show(player);
         update(player, board);
-        applyTablist(player);
     }
 
     public void detach(UUID playerId) {
         boards.remove(playerId);
+        tabList.forget(playerId);
     }
 
     private void updateAll() {
@@ -207,7 +222,7 @@ public final class UiModule {
      * <p>Each module is asked only if it is running, so the whole thing degrades to
      * empty strings rather than to null checks scattered through the templates.
      */
-    private LineRenderer renderer(Player player) {
+    LineRenderer renderer(Player player) {
         LineRenderer out = new LineRenderer();
         long now = System.currentTimeMillis();
 
@@ -467,22 +482,6 @@ public final class UiModule {
                         .orElse(""));
     }
 
-    private void applyTablist(Player player) {
-        UiSettings.TablistRules rules = settings.tablist();
-        if (!rules.enabled()) {
-            return;
-        }
-        LineRenderer out = renderer(player);
-        player.sendPlayerListHeaderAndFooter(
-                block(rules.header(), out), block(rules.footer(), out));
-    }
-
-    private static net.kyori.adventure.text.Component block(List<String> lines, LineRenderer out) {
-        return com.lawkeys.hcfcore.util.LegacyText.SERIALIZER
-                .deserialize(LangManager.colorize(String.join("\n",
-                        lines.stream().map(out::render).toList())));
-    }
-
     public void reloadSettings() {
         var section = ConfigManager.loadFile(plugin, "ui.yml");
         this.settings = UiSettingsLoader.load(section,
@@ -500,6 +499,7 @@ public final class UiModule {
             }
         }
         startUpdating();
+        tabList.restart();
     }
 
     public void disable() {
@@ -507,6 +507,7 @@ public final class UiModule {
             updateTask.cancel();
             updateTask = null;
         }
+        tabList.shutdown();
         boards.clear();
     }
 }

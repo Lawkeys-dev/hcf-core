@@ -82,7 +82,7 @@ hide:
 
     ---
 
-    A flicker-free scoreboard built from template lines — each player hiding the sections they want — a tab list, a chat format with LuckPerms prefixes and kill counts, statistics and leaderboards, holograms, and per-player settings.
+    A flicker-free scoreboard built from template lines — each player hiding the sections they want — a tab list, the HCF grid or the classic list with LuckPerms ranks, a chat format with LuckPerms prefixes and kill counts, statistics and leaderboards, holograms, and per-player settings.
 
     [:octicons-arrow-right-24: Chat, scoreboard and settings](gameplay/interface.md)
 

@@ -35,12 +35,57 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
         }
     }
 
-    /** @param header and {@code footer}: the blocks above and below the player list */
-    public record TablistRules(boolean enabled, List<String> header, List<String> footer) {
+    /**
+     * The tab list: the HCF grid or the classic list (the project owner's request,
+     * 19/09/2026), chosen by {@code style}.
+     *
+     * @param updateTicks how often it is redrawn
+     */
+    public record TablistRules(boolean enabled, com.lawkeys.hcfcore.ui.tab.TabStyle style, long updateTicks,
+                               GridRules hcf, ClassicRules classic) {
 
         public TablistRules {
+            Objects.requireNonNull(style, "style");
+            Objects.requireNonNull(hcf, "hcf");
+            Objects.requireNonNull(classic, "classic");
+        }
+    }
+
+    /**
+     * The HCF grid.
+     *
+     * @param columns   the four columns, each up to twenty cells, top to bottom
+     * @param latency   the connection bars every cell shows, in milliseconds; below 0 for none
+     * @param texture   a skin for every cell's head; empty for the game's default heads
+     * @param signature that skin's signature
+     */
+    public record GridRules(List<String> header, List<String> footer, List<List<String>> columns,
+                            int latency, String texture, String signature) {
+
+        public GridRules {
             header = List.copyOf(Objects.requireNonNull(header, "header"));
             footer = List.copyOf(Objects.requireNonNull(footer, "footer"));
+            columns = Objects.requireNonNull(columns, "columns").stream().map(List::copyOf).toList();
+            Objects.requireNonNull(texture, "texture");
+            Objects.requireNonNull(signature, "signature");
+        }
+    }
+
+    /**
+     * The classic list: the real players, each written from {@code name}.
+     *
+     * @param name how each player is written; their LuckPerms prefix and suffix,
+     *             their team, kills and ping are theirs, not the viewer's
+     * @param sort the order players are listed in
+     */
+    public record ClassicRules(List<String> header, List<String> footer, String name,
+                               com.lawkeys.hcfcore.ui.tab.TabSort sort) {
+
+        public ClassicRules {
+            header = List.copyOf(Objects.requireNonNull(header, "header"));
+            footer = List.copyOf(Objects.requireNonNull(footer, "footer"));
+            Objects.requireNonNull(name, "name");
+            Objects.requireNonNull(sort, "sort");
         }
     }
 
@@ -63,7 +108,45 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
                         "[events]%phase_line%",
                         "[events]%event_line%",
                         "{dark}▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪")),
-                new TablistRules(false, List.of("{primary}&lHCF", "{muted}Hardcore Factions"),
-                        List.of("{text}Online {dark}{bullet} {secondary}%online%")));
+                new TablistRules(true, com.lawkeys.hcfcore.ui.tab.TabStyle.AUTO, 20L,
+                        new GridRules(
+                                List.of("", "{primary}&lHCF", ""),
+                                List.of("", "{muted}play.yourserver.net", ""),
+                                List.of(
+                                        List.of("", "{primary}&lPlayer Info",
+                                                "{text}Kills {dark}{bullet} {secondary}%kills%",
+                                                "{text}Deaths {dark}{bullet} {secondary}%deaths%",
+                                                "{text}K/D {dark}{bullet} {secondary}%kdr%",
+                                                "{text}Streak {dark}{bullet} {secondary}%killstreak%",
+                                                "{text}Balance {dark}{bullet} {success}%balance%",
+                                                "", "{primary}&lLocation", "%location%",
+                                                "{secondary}%x%{muted}, {secondary}%z% {muted}(%direction%)",
+                                                "", "%combat_line%", "%pearl_line%", "%class_line%",
+                                                "%class_energy_line%"),
+                                        List.of("", "{primary}&lTeam", "%team_name_line%",
+                                                "{text}DTR {dark}{bullet} %dtr_coloured%",
+                                                "{text}Online {dark}{bullet} {secondary}%members_online%{muted}/{secondary}%members_total%",
+                                                "{text}Balance {dark}{bullet} {success}%team_balance%",
+                                                "{text}Points {dark}{bullet} {secondary}%team_points%",
+                                                "", "%members_title%",
+                                                "%member_1%", "%member_2%", "%member_3%", "%member_4%", "%member_5%",
+                                                "%member_6%", "%member_7%", "%member_8%", "%member_9%", "%member_10%",
+                                                "%member_11%"),
+                                        List.of("", "{primary}&lServer",
+                                                "{text}Online {dark}{bullet} {secondary}%online%",
+                                                "{text}Ping {dark}{bullet} {secondary}%ping%ms",
+                                                "", "{primary}&lEvents", "%no_event_line%",
+                                                "%phase_line%", "%event_line%", "%king_line%", "%conquest_line%",
+                                                "%timer_1%", "%timer_2%", "%timer_3%"),
+                                        List.of("", "{primary}&lTop Teams",
+                                                "%top_team_1%", "%top_team_2%", "%top_team_3%", "%top_team_4%",
+                                                "%top_team_5%", "%top_team_6%", "%top_team_7%", "%top_team_8%",
+                                                "%top_team_9%", "%top_team_10%")),
+                                0, "", ""),
+                        new ClassicRules(
+                                List.of("", "{primary}&lKITMAP", "{muted}Online {dark}{bullet} {secondary}%online%", ""),
+                                List.of("", "{muted}play.yourserver.net", ""),
+                                "%prefix%{secondary}%player%%suffix%",
+                                com.lawkeys.hcfcore.ui.tab.TabSort.RANK)));
     }
 }

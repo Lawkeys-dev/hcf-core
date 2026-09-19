@@ -4,7 +4,7 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 
 ## Scoreboard and tab list
 
-*`ui.yml` — `scoreboard.lines`, `tablist.header`, `tablist.footer`*
+*`ui.yml` — `scoreboard.lines`, and every line of `tablist`*
 
 **A scoreboard row whose placeholders all come out empty is dropped** rather than shown blank. That is how the conditional rows work: `%combat_line%` is empty while you are not in combat, so the row is simply not there. A scoreboard shows 15 rows at most.
 
@@ -40,6 +40,26 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 | `%timer_1%` `%timer_2%` `%timer_3%` | The custom timers (`/timer`, `/keyall`), the one ending soonest first |
 
 The `*_line` placeholders, and the Conquest and timer rows, are whole rows whose wording is in `lang/en.yml` under `ui.scoreboard`, so it is changed in one place.
+
+### Tab list only
+
+*`ui.yml` — the HCF grid's cells, and both styles' headers and footers*
+
+| Placeholder | Shows |
+|---|---|
+| `%prefix%` `%suffix%` | Your LuckPerms prefix and suffix; empty without LuckPerms |
+| `%x%` `%y%` `%z%` | Where you stand, in blocks |
+| `%direction%` | Which way you face: `N`, `NE`, `E`… (`ui.tab.directions`) |
+| `%location%` | The claim you stand in, or the wilderness |
+| `%team_name_line%` | Your team's name, or how to make one |
+| `%members_online%` `%members_total%` | Your team's members online, and in all |
+| `%team_balance%` `%team_points%` `%team_leader%` | Your team's bank, points and leader |
+| `%members_title%` | The members heading; empty without a team |
+| `%member_1%` … `%member_20%` | Your team's members, online first, then by rank, with the rank's marker |
+| `%top_team_1%` … `%top_team_10%` | The teams with most points |
+| `%no_event_line%` | A row saying no event runs, when none does — no phase, capture event, King, Conquest or timer |
+
+**In the classic list's `name`**, the placeholders are the listed player's own: `%prefix%` `%suffix%` `%player%` `%team%` `%team_tag%` `%kills%` `%ping%`.
 
 ## Holograms
 

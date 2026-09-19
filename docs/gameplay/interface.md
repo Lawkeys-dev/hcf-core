@@ -61,13 +61,23 @@ Every placeholder is listed in [Placeholders](../reference/placeholders.md#score
 
 ## Tab list
 
-A header and a footer around the player list, with the same placeholders. **Off by default** — the vanilla list is fine, and a header nobody asked for is one more thing to switch off.
+Two styles, chosen by `style` in `ui.yml`:
 
-```yaml title="ui.yml"
---8<-- "src/main/resources/ui.yml:tablist"
+- **`hcf` — the HCF grid.** Four columns of twenty cells in place of the player list: your stats and where you stand, your team and its members (online first, `**` the leader, `*` the co-leaders), the server and running events, the teams with most points. **Every cell is yours to write**, with the scoreboard's placeholders and the tab list's own. A cell whose placeholders all come out empty is left blank, so the grid never shifts. **Needs the [PacketEvents](../server/integrations.md#packetevents) plugin**: the game has no other way to show a line that is not a player. Without it, the classic list is shown, and the console says so.
+- **`classic` — the player list.** The real players, each written from a template: their **LuckPerms prefix and suffix**, their name, their team if you like; ordered **by rank** (the weight of their LuckPerms group), by kills or by name.
+- **`auto`**, as shipped: the grid on an HCF server, the classic list on a kitmap.
+
+Each style has its own header and footer. Only what changed is sent again, once a second (`update-ticks`).
+
+```yaml title="ui.yml — the HCF grid"
+--8<-- "src/main/resources/ui.yml:tablist-hcf"
 ```
 
-Set `enabled: true` to show it.
+```yaml title="ui.yml — the classic list"
+--8<-- "src/main/resources/ui.yml:tablist-classic"
+```
+
+`enabled: false` leaves the tab list as the game draws it. The [Theme Builder](../getting-started/theme-builder.md) previews both styles and writes the section for you.
 
 ## Statistics and leaderboards
 

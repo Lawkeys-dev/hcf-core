@@ -836,6 +836,27 @@ ui:
     conquest-zone: "%zone% {dark}{bullet} {secondary}%time%"
     # One custom timer (/timer, /keyall); %label% is its label, colours included.
     timer-line: "%label% {dark}{bullet} {secondary}%time%"
+  # The tab list (ui.yml, tablist).
+  tab:
+    # %location% outside any claim; inside one, the claim's team name.
+    wilderness: "{success}Wilderness"
+    claim: "{warning}%team%"
+    # %direction%, clockwise from north: eight words, comma-separated.
+    directions: "N,NE,E,SE,S,SW,W,NW"
+    team-name: "{secondary}%team%"
+    no-team: "{muted}No team {dark}{bullet} {secondary}/f create"
+    members-title: "{primary}&lMembers"
+    # One member: %role% is the marker below, %player% their name.
+    member-online: "{success}%role%{secondary}%player%"
+    member-offline: "{muted}%role%%player%"
+    role-leader: "{primary}**"
+    role-co-leader: "{primary}*"
+    role-member: ""
+    # One of the teams with most points.
+    top-team: "{muted}%rank%. {secondary}%team% {dark}{bullet} {primary}%points%"
+    no-event: "{muted}None running"
+    # %team_tag% in the classic list's names, for a player with a team.
+    team-tag: "{muted}[{secondary}%team%{muted}] "
 
 # ---------------------------------------------------------------------------
 # Utility commands

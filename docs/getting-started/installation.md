@@ -4,7 +4,7 @@
 
 - **Paper 26.2** — tested on build 123. The project follows the latest stable Paper release, so a newer Paper may need a newer HCFCore. Spigot and Folia are not supported.
 - **Java 25**, which Paper 26.1 and later require.
-- Optional, each a soft dependency the plugin works fully without: **Vault**, **LuckPerms**, and **Apollo-Bukkit** for the Lunar Client features. See [Integrations](../server/integrations.md).
+- Optional, each a soft dependency the plugin works fully without: **Vault**, **LuckPerms**, **Apollo-Bukkit** for the Lunar Client features, and **PacketEvents** for the HCF tab list. See [Integrations](../server/integrations.md).
 
 One installation drives one server. There is no synchronisation between servers behind a proxy: an HCF server and a kitmap server are two installations, each with its own data.
 
@@ -28,7 +28,7 @@ One installation drives one server. There is no synchronisation between servers 
 
 ## First start
 
-1. Stop the server, put the jar in `plugins/`, add whichever of Vault, LuckPerms and Apollo-Bukkit you want, and start it.
+1. Stop the server, put the jar in `plugins/`, add whichever of Vault, LuckPerms, Apollo-Bukkit and PacketEvents you want, and start it.
 2. The console says `Starting in game mode: HCF` (or `KITMAP`), then each module reports what it loaded (`Loaded 12 balances.`, `Loaded 2 capture event(s).`...).
 3. `plugins/HCFCore/` now holds `config.yml`, one file per module (see [Configuration](../reference/configuration/index.md)), `lang/en.yml` and, with the default storage, the SQLite database `data.db`.
 

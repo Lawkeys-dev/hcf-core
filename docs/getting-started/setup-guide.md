@@ -139,7 +139,7 @@ Most of these ship neutral or empty on purpose — the plugin does not decide yo
 | `abilities.yml` | which partner items run, and their values | 21, one per type |
 | `enchants.yml` | custom enchants | nine well-known ones |
 | `schedule.yml` | tips, daily announcements, custom timers, key-all commands | tips off, the rest empty |
-| `ui.yml` | tab list header and footer | off |
+| `ui.yml` | the tab list: `style`, each style's header and footer, the grid's columns | `auto`: the grid on HCF (with PacketEvents), the classic list on a kitmap |
 | `pvp.yml` | knockback and attack speed | off |
 | `pvp.yml` | `strength-nerf.vanilla-bonus-per-level` | `3.0`, **to verify** for your version — see the file |
 | `staff.yml` | the strike offences | 25 to 50% of the team's points by offence, disbanded at 3 strikes |

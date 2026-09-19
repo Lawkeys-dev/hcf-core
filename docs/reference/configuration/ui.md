@@ -29,14 +29,42 @@ Every example on this page is **taken from the shipped `ui.yml`**. Changes apply
 
 ## Tab list
 
+**How it plays:** [:octicons-arrow-right-24: the two styles](../../gameplay/interface.md#tab-list)
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | The tab list; `false` leaves the game's own |
+| `style` | `auto` | `hcf` the grid, `classic` the player list, `auto` the grid on HCF and the list on a kitmap (`config.yml`, `kitmap-mode`) |
+| `update-ticks` | `20` | How often it is redrawn; only what changed is sent |
+
+### The HCF grid
+
+Needs the **PacketEvents** plugin, 2.13 or later for Minecraft 26.2 — see [Integrations](../../server/integrations.md#packetevents). Without it, `hcf` shows the classic list and the console says so.
+
 ```yaml title="ui.yml"
---8<-- "src/main/resources/ui.yml:tablist"
+--8<-- "src/main/resources/ui.yml:tablist-hcf"
 ```
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `enabled` | `false` | The header and footer |
-| `header`, `footer` | lines | With the scoreboard's placeholders |
+| `header`, `footer` | lines | Above and below the grid |
+| `latency` | `0` | The connection bars every cell shows, in milliseconds: `0` full bars, below `0` none |
+| `skin.texture`, `skin.signature` | empty | One skin for every cell's head, as [mineskin.org](https://mineskin.org) gives it; empty for the game's default heads |
+| `column-1` … `column-4` | see above | Twenty cells each, top to bottom. An empty line is a blank cell; so is a cell whose placeholders are all empty — the grid never shifts. A longer column is cut at twenty, and the console says so |
+
+### The classic list
+
+```yaml title="ui.yml"
+--8<-- "src/main/resources/ui.yml:tablist-classic"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `header`, `footer` | lines | Above and below the list |
+| `name` | `%prefix%{secondary}%player%%suffix%` | How each player is written: `%prefix%` `%suffix%` (LuckPerms), `%player%`, `%team%`, `%team_tag%`, `%kills%`, `%ping%` — that player's own |
+| `sort` | `rank` | `rank`: the weight of their LuckPerms primary group, heaviest first; `kills`: most first; `name`: alphabetical. Names break ties |
+
+The words of the ready-made rows — the wilderness, a member, a top team, the team tag, the eight directions — are in `lang/en.yml` under `ui.tab`.
 
 ## The whole shipped file
 

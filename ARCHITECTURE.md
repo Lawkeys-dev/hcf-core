@@ -39,7 +39,7 @@ hcf-core/
 │   ├── stats/                          # kills, deaths, killstreaks, playtime, leaderboards
 │   ├── chat/                           # public chat format, team/ally routing, local chat
 │   ├── theme/                          # theme.yml: colour tokens, prefix, small caps (Theme), menu frame and pages (MenuLayout, MenuStyle)
-│   ├── ui/                             # scoreboard (rows tagged by section: ScoreboardRow), tab list
+│   ├── ui/                             # scoreboard (rows tagged by section: ScoreboardRow), tab list (TabList; tab/: the HCF grid through PacketEvents)
 │   ├── staff/                          # staff mode, vanish, freeze, invsee, lastinv; ticket/; strike/
 │   ├── kit/                            # kits, layouts, refill signs
 │   ├── ability/                        # partner items: 38 built-in types, abilities.yml
@@ -181,7 +181,8 @@ The core stays **self-sufficient by default**: every external dependency is **op
 - **Apollo (Lunar Client)**: the official open-source library (MIT, github.com/LunarClient/Apollo). A **soft dependency**: the plugin detects whether a player runs Lunar Client before sending any Apollo data, and works normally without it. Modules used: Waypoint, Team, Cooldown and Nametag (`integration/lunar/`, `apollo.yml`). Apollo is not a library the plugin bundles: the API is `provided`, supplied at runtime by the **`Apollo-Bukkit`** plugin, declared as a `softdepend`.
 - **No dependency for holograms**: rather than a third-party plugin (DecentHolograms, FancyHolograms...), holograms use Paper's native `TextDisplay` entity, which every client sees and which needs nothing installed.
 - **Vault**: the `economy/` module implements Vault's `Economy` interface so shops, paid ranks and other plugins can use it. If Vault is present, the implementation is registered with Bukkit's `ServicesManager` at startup; otherwise the internal economy works on its own. ⚠️ **Build pitfall**: `com.github.MilkBowl:VaultAPI:1.7` brings a transitive `org.bukkit:bukkit:1.13.1-R0.1-SNAPSHOT` that conflicts with `paper-api` during Gradle resolution; it is excluded explicitly (`exclude(group = "org.bukkit", module = "bukkit")`) in `build.gradle.kts`.
-- **LuckPerms**: permissions and ranks are **delegated entirely** to LuckPerms (or any Bukkit permission plugin): the core only checks `Permissible#hasPermission`. **The one exception is the chat format**, which reads the player's prefix and suffix from the LuckPerms API when a message is sent — a soft dependency too, with an empty prefix and suffix when LuckPerms is absent.
+- **LuckPerms**: permissions and ranks are **delegated entirely** to LuckPerms (or any Bukkit permission plugin): the core only checks `Permissible#hasPermission`. **The one exception is the chat format**, which reads the player's prefix and suffix from the LuckPerms API when a message is sent — a soft dependency too, with an empty prefix and suffix when LuckPerms is absent. The tab list reads the same prefix, suffix and primary group weight.
+- **PacketEvents**: only for the HCF tab list grid, whose 80 cells are list entries that are not players - Paper has no API for them, and reaching into the server's internals would break with every Minecraft version. `compileOnly`, provided at runtime by the **`packetevents`** plugin (2.13.0+, the first for 26.2), declared as a `softdepend`; `ui/tab/PacketGridTab` is the only class naming its types, loaded once `GridTabs` has seen the plugin enabled. Without it, the classic tab list.
 - Any future dependency follows the same rule: check that it is really needed (is Paper's own API enough?), and add it as a soft dependency only if it brings something that cannot be replaced.
 
 ## 12. Settled architecture decisions

@@ -7,8 +7,8 @@ The Theme Builder designs the look of HCFCore in your browser, and writes the fi
 ## What it does
 
 - **Start from a palette** — 14 of them, 9 fading from one colour to another letter by letter — then change any colour, or turn it into a gradient of its own.
-- **Set the whole look**: the message prefix and the list symbol, the menus' frame and panes, the scoreboard's title, rows and separators, the tab list, the chat line, team and ally chat, Lunar Client nametags, capture zone holograms.
-- **See it as players will**, in the game's own typeface and items: chat, a few menus with their tooltips, the scoreboard and tab list, nametags above real skins, a hologram.
+- **Set the whole look**: the message prefix and the list symbol, the menus' frame and panes, the scoreboard's title, rows and separators, the tab list in both its styles — the HCF grid's four columns, the classic list's names and order — the chat line, team and ally chat, Lunar Client nametags, capture zone holograms.
+- **See it as players will**, in the game's own typeface and items: chat, a few menus with their tooltips, the scoreboard, the tab list as the HCF grid or the classic list, nametags above real skins, a hologram.
 - **Download two files**, `theme.yml` and `ui.yml` — one by one or in a zip — complete and ready to use.
 - **Read back a theme** you already have: paste your `theme.yml`, change it, download it again.
 

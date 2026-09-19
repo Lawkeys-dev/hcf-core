@@ -100,13 +100,138 @@ scoreboard:
 
 # --8<-- [start:tablist]
 tablist:
-  # Off by default: the vanilla player list is perfectly good, and a header nobody
-  # asked for is the kind of thing an operator notices and has to go turn off.
-  enabled: false
-  header:
-    - "{primary}&lHCF"
-    - "{muted}Hardcore Factions"
-  footer:
-    - "{text}Online {dark}{bullet} {secondary}%online%"
-    - "{muted}play.yourserver.net"
+  enabled: true
+  # hcf     the HCF grid: four columns of twenty cells, written below, in place
+  #         of the player list. Needs the PacketEvents plugin (2.13 or later for
+  #         Minecraft 26.2); without it the classic list is shown, and the console
+  #         says so.
+  # classic the player list itself, each name written from classic.name.
+  # auto    hcf on an HCF server, classic on a kitmap (config.yml, kitmap-mode).
+  style: auto
+  # How often it is redrawn, in ticks. Only what changed is sent again.
+  update-ticks: 20
+
+  # --8<-- [start:tablist-hcf]
+  hcf:
+    header:
+      - ""
+      - "{primary}&lHCF"
+      - ""
+    footer:
+      - ""
+      - "{muted}play.yourserver.net"
+      - ""
+    # The connection bars every cell shows, in milliseconds: 0 is full bars,
+    # below 0 is none.
+    latency: 0
+    # A skin for every cell's head - the "value" and "signature" of a Mojang
+    # texture, as mineskin.org gives them. Empty: the game's default heads.
+    skin:
+      texture: ""
+      signature: ""
+    # The columns, left to right, twenty cells each, top to bottom. A cell whose
+    # placeholders all come out empty is left blank, so the grid never shifts.
+    #
+    # Every scoreboard placeholder works here, and these besides:
+    #   %prefix% %suffix%       your LuckPerms prefix and suffix
+    #   %x% %y% %z%             where you are          %direction%   N, NE, E...
+    #   %location%              the claim you stand in, or the wilderness
+    #   %team_name_line%        your team's name, or how to make one
+    #   %members_online% %members_total% %team_balance% %team_points% %team_leader%
+    #   %members_title%         the members heading, only with a team
+    #   %member_1% to %member_20%   your team's members, online first
+    #   %top_team_1% to %top_team_10%   the teams with most points
+    #   %no_event_line%         a row saying nothing runs, when nothing does
+    # The wording of the ready-made rows is in lang/en.yml, under ui.tab.
+    column-1:
+      - ""
+      - "{primary}&lPlayer Info"
+      - "{text}Kills {dark}{bullet} {secondary}%kills%"
+      - "{text}Deaths {dark}{bullet} {secondary}%deaths%"
+      - "{text}K/D {dark}{bullet} {secondary}%kdr%"
+      - "{text}Streak {dark}{bullet} {secondary}%killstreak%"
+      - "{text}Balance {dark}{bullet} {success}%balance%"
+      - ""
+      - "{primary}&lLocation"
+      - "%location%"
+      - "{secondary}%x%{muted}, {secondary}%z% {muted}(%direction%)"
+      - ""
+      - "%combat_line%"
+      - "%pearl_line%"
+      - "%class_line%"
+      - "%class_energy_line%"
+    column-2:
+      - ""
+      - "{primary}&lTeam"
+      - "%team_name_line%"
+      - "{text}DTR {dark}{bullet} %dtr_coloured%"
+      - "{text}Online {dark}{bullet} {secondary}%members_online%{muted}/{secondary}%members_total%"
+      - "{text}Balance {dark}{bullet} {success}%team_balance%"
+      - "{text}Points {dark}{bullet} {secondary}%team_points%"
+      - ""
+      - "%members_title%"
+      - "%member_1%"
+      - "%member_2%"
+      - "%member_3%"
+      - "%member_4%"
+      - "%member_5%"
+      - "%member_6%"
+      - "%member_7%"
+      - "%member_8%"
+      - "%member_9%"
+      - "%member_10%"
+      - "%member_11%"
+    column-3:
+      - ""
+      - "{primary}&lServer"
+      - "{text}Online {dark}{bullet} {secondary}%online%"
+      - "{text}Ping {dark}{bullet} {secondary}%ping%ms"
+      - ""
+      - "{primary}&lEvents"
+      - "%no_event_line%"
+      - "%phase_line%"
+      - "%event_line%"
+      - "%king_line%"
+      - "%conquest_line%"
+      - "%timer_1%"
+      - "%timer_2%"
+      - "%timer_3%"
+    column-4:
+      - ""
+      - "{primary}&lTop Teams"
+      - "%top_team_1%"
+      - "%top_team_2%"
+      - "%top_team_3%"
+      - "%top_team_4%"
+      - "%top_team_5%"
+      - "%top_team_6%"
+      - "%top_team_7%"
+      - "%top_team_8%"
+      - "%top_team_9%"
+      - "%top_team_10%"
+  # --8<-- [end:tablist-hcf]
+
+  # --8<-- [start:tablist-classic]
+  classic:
+    header:
+      - ""
+      - "{primary}&lKITMAP"
+      - "{muted}Online {dark}{bullet} {secondary}%online%"
+      - ""
+    footer:
+      - ""
+      - "{muted}play.yourserver.net"
+      - ""
+    # How each player is written in the list. These are that player's own:
+    #   %prefix% %suffix%   their LuckPerms prefix and suffix (empty without it)
+    #   %player%            their name
+    #   %team%              their team's name, empty without one
+    #   %team_tag%          their team as a tag, from lang/en.yml (ui.tab.team-tag)
+    #   %kills% %ping%
+    name: "%prefix%{secondary}%player%%suffix%"
+    # rank   the weight of their LuckPerms primary group, heaviest first
+    # kills  most kills first
+    # name   alphabetical, the game's own order
+    sort: rank
+  # --8<-- [end:tablist-classic]
 # --8<-- [end:tablist]

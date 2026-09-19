@@ -52,6 +52,17 @@ public final class LuckPermsChatMeta implements ChatDecorations {
         return suffix == null ? "" : suffix;
     }
 
+    /** The primary group's weight, read from the groups LuckPerms holds loaded. */
+    @Override
+    public int weight(Player player) {
+        String primary = meta(player).getPrimaryGroup();
+        if (primary == null) {
+            return 0;
+        }
+        net.luckperms.api.model.group.Group group = luckPerms.getGroupManager().getGroup(primary);
+        return group == null ? 0 : group.getWeight().orElse(0);
+    }
+
     private CachedMetaData meta(Player player) {
         return luckPerms.getPlayerAdapter(Player.class).getMetaData(player);
     }

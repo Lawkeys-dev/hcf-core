@@ -35,6 +35,11 @@ public final class LineRenderer {
         return with(placeholder, String.valueOf(value));
     }
 
+    /** @return what a placeholder expands to, empty if it was never given */
+    public String value(String placeholder) {
+        return values.getOrDefault(placeholder, "");
+    }
+
     /** @return this line with its placeholders filled in */
     public String render(String template) {
         String line = template;

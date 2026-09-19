@@ -18,6 +18,14 @@ public interface ChatDecorations {
     /** @return the suffix, or an empty string - never {@code null} */
     String suffix(Player player);
 
+    /**
+     * @return the weight of the player's primary group, heaviest first - the rank
+     *         order of the classic tab list; 0 without a permissions plugin
+     */
+    default int weight(Player player) {
+        return 0;
+    }
+
     ChatDecorations NONE = new ChatDecorations() {
         @Override
         public String prefix(Player player) {

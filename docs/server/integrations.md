@@ -1,6 +1,6 @@
 # Integrations
 
-All three are soft dependencies: HCFCore works fully without any of them, and uses each one only if its plugin is on the server at startup.
+All four are soft dependencies: HCFCore works fully without any of them, and uses each one only if its plugin is on the server at startup.
 
 ## Vault
 
@@ -16,6 +16,7 @@ With [Vault](https://github.com/MilkBowl/Vault) installed, HCFCore registers its
 
 - **Permissions need no integration.** Every check goes through Bukkit's standard permission API, which LuckPerms implements; so does any other permission plugin.
 - **Chat prefix and suffix.** With [LuckPerms](https://luckperms.net) installed, the `%prefix%` and `%suffix%` of `chat.yml`'s format are the player's LuckPerms prefix and suffix — the console says `Hooked LuckPerms for chat prefixes and suffixes.` at startup. Without it, they are empty. Tested with LuckPerms 5.5.84.
+- **The tab list.** The same prefix and suffix are `%prefix%` and `%suffix%` in the tab list (`ui.yml`), and the classic list can be ordered by rank: the weight of each player's primary group.
 
 ## Lunar Client (Apollo)
 
@@ -33,3 +34,11 @@ What is shown, each part switched in `apollo.yml`:
 | **Nametags** | A team line (`Team | DTR`) above each player's name, coloured by how their team relates to yours — your team, an ally, an enemy, a focused target or no team |
 
 Apollo's own configuration can switch each of its modules off for the whole server; a module off there stays off whatever `apollo.yml` says. `/hcf reload` takes back everything sent and sends it again as `apollo.yml` now says.
+
+## PacketEvents
+
+The **HCF tab list** — four columns of twenty cells in place of the player list (`ui.yml`, `tablist.style: hcf`, or `auto` on an HCF server) — is made of lines that are not players, which the game can only be told about in packets. HCFCore sends them through [PacketEvents](https://github.com/retrooper/packetevents) rather than reaching into the server's internals, which would break with each Minecraft version.
+
+**Install the PacketEvents plugin on the server** — `packetevents-spigot`, **2.13.0 or later** (the first to support Minecraft 26.2), from the [PacketEvents releases](https://github.com/retrooper/packetevents/releases). HCFCore does not bundle it. At startup the console says `Hooked PacketEvents for the HCF tab list.` Tested with PacketEvents 2.13.0.
+
+Nothing else uses it. Without it, the classic tab list is shown instead, and the console says so once.
