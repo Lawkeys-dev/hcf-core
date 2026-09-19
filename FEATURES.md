@@ -224,6 +224,10 @@ Not used: Border, Combat, Marker/Notification/Title. **Apollo's Hologram module 
 - Optional cost (economy) and cooldown, and nothing is paid for a refusal; uses per crowbar (0 = unlimited). The frame drops as an item, and its eye too if it had one. **Ships neutral**: unlimited uses, no cost, no cooldown — those are balance choices.
 - **Frames only**: no spawners. **Not handled**: taking a frame out of an already active portal leaves the portal blocks in place, as in vanilla.
 
+
+## 17b. Elevator signs
+
+**Module `elevator/`, `elevators.yml`**: a sign written `[Elevator]` over `Up` or `Down` takes whoever right-clicks it to the next floor that way, straight up or down the sign's column - the classic way between a base's floors. A floor is a firm block with two free blocks above it (no liquid, no fire); the player's own floor never counts; `max-distance` bounds the search (`ElevatorRules`, pure and tested). **The sign is marked when it is written** (its block entity's data holds the mark and the way), so text alone never makes one and a sign keeps working if the words change. Using one is a block interaction, read after territory protection: refused on an enemy's land unless it is raidable. A 1-second cooldown; `own-territory-only` and `blocked-in-combat`, both off as shipped. The finished sign's look is `lang/en.yml`'s (`elevator.sign`), themed.
 ## 18. Classes
 
 **Module `pvpclass/`**, configured in `classes.yml`. A class is chosen by what a player **wears**: the whole armour set of a class — helmet, chestplate, leggings and boots — turns it on after a **warmup** (10 s by default), shown on the scoreboard; taking one piece off turns it off at once, and another set means another warmup. Nothing is stored: a logout or a death drops the class.

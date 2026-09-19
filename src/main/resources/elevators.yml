@@ -1,0 +1,36 @@
+# ---------------------------------------------------------------------------
+# elevators.yml - elevator signs
+#
+# Write a sign:              [Elevator]
+#                            Up          (or Down)
+# and right-click it: you are taken to the next floor that way, straight up or
+# down the sign's column. A floor is a firm block with two free blocks above it -
+# no lava, no fire, no water. Signs are written wherever the claims let their
+# writer build; using one is refused where the claims refuse touching a block -
+# an enemy's land, unless it is raidable.
+#
+# /hcf reload applies changes.
+# ---------------------------------------------------------------------------
+
+# --8<-- [start:elevators]
+enabled: true
+
+# What the first line must say, and the two words of the second line - case
+# does not matter. A sign written before a change keeps working: the way it goes
+# is kept with it.
+header: "[Elevator]"
+up-word: "Up"
+down-word: "Down"
+
+# How far a sign looks for the next floor, in blocks. 0: the whole column.
+max-distance: 0
+
+# The wait between two rides, per player.
+cooldown-seconds: 1
+
+# Only on your own team's land. Off: wherever the sign may be used.
+own-territory-only: false
+
+# Refused while in combat.
+blocked-in-combat: false
+# --8<-- [end:elevators]

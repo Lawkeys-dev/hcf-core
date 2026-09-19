@@ -52,6 +52,7 @@ hcf-core/
 │   ├── lives/                          # lives (absent in kitmap)
 │   ├── redeem/                         # codes
 │   ├── crowbar/                        # End portal frames
+│   ├── elevator/                       # elevator signs (elevators.yml): ElevatorRules finds the next floor
 │   ├── hologram/                       # unsaved TextDisplays, stored in the database; leaderboard lines
 │   ├── integration/                    # vault/ (Economy), luckperms/ (chat prefix), lunar/ (Apollo)
 │   └── util/                           # Cuboid, ChunkPosition, WorldPosition, Durations, ColorCodes (hex too), LegacyText, TextWrap, ItemText...

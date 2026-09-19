@@ -1273,6 +1273,21 @@ menus:
   separator: "{dark}&m                              "
 
 # ---------------------------------------------------------------------------
+# Elevator signs (elevators.yml).
+# ---------------------------------------------------------------------------
+elevator:
+  created: "{success}Elevator going {secondary}%way% {success}made."
+  bad-direction: "{error}An elevator's second line is {secondary}%up% {error}or {secondary}%down%{error}."
+  no-floor: "{error}There is no floor that way."
+  not-your-land: "{error}Elevators only work on your team's land."
+  in-combat: "{error}Not while in combat."
+  # How a finished sign reads. %header% is elevators.yml's, %word% its way.
+  sign:
+    header: "{primary}&l%header%"
+    up: "{secondary}%word% {dark}▲"
+    down: "{secondary}%word% {dark}▼"
+
+# ---------------------------------------------------------------------------
 # /cooldown reset: %which% is one of the names below, or an ability's or an
 # item's name.
 # ---------------------------------------------------------------------------

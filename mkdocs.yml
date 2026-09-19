@@ -173,6 +173,7 @@ nav:
           - settings.yml: reference/configuration/settings.md
           - redeem.yml: reference/configuration/redeem.md
           - crowbar.yml: reference/configuration/crowbar.md
+          - elevators.yml: reference/configuration/elevators.md
           - holograms.yml: reference/configuration/holograms.md
           - apollo.yml: reference/configuration/apollo.md
   - Developers:

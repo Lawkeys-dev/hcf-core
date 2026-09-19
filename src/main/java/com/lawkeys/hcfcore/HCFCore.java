@@ -85,6 +85,7 @@ public final class HCFCore extends JavaPlugin {
     private SettingsModule settingsModule;
     private RedeemModule redeemModule;
     private CrowbarModule crowbarModule;
+    private com.lawkeys.hcfcore.elevator.ElevatorModule elevatorModule;
     private LivesModule livesModule;
     private HologramModule hologramModule;
     private EnchantModule enchantModule;
@@ -266,6 +267,11 @@ public final class HCFCore extends JavaPlugin {
         this.crowbarModule = new CrowbarModule(this, this.langManager, this.teamModule, this.claimModule,
                 this.economyModule);
         this.crowbarModule.enable();
+
+        // Elevator signs (elevators.yml): claims for own-territory-only, pvp for combat.
+        this.elevatorModule = new com.lawkeys.hcfcore.elevator.ElevatorModule(this, this.langManager,
+                this.claimModule, this.pvpModule);
+        this.elevatorModule.enable();
 
         // Lives lift deathbans, through the pvp module's waiver seam. Not started at
         // all in kitmap mode, as decided on 28/08/2026: kitmap has no deathban.
@@ -562,6 +568,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (crowbarModule != null) {
             crowbarModule.reloadSettings();
+        }
+        if (elevatorModule != null) {
+            elevatorModule.reloadSettings();
         }
         if (livesModule != null) {
             livesModule.reloadSettings();

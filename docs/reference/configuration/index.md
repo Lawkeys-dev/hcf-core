@@ -47,6 +47,7 @@ The files are written on the first start and **never overwritten** afterwards.
 | [`settings.yml`](settings.md) | Which settings players may switch, what `/cobble` drops | `enabled` |
 | [`redeem.yml`](redeem.md) | Wait after a failed code | `enabled` |
 | [`crowbar.yml`](crowbar.md) | Crowbar item, uses, cooldown, cost | `enabled` |
+| [`elevators.yml`](elevators.md) | Elevator signs: their words, reach, cooldown, own land only, combat | `enabled` |
 | [`holograms.yml`](holograms.md) | Leaderboard refresh | `enabled` |
 | [`apollo.yml`](apollo.md) | Lunar Client waypoints, team view, cooldowns, nametags | `enabled`, and one per part |
 

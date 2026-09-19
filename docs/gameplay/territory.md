@@ -70,6 +70,23 @@ When a team is raidable — DTR at 0 or below, or during EOTW and the Purge — 
 
 The HQ and a second base are set where you stand, inside the team's land (`homes.require-inside-territory`), by a co-leader. Going there takes a **10-second countdown** (`homes.warmup-seconds`) that damage or moving cancels — an ender pearl, a chorus fruit or a portal counts as moving. A combat tag refuses it at the start and again at the end.
 
+## Elevators
+
+*Configured in [`elevators.yml`](../reference/configuration/elevators.md).*
+
+A sign written
+
+```text
+[Elevator]
+Up
+```
+
+— or `Down` — is an elevator: **right-click it and you are taken to the next floor that way**, straight up or down the sign's column. A floor is a firm block with two free blocks above it: no lava, fire or water. The finished sign turns gold, with an arrow.
+
+- Write one wherever you may build — your land, or the wilderness. Using one is touching a block: refused on an enemy's land, unless that team is raidable.
+- The sign is marked as an elevator when it is written: a sign that merely reads `[Elevator]` does nothing, and one keeps working if the words change in `elevators.yml`.
+- A second each between rides (`cooldown-seconds`). An elevator can be kept to its team's own land (`own-territory-only`) and refused in combat (`blocked-in-combat`) — both off as shipped.
+
 ## Stuck
 
 `/team stuck` gets a player out of land they cannot leave. After **60 seconds** (`stuck.warmup-seconds`), with the same cancelling rules, they are moved to the nearest free land — never to a random spot on the map. It works without a team, since a teamless player walled into somebody's base is the one who needs it most. A player who is not stuck is told so instead of being moved.

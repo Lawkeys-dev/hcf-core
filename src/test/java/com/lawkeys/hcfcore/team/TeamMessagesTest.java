@@ -65,6 +65,7 @@ class TeamMessagesTest {
             ClassMessages.class,
             com.lawkeys.hcfcore.command.CooldownMessages.class,
             com.lawkeys.hcfcore.theme.MenuMessages.class,
+            com.lawkeys.hcfcore.elevator.ElevatorMessages.class,
             ConquestMessages.class,
             CrowbarMessages.class,
             DtrMessages.class,
