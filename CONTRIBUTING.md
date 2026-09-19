@@ -79,6 +79,8 @@ Modules 2, 3 and 4 are tightly coupled: a team has a DTR, a DTR allows a raid, a
 
 When something cannot be confirmed there — or in the library's own sources — say so explicitly in the code comment or the commit ("not confirmed in the official documentation") rather than presenting a plausible guess as fact. This rule comes before speed.
 
+**The one exception to "Paper's API only" is the HCF tab list** (`ui/tab/ServerGridTab`): it builds the server's own tab list packets by reflection, because no API shows a list entry that is not a player. The server's internals have no documentation; the shapes it relies on — the `ClientboundPlayerInfoUpdatePacket.Entry` constructor, `ClientboundPlayerInfoRemovePacket`, `GameProfile`, `PaperAdventure.asVanilla` — were read from the Paper 26.2 server jar itself (`javap`). **On every Paper or Minecraft bump, start the server and check that the console gives no warning about the tab list** — a changed shape fails there, at start-up, and falls back to the classic list.
+
 ## 7. Durable rules
 
 Each of these comes from a real defect. The rules for listeners are detailed in ARCHITECTURE.md section 13, the startup rule in section 3.

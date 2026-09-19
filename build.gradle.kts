@@ -34,13 +34,6 @@ repositories {
         name = "lunarclient"
         url = uri("https://repo.lunarclient.dev")
     }
-
-    // PacketEvents, for the HCF tab list's grid (verified: github.com/retrooper/packetevents,
-    // repo.codemc.io maven-releases, 19/09/2026)
-    maven {
-        name = "codemc"
-        url = uri("https://repo.codemc.io/repository/maven-releases/")
-    }
 }
 
 dependencies {
@@ -65,9 +58,6 @@ dependencies {
     }
     compileOnly("net.luckperms:api:5.5")
     compileOnly("com.lunarclient:apollo-api:1.2.7")
-    // 2.13.0 is the release that supports Minecraft 26.2. Provided by the PacketEvents
-    // plugin at runtime, never shaded: only the HCF tab list uses it.
-    compileOnly("com.github.retrooper:packetevents-spigot:2.13.0")
 
     // --- Tests ---
     testImplementation(platform("org.junit:junit-bom:5.11.4"))

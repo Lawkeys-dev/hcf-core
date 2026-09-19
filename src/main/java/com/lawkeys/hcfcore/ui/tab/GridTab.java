@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Shows the HCF grid to a player. The one implementation talks to PacketEvents and
- * is loaded only once that plugin is known to run, as {@code ApolloBridge} is for
- * Apollo: the rest of the plugin never names a PacketEvents type.
+ * Shows the HCF grid to a player. The one implementation, {@code ServerGridTab}, builds
+ * the server's list packets by reflection - the only code of the plugin past Paper's
+ * API - so nothing else ever touches the server's internals.
  */
 public interface GridTab {
 

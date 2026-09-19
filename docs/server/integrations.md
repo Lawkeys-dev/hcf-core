@@ -1,6 +1,6 @@
 # Integrations
 
-All four are soft dependencies: HCFCore works fully without any of them, and uses each one only if its plugin is on the server at startup.
+All three are soft dependencies: HCFCore works fully without any of them, and uses each one only if its plugin is on the server at startup.
 
 ## Vault
 
@@ -35,10 +35,6 @@ What is shown, each part switched in `apollo.yml`:
 
 Apollo's own configuration can switch each of its modules off for the whole server; a module off there stays off whatever `apollo.yml` says. `/hcf reload` takes back everything sent and sends it again as `apollo.yml` now says.
 
-## PacketEvents
+## The HCF tab list needs nothing
 
-The **HCF tab list** — four columns of twenty cells in place of the player list (`ui.yml`, `tablist.style: hcf`, or `auto` on an HCF server) — is made of lines that are not players, which the game can only be told about in packets. HCFCore sends them through [PacketEvents](https://github.com/retrooper/packetevents) rather than reaching into the server's internals, which would break with each Minecraft version.
-
-**Install the PacketEvents plugin on the server** — `packetevents-spigot`, **2.13.0 or later** (the first to support Minecraft 26.2), from the [PacketEvents releases](https://github.com/retrooper/packetevents/releases). HCFCore does not bundle it. At startup the console says `Hooked PacketEvents for the HCF tab list.` Tested with PacketEvents 2.13.0.
-
-Nothing else uses it. Without it, the classic tab list is shown instead, and the console says so once.
+The HCF tab list's grid is made of lines that are not players, which Paper's API cannot show. HCFCore sends them itself, as the server's own tab list packets — no PacketEvents, no ProtocolLib. They are checked when the plugin starts: on a Minecraft version whose packets are shaped otherwise, the classic tab list is shown instead, and the console says why.

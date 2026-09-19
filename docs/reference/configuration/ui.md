@@ -39,7 +39,7 @@ Every example on this page is **taken from the shipped `ui.yml`**. Changes apply
 
 ### The HCF grid
 
-Needs the **PacketEvents** plugin, 2.13 or later for Minecraft 26.2 — see [Integrations](../../server/integrations.md#packetevents). Without it, `hcf` shows the classic list and the console says so.
+Nothing to install: the plugin sends the server's own tab list packets — see [Integrations](../../server/integrations.md#the-hcf-tab-list-needs-nothing). On a Minecraft version whose packets it does not know, `hcf` shows the classic list and the console says why.
 
 ```yaml title="ui.yml"
 --8<-- "src/main/resources/ui.yml:tablist-hcf"

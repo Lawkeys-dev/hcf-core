@@ -5,29 +5,22 @@ import org.bukkit.plugin.Plugin;
 import java.util.logging.Level;
 
 /**
- * Starts the grid if PacketEvents runs - a soft dependency, like Apollo
- * (ARCHITECTURE.md section 11). Without it, the HCF style falls back to the classic
- * list and says so once.
+ * Starts the HCF grid, which needs nothing installed (ARCHITECTURE.md section 11). If
+ * this server's list packets are not the ones the plugin knows - a Minecraft version
+ * that reshaped them - the classic list is shown, and the console says why.
  */
 public final class GridTabs {
 
     private GridTabs() {
     }
 
-    /** @return the grid, or {@code null} without PacketEvents */
+    /** @return the grid, or {@code null} if it cannot run on this server */
     public static GridTab start(Plugin plugin) {
-        if (!plugin.getServer().getPluginManager().isPluginEnabled("packetevents")) {
-            return null;
-        }
         try {
-            GridTab grid = PacketGridTab.start();
-            plugin.getLogger().info("Hooked PacketEvents for the HCF tab list.");
-            return grid;
-        } catch (LinkageError | RuntimeException e) {
-            // A PacketEvents whose API is not the one compiled against: an optional
-            // look is not worth the server.
-            plugin.getLogger().log(Level.WARNING, "PacketEvents is installed but could not be used; "
-                    + "the tab list stays classic.", e);
+            return ServerGridTab.start();
+        } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
+            plugin.getLogger().log(Level.WARNING, "This server's tab list packets are not the ones HCFCore knows "
+                    + "(Minecraft 26.2); the HCF tab list is replaced by the classic one.", e);
             return null;
         }
     }

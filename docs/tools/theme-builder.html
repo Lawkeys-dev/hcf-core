@@ -246,7 +246,7 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
         <div class="body">
           <label class="check"><input type="checkbox" id="tabEnabled"> Tab list on</label>
           <div class="field"><span>Style</span><div class="seg" id="tabStyle"></div>
-            <p class="hint"><b>HCF grid</b>: four columns of twenty cells in place of the player list - needs the PacketEvents plugin. <b>Classic list</b>: the players, each name written from a template. <b>Auto</b>: the grid on an HCF server, the list on a kitmap.</p></div>
+            <p class="hint"><b>HCF grid</b>: four columns of twenty cells in place of the player list - nothing to install. <b>Classic list</b>: the players, each name written from a template. <b>Auto</b>: the grid on an HCF server, the list on a kitmap.</p></div>
           <div class="field"><label for="tabTicks">Redrawn every (ticks)</label><input type="text" id="tabTicks" class="mono" inputmode="numeric"></div>
           <details open>
             <summary>HCF grid</summary>
@@ -258,8 +258,6 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
               <div class="field"><label for="gridCol3">Column 3</label><textarea id="gridCol3" rows="8" spellcheck="false"></textarea></div>
               <div class="field"><label for="gridCol4">Column 4</label><textarea id="gridCol4" rows="8" spellcheck="false"></textarea>
                 <p class="hint">Twenty cells per column; an empty line is a blank cell, and so is a cell whose placeholders are all empty - the grid never shifts. Besides the scoreboard's: <code>%location%</code> <code>%x%</code> <code>%z%</code> <code>%direction%</code> <code>%team_name_line%</code> <code>%members_online%</code> <code>%members_total%</code> <code>%team_balance%</code> <code>%team_points%</code> <code>%members_title%</code> <code>%member_1%</code>…<code>%member_20%</code> <code>%top_team_1%</code>…<code>%top_team_10%</code> <code>%no_event_line%</code> <code>%prefix%</code> <code>%suffix%</code>. A cell may start with its head: <code>[head:self]</code>, <code>[head:member:3]</code>, <code>[head:top:1]</code> (that team's leader), or any account's skin by name - <code>[head:MHF_Chest]</code>, <code>[head:MHF_Question]</code>… - or a mineskin.org skin, <code>[head:mineskin:&lt;id&gt;]</code>. Easier: the Heads list below.</p></div>
-              <div class="field"><span>Heads</span><div id="gridHeads" class="grid-heads" style="display:grid;gap:6px"></div>
-                <p class="hint">Every head of the grid but your members' and the grey squares: type a player's name, paste a <a href="https://mineskin.org" target="_blank" rel="noopener">mineskin.org</a> link, or <code>self</code> for the viewer's own. Empty turns it into a grey square. The preview finds a name in mineskin.org's gallery; in game, any account works.</p></div>
               <div class="field"><label for="gridLatency">Connection bars of every cell (ms)</label><input type="text" id="gridLatency" class="mono" inputmode="numeric"><p class="hint">0 is full bars, below 0 none.</p></div>
             </div>
           </details>
@@ -273,6 +271,15 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
               <div class="field"><span>Order</span><div class="seg" id="classicSort"></div></div>
             </div>
           </details>
+        </div>
+      </details>
+
+      <details id="headsSection">
+        <summary>Tab list heads <small>ui.yml</small></summary>
+        <div class="body">
+          <p class="hint">The heads beside the HCF grid's titles. Type a player's name, paste a <a href="https://mineskin.org" target="_blank" rel="noopener">mineskin.org</a> link, or <code>self</code> for the viewer's own; empty turns it into a grey square. Your members always show their own faces, every other cell a grey square. The preview finds a name in mineskin.org's gallery; in game, any account works.</p>
+          <div id="gridHeads" style="display:grid;gap:6px"></div>
+          <button type="button" class="btn" id="resetGrid">Put back the shipped grid</button>
         </div>
       </details>
 
@@ -329,6 +336,7 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
         <div class="card-head"><h2 id="h-board">Scoreboard and tab</h2><p>In combat, a pearl and a Gapple on cooldown</p></div>
         <div class="world"><div class="sidebar mc" id="sidebar" style="max-width:260px;margin-left:auto"></div></div>
         <div class="seg" id="tabPick"></div>
+        <p class="hint">Change the heads under <a href="#headsSection" id="toHeads">Tab list heads</a>.</p>
         <div class="world tab-scroll"><div class="tab mc" id="tab"></div></div>
       </section>
 
@@ -549,7 +557,17 @@ function prefixFor(s) {
 }
 const KEY = "hcfcore-theme-builder-v2";
 let state = withPrefix(base());
-try { const raw = localStorage.getItem(KEY); if (raw) state = deepMerge(withPrefix(base()), JSON.parse(raw)); } catch (e) {}
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) {
+    const saved = JSON.parse(raw);
+    // A grid saved before the tab list had heads has none: take the shipped one, heads and all.
+    const cols = saved && saved.tab && saved.tab.hcf && saved.tab.hcf.columns;
+    if (cols && !saved.tab.headsV && !JSON.stringify(cols).includes("[head:")) delete saved.tab.hcf.columns;
+    state = deepMerge(withPrefix(base()), saved);
+  }
+} catch (e) {}
+state.tab.headsV = 1;
 function deepMerge(target, source) {
   for (const [k, v] of Object.entries(source || {})) {
     if (v && typeof v === "object" && !Array.isArray(v) && target[k] && typeof target[k] === "object" && !Array.isArray(target[k])) deepMerge(target[k], v);
@@ -971,7 +989,7 @@ function tabYml() {
   const t = state.tab, list = (rows, pad) => rows.length ? rows.map(r => pad + "- " + q(r)) : [pad + "[]"];
   const latency = /^-?\d+$/.test(String(t.hcf.latency).trim()) ? String(t.hcf.latency).trim() : "0";
   return ["tablist:", "  enabled: " + t.enabled,
-    "  # hcf: the HCF grid (needs PacketEvents) - classic: the player list - auto: hcf on HCF, classic on a kitmap",
+    "  # hcf: the HCF grid (nothing to install) - classic: the player list - auto: hcf on HCF, classic on a kitmap",
     "  style: " + t.style, "  update-ticks: " + ticks(t.ticks, "20"),
     "  hcf:", "    header:", ...list(t.hcf.header, "      "), "    footer:", ...list(t.hcf.footer, "      "),
     "    latency: " + latency, "    # A plain dark grey head for every cell without one of its own (mineskin.org, soju-tab-gray8).",
@@ -1221,6 +1239,11 @@ function headsEditor() {
     box.append(row);
   }));
 }
+document.getElementById("resetGrid").addEventListener("click", () => {
+  state.tab.hcf.columns = structuredClone(SHIPPED.tab.hcf.columns);
+  tabShown = "hcf"; sync(); changed(); setStatus("The shipped grid is back, heads and all.");
+});
+document.getElementById("toHeads").addEventListener("click", () => { document.getElementById("headsSection").open = true; });
 function renderAll() { chat(); menu(); sidebar(); tab(); scene(); tokens(); drawPalettes(); files(); }
 function changed() { save(); renderAll(); }
 

@@ -102,8 +102,8 @@ final class TabList {
         TabStyle style = rules.style().resolve(mode);
         if (style == TabStyle.HCF && grid == null) {
             if (!warnedNoGrid) {
-                plugin.getLogger().warning("ui.yml: the HCF tab list needs the PacketEvents plugin, which is not "
-                        + "running; showing the classic tab list instead.");
+                plugin.getLogger().warning("ui.yml: the HCF tab list could not start (see above); "
+                        + "showing the classic tab list instead.");
                 warnedNoGrid = true;
             }
             style = TabStyle.CLASSIC;

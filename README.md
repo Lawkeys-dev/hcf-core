@@ -33,7 +33,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 | **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams |
 | **Everyday commands** | What an essentials plugin gives — `/ci`, `/feed`, `/fly`, `/god`, `/hat`, `/ec`, `/wb`, `/i`, `/tphere`, `/gmc`, `/day`… — each with its own permission, without what breaks HCF (`/tpa`, `/home`, `/back`, `/near`) |
 | **Interface** | One theme for the whole plugin (`theme.yml`: colours by role, prefix, framed menus), flicker-free scoreboard from template lines, each player hiding the sections they want in `/settings`, tab list — the HCF grid or the classic list with LuckPerms ranks —, chat format with LuckPerms prefixes and kill counts, stats and leaderboards, holograms, player settings |
-| **Integrations** | Vault, LuckPerms, Lunar Client (Apollo) and PacketEvents (the HCF tab list) — all optional |
+| **Integrations** | Vault, LuckPerms and Lunar Client (Apollo) — all optional; the HCF tab list needs nothing |
 
 ## Quick start
 

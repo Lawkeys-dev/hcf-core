@@ -374,7 +374,7 @@ public final class HCFCore extends JavaPlugin {
                 this.pvpModule, this.economyModule, this.statsModule, this.claimModule,
                 this.phaseModule, this.scheduleModule, this.eventModule);
         // The tab list: auto means the grid on HCF, the classic list on a kitmap; the
-        // grid needs PacketEvents, and names carry LuckPerms prefixes.
+        // grid is sent as the server's own list packets, names carry LuckPerms prefixes.
         ChatModule chat = this.chatModule;
         this.uiModule.setTabSources(this.gameMode,
                 () -> chat == null ? com.lawkeys.hcfcore.chat.ChatDecorations.NONE : chat.getDecorations(),

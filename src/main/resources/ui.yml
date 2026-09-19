@@ -102,9 +102,9 @@ scoreboard:
 tablist:
   enabled: true
   # hcf     the HCF grid: four columns of twenty cells, written below, in place
-  #         of the player list. Needs the PacketEvents plugin (2.13 or later for
-  #         Minecraft 26.2); without it the classic list is shown, and the console
-  #         says so.
+  #         of the player list. Nothing to install: the plugin sends the
+  #         server's own tab list packets. On a Minecraft version whose packets
+  #         it does not know, the classic list is shown, and the console says why.
   # classic the player list itself, each name written from classic.name.
   # auto    hcf on an HCF server, classic on a kitmap (config.yml, kitmap-mode).
   style: auto
