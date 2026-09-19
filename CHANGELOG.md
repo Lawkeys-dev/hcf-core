@@ -7,7 +7,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
-- **Elevator signs** (`elevators.yml`): a sign written `[Elevator]` over `Up` or `Down` takes whoever right-clicks it to the next floor that way, up or down its column. Refused on an enemy's land unless it is raidable; optionally kept to one's own land or refused in combat.
+- **Elevator signs** (`elevators.yml`): a sign written `[Elevator]` over `Up` or `Down` takes whoever right-clicks it up or down its column — straight to the next elevator sign in that column, whatever lies between, or, for a sign alone in its column, to the next floor. Refused on an enemy's land unless it is raidable; optionally kept to one's own land or refused in combat.
 - **A theme for the whole plugin** (`theme.yml`): eight colours by role, a message prefix, a list symbol, small-capital titles, framed menus. Every text is written with tokens — `{primary}`, `{secondary}`, `{muted}`, `{success}`, `{error}`, `{prefix}`, `{bullet}`, `{action}` — so a colour changed there changes everywhere. Shipped as "Or royal": gold and cream, a bold `HCF »` on the announcements, `Label ➥ value` scoreboard rows, black-framed menus with gold corners. Hex colours (`&#rrggbb`) now work in any text.
 - **Gradients**: a colour of `theme.yml` may be `"#F5B32E>#FF4D3D"` — two colours or more — and the text it colours fades letter by letter.
 - **A whole look in one file**: `theme.yml` may also set texts (`messages`, any key of `lang/en.yml`), the chat line (`chat`) and the Lunar nametags (`nametags`), in place of the other files.

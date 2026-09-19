@@ -1279,6 +1279,7 @@ elevator:
   created: "{success}Elevator going {secondary}%way% {success}made."
   bad-direction: "{error}An elevator's second line is {secondary}%up% {error}or {secondary}%down%{error}."
   no-floor: "{error}There is no floor that way."
+  no-room: "{error}The elevator that way has no room to stand in front of it."
   not-your-land: "{error}Elevators only work on your team's land."
   in-combat: "{error}Not while in combat."
   # How a finished sign reads. %header% is elevators.yml's, %word% its way.

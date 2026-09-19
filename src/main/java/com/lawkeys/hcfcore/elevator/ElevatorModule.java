@@ -122,9 +122,22 @@ public final class ElevatorModule {
         World world = sign.getWorld();
         int x = sign.getX();
         int z = sign.getZ();
-        OptionalInt floor = ElevatorRules.destination(player.getLocation().getBlockY(), world.getMinHeight(),
-                world.getMaxHeight(), direction, settings.maxDistance(),
-                y -> firm(world.getBlockAt(x, y, z)), y -> free(world.getBlockAt(x, y, z)));
+        int feet = player.getLocation().getBlockY();
+        OptionalInt floor;
+        OptionalInt linked = ElevatorRules.linkedSign(sign.getY(), world.getMinHeight(), world.getMaxHeight(),
+                direction, settings.maxDistance(), y -> isElevator(world.getBlockAt(x, y, z)));
+        if (linked.isPresent()) {
+            // Another elevator in the column: straight there, whatever lies between.
+            int arrival = ElevatorRules.feetAtLinked(sign.getY(), feet, linked.getAsInt());
+            if (!free(world.getBlockAt(x, arrival, z)) || !free(world.getBlockAt(x, arrival + 1, z))) {
+                lang.send(player, ElevatorMessages.NO_ROOM);
+                return;
+            }
+            floor = OptionalInt.of(arrival);
+        } else {
+            floor = ElevatorRules.destination(feet, world.getMinHeight(), world.getMaxHeight(), direction,
+                    settings.maxDistance(), y -> firm(world.getBlockAt(x, y, z)), y -> free(world.getBlockAt(x, y, z)));
+        }
         if (floor.isEmpty()) {
             lang.send(player, ElevatorMessages.NO_FLOOR);
             return;
@@ -144,8 +157,20 @@ public final class ElevatorModule {
         return owner.isPresent() && theirs.isPresent() && owner.get().getId().equals(theirs.get().getId());
     }
 
+    /** Whether a block is an elevator sign: marked when it was written. */
+    public boolean isElevator(Block block) {
+        return org.bukkit.Tag.ALL_SIGNS.isTagged(block.getType())
+                && block.getState(false) instanceof org.bukkit.block.Sign sign
+                && sign.getPersistentDataContainer().has(key);
+    }
+
+    /**
+     * Whether a player can stand on a block. Not {@code Material#isSolid}: the game
+     * counts a sign as solid, and a sign then made a floor - the rider was put on top
+     * of the very sign they clicked.
+     */
     private static boolean firm(Block block) {
-        return block.getType().isSolid() && !block.isLiquid();
+        return !block.isPassable() && !block.isLiquid();
     }
 
     private static boolean free(Block block) {

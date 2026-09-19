@@ -49,6 +49,24 @@ class ElevatorRulesTest {
     }
 
     @Test
+    void aLinkedSignIsTheNextOneThatWayWhateverLiesBetween() {
+        IntPredicate signs = Set.of(65, 90, 120)::contains;
+        assertEquals(90, ElevatorRules.linkedSign(65, -64, 320, ElevatorRules.Direction.UP, 0, signs).getAsInt());
+        assertEquals(65, ElevatorRules.linkedSign(90, -64, 320, ElevatorRules.Direction.DOWN, 0, signs).getAsInt());
+        assertTrue(ElevatorRules.linkedSign(120, -64, 320, ElevatorRules.Direction.UP, 0, signs).isEmpty(),
+                "alone that way: the floor search takes over");
+        assertTrue(ElevatorRules.linkedSign(65, -64, 320, ElevatorRules.Direction.UP, 10, signs).isEmpty(),
+                "beyond the distance");
+    }
+
+    @Test
+    void theRiderArrivesAsHighAboveTheSignAsTheyLeft() {
+        assertEquals(89, ElevatorRules.feetAtLinked(65, 64, 90), "a sign at eye level stays at eye level");
+        assertEquals(90, ElevatorRules.feetAtLinked(65, 65, 90), "a sign at the feet stays at the feet");
+        assertEquals(89, ElevatorRules.feetAtLinked(70, 64, 90), "never more than a block below it");
+    }
+
+    @Test
     void theWorldsLimitsAreKept() {
         IntPredicate all = y -> true;
         assertTrue(ElevatorRules.destination(318, -64, 320, ElevatorRules.Direction.UP, 0, all, all).isEmpty(),
