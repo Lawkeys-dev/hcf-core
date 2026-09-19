@@ -608,6 +608,8 @@ public final class LegacyCombatListener implements Listener {
         if (held.getType() != type) {
             return;
         }
+        // The game's eating is cancelled: the item cooldown (pvp.yml) is started here.
+        module.itemUsed(player, held);
         held.setAmount(held.getAmount() - 1);
         player.getInventory().setItem(hand, held.getAmount() <= 0 ? null : held);
         int food = Math.min(20, player.getFoodLevel() + apple.food());

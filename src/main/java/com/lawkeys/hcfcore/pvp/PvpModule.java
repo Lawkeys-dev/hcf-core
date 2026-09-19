@@ -154,6 +154,20 @@ public final class PvpModule {
         this.partnerItems = Objects.requireNonNull(partnerItems, "partnerItems");
     }
 
+    /** @return the item cooldown this item has - none for a partner item, or with them off */
+    public Optional<PvpSettings.ItemCooldown> itemCooldownOf(ItemStack item) {
+        PvpSettings.ItemCooldownRules rules = settings.itemCooldowns();
+        if (!rules.enabled() || item == null || item.isEmpty() || partnerItems.test(item)) {
+            return Optional.empty();
+        }
+        return rules.of(item.getType().name());
+    }
+
+    /** An item was used - eaten, by the game or by the classic combat: its cooldown starts, if it has one. */
+    public void itemUsed(Player player, ItemStack item) {
+        itemCooldownOf(item).ifPresent(cooldown -> startItemCooldown(player, cooldown));
+    }
+
     /** Where a player's item cooldown ends, in their data: it survives logouts and restarts. */
     private NamespacedKey itemCooldownKey(String id) {
         return new NamespacedKey(plugin, "item_cooldown_" + id.replace('-', '_'));

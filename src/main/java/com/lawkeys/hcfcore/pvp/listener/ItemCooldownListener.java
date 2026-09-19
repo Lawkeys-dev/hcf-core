@@ -23,9 +23,11 @@ import java.util.Optional;
 /**
  * Item cooldowns ({@code pvp.yml}, {@code item-cooldowns}): an item eaten - a golden
  * apple, a chorus fruit - or a totem that saves its holder starts its cooldown; used
- * again meanwhile, it is refused. The refusal is decided at {@code HIGHEST}, after
- * whatever else refuses the item; the cooldown starts at {@code MONITOR}, once the
- * use has really happened.
+ * again meanwhile, it is refused. An item eaten is refused at {@code LOW}: before the
+ * classic combat eats a golden apple its own way, at {@code HIGH}, cancelling the
+ * game's eating - which is why it starts the cooldown itself
+ * ({@link PvpModule#itemUsed}). Otherwise the cooldown starts at {@code MONITOR},
+ * once the use has really happened.
  */
 public final class ItemCooldownListener implements Listener {
 
@@ -39,11 +41,7 @@ public final class ItemCooldownListener implements Listener {
     }
 
     private Optional<PvpSettings.ItemCooldown> cooldownOf(ItemStack item) {
-        PvpSettings.ItemCooldownRules rules = module.getSettings().itemCooldowns();
-        if (!rules.enabled() || item == null || item.isEmpty() || module.getPartnerItems().test(item)) {
-            return Optional.empty();
-        }
-        return rules.of(item.getType().name());
+        return module.itemCooldownOf(item);
     }
 
     /** @return whether it is refused - the player having been told */
@@ -59,7 +57,7 @@ public final class ItemCooldownListener implements Listener {
         return true;
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onEat(PlayerItemConsumeEvent event) {
         cooldownOf(event.getItem()).filter(item -> refuse(event.getPlayer(), item))
                 .ifPresent(item -> event.setCancelled(true));
@@ -67,7 +65,7 @@ public final class ItemCooldownListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEaten(PlayerItemConsumeEvent event) {
-        cooldownOf(event.getItem()).ifPresent(item -> module.startItemCooldown(event.getPlayer(), item));
+        module.itemUsed(event.getPlayer(), event.getItem());
     }
 
     /** A totem on cooldown saves nobody: the death goes ahead. */
