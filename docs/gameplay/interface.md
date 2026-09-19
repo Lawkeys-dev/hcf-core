@@ -43,7 +43,7 @@ Team and ally lines are also written to the console and the server log, with the
 
 ## The look
 
-Every message, menu, board and hologram follows one **theme** ([`theme.yml`](../reference/configuration/theme.md)): eight colours by role — gold, cream, green for a success, red for a refusal... — a bold `HCF »` prefix on the announcements, titles in small capitals, menus framed in black panes with gold corners and their items centred inside, a `➥` between a scoreboard label and its value. Change a colour there, and the whole plugin follows.
+Every message, menu, board and hologram follows one **theme** ([`theme.yml`](../reference/configuration/theme.md)): eight colours by role — gold, cream, green for a success, red for a refusal... — a bold `HCF »` prefix on the announcements, titles in small capitals, menus framed in black panes with gold corners and their items centred inside, a `➥` between a scoreboard label and its value. Change a colour there, and the whole plugin follows — or design your own in the [Theme Builder](../tools/theme-builder.html), which previews it live and writes the file.
 
 ## Scoreboard
 

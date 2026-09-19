@@ -8,6 +8,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ### Added
 - **A theme for the whole plugin** (`theme.yml`): eight colours by role, a message prefix, a list symbol, small-capital titles, framed menus. Every text is written with tokens — `{primary}`, `{secondary}`, `{muted}`, `{success}`, `{error}`, `{prefix}`, `{bullet}`, `{action}` — so a colour changed there changes everywhere. Shipped as "Or royal": gold and cream, a bold `HCF »` on the announcements, `Label ➥ value` scoreboard rows, black-framed menus with gold corners. Hex colours (`&#rrggbb`) now work in any text.
+- **The Theme Builder** ([online](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)): design a theme with live previews of the chat, the menus, the scoreboard and the tab, then download a `theme.yml` ready to drop in — and the scoreboard's rows for `ui.yml`. It reads a `theme.yml` you already have.
 - Menus page themselves when their items do not fit — `/ability` has two pages, `/tickets` is no longer capped at 54.
 
 ### Changed

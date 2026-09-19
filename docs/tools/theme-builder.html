@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HCFCore Theme Builder</title>
+<meta name="description" content="Design the look of HCFCore - colours, prefix, menus, scoreboard - and download a theme.yml ready to drop into plugins/HCFCore/.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* One visual world on purpose: a Minecraft night. Single theme, every colour painted. */
+:root {
+  --ground: #121419;
+  --panel: #1a1d24;
+  --panel-2: #22262f;
+  --line: #2e333e;
+  --ink: #e8eaef;
+  --muted: #98a0ad;
+  --focus: #8fb4ff;
+  --chosen: #f5b32e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--ground); }
+body { color: var(--ink); font: 15px/1.5 "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; }
+a { color: var(--chosen); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+h1 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: clamp(28px, 4vw, 42px); line-height: 1.05; margin: 0 0 6px; text-wrap: balance; }
+h2 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: 19px; margin: 0; }
+.lede { color: var(--muted); max-width: 70ch; margin: 0; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.back { font-size: 13px; }
+
+.presets { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.preset { text-align: left; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; cursor: pointer; display: grid; gap: 7px; }
+.preset[aria-pressed="true"] { border-color: var(--chosen); box-shadow: inset 0 0 0 1px var(--chosen); }
+.preset .name { font-weight: 700; }
+.preset .blurb { font-size: 12.5px; color: var(--muted); }
+.swatches { display: flex; gap: 4px; }
+.swatches i { width: 18px; height: 18px; border-radius: 3px; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.35); }
+
+.main { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 940px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.editor { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 18px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto; }
+@media (max-width: 940px) { .editor { position: static; max-height: none; } }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; min-width: 0; }
+legend { padding: 0; margin-bottom: 4px; }
+.roles { display: grid; gap: 8px; }
+.role { display: grid; grid-template-columns: 34px minmax(0, 1fr) 92px; gap: 8px; align-items: center; }
+.role input[type="color"] { width: 34px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; cursor: pointer; }
+.role label { font-size: 13px; line-height: 1.2; }
+.role small { display: block; color: var(--muted); font-size: 11px; }
+.role input[type="text"] { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; padding: 5px 7px; }
+.field { display: grid; gap: 4px; }
+.field > label, .field > span { font-size: 13px; font-weight: 600; }
+.hint { font-size: 12px; color: var(--muted); margin: 0; }
+input[type="text"], select, textarea { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; }
+textarea { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; resize: vertical; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg label { cursor: pointer; position: relative; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg span { display: inline-block; font-size: 13px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel-2); }
+.seg input:checked + span { border-color: var(--chosen); color: var(--chosen); }
+.seg input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13.5px; }
+.panes { display: flex; flex-wrap: wrap; gap: 5px; }
+.panes button { width: 24px; height: 24px; border-radius: 3px; border: 1px solid rgba(0,0,0,.4); cursor: pointer; padding: 0; }
+.panes button[aria-pressed="true"] { outline: 2px solid var(--chosen); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .slot:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.previews { display: grid; gap: 18px; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.card-head p { margin: 0; color: var(--muted); font-size: 12.5px; }
+
+.mc { font-family: "Pixelify Sans", ui-monospace, monospace; font-size: 16px; line-height: 1.35; text-shadow: 2px 2px 0 rgba(0,0,0,.55); white-space: pre-wrap; word-break: break-word; }
+.world { background: linear-gradient(180deg, #5f82ad 0%, #88a9cf 46%, #5b7639 46.5%, #45602b 100%); border-radius: 6px; padding: 14px; min-width: 0; }
+.chat { background: rgba(0,0,0,.42); padding: 6px 8px; display: grid; gap: 2px; max-width: 700px; }
+.chatbar { margin-top: 8px; background: rgba(0,0,0,.55); height: 22px; max-width: 700px; }
+
+.menus { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+.gui-wrap { position: relative; overflow-x: auto; max-width: 100%; padding-bottom: 4px; }
+.gui { background: #c6c6c6; border: 3px solid; border-color: #fff #555 #555 #fff; border-radius: 3px; padding: 8px 8px 10px; width: max-content; }
+.gui-title { color: #404040; margin: 0 0 6px 2px; }
+.gui-title span { text-shadow: none !important; }
+.slots { display: grid; grid-template-columns: repeat(9, 36px); }
+.slot { width: 36px; height: 36px; background: #8b8b8b; border: 2px solid; border-color: #373737 #fff #fff #373737; position: relative; display: grid; place-items: center; }
+.slot .pane { position: absolute; inset: 3px; opacity: .85; }
+.slot .item { width: 22px; height: 22px; border-radius: 3px; box-shadow: inset -3px -3px 0 rgba(0,0,0,.25), inset 3px 3px 0 rgba(255,255,255,.25); }
+.slot .arrow { font: 600 20px/1 "Pixelify Sans", monospace; color: #3b3b3b; }
+.slot.hoverable:hover::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.45); }
+.tooltip { position: absolute; z-index: 5; pointer-events: none; background: rgba(16, 0, 16, .95); border: 2px solid #28007a; border-radius: 3px; padding: 5px 8px; max-width: 330px; }
+.tooltip .mc { font-size: 15px; }
+.menu-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.side-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: start; }
+@media (max-width: 700px) { .side-grid { grid-template-columns: minmax(0, 1fr); } }
+.sidebar { background: rgba(0,0,0,.42); padding: 4px 8px 6px; min-width: 200px; }
+.sidebar .title { text-align: center; margin-bottom: 2px; }
+.sidebar .row { display: flex; justify-content: space-between; gap: 16px; }
+.tab { background: rgba(0,0,0,.42); padding: 8px 12px; text-align: center; }
+.tab .players { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 10px; margin: 8px 0; text-align: left; }
+.tab .players div { background: rgba(255,255,255,.08); padding: 1px 6px; }
+
+.export { display: grid; gap: 10px; }
+.file-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.file-tabs button, .btn { font: 600 13px/1 "Manrope", system-ui, sans-serif; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; padding: 8px 12px; cursor: pointer; }
+.file-tabs button[aria-selected="true"] { border-color: var(--chosen); color: var(--chosen); }
+.btn.primary { background: var(--chosen); color: #1d1500; border-color: var(--chosen); }
+pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border-radius: 8px; padding: 12px; font: 12.5px/1.55 "JetBrains Mono", ui-monospace, monospace; color: #cfd6e3; overflow: auto; max-height: 460px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.status { font-size: 13px; color: var(--muted); }
+.tokens { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tokens td { border-top: 1px solid var(--line); padding: 5px 6px; vertical-align: top; }
+.tokens code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; }
+.table-wrap { overflow-x: auto; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <header>
+      <div class="eyebrow">HCFCore · theme.yml</div>
+      <h1>Theme Builder</h1>
+      <p class="lede">Design how HCFCore looks - colours, the message prefix, menus, the scoreboard - and watch it live below. Then download <code>theme.yml</code>, drop it in <code>plugins/HCFCore/</code> and run <code>/hcf reload</code>. Every message, menu and board of the plugin follows.</p>
+    </header>
+    <a class="back" href="../reference/configuration/theme/">theme.yml reference →</a>
+  </div>
+
+  <section class="presets" id="presets" aria-label="Starting points"></section>
+
+  <div class="main">
+    <form class="editor" id="editor" onsubmit="return false">
+      <fieldset>
+        <legend class="eyebrow">Colours</legend>
+        <div class="roles" id="roles"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="eyebrow">Prefix</legend>
+        <div class="field">
+          <label for="prefixText">Text</label>
+          <input type="text" id="prefixText" maxlength="24" autocomplete="off">
+        </div>
+        <div class="field">
+          <span>Shape</span>
+          <div class="seg" id="prefixStyle"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="prefixBold"> Bold</label>
+        <div class="field">
+          <label for="prefixRaw">As written in theme.yml</label>
+          <input type="text" id="prefixRaw" autocomplete="off" spellcheck="false">
+          <p class="hint">Edit it freely: tokens, &amp; codes and &amp;#rrggbb colours all work. The shipped messages put it on announcements - events, phases, a team's news.</p>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="eyebrow">Symbols and titles</legend>
+        <div class="field">
+          <span>List symbol <code>{bullet}</code></span>
+          <div class="seg" id="bullet"></div>
+        </div>
+        <div class="field">
+          <label for="action">Click line <code>{action}</code></label>
+          <input type="text" id="action" maxlength="8" autocomplete="off">
+        </div>
+        <label class="check"><input type="checkbox" id="smallCaps"> Titles in small capitals (ᴀʙɪʟɪᴛɪᴇꜱ)</label>
+      </fieldset>
+
+      <fieldset>
+        <legend class="eyebrow">Menus</legend>
+        <div class="field">
+          <span>Frame</span>
+          <div class="seg" id="frame"></div>
+        </div>
+        <div class="field">
+          <span>Frame pane</span>
+          <div class="panes" id="pane"></div>
+        </div>
+        <div class="field">
+          <span>Corner pane</span>
+          <div class="panes" id="cornerPane"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="eyebrow">Scoreboard (ui.yml)</legend>
+        <div class="field">
+          <span>Separator</span>
+          <div class="seg" id="sbSep"></div>
+        </div>
+        <div class="field">
+          <label for="serverIp">Server address, bottom row</label>
+          <input type="text" id="serverIp" maxlength="40" autocomplete="off">
+        </div>
+      </fieldset>
+    </form>
+
+    <div class="previews">
+      <section class="card" aria-labelledby="h-chat">
+        <div class="card-head"><h2 id="h-chat">Chat</h2><p>The plugin's own messages, as shipped</p></div>
+        <div class="world"><div class="chat mc" id="chat"></div><div class="chatbar"></div></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-menu">
+        <div class="card-head"><h2 id="h-menu">Menus</h2><p>Hover an item for its tooltip</p></div>
+        <div class="menu-tabs seg" id="menuPick"></div>
+        <div class="gui-wrap" id="guiWrap">
+          <div class="gui"><div class="gui-title mc" id="guiTitle"></div><div class="slots" id="slots"></div></div>
+          <div class="tooltip" id="tooltip" hidden><div class="mc" id="tooltipText"></div></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-board">
+        <div class="card-head"><h2 id="h-board">Scoreboard and tab</h2><p>In combat, with a pearl and a Gapple on cooldown</p></div>
+        <div class="world side-grid">
+          <div class="tab mc" id="tab"></div>
+          <div class="sidebar mc" id="sidebar"></div>
+        </div>
+      </section>
+
+      <section class="card export" aria-labelledby="h-export">
+        <div class="card-head"><h2 id="h-export">Your files</h2><p>Ready to use - no editing needed</p></div>
+        <div class="file-tabs" role="tablist" id="fileTabs">
+          <button type="button" role="tab" aria-selected="true" data-file="theme" id="tab-theme">theme.yml</button>
+          <button type="button" role="tab" aria-selected="false" data-file="ui" id="tab-ui">ui.yml - scoreboard</button>
+          <button type="button" role="tab" aria-selected="false" data-file="import" id="tab-import">Import a theme.yml</button>
+        </div>
+        <div id="panel-file">
+          <pre class="code" id="code" tabindex="0"></pre>
+          <p class="hint" id="fileHint"></p>
+        </div>
+        <div id="panel-import" hidden>
+          <textarea id="importText" rows="10" placeholder="Paste your theme.yml here…" spellcheck="false"></textarea>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn primary" id="download">Download theme.yml</button>
+          <button type="button" class="btn" id="copy">Copy</button>
+          <button type="button" class="btn" id="load" hidden>Load it</button>
+          <span class="status" id="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-tokens">
+        <div class="card-head"><h2 id="h-tokens">Tokens</h2><p>Use them in lang/en.yml and any other file</p></div>
+        <div class="table-wrap"><table class="tokens" id="tokens"></table></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROLES = [
+  ["primary", "Primary", "prefix, titles, names, labels"],
+  ["secondary", "Secondary", "values: players, teams, numbers"],
+  ["text", "Text", "the body of a message, chat"],
+  ["muted", "Muted", "secondary info, descriptions"],
+  ["dark", "Dark", "brackets, separators, symbols"],
+  ["success", "Success", "something done"],
+  ["error", "Error", "something refused, a cooldown"],
+  ["warning", "Warning", "announcements, events"],
+];
+const PANES = {
+  BLACK: "#1d1d21", GRAY: "#474f52", LIGHT_GRAY: "#9d9d97", WHITE: "#f9fffe", RED: "#b02e26", ORANGE: "#f9801d",
+  YELLOW: "#fed83d", LIME: "#80c71f", GREEN: "#5e7c16", CYAN: "#169c9c", LIGHT_BLUE: "#3ab3da", BLUE: "#3c44aa",
+  PURPLE: "#8932b8", MAGENTA: "#c74ebd", PINK: "#f38baa", BROWN: "#835432",
+};
+const PRESETS = [
+  { id: "or", name: "Or royal", blurb: "Gold and cream - as shipped.",
+    colors: { primary: "#F5B32E", secondary: "#FFE39A", text: "#F7F1E3", muted: "#B3A88F", dark: "#5E5540", success: "#8CE36B", error: "#F2594B", warning: "#FFD24A" },
+    prefixText: "HCF", prefixStyle: "arrow", prefixBold: true, bullet: "➥", action: "» ", smallCaps: true, frame: "full", pane: "BLACK", cornerPane: "YELLOW", sbSep: "blocks" },
+  { id: "braise", name: "Braise", blurb: "The classic HCF red, warm and direct.",
+    colors: { primary: "#FF4D3D", secondary: "#FFB23F", text: "#F2EDE9", muted: "#A7A09B", dark: "#5A524E", success: "#6BE37A", error: "#FF5A5A", warning: "#FFD24A" },
+    prefixText: "HCF", prefixStyle: "brackets", prefixBold: true, bullet: "»", action: "» ", smallCaps: false, frame: "full", pane: "BLACK", cornerPane: "RED", sbSep: "line" },
+  { id: "givre", name: "Givre", blurb: "Icy blue, clean and modern.",
+    colors: { primary: "#56C8FF", secondary: "#9BE7FF", text: "#EAF6FF", muted: "#9AB3C3", dark: "#4A5F6D", success: "#5EF0A8", error: "#FF6B7A", warning: "#FFD66B" },
+    prefixText: "HCF", prefixStyle: "pipe", prefixBold: true, bullet: "●", action: "● ", smallCaps: true, frame: "full", pane: "BLACK", cornerPane: "LIGHT_BLUE", sbSep: "bars" },
+  { id: "amethyste", name: "Améthyste", blurb: "Violet and pink, more playful.",
+    colors: { primary: "#B07CFF", secondary: "#FF7CE0", text: "#F1EAFF", muted: "#A99BC0", dark: "#54496A", success: "#6DEBA0", error: "#FF6B8B", warning: "#FFD66B" },
+    prefixText: "HCF", prefixStyle: "star", prefixBold: true, bullet: "✦", action: "✦ ", smallCaps: true, frame: "bars", pane: "BLACK", cornerPane: "PURPLE", sbSep: "bars" },
+  { id: "classique", name: "Classique", blurb: "The game's own 16 colours.",
+    colors: { primary: "#FF5555", secondary: "#FFFF55", text: "#FFFFFF", muted: "#AAAAAA", dark: "#555555", success: "#55FF55", error: "#FF5555", warning: "#FFAA00" },
+    prefixText: "HCF", prefixStyle: "brackets", prefixBold: false, bullet: "-", action: "", smallCaps: false, frame: "none", pane: "GRAY", cornerPane: "GRAY", sbSep: "line" },
+];
+const CHOICES = {
+  prefixStyle: [["brackets", "[HCF]"], ["pipe", "HCF ┃"], ["arrow", "HCF »"], ["star", "✦ HCF"]],
+  bullet: [["➥", "➥"], ["»", "»"], ["●", "●"], ["✦", "✦"], ["▸", "▸"], ["-", "-"], [":", ":"]],
+  frame: [["full", "Full frame"], ["bars", "Top and bottom"], ["none", "None"]],
+  sbSep: [["blocks", "▪ ▪ ▪"], ["bars", "▬▬▬"], ["line", "────"], ["none", "None"]],
+};
+const SEPARATORS = { blocks: "▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪", bars: "▬▬▬▬▬▬▬▬▬▬▬▬▬▬", line: "&m                        ", none: null };
+
+const KEY = "hcfcore-theme-builder";
+let state = fresh(PRESETS[0]);
+let menuShown = "settings";
+let fileShown = "theme";
+function fresh(p) {
+  const s = structuredClone(p);
+  s.prefixRaw = prefixFor(s);
+  s.serverIp = "play.yourserver.net";
+  return s;
+}
+try { const raw = localStorage.getItem(KEY); if (raw) state = Object.assign(fresh(PRESETS[0]), JSON.parse(raw)); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+function prefixFor(s) {
+  const t = (s.prefixText || "HCF").trim() || "HCF";
+  const b = s.prefixBold ? "&l" : "";
+  switch (s.prefixStyle) {
+    case "brackets": return "{dark}[{primary}" + b + t + "&r{dark}] ";
+    case "pipe": return "{primary}" + b + t + "&r{dark} ┃ ";
+    case "star": return "{primary}✦ " + b + t + "&r{dark} ┃ ";
+    default: return "{primary}" + b + t + "&r{dark} » ";
+  }
+}
+
+// ---------- The plugin's own rules, in JavaScript: Theme#apply, Theme#title, ColorCodes ----------
+function apply(input) {
+  const once = replace(input, true);
+  return once.includes("{") ? replace(once, false) : once;
+}
+function replace(input, withPrefix) {
+  return input.replace(/\{([a-z]+)\}/g, (m, name) => {
+    if (state.colors[name]) return "&" + state.colors[name].toUpperCase();
+    if (withPrefix && name === "prefix") return state.prefixRaw;
+    if (name === "bullet") return state.bullet;
+    if (name === "action") return state.action;
+    return m;
+  });
+}
+const SMALL_FROM = "abcdefghijklmnopqrstuvwxyz", SMALL_TO = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ";
+function title(input) {
+  if (!state.smallCaps) return input;
+  let out = "", token = false, placeholder = false;
+  for (let i = 0; i < input.length; i++) {
+    const c = input[i];
+    if (c === "&" && input[i + 1] === "#") { out += input.slice(i, i + 8); i += 7; continue; }
+    if (c === "&" && i + 1 < input.length) { out += c + input[++i]; continue; }
+    if (c === "{") token = true; else if (c === "}") token = false; else if (c === "%") placeholder = !placeholder;
+    const k = token || placeholder ? -1 : SMALL_FROM.indexOf(c.toLowerCase());
+    out += k < 0 ? c : [...SMALL_TO][k];
+  }
+  return out;
+}
+const LEGACY = { 0: "#000000", 1: "#0000aa", 2: "#00aa00", 3: "#00aaaa", 4: "#aa0000", 5: "#aa00aa", 6: "#ffaa00", 7: "#aaaaaa",
+  8: "#555555", 9: "#5555ff", a: "#55ff55", b: "#55ffff", c: "#ff5555", d: "#ff55ff", e: "#ffff55", f: "#ffffff" };
+function render(target, raw, placeholders = {}) {
+  let str = apply(raw);
+  for (const [k, v] of Object.entries(placeholders)) str = str.split("%" + k + "%").join(v);
+  str = apply(str);
+  target.textContent = "";
+  let color = "#ffffff", bold = false, italic = false, strike = false, under = false;
+  const re = /&#([0-9a-fA-F]{6})|&([0-9a-fk-orA-FK-OR])/g;
+  let last = 0, m;
+  const push = (text) => {
+    if (!text) return;
+    const s = document.createElement("span");
+    s.textContent = text;
+    s.style.color = color;
+    if (bold) s.style.fontWeight = "600";
+    if (italic) s.style.fontStyle = "italic";
+    const deco = [strike ? "line-through" : "", under ? "underline" : ""].filter(Boolean).join(" ");
+    if (deco) s.style.textDecoration = deco;
+    target.append(s);
+  };
+  while ((m = re.exec(str))) {
+    push(str.slice(last, m.index));
+    last = re.lastIndex;
+    if (m[1]) { color = "#" + m[1]; bold = italic = strike = under = false; continue; }
+    const code = m[2].toLowerCase();
+    if (LEGACY[code]) { color = LEGACY[code]; bold = italic = strike = under = false; }
+    else if (code === "l") bold = true;
+    else if (code === "o") italic = true;
+    else if (code === "m") strike = true;
+    else if (code === "n") under = true;
+    else if (code === "r") { color = "#ffffff"; bold = italic = strike = under = false; }
+  }
+  push(str.slice(last));
+}
+function el(tag, attrs = {}, text) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === "class") n.className = v; else n.setAttribute(k, v); }
+  if (text !== undefined) n.textContent = text;
+  return n;
+}
+
+// ---------- Chat ----------
+const MESSAGES = [
+  ["{success}Team {secondary}%team% {success}created. Invite members with {secondary}/team invite <player>{success}.", { team: "Wizards" }],
+  ["{prefix}{success}%player% joined the team.", { player: "ownedbynoname" }],
+  ["{prefix}{secondary}%team% {warning}is capturing {secondary}%event%{warning}. {muted}%time% {muted}remaining.", { team: "Wizards", event: "Citadel", time: "4m 12s" }],
+  ["{prefix}{success}%team% {primary}captured {warning}%event%{primary}!", { team: "Wizards", event: "Citadel" }],
+  ["{error}You cannot throw an ender pearl for {secondary}%time%{error}.", { time: "12s" }],
+  ["{error}You are now in combat for {secondary}%seconds%s{error}. You cannot teleport or log out safely.", { seconds: "30" }],
+  ["{prefix}{error}&l%team% {error}is now RAIDABLE!", { team: "Raiders" }],
+  ["%kills%{text}Lawkeys{dark}: {text}on push the koth, go go", { kills: "{dark}[{primary}12{dark}] " }],
+];
+function chat() {
+  const box = document.getElementById("chat");
+  box.textContent = "";
+  for (const [raw, ph] of MESSAGES) { const d = el("div"); render(d, raw, ph); box.append(d); }
+}
+
+// ---------- Menus: MenuLayout#of, in JavaScript ----------
+function layout(count, frame, page) {
+  const full = frame === "full", bars = full || frame === "bars";
+  const width = full ? 7 : 9, framedRows = bars ? 2 : 0;
+  let innerMax = 6 - framedRows, capacity = innerMax * width;
+  const paged = count > capacity;
+  if (paged && !bars) { innerMax -= 1; capacity = innerMax * width; }
+  const pages = paged ? Math.ceil(count / capacity) : 1;
+  page = Math.max(0, Math.min(page, pages - 1));
+  const first = page * capacity, onPage = Math.min(capacity, count - first);
+  const innerRows = paged ? innerMax : Math.max(1, Math.ceil(onPage / width));
+  const rows = innerRows + framedRows + (paged && !bars ? 1 : 0);
+  const frameSlots = new Set(), corners = new Set();
+  for (let s = 0; s < rows * 9; s++) {
+    const r = Math.floor(s / 9), c = s % 9;
+    const edgeRow = r === 0 || r === rows - 1, edgeCol = c === 0 || c === 8;
+    if (bars && (edgeRow || (full && edgeCol))) { frameSlots.add(s); if (edgeRow && edgeCol) corners.add(s); }
+  }
+  const top = bars ? 1 : 0, left = full ? 1 : 0, slots = [];
+  let placed = 0;
+  for (let r = 0; r < innerRows && placed < onPage; r++) {
+    const inRow = Math.min(width, onPage - placed);
+    const spread = innerRows === 1 && inRow * 2 - 1 <= width;
+    const step = spread ? 2 : 1, span = (inRow - 1) * step + 1, start = Math.floor((width - span) / 2);
+    for (let k = 0; k < inRow; k++) slots.push((top + r) * 9 + left + start + k * step);
+    placed += inRow;
+  }
+  const lastRow = (rows - 1) * 9;
+  return { rows, slots, frameSlots, corners, page, pages, first,
+    previous: paged && page > 0 ? lastRow + 3 : -1, next: paged && page < pages - 1 ? lastRow + 5 : -1 };
+}
+const SETTINGS = [["Scoreboard", "The board on the right of your screen.", true], ["Private messages", "Messages from other players.", true],
+  ["Tips", "The occasional line of advice in chat.", true], ["Pick up cobblestone", "Off, you leave cobblestone on the ground.", false],
+  ["Scoreboard: team", "Your team, its DTR, focus and rally rows.", true], ["Scoreboard: statistics", "Your kills and killstreak.", true],
+  ["Scoreboard: balance", "Your balance.", true], ["Scoreboard: combat tag", "Your combat tag.", true],
+  ["Scoreboard: cooldowns", "Your ender pearl and item cooldowns.", true], ["Scoreboard: class", "Your class, its energy.", true],
+  ["Scoreboard: events", "SOTW, EOTW, KOTH, the King, Conquest.", false], ["Scoreboard: timers", "The server's custom timers.", true]];
+const ABILITY_COLORS = ["#fed83d", "#9d9d97", "#3ab3da", "#835432", "#f9fffe", "#f9801d", "#b02e26", "#80c71f", "#8932b8", "#c74ebd"];
+const ABILITIES = ["Switcher", "Thunderbolt", "Combo Ability", "Lucky Mode", "Rage Ball", "Crafting Chaos", "Focus Mode", "Ninja Track",
+  "Portable Archer", "Invisibility", "Time Warp", "Pocket Bard", "Berserk", "Close Call", "Switch Stick", "Belch Bomb", "Reverse Ninja Track",
+  "Rose Thorn", "Pumpkin Reaper", "Hulk Smash", "Sticky Web", "Med Kit", "Grappling Hook", "Nausea Axe", "Bunny Hop", "Ice Berg", "Antidote",
+  "Golden Head", "Grabber", "Poisonous Potato", "Fake Pearl", "Rocket", "Combo Fish", "Anti-Build Bone", "Rotten Egg", "Rage Strength",
+  "Olympia", "Baguette", "Sun", "Scrambler", "Lucky Bard", "Disarmer Wand"];
+const MENUS = {
+  settings: { label: "/settings", title: "{primary}&lYour settings", build: () => {
+    const l = layout(SETTINGS.length, state.frame, 0);
+    return { l, items: SETTINGS.map(([n, d, on]) => ({ color: on ? "#80c71f" : "#6b6b6b",
+      tip: ["{secondary}" + n, sep(), "{muted}" + d, "", "{muted}Currently: " + (on ? "{success}On" : "{error}Off"), "{secondary}{action}Click to switch"] })) };
+  } },
+  abilities: { label: "/ability", title: "{primary}&lAbilities", build: (page) => {
+    const l = layout(ABILITIES.length, state.frame, page);
+    return { l, items: l.slots.map((_, i) => {
+      const n = ABILITIES[l.first + i];
+      const ready = (l.first + i) % 3 !== 1;
+      return { color: ABILITY_COLORS[(l.first + i) % ABILITY_COLORS.length],
+        tip: ["&6&l" + n, sep(), "{muted}What it does, as abilities.yml says.", "", "{dark}Type {bullet} " + n.toLowerCase().replace(/ /g, "-"),
+          ready ? "{success}Ready" : "{error}Cooldown: {secondary}1m 12s"] };
+    }) };
+  } },
+  pocket: { label: "Pocket Bard", title: "{primary}&lPocket Bard", build: () => {
+    // Its sets sit where abilities.yml says; the frame goes around them.
+    const framed = layout((3 - 2) * 7, state.frame, 0);
+    const slots = [10, 12, 14, 16];
+    const l2 = { rows: 3, slots, frameSlots: state.frame === "none" ? new Set() : (framed.rows === 3 ? framed.frameSlots : new Set()),
+      corners: framed.rows === 3 ? framed.corners : new Set(), previous: -1, next: -1, page: 0, pages: 1, first: 0 };
+    return { l: l2, items: [["&c3x Strength", "#f9801d"], ["&73x Resistance", "#c6c6c6"], ["&a3x Jump", "#f9fffe"], ["&b3x Speed", "#f9fffe"]]
+      .map(([n, c]) => ({ color: c, tip: [n, sep(), "&7* &aTeam Members", "", "{secondary}{action}Click to pick"] })) };
+  } },
+};
+let abilityPage = 0;
+function sep() { return "{dark}&m                              "; }
+function menu() {
+  const m = MENUS[menuShown];
+  const { l, items } = m.build(abilityPage);
+  render(document.getElementById("guiTitle"), title(m.title));
+  const slots = document.getElementById("slots");
+  slots.textContent = "";
+  const bySlot = new Map(l.slots.map((s, i) => [s, items[i]]));
+  for (let s = 0; s < l.rows * 9; s++) {
+    const slot = el("div", { class: "slot" });
+    const it = bySlot.get(s);
+    if (it) {
+      const item = el("div", { class: "item" }); item.style.background = it.color;
+      slot.append(item); slot.classList.add("hoverable"); slot.tabIndex = 0; slot.dataset.tip = it.tip.join("\n");
+    } else if (s === l.previous || s === l.next) {
+      slot.append(el("span", { class: "arrow" }, s === l.previous ? "←" : "→"));
+      slot.classList.add("hoverable"); slot.tabIndex = 0;
+      slot.dataset.tip = (s === l.previous ? "{primary}« Previous page" : "{primary}Next page »") + "\n{muted}Page {secondary}" + (l.page + 1) + "{muted}/{secondary}" + l.pages;
+      slot.dataset.turn = s === l.previous ? "-1" : "1";
+    } else if (l.frameSlots.has(s)) {
+      const pane = el("div", { class: "pane" });
+      pane.style.background = PANES[l.corners.has(s) ? state.cornerPane : state.pane];
+      slot.append(pane);
+    }
+    slots.append(slot);
+  }
+}
+
+// ---------- Scoreboard and tab ----------
+function sidebar() {
+  const box = document.getElementById("sidebar");
+  box.textContent = "";
+  const t = el("div", { class: "title" }); render(t, title("{primary}&l" + ((state.prefixText || "HCF").trim() || "HCF"))); box.append(t);
+  const s = SEPARATORS[state.sbSep];
+  const rows = [];
+  if (s) rows.push("{dark}" + s);
+  rows.push("{primary}Team {dark}{bullet} {secondary}Wizards", "{primary}DTR {dark}{bullet} {success}3.5", "{primary}Kills {dark}{bullet} {secondary}12",
+    "{primary}Streak {dark}{bullet} {secondary}4", "{primary}Balance {dark}{bullet} {success}$1,250", "{primary}Combat {dark}{bullet} {error}24s",
+    "{primary}Enderpearl {dark}{bullet} {warning}9s", "{primary}Gapple {dark}{bullet} {warning}58m 12s");
+  if (s) rows.push("{dark}" + s);
+  if (state.serverIp.trim()) rows.push("{muted}" + state.serverIp.trim());
+  for (const r of rows) { const d = el("div", { class: "row" }); const left = el("span"); render(left, r); d.append(left); box.append(d); }
+}
+function tab() {
+  const box = document.getElementById("tab");
+  box.textContent = "";
+  const head = el("div"); render(head, "{primary}&l" + ((state.prefixText || "HCF").trim() || "HCF") + "\n{muted}Hardcore Factions");
+  const players = el("div", { class: "players" });
+  for (const [n, t] of [["Lawkeys", "Wizards"], ["ownedbynoname", "Wizards"], ["Notch", ""], ["Dinnerbone", "Raiders"]]) {
+    const d = el("div"); render(d, (t ? "{dark}[{secondary}" + t + "{dark}] " : "") + "{text}" + n); players.append(d);
+  }
+  const foot = el("div"); render(foot, "{text}Online {dark}{bullet} {secondary}42" + (state.serverIp.trim() ? "\n{muted}" + state.serverIp.trim() : ""));
+  box.append(head, players, foot);
+}
+
+// ---------- The files ----------
+function yamlString(s) { return '"' + s.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"'; }
+function themeYml() {
+  const c = state.colors;
+  return `# ---------------------------------------------------------------------------
+# theme.yml - the look of the whole plugin
+# Made with the HCFCore Theme Builder. Drop it in plugins/HCFCore/ and run
+# /hcf reload: every message, menu and board follows.
+#
+# Every text the plugin shows can use these tokens instead of colour codes:
+#   {primary} {secondary} {text} {muted} {dark} {success} {error} {warning}
+#   {prefix} {bullet} {action}
+# Legacy codes (&a, &l...) and hex colours written as &#rrggbb work anywhere.
+# ---------------------------------------------------------------------------
+
+colors:
+${ROLES.map(([k]) => `  ${k}: "${c[k].toUpperCase()}"`).join("\n")}
+
+# Starts the announcements - events, the map's phases, a team's own news - and
+# any message you add it to with {prefix}.
+prefix: ${yamlString(state.prefixRaw)}
+# The list symbol: scoreboard rows, event lines.
+bullet: ${yamlString(state.bullet)}
+# Menu and scoreboard titles in small capitals.
+small-caps-titles: ${state.smallCaps}
+
+menus:
+  # full: panes all around the menu; bars: the top and bottom rows; none.
+  frame: ${state.frame}
+  pane: ${state.pane}_STAINED_GLASS_PANE
+  corner-pane: ${state.cornerPane}_STAINED_GLASS_PANE
+  # What starts the line of an item saying what a click does.
+  action: ${yamlString(state.action)}
+`;
+}
+function uiYml() {
+  const s = SEPARATORS[state.sbSep];
+  const sepLine = s ? [`    - "{dark}${s}"`] : [];
+  const rows = ["[team]{primary}Team {dark}{bullet} {secondary}%team%", "[team]{primary}DTR {dark}{bullet} %dtr_coloured%",
+    "[stats]{primary}Kills {dark}{bullet} {secondary}%kills%", "[stats]{primary}Streak {dark}{bullet} {secondary}%killstreak%",
+    "[balance]{primary}Balance {dark}{bullet} {success}%balance%", "[team]%focus_line%", "[team]%rally_line%", "[combat]%combat_line%",
+    "[cooldowns]%pearl_line%", "[cooldowns]%cooldown_notch-apple_line%", "[cooldowns]%cooldown_golden-apple_line%",
+    "[cooldowns]%cooldown_chorus-fruit_line%", "[cooldowns]%cooldown_totem_line%", "[class]%class_line%", "[class]%class_energy_line%",
+    "[class]%archer_tag_line%", "[events]%phase_line%", "[events]%event_line%", "[events]%king_line%", "[events]%king_location_line%",
+    "[events]%conquest_line%", "[events]%conquest_zone_1%", "[events]%conquest_zone_2%", "[events]%conquest_zone_3%",
+    "[events]%conquest_zone_4%", "[timers]%timer_1%", "[timers]%timer_2%", "[timers]%timer_3%"];
+  const ip = state.serverIp.trim() ? [`    - "{muted}${state.serverIp.trim().replace(/"/g, "")}"`] : [];
+  return `# In ui.yml, replace the scoreboard's "title:" and "lines:" with these.
+scoreboard:
+  title: ${yamlString("{primary}&l" + ((state.prefixText || "HCF").trim() || "HCF"))}
+  lines:
+${[...sepLine, ...rows.map(r => `    - "${r}"`), ...sepLine, ...ip].join("\n")}
+`;
+}
+function importTheme(text) {
+  const next = structuredClone(state);
+  let section = null, found = 0;
+  for (const line of text.split(/\r?\n/)) {
+    if (/^\s*(#|$)/.test(line)) continue;
+    const m = line.match(/^(\s*)([a-z-]+):\s*(.*?)\s*(#.*)?$/i);
+    if (!m) continue;
+    const indent = m[1].length, key = m[2], raw = m[3];
+    if (indent === 0) section = raw === "" ? key : null;
+    const value = raw.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+    if (indent > 0 && section === "colors" && /^#?[0-9a-f]{6}$/i.test(value)) {
+      next.colors[key] = (value.startsWith("#") ? value : "#" + value).toUpperCase(); found++;
+    } else if (indent > 0 && section === "menus") {
+      if (key === "frame" && ["full", "bars", "none"].includes(value)) { next.frame = value; found++; }
+      if (key === "pane") { next.pane = value.replace(/_STAINED_GLASS_PANE$/, ""); found++; }
+      if (key === "corner-pane") { next.cornerPane = value.replace(/_STAINED_GLASS_PANE$/, ""); found++; }
+      if (key === "action") { next.action = value; found++; }
+    } else if (indent === 0 && raw !== "") {
+      if (key === "prefix") { next.prefixRaw = value; found++; }
+      if (key === "bullet") { next.bullet = value; found++; }
+      if (key === "small-caps-titles") { next.smallCaps = value === "true"; found++; }
+    }
+  }
+  if (!PANES[next.pane]) next.pane = "BLACK";
+  if (!PANES[next.cornerPane]) next.cornerPane = next.pane;
+  return found ? next : null;
+}
+
+// ---------- Editor ----------
+function drawPresets() {
+  const box = document.getElementById("presets");
+  box.textContent = "";
+  for (const p of PRESETS) {
+    const same = JSON.stringify(p.colors) === JSON.stringify(state.colors);
+    const b = el("button", { type: "button", class: "preset", "aria-pressed": String(same) });
+    const sw = el("div", { class: "swatches" });
+    for (const r of ["primary", "secondary", "text", "muted", "success", "error"]) { const i = el("i"); i.style.background = p.colors[r]; sw.append(i); }
+    b.append(sw, el("span", { class: "name" }, p.name), el("span", { class: "blurb" }, p.blurb));
+    b.addEventListener("click", () => { state = Object.assign(fresh(p), { serverIp: state.serverIp }); sync(); changed(); });
+    box.append(b);
+  }
+}
+function seg(id, key, onPick) {
+  const box = document.getElementById(id);
+  box.textContent = "";
+  for (const [value, label] of CHOICES[key]) {
+    const l = el("label");
+    const input = el("input", { type: "radio", name: key, value, id: key + "-" + CSS.escape(value) });
+    input.checked = state[key] === value;
+    input.addEventListener("change", () => { state[key] = value; if (onPick) onPick(); changed(); });
+    l.append(input, el("span", {}, label));
+    box.append(l);
+  }
+}
+function panes(id, key) {
+  const box = document.getElementById(id);
+  box.textContent = "";
+  for (const [name, color] of Object.entries(PANES)) {
+    const label = name.toLowerCase().replace("_", " ");
+    const b = el("button", { type: "button", title: label, "aria-label": label + " pane", "aria-pressed": String(state[key] === name) });
+    b.style.background = color;
+    b.addEventListener("click", () => { state[key] = name; panes(id, key); changed(); });
+    box.append(b);
+  }
+}
+function sync() {
+  const roles = document.getElementById("roles");
+  roles.textContent = "";
+  for (const [key, label, hint] of ROLES) {
+    const row = el("div", { class: "role" });
+    const pick = el("input", { type: "color", id: "c-" + key, value: state.colors[key].toLowerCase(), "aria-label": label + " colour" });
+    const hex = el("input", { type: "text", id: "h-" + key, value: state.colors[key].toUpperCase(), maxlength: "7", "aria-label": label + " hex", spellcheck: "false" });
+    pick.addEventListener("input", () => { state.colors[key] = pick.value.toUpperCase(); hex.value = state.colors[key]; changed(); });
+    hex.addEventListener("input", () => {
+      const v = hex.value.trim();
+      if (/^#?[0-9a-f]{6}$/i.test(v)) { state.colors[key] = (v.startsWith("#") ? v : "#" + v).toUpperCase(); pick.value = state.colors[key].toLowerCase(); changed(); }
+    });
+    const lab = el("label", { for: "c-" + key }, label);
+    lab.append(el("small", {}, "{" + key + "} · " + hint));
+    row.append(pick, lab, hex);
+    roles.append(row);
+  }
+  document.getElementById("prefixText").value = state.prefixText;
+  document.getElementById("prefixBold").checked = !!state.prefixBold;
+  document.getElementById("prefixRaw").value = state.prefixRaw;
+  document.getElementById("action").value = state.action;
+  document.getElementById("smallCaps").checked = !!state.smallCaps;
+  document.getElementById("serverIp").value = state.serverIp;
+  const rebuild = () => { state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; };
+  seg("prefixStyle", "prefixStyle", rebuild);
+  seg("bullet", "bullet"); seg("frame", "frame"); seg("sbSep", "sbSep");
+  panes("pane", "pane"); panes("cornerPane", "cornerPane");
+  const pick = document.getElementById("menuPick");
+  pick.textContent = "";
+  for (const [id, m] of Object.entries(MENUS)) {
+    const l = el("label");
+    const input = el("input", { type: "radio", name: "menu", value: id, id: "menu-" + id });
+    input.checked = menuShown === id;
+    input.addEventListener("change", () => { menuShown = id; abilityPage = 0; menu(); });
+    l.append(input, el("span", {}, m.label));
+    pick.append(l);
+  }
+}
+document.getElementById("prefixText").addEventListener("input", e => { state.prefixText = e.target.value; state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; changed(); });
+document.getElementById("prefixBold").addEventListener("change", e => { state.prefixBold = e.target.checked; state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; changed(); });
+document.getElementById("prefixRaw").addEventListener("input", e => { state.prefixRaw = e.target.value; changed(); });
+document.getElementById("action").addEventListener("input", e => { state.action = e.target.value; changed(); });
+document.getElementById("smallCaps").addEventListener("change", e => { state.smallCaps = e.target.checked; changed(); });
+document.getElementById("serverIp").addEventListener("input", e => { state.serverIp = e.target.value; changed(); });
+
+function tokens() {
+  const t = document.getElementById("tokens");
+  t.textContent = "";
+  const rows = [...ROLES.map(([k, l, h]) => ["{" + k + "}", h, "{" + k + "}" + l]),
+    ["{prefix}", "starts the announcements", "{prefix}{text}an announcement"],
+    ["{bullet}", "the list symbol", "{primary}Label {dark}{bullet} {secondary}value"],
+    ["{action}", "starts a menu's click line", "{secondary}{action}Click to switch"]];
+  for (const [tok, what, sample] of rows) {
+    const tr = el("tr");
+    const a = el("td"); a.append(el("code", {}, tok));
+    const b = el("td", {}, what);
+    const c = el("td", { class: "mc" }); c.style.background = "#1b1b1b"; render(c, sample);
+    tr.append(a, b, c); t.append(tr);
+  }
+}
+function files() {
+  const text = fileShown === "ui" ? uiYml() : themeYml();
+  document.getElementById("code").textContent = text;
+  document.getElementById("fileHint").textContent = fileShown === "ui"
+    ? "The scoreboard's rows with your separator and address. Rows tagged [team], [cooldowns]... can be hidden by each player in /settings."
+    : "Save it as plugins/HCFCore/theme.yml, then /hcf reload. Only the look changes: no message, no setting.";
+  document.getElementById("download").textContent = fileShown === "ui" ? "Download ui.yml part" : "Download theme.yml";
+}
+function renderAll() { chat(); menu(); sidebar(); tab(); tokens(); drawPresets(); if (fileShown !== "import") files(); }
+function changed() { save(); renderAll(); }
+
+// File tabs
+document.getElementById("fileTabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-file]");
+  if (!b) return;
+  fileShown = b.dataset.file;
+  document.querySelectorAll("#fileTabs button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+  const importing = fileShown === "import";
+  document.getElementById("panel-file").hidden = importing;
+  document.getElementById("panel-import").hidden = !importing;
+  document.getElementById("download").hidden = importing;
+  document.getElementById("copy").hidden = importing;
+  document.getElementById("load").hidden = !importing;
+  setStatus("");
+  if (!importing) files();
+});
+function setStatus(t) { document.getElementById("status").textContent = t; }
+document.getElementById("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(document.getElementById("code").textContent); setStatus("Copied."); }
+  catch (e) { setStatus("Copy blocked by the browser: select the text and copy it."); }
+});
+document.getElementById("download").addEventListener("click", () => {
+  const ui = fileShown === "ui";
+  const blob = new Blob([ui ? uiYml() : themeYml()], { type: "text/yaml;charset=utf-8" });
+  const a = el("a", { href: URL.createObjectURL(blob), download: ui ? "ui-scoreboard.yml" : "theme.yml" });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  setStatus(ui ? "Downloaded ui-scoreboard.yml." : "Downloaded theme.yml.");
+});
+document.getElementById("load").addEventListener("click", () => {
+  const next = importTheme(document.getElementById("importText").value);
+  if (!next) { setStatus("Nothing recognised: paste a whole theme.yml."); return; }
+  state = next; sync(); changed(); setStatus("Loaded: tweak it, then download it again.");
+});
+
+// Tooltips, and the page arrows
+const wrap = document.getElementById("guiWrap"), tip = document.getElementById("tooltip"), tipText = document.getElementById("tooltipText");
+function showTip(slot, x, y) {
+  if (!slot.dataset.tip) { tip.hidden = true; return; }
+  render(tipText, slot.dataset.tip);
+  tip.hidden = false;
+  const box = wrap.getBoundingClientRect();
+  tip.style.left = Math.max(0, Math.min(x - box.left + 14, wrap.clientWidth - tip.offsetWidth)) + "px";
+  tip.style.top = (y - box.top + 14) + "px";
+}
+wrap.addEventListener("mousemove", e => { const s = e.target.closest(".slot"); if (s) showTip(s, e.clientX, e.clientY); else tip.hidden = true; });
+wrap.addEventListener("mouseleave", () => { tip.hidden = true; });
+wrap.addEventListener("focusin", e => { const s = e.target.closest(".slot"); if (s) { const r = s.getBoundingClientRect(); showTip(s, r.right, r.top); } });
+wrap.addEventListener("focusout", () => { tip.hidden = true; });
+function turn(e) {
+  const s = e.target.closest(".slot[data-turn]");
+  if (!s) return;
+  abilityPage = Math.max(0, abilityPage + Number(s.dataset.turn));
+  menu();
+}
+wrap.addEventListener("click", turn);
+wrap.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); turn(e); } });
+
+sync();
+renderAll();
+</script>
+</body>
+</html>
