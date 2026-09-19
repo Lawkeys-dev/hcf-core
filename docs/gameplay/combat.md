@@ -24,6 +24,19 @@ The tag is **not saved**: it lasts a few dozen seconds, and making it survive a 
 
 A pearl thrown means **15 seconds before the next** (`ender-pearl-cooldown` in `pvp.yml`). A pearl thrown meanwhile is refused and stays in hand. The wait shows on the scoreboard, on the pearls in the hotbar, and as a Lunar Client icon; a death ends it, a logout does not. Until it is over, **teleport commands are refused** as in combat — `/spawn`, `/team hq`, `/team stuck`, `/top`, `/world` (`block-teleport`): a pearl out of a fight is not followed by a command out of it. A countdown already running is refused at its end. A partner item's Fake Pearl has its own cooldown and never starts this one ([Abilities](abilities.md)).
 
+## Item cooldowns
+
+Some items wait between two uses (`item-cooldowns` in `pvp.yml`). As shipped:
+
+| Item | Wait | A death ends it |
+|---|---|---|
+| Enchanted golden apple (Gapple) | 1 hour | no |
+| Golden apple (Crapple) | 10 seconds | yes |
+| Chorus fruit | 15 seconds | yes |
+| Totem of Undying | 2 minutes | no |
+
+Eaten meanwhile, the item is refused and stays; a totem on cooldown saves nobody. Each wait shows on the scoreboard, greyed out on the item in the hotbar, and as a Lunar Client icon. It is **kept on the player**: an hour's Gapple survives logouts and restarts. Add any item — each needs an id, a material, a wait and a name. Partner items are never counted: a Golden Head has its own cooldown. Staff end one with `/cooldown reset <player> items`, or a single item's id.
+
 ## Combat logging
 
 **Logging out while tagged kills the player** (`kill-on-logout`). That death counts like any other: deathban, DTR lost, drops on the ground.

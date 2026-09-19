@@ -63,6 +63,7 @@ class TeamMessagesTest {
             AbilityMessages.class,
             ClaimMessages.class,
             ClassMessages.class,
+            com.lawkeys.hcfcore.command.CooldownMessages.class,
             ConquestMessages.class,
             CrowbarMessages.class,
             DtrMessages.class,

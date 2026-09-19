@@ -27,7 +27,8 @@ Commands that need no node — `/team` and its player subcommands, `/pay`, `/bal
 | `hcfcore.phase.admin` | op | `start` and `stop` of `/sotw`, `/eotw` and `/purge` | ✓ |
 | `hcfcore.schedule.admin` | op | `/timer start` and `/timer stop`, `/keyall` | ✓ |
 | `hcfcore.kit.admin` | op | `/kit create`, `delete`, `give`, `resetcooldown` | ✓ |
-| `hcfcore.ability.admin` | op | `/ability give`, `/ability reset` | ✓ |
+| `hcfcore.ability.admin` | op | `/ability give` | ✓ |
+| `hcfcore.cooldown.admin` | op | `/cooldown reset`: end a player's cooldowns | ✓ |
 | `hcfcore.kit.sign` | op | Create kit refill signs | ✓ |
 | `hcfcore.enchant.admin` | op | `/cenchant apply`, `remove`, `give` | ✓ |
 | `hcfcore.hologram.admin` | op | `/hologram` | ✓ |

@@ -20,7 +20,8 @@ public record PvpSettings(
         SafeZoneRules safeZones,
         LootProtectionRules lootProtection,
         FriendlyFireRules friendlyFire,
-        EnderPearlRules enderPearl) {
+        EnderPearlRules enderPearl,
+        ItemCooldownRules itemCooldowns) {
 
     public PvpSettings {
         Objects.requireNonNull(deathban, "deathban");
@@ -32,6 +33,7 @@ public record PvpSettings(
         Objects.requireNonNull(lootProtection, "lootProtection");
         Objects.requireNonNull(friendlyFire, "friendlyFire");
         Objects.requireNonNull(enderPearl, "enderPearl");
+        Objects.requireNonNull(itemCooldowns, "itemCooldowns");
     }
 
     /**
@@ -125,6 +127,36 @@ public record PvpSettings(
     }
 
     /**
+     * A wait between two uses of an item - eating a golden apple, a totem saving its
+     * holder. Kept on the player, so a long one survives logouts and restarts.
+     *
+     * @param id           the name in {@code pvp.yml}, and in the {@code %cooldown_<id>%} placeholders
+     * @param material     the item, upper case
+     * @param name         how the scoreboard and the messages call it; colour codes allowed
+     * @param showOnItem   the items in the hotbar show the wait as the game shows its own
+     * @param clearOnDeath a death ends it
+     */
+    public record ItemCooldown(String id, String material, long seconds, String name, boolean showOnItem,
+                               boolean clearOnDeath) {
+        public ItemCooldown {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(material, "material");
+            Objects.requireNonNull(name, "name");
+        }
+    }
+
+    public record ItemCooldownRules(boolean enabled, java.util.List<ItemCooldown> items) {
+        public ItemCooldownRules {
+            items = java.util.List.copyOf(Objects.requireNonNull(items, "items"));
+        }
+
+        /** @return the cooldown of this item, if it has one */
+        public java.util.Optional<ItemCooldown> of(String material) {
+            return items.stream().filter(item -> item.material().equals(material)).findFirst();
+        }
+    }
+
+    /**
      * Resolves a deathban length from the permission nodes a player holds.
      *
      * @param heldPermissions the tier nodes the player has
@@ -156,6 +188,11 @@ public record PvpSettings(
                 new SafeZoneRules(true),
                 new LootProtectionRules(true, 10L, true),
                 new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS),
-                new EnderPearlRules(true, 15L, true, true, true));
+                new EnderPearlRules(true, 15L, true, true, true),
+                new ItemCooldownRules(true, java.util.List.of(
+                        new ItemCooldown("notch-apple", "ENCHANTED_GOLDEN_APPLE", 3600L, "&6Gapple", true, false),
+                        new ItemCooldown("golden-apple", "GOLDEN_APPLE", 10L, "&eCrapple", true, true),
+                        new ItemCooldown("chorus-fruit", "CHORUS_FRUIT", 15L, "&dChorus", true, true),
+                        new ItemCooldown("totem", "TOTEM_OF_UNDYING", 120L, "&6Totem", true, false))));
     }
 }

@@ -49,6 +49,8 @@ A flicker-free sidebar, redrawn once a second (`update-ticks: 20`). **The board 
 --8<-- "src/main/resources/ui.yml:scoreboard-lines"
 ```
 
+Each row may carry a **section tag** — `[team]`, `[cooldowns]`… — and each player can hide a section in `/settings`: the board is theirs to trim. The tags are yours to place in `ui.yml`.
+
 **A line whose placeholders all come out empty is dropped** rather than left blank. That is how conditional lines work: `%combat_line%` is empty outside combat, so the line simply is not there — and why a server that does not run a module needs no edits: its placeholders are just empty. A scoreboard shows **15 lines at most**; the console warns when more than 15 of yours are always shown.
 
 Every placeholder is listed in [Placeholders](../reference/placeholders.md#scoreboard-and-tab-list). The `*_line` placeholders are whole lines whose wording is in `lang/en.yml` under `ui.scoreboard`.
@@ -91,5 +93,6 @@ Each player can switch parts of the game off for themselves:
 | `private-messages` | `/msg` both ways — the same switch as `/togglepm` |
 | `tips` | The rotating tips of `schedule.yml` |
 | `cobblestone` | Picking up cobblestone (and cobbled deepslate), for mining without filling up |
+| `scoreboard-team` · `-stats` · `-balance` · `-combat` · `-cooldowns` · `-class` · `-events` · `-timers` | A section of the scoreboard: its team and DTR rows, statistics, balance, combat tag, pearl and item cooldowns, class, events, custom timers |
 
 Choices are **stored**, so they survive restarts. Removing a setting from `settings.yml`'s `offered` list takes it away: it is then on for everybody. `cobblestone.materials` sets what the cobblestone switch leaves on the ground.

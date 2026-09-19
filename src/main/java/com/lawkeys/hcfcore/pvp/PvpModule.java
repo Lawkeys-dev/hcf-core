@@ -13,6 +13,7 @@ import com.lawkeys.hcfcore.pvp.listener.AttackSpeedListener;
 import com.lawkeys.hcfcore.pvp.listener.CombatListener;
 import com.lawkeys.hcfcore.pvp.listener.DeathbanListener;
 import com.lawkeys.hcfcore.pvp.listener.LootProtectionListener;
+import com.lawkeys.hcfcore.pvp.listener.ItemCooldownListener;
 import com.lawkeys.hcfcore.pvp.listener.PearlListener;
 import com.lawkeys.hcfcore.util.Cooldowns;
 import com.lawkeys.hcfcore.pvp.legacy.CombatMode;
@@ -21,6 +22,7 @@ import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatLoader;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -28,6 +30,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -73,8 +76,8 @@ public final class PvpModule {
 
     /** The HCF ender pearl cooldown, memory only: key {@code "pearl"}. */
     private final Cooldowns pearls = new Cooldowns();
-    /** Pearls that are not pearls to the cooldown: a partner item's Fake Pearl. */
-    private volatile Predicate<ItemStack> pearlExempt = item -> false;
+    /** Partner items: neither the pearl cooldown nor the item cooldowns count them - a Fake Pearl, a Golden Head. */
+    private volatile Predicate<ItemStack> partnerItems = item -> false;
 
     private DeathbanManager deathbans;
     private CombatTagManager combatTags;
@@ -138,16 +141,61 @@ public final class PvpModule {
         pearls.forget(playerId);
     }
 
-    public Predicate<ItemStack> getPearlExempt() {
-        return pearlExempt;
+    public Predicate<ItemStack> getPartnerItems() {
+        return partnerItems;
     }
 
     /**
-     * Installs which pearls the cooldown ignores. Called by the {@code ability/}
-     * module at startup: a Fake Pearl has its own cooldown.
+     * Installs what a partner item is. Called by the {@code ability/} module at
+     * startup: a Fake Pearl or a Golden Head has its own cooldown, and starts neither
+     * the pearl cooldown nor an item cooldown.
      */
-    public void setPearlExempt(Predicate<ItemStack> exempt) {
-        this.pearlExempt = Objects.requireNonNull(exempt, "exempt");
+    public void setPartnerItems(Predicate<ItemStack> partnerItems) {
+        this.partnerItems = Objects.requireNonNull(partnerItems, "partnerItems");
+    }
+
+    /** Where a player's item cooldown ends, in their data: it survives logouts and restarts. */
+    private NamespacedKey itemCooldownKey(String id) {
+        return new NamespacedKey(plugin, "item_cooldown_" + id.replace('-', '_'));
+    }
+
+    /** @return whole seconds before this player may use this item again, or {@code 0} */
+    public long itemCooldownLeft(Player player, PvpSettings.ItemCooldown item) {
+        Long until = player.getPersistentDataContainer().get(itemCooldownKey(item.id()), PersistentDataType.LONG);
+        return until == null ? 0L : Durations.secondsLeft(until - System.currentTimeMillis());
+    }
+
+    /** Starts this item's cooldown for this player, shown on the item too with {@code show-on-item}. */
+    public void startItemCooldown(Player player, PvpSettings.ItemCooldown item) {
+        if (item.seconds() <= 0) {
+            return;
+        }
+        player.getPersistentDataContainer().set(itemCooldownKey(item.id()), PersistentDataType.LONG,
+                System.currentTimeMillis() + item.seconds() * 1000L);
+        showItemCooldown(player, item);
+    }
+
+    /** The game's own greyed-out item for what is left of this cooldown: after the item's use, and after a login. */
+    public void showItemCooldown(Player player, PvpSettings.ItemCooldown item) {
+        Material material = Material.getMaterial(item.material());
+        if (!item.showOnItem() || material == null) {
+            return;
+        }
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            long left = itemCooldownLeft(player, item);
+            if (player.isOnline() && left > 0) {
+                player.setCooldown(material, (int) Math.min(Integer.MAX_VALUE, left * 20L));
+            }
+        }, 1L);
+    }
+
+    /** Ends a player's item cooldown at once. */
+    public void clearItemCooldown(Player player, PvpSettings.ItemCooldown item) {
+        player.getPersistentDataContainer().remove(itemCooldownKey(item.id()));
+        Material material = Material.getMaterial(item.material());
+        if (material != null) {
+            player.setCooldown(material, 0);
+        }
     }
 
     public CombatProtection getProtection() {
@@ -345,6 +393,7 @@ public final class PvpModule {
         plugin.getServer().getPluginManager().registerEvents(new AttackSpeedListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new LootProtectionListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PearlListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new ItemCooldownListener(this), plugin);
         this.legacyListener = new LegacyCombatListener(this);
         plugin.getServer().getPluginManager().registerEvents(legacyListener, plugin);
         // Twice a second: 1.7 regeneration, and the swords in hand kept able to block

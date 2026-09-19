@@ -65,6 +65,50 @@ ender-pearl-cooldown:
   block-teleport: true
 # --8<-- [end:ender-pearl-cooldown]
 
+# --8<-- [start:item-cooldowns]
+# A wait between two uses of an item: eaten (a golden apple, a chorus fruit) or,
+# for a totem, saving its holder. Used again meanwhile, it is refused - a totem
+# on cooldown saves nobody. The wait is kept on the player: an hour's Gapple
+# survives logouts and restarts.
+#
+# Each item has an id - its scoreboard rows are %cooldown_<id>% (the time) and
+# %cooldown_<id>_line% (a whole row, from lang/en.yml) - and:
+#   material        the item
+#   seconds         the wait
+#   name            how the scoreboard and the messages call it
+#   show-on-item    the items in the hotbar show the wait, greyed out as the
+#                   game shows its own
+#   clear-on-death  a death ends it
+# Partner items (abilities.yml) are never counted: a Golden Head has its own.
+item-cooldowns:
+  enabled: true
+  items:
+    notch-apple:
+      material: ENCHANTED_GOLDEN_APPLE
+      seconds: 3600
+      name: "&6Gapple"
+      show-on-item: true
+      clear-on-death: false
+    golden-apple:
+      material: GOLDEN_APPLE
+      seconds: 10
+      name: "&eCrapple"
+      show-on-item: true
+      clear-on-death: true
+    chorus-fruit:
+      material: CHORUS_FRUIT
+      seconds: 15
+      name: "&dChorus"
+      show-on-item: true
+      clear-on-death: true
+    totem:
+      material: TOTEM_OF_UNDYING
+      seconds: 120
+      name: "&6Totem"
+      show-on-item: true
+      clear-on-death: false
+# --8<-- [end:item-cooldowns]
+
 # --8<-- [start:strength-nerf]
 strength-nerf:
   # The historic HCF nerf of Strength potions.

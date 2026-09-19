@@ -10,6 +10,7 @@ public final class UiMessages {
     public static final String DTR_RAIDABLE = "ui.scoreboard.dtr-raidable";
     public static final String COMBAT_LINE = "ui.scoreboard.combat-line";
     public static final String PEARL_LINE = "ui.scoreboard.pearl-line";
+    public static final String ITEM_COOLDOWN_LINE = "ui.scoreboard.item-cooldown-line";
     public static final String TIMER_LINE = "ui.scoreboard.timer-line";
     public static final String KING_LINE = "ui.scoreboard.king-line";
     public static final String KING_LOCATION_LINE = "ui.scoreboard.king-location-line";

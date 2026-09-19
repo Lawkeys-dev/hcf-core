@@ -20,6 +20,17 @@ enabled: true
 #   tips              the rotating tips of schedule.yml
 #   cobblestone       picking up cobblestone, for mining without filling up
 #
+# And the scoreboard, section by section: each hides the rows of ui.yml tagged
+# with its name - [team], [stats]... - so which rows belong to which is yours.
+#   scoreboard-team       team, DTR, focus, rally
+#   scoreboard-stats      kills, deaths, killstreak
+#   scoreboard-balance    balance
+#   scoreboard-combat     combat tag
+#   scoreboard-cooldowns  ender pearl and item cooldowns (Gapple, Crapple...)
+#   scoreboard-class      class, energy, archer tag
+#   scoreboard-events     SOTW/EOTW, KOTH, King, Conquest
+#   scoreboard-timers     the custom timers (/timer, /keyall)
+#
 # There is no sound switch: the plugin plays no sounds, so it would switch
 # nothing.
 offered:
@@ -27,6 +38,14 @@ offered:
   - private-messages
   - tips
   - cobblestone
+  - scoreboard-team
+  - scoreboard-stats
+  - scoreboard-balance
+  - scoreboard-combat
+  - scoreboard-cooldowns
+  - scoreboard-class
+  - scoreboard-events
+  - scoreboard-timers
 # --8<-- [end:offered]
 
 # --8<-- [start:cobblestone]

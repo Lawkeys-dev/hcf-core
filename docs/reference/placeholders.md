@@ -23,6 +23,7 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 | `%balance%` | Your balance, with the currency symbol |
 | `%combat%` / `%combat_line%` | Combat tag time left / a whole row, empty when not tagged |
 | `%pearl%` / `%pearl_line%` | Ender pearl cooldown left / a whole row, empty when none runs |
+| `%cooldown_<id>%` / `%cooldown_<id>_line%` | An item cooldown of `pvp.yml` by its id — `%cooldown_notch-apple_line%` — left / a whole row, empty when none runs |
 | `%deathban%` / `%deathban_line%` | Always empty: a deathbanned player is not online to read a board. Kept so an older `ui.yml` that lists them still renders |
 | `%focus_line%` | Who your team is focusing |
 | `%rally_line%` | Your team's rally point, while it lasts |

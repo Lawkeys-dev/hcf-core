@@ -65,6 +65,8 @@ cooldowns:
   abilities: true
   ender-pearl: true
   ender-pearl-icon: ENDER_PEARL
+  # The item cooldowns of pvp.yml (Gapple, Crapple...), each with its own item.
+  item-cooldowns: true
 # --8<-- [end:cooldowns]
 
 # --8<-- [start:nametags]

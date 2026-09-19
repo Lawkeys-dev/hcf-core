@@ -308,7 +308,18 @@ public final class HCFCore extends JavaPlugin {
         this.abilityModule.enable();
         // A Citadel refuses partner items: events/ asks this module what one is.
         this.eventModule.setPartnerItems(this.abilityModule::isPartnerItem);
-        this.pvpModule.setPearlExempt(this.abilityModule::isPartnerItem);
+        // Nor do they start the pearl cooldown or an item cooldown: they have their own.
+        this.pvpModule.setPartnerItems(this.abilityModule::isPartnerItem);
+        // /cooldown reset: partner items' cooldowns and pvp.yml's, whichever module keeps them.
+        org.bukkit.command.PluginCommand cooldown = getCommand("cooldown");
+        if (cooldown != null) {
+            com.lawkeys.hcfcore.command.CooldownCommand executor = new com.lawkeys.hcfcore.command.CooldownCommand(
+                    this.langManager, this.abilityModule, this.pvpModule);
+            cooldown.setExecutor(executor);
+            cooldown.setTabCompleter(executor);
+        } else {
+            getLogger().severe("The 'cooldown' command is missing from plugin.yml.");
+        }
 
         // /speed and the like: an effect until death (effect-commands.yml).
         this.effectCommandModule = new EffectCommandModule(this, this.langManager,

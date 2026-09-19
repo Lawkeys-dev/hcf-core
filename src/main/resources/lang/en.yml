@@ -363,6 +363,10 @@ pvp:
     cooldown: "&cYou cannot throw an ender pearl for &f%time%&c."
     blocks-teleport: "&cYou cannot teleport until your ender pearl cooldown is over (&f%time% &cleft)."
 
+  # Item cooldowns (pvp.yml, item-cooldowns). %item% is the item's name there.
+  item-cooldown:
+    refused: "&cYou cannot use %item% &cfor &f%time%&c."
+
   tag:
     tagged: "&cYou are now in combat for &f%seconds%s&c. You cannot teleport or log out safely."
     expired: "&aYou are no longer in combat."
@@ -805,6 +809,8 @@ ui:
     dtr-raidable: "&4(raidable)"
     combat-line: "&cCombat: &f%time%"
     pearl-line: "&eEnderpearl: &f%time%"
+    # An item cooldown of pvp.yml: %item% is its name there.
+    item-cooldown-line: "%item%&7: &f%time%"
     # %target% is a player's or a team's name; the rally row gives block coordinates.
     focus-line: "&dFocus&7: &f%target%"
     rally-line: "&eRally&7: &f%x%, %y%, %z%"
@@ -1008,11 +1014,27 @@ settings:
     private-messages: "&fPrivate messages"
     tips: "&fTips"
     cobblestone: "&fPick up cobblestone"
+    scoreboard-team: "&fScoreboard: team"
+    scoreboard-stats: "&fScoreboard: statistics"
+    scoreboard-balance: "&fScoreboard: balance"
+    scoreboard-combat: "&fScoreboard: combat tag"
+    scoreboard-cooldowns: "&fScoreboard: cooldowns"
+    scoreboard-class: "&fScoreboard: class"
+    scoreboard-events: "&fScoreboard: events"
+    scoreboard-timers: "&fScoreboard: timers"
   descriptions:
     scoreboard: "&7The board on the right of your screen."
     private-messages: "&7Messages from other players. Off, you cannot send any either."
     tips: "&7The occasional line of advice in chat."
     cobblestone: "&7Off, you leave cobblestone on the ground while mining."
+    scoreboard-team: "&7Your team, its DTR, focus and rally rows."
+    scoreboard-stats: "&7Your kills and killstreak."
+    scoreboard-balance: "&7Your balance."
+    scoreboard-combat: "&7Your combat tag."
+    scoreboard-cooldowns: "&7Your ender pearl and item cooldowns."
+    scoreboard-class: "&7Your class, its energy, an archer tag on you."
+    scoreboard-events: "&7SOTW, EOTW, KOTH, the King, Conquest."
+    scoreboard-timers: "&7The server's custom timers."
 
 # ---------------------------------------------------------------------------
 # Redeem codes
@@ -1222,11 +1244,6 @@ abilities:
   turned: "&aYou turned &f%player% &aaround."
   turned-victim: "&c%player% &cturned you around."
   gave: "&aGave &f%amount% %ability% &ato &f%player%&a."
-  # /ability reset: %which% is reset-all, reset-global, or an ability's name.
-  reset: "&aReset &f%player%&a's cooldown: %which%&a."
-  reset-target: "&aYour ability cooldown was reset: %which%&a."
-  reset-all: "&fevery one"
-  reset-global: "&fthe shared one"
   unknown: "&cNo ability named '%ability%'."
   list: "&7Abilities: &f%abilities%"
   list-empty: "&7No ability is configured."
@@ -1234,6 +1251,21 @@ abilities:
   menu-cooldown: "&cCooldown: &f%time%"
   menu-type: "&8%type%"
   module-off: "&cAbilities are turned off."
+
+# ---------------------------------------------------------------------------
+# /cooldown reset: %which% is one of the names below, or an ability's or an
+# item's name.
+# ---------------------------------------------------------------------------
+cooldown:
+  reset: "&aReset &f%player%&a's cooldowns: %which%&a."
+  reset-target: "&aYour cooldowns were reset: %which%&a."
+  unknown: "&cNo cooldown called '%input%'. &7Try: &f%options%"
+  which:
+    all: "&fall of them"
+    abilities: "&fevery ability"
+    global: "&fthe shared ability one"
+    pearl: "&fthe ender pearl"
+    items: "&fevery item"
 
 # ---------------------------------------------------------------------------
 # Effect commands (effect-commands.yml): /speed and the like.

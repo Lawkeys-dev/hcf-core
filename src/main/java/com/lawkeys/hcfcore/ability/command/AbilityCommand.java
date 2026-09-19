@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 /**
  * {@code /ability}: the menu of abilities and one's cooldowns; {@code /ability list};
  * {@code /ability give <player> <ability> [amount]} for staff, from the console too -
- * which is how a killstreak or a store hands one out; {@code /ability reset <player>
- * [all|global|<ability>]} for staff, to end a player's cooldowns.
+ * which is how a killstreak or a store hands one out. Cooldowns are reset with
+ * {@code /cooldown reset}.
  */
 public final class AbilityCommand implements TabExecutor {
 
@@ -45,7 +45,6 @@ public final class AbilityCommand implements TabExecutor {
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "list" -> list(sender);
             case "give" -> give(sender, label, args);
-            case "reset" -> reset(sender, label, args);
             default -> lang.send(sender, "general.unknown-command", "label", label);
         }
         return true;
@@ -96,49 +95,6 @@ public final class AbilityCommand implements TabExecutor {
                 "ability", module.display(ability.get()), "player", player.getName());
     }
 
-    private void reset(CommandSender sender, String label, String[] args) {
-        var lang = module.getLang();
-        if (!sender.hasPermission(AbilityModule.ADMIN_PERMISSION)) {
-            lang.send(sender, "general.no-permission");
-            return;
-        }
-        if (args.length < 2) {
-            lang.send(sender, "general-commands.usage", "usage", "/" + label + " reset <player> [all|global|<ability>]");
-            return;
-        }
-        Optional<Player> target = VisiblePlayers.find(sender, args[1]);
-        if (target.isEmpty()) {
-            lang.send(sender, "general-commands.player-not-found", "player", args[1]);
-            return;
-        }
-        Player player = target.get();
-        String what = args.length > 2 ? args[2].toLowerCase(Locale.ROOT) : "all";
-        String which;
-        switch (what) {
-            case "all" -> {
-                module.resetCooldowns(player.getUniqueId());
-                which = lang.get(AbilityMessages.RESET_ALL);
-            }
-            case "global" -> {
-                module.resetGlobalCooldown(player.getUniqueId());
-                which = lang.get(AbilityMessages.RESET_GLOBAL);
-            }
-            default -> {
-                Optional<Ability> ability = module.getSettings().ability(what);
-                if (ability.isEmpty()) {
-                    lang.send(sender, AbilityMessages.UNKNOWN, "ability", args[2]);
-                    return;
-                }
-                module.resetCooldown(player.getUniqueId(), ability.get());
-                which = module.display(ability.get());
-            }
-        }
-        lang.send(sender, AbilityMessages.RESET, "which", which, "player", player.getName());
-        if (!player.equals(sender)) {
-            lang.send(player, AbilityMessages.RESET_TARGET, "which", which);
-        }
-    }
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> options = new ArrayList<>();
@@ -146,22 +102,16 @@ public final class AbilityCommand implements TabExecutor {
             options.add("list");
             if (sender.hasPermission(AbilityModule.ADMIN_PERMISSION)) {
                 options.add("give");
-                options.add("reset");
             }
             return prefixed(options, args[0]);
         }
-        boolean give = args[0].equalsIgnoreCase("give");
-        if (!(give || args[0].equalsIgnoreCase("reset")) || !sender.hasPermission(AbilityModule.ADMIN_PERMISSION)) {
+        if (!args[0].equalsIgnoreCase("give") || !sender.hasPermission(AbilityModule.ADMIN_PERMISSION)) {
             return List.of();
         }
         if (args.length == 2) {
             return VisiblePlayers.names(sender, args[1]);
         }
         if (args.length == 3) {
-            if (!give) {
-                options.add("all");
-                options.add("global");
-            }
             module.getSettings().abilities().forEach(a -> options.add(a.id()));
             return prefixed(options, args[2]);
         }

@@ -54,6 +54,24 @@ Every example on this page is **taken from the shipped `pvp.yml`**. Changes appl
 | `clear-on-death` | `true` | A death ends it |
 | `block-teleport` | `true` | Refuse plugin teleports (`/spawn`, `/team hq`, `/team stuck`, `/top`, `/world`) until it is over |
 
+## Item cooldowns
+
+```yaml title="pvp.yml"
+--8<-- "src/main/resources/pvp.yml:item-cooldowns"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | Item cooldowns at all |
+| `items.<id>` | Gapple, Crapple, chorus fruit, totem | One item. The id names it in `%cooldown_<id>%`, `%cooldown_<id>_line%` and `/cooldown reset` |
+| `items.<id>.material` | | The item; one cooldown per item |
+| `items.<id>.seconds` | `3600` · `10` · `15` · `120` | The wait |
+| `items.<id>.name` | `&6Gapple`… | How the scoreboard and the messages call it |
+| `items.<id>.show-on-item` | `true` | The items in the hotbar are greyed out for the wait |
+| `items.<id>.clear-on-death` | Gapple and totem `false`, others `true` | A death ends it |
+
+An item is used when it is eaten, or — a totem — when it saves its holder. The wait is kept on the player: it survives logouts and restarts.
+
 ## Strength nerf
 
 ```yaml title="pvp.yml"

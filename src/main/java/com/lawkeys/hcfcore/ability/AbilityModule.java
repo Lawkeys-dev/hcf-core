@@ -324,6 +324,13 @@ public final class AbilityModule {
             // Its own cooldown group, as long as its own cooldown: the real pearls are not held back.
             item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown((float) Math.max(1L, ability.cooldownSeconds()))
                     .cooldownGroup(new NamespacedKey(plugin, "fake_pearl")).build());
+        } else if (ability.type().trigger() == AbilityType.Trigger.RIGHT_CLICK
+                || ability.type().trigger() == AbilityType.Trigger.HIT) {
+            // A cooldown group of its own, never started - the click is cancelled - so the
+            // game's cooldown on its material (a golden apple's, pvp.yml) never greys it out:
+            // a Golden Head stays usable after a Crapple.
+            item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(1.0f)
+                    .cooldownGroup(new NamespacedKey(plugin, "ability_" + ability.id().replace('-', '_'))).build());
         }
         if (ability.type() == AbilityType.GRAPPLING_HOOK) {
             item.setData(DataComponentTypes.UNBREAKABLE);

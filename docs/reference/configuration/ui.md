@@ -19,7 +19,9 @@ Every example on this page is **taken from the shipped `ui.yml`**. Changes apply
 | `title` | `&c&lHCF` | Its title |
 | `lines` | see below | The rows, top to bottom |
 
-**The rows.** A row whose placeholders all come out empty is dropped, so the conditional rows — combat, events, class, timers — appear only when they have something to say. At most 15 are shown.
+**The rows.** A row whose placeholders all come out empty is dropped, so the conditional rows — combat, cooldowns, events, class, timers — appear only when they have something to say. At most 15 are shown.
+
+**Sections.** A row starting with a tag belongs to a section of the board, which **each player may hide** in `/settings`: `[team]`, `[stats]`, `[balance]`, `[combat]`, `[cooldowns]`, `[class]`, `[events]`, `[timers]` — the setting `scoreboard-<section>` of `settings.yml`. Which rows carry which tag is yours; an untagged row always shows, and so does one whose tag has no setting.
 
 ```yaml title="ui.yml"
 --8<-- "src/main/resources/ui.yml:scoreboard-lines"

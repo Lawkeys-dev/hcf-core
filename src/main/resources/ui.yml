@@ -38,6 +38,8 @@ scoreboard:
   #   %rally_line%    your team's rally point, while it lasts
   #   %combat%        combat tag left        %combat_line%   a whole ready-made row
   #   %pearl%         ender pearl cooldown   %pearl_line%    a whole ready-made row
+  #   %cooldown_<id>% %cooldown_<id>_line%   an item cooldown of pvp.yml
+  #                   (item-cooldowns), by its id: %cooldown_notch-apple_line%
   #   %deathban% %deathban_line%   always empty: a deathbanned player is not online to
   #                   read a board. Kept so a file that lists them still renders.
   #   %phase_line%    SOTW/EOTW row, empty when neither runs
@@ -55,32 +57,41 @@ scoreboard:
   #
   # The *_line placeholders are whole rows from lang/en.yml, so the wording is
   # translated in one place rather than written twice here.
+  #
+  # A row starting with a tag - [team], [stats], [balance], [combat],
+  # [cooldowns], [class], [events], [timers] - belongs to that section of the
+  # scoreboard, which each player may hide in /settings (settings.yml,
+  # "scoreboard-<section>"). Tag a row as you like; an untagged row always shows.
   lines:
     - "&7&m----------------"
-    - "&cTeam: &f%team%"
-    - "&cDTR: %dtr_coloured%"
-    - "&cKills: &f%kills%"
-    - "&cStreak: &f%killstreak%"
-    - "&cBalance: &a%balance%"
-    - "%focus_line%"
-    - "%rally_line%"
-    - "%combat_line%"
-    - "%pearl_line%"
-    - "%class_line%"
-    - "%class_energy_line%"
-    - "%archer_tag_line%"
-    - "%phase_line%"
-    - "%event_line%"
-    - "%king_line%"
-    - "%king_location_line%"
-    - "%conquest_line%"
-    - "%conquest_zone_1%"
-    - "%conquest_zone_2%"
-    - "%conquest_zone_3%"
-    - "%conquest_zone_4%"
-    - "%timer_1%"
-    - "%timer_2%"
-    - "%timer_3%"
+    - "[team]&cTeam: &f%team%"
+    - "[team]&cDTR: %dtr_coloured%"
+    - "[stats]&cKills: &f%kills%"
+    - "[stats]&cStreak: &f%killstreak%"
+    - "[balance]&cBalance: &a%balance%"
+    - "[team]%focus_line%"
+    - "[team]%rally_line%"
+    - "[combat]%combat_line%"
+    - "[cooldowns]%pearl_line%"
+    - "[cooldowns]%cooldown_notch-apple_line%"
+    - "[cooldowns]%cooldown_golden-apple_line%"
+    - "[cooldowns]%cooldown_chorus-fruit_line%"
+    - "[cooldowns]%cooldown_totem_line%"
+    - "[class]%class_line%"
+    - "[class]%class_energy_line%"
+    - "[class]%archer_tag_line%"
+    - "[events]%phase_line%"
+    - "[events]%event_line%"
+    - "[events]%king_line%"
+    - "[events]%king_location_line%"
+    - "[events]%conquest_line%"
+    - "[events]%conquest_zone_1%"
+    - "[events]%conquest_zone_2%"
+    - "[events]%conquest_zone_3%"
+    - "[events]%conquest_zone_4%"
+    - "[timers]%timer_1%"
+    - "[timers]%timer_2%"
+    - "[timers]%timer_3%"
     - "&7&m----------------"
   # --8<-- [end:scoreboard-lines]
 # --8<-- [end:scoreboard]

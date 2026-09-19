@@ -13,6 +13,9 @@ public final class PvpMessages {
     public static final String PEARL_COOLDOWN = "pvp.pearl.cooldown";
     public static final String PEARL_BLOCKS_TELEPORT = "pvp.pearl.blocks-teleport";
 
+    // Item cooldowns
+    public static final String ITEM_COOLDOWN = "pvp.item-cooldown.refused";
+
     // Combat tag
     public static final String TAGGED = "pvp.tag.tagged";
     public static final String TAG_EXPIRED = "pvp.tag.expired";

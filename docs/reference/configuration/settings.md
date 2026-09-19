@@ -12,7 +12,7 @@ Every example on this page is **taken from the shipped `settings.yml`**. Changes
 --8<-- "src/main/resources/settings.yml:offered"
 ```
 
-The switches players get, in menu order: `scoreboard`, `private-messages`, `tips`, `cobblestone`. Removing one takes it away — it is then on for everybody.
+The switches players get, in menu order: `scoreboard`, `private-messages`, `tips`, `cobblestone`, and one per section of the scoreboard — `scoreboard-team`, `scoreboard-stats`, `scoreboard-balance`, `scoreboard-combat`, `scoreboard-cooldowns`, `scoreboard-class`, `scoreboard-events`, `scoreboard-timers` — each hiding the rows of `ui.yml` tagged with its section (`[team]`...). Removing one takes it away — it is then on for everybody.
 
 ## Cobblestone
 

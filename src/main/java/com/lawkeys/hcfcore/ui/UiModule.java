@@ -15,6 +15,7 @@ import com.lawkeys.hcfcore.events.king.KingRun;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.phase.PhaseModule;
 import com.lawkeys.hcfcore.pvp.PvpModule;
+import com.lawkeys.hcfcore.pvp.PvpSettings;
 import com.lawkeys.hcfcore.schedule.CustomTimers;
 import com.lawkeys.hcfcore.schedule.ScheduleModule;
 import com.lawkeys.hcfcore.stats.PlayerStats;
@@ -31,6 +32,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -67,6 +69,7 @@ public final class UiModule {
 
     private volatile UiSettings settings = UiSettings.defaults();
     private volatile java.util.function.Predicate<Player> wantsBoard = player -> true;
+    private volatile java.util.function.BiPredicate<Player, String> wantsRow = (player, section) -> true;
     /** Placeholders other modules add, read on the main thread when a board is drawn. */
     private final List<java.util.function.Function<Player, Map<String, String>>> placeholderSources =
             new java.util.concurrent.CopyOnWriteArrayList<>();
@@ -133,6 +136,15 @@ public final class UiModule {
     }
 
     /**
+     * Decides which tagged rows a player sees - a row of {@code ui.yml} starting with
+     * {@code [team]} is shown if this says yes for {@code "team"}. Installed by the
+     * player settings module; until then, every row shows.
+     */
+    public void setRowFilter(java.util.function.BiPredicate<Player, String> filter) {
+        this.wantsRow = Objects.requireNonNull(filter, "filter");
+    }
+
+    /**
      * Gives a player their board, or takes it away, after their choice changed.
      * Taking it away puts them back on the server's main scoreboard, which is what a
      * player without this plugin's board would be looking at.
@@ -178,7 +190,14 @@ public final class UiModule {
      * template first left them printed as raw {@code &4} on every board.
      */
     private void update(Player player, PlayerBoard board) {
-        board.update(renderer(player).renderAll(settings.scoreboard().lines()).stream()
+        List<String> lines = new ArrayList<>();
+        for (String line : settings.scoreboard().lines()) {
+            ScoreboardRow row = ScoreboardRow.parse(line);
+            if (row.section() == null || wantsRow.test(player, row.section())) {
+                lines.add(row.text());
+            }
+        }
+        board.update(renderer(player).renderAll(lines).stream()
                 .map(LangManager::colorize)
                 .toList());
     }
@@ -397,6 +416,13 @@ public final class UiModule {
                     .with("%pearl%", "").with("%pearl_line%", "")
                     .with("%deathban%", "").with("%deathban_line%", "");
             return;
+        }
+        for (PvpSettings.ItemCooldown item : pvp.getSettings().itemCooldowns().items()) {
+            long left = pvp.getSettings().itemCooldowns().enabled() ? pvp.itemCooldownLeft(player, item) : 0L;
+            out.with("%cooldown_" + item.id() + "%", left > 0 ? Durations.formatWithSeconds(left) : "");
+            out.with("%cooldown_" + item.id() + "_line%", left > 0
+                    ? lang.get(UiMessages.ITEM_COOLDOWN_LINE, "item", item.name(), "time", Durations.formatWithSeconds(left))
+                    : "");
         }
         long pearlSeconds = pvp.pearlSecondsLeft(player.getUniqueId());
         out.with("%pearl%", pearlSeconds > 0 ? Durations.formatWithSeconds(pearlSeconds) : "");

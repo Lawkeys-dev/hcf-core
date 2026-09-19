@@ -351,6 +351,14 @@ final class ApolloBridge implements LunarBridge, Listener {
                 wanted.put("hcf-ender-pearl", new CooldownSpec(now + left * 1000L, rules.enderPearlIcon()));
             }
         }
+        if (rules.itemCooldowns() && sources.pvp().getSettings().itemCooldowns().enabled()) {
+            for (var item : sources.pvp().getSettings().itemCooldowns().items()) {
+                long left = sources.pvp().itemCooldownLeft(viewer, item);
+                if (left > 0) {
+                    wanted.put("hcf-item-" + item.id(), new CooldownSpec(now + left * 1000L, item.material()));
+                }
+            }
+        }
         if (rules.warmups()) {
             sources.warmups().of(id).ifPresent(warmup -> wanted.put("hcf-warmup-" + warmup.kind(),
                     new CooldownSpec(warmup.finishesAt(), rules.warmupIcon())));

@@ -19,7 +19,22 @@ public enum PlayerSetting {
     /** The rotating tips. */
     TIPS("tips"),
     /** Picking up cobblestone - the HCF {@code /cobble}, for mining without filling up on it. */
-    COBBLESTONE("cobblestone");
+    COBBLESTONE("cobblestone"),
+    /**
+     * The scoreboard's rows, section by section: a row of {@code ui.yml} starting
+     * with {@code [team]} is hidden when {@code scoreboard-team} is off - and so on.
+     */
+    SCOREBOARD_TEAM("scoreboard-team"),
+    SCOREBOARD_STATS("scoreboard-stats"),
+    SCOREBOARD_BALANCE("scoreboard-balance"),
+    SCOREBOARD_COMBAT("scoreboard-combat"),
+    SCOREBOARD_COOLDOWNS("scoreboard-cooldowns"),
+    SCOREBOARD_CLASS("scoreboard-class"),
+    SCOREBOARD_EVENTS("scoreboard-events"),
+    SCOREBOARD_TIMERS("scoreboard-timers");
+
+    /** What starts the key of a scoreboard section's setting. */
+    public static final String SECTION_PREFIX = "scoreboard-";
 
     private final String key;
 
@@ -30,6 +45,11 @@ public enum PlayerSetting {
     /** @return the name used in commands, configuration and storage */
     public String key() {
         return key;
+    }
+
+    /** @return the setting that hides the scoreboard rows tagged {@code [section]}, if there is one */
+    public static Optional<PlayerSetting> scoreboardSection(String section) {
+        return section == null || section.isBlank() ? Optional.empty() : byKey(SECTION_PREFIX + section);
     }
 
     public static Optional<PlayerSetting> byKey(String key) {

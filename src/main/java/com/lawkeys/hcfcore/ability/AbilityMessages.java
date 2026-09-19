@@ -54,10 +54,6 @@ public final class AbilityMessages {
     public static final String TURNED = "abilities.turned";
     public static final String TURNED_VICTIM = "abilities.turned-victim";
     public static final String GAVE = "abilities.gave";
-    public static final String RESET = "abilities.reset";
-    public static final String RESET_TARGET = "abilities.reset-target";
-    public static final String RESET_ALL = "abilities.reset-all";
-    public static final String RESET_GLOBAL = "abilities.reset-global";
     public static final String UNKNOWN = "abilities.unknown";
     public static final String LIST = "abilities.list";
     public static final String LIST_EMPTY = "abilities.list-empty";

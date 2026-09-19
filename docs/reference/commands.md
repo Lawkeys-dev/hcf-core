@@ -107,7 +107,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/kit delete <id>` · `give <player> <kit>` · `resetcooldown <player> [kit]` | | Manage kits | `hcfcore.kit.admin` |
 | `/ability` · `/ability list` | `/partneritems` | The partner items, with your cooldowns | everyone |
 | `/ability give <player> <ability> [amount]` | | Hand out a partner item — from the console too | `hcfcore.ability.admin` |
-| `/ability reset <player> [all\|global\|<ability>]` | | End a player's cooldowns: all of them (the default), the shared one, or one ability's | `hcfcore.ability.admin` |
+| `/cooldown reset <player> [what]` | | End a player's cooldowns — from the console too. `[what]`: `all` (the default), `abilities`, `global` (the shared ability one), `pearl`, `items`, or one ability's or one item cooldown's id | `hcfcore.cooldown.admin` |
 | `/cenchant list` | `/ce`, `/customenchant` | The custom enchants | everyone |
 | `/cenchant apply <enchant> [level]` · `remove <enchant>` · `give <player> <enchant> [level] [amount]` | | On the held item; as books (works from the console) | `hcfcore.enchant.admin` |
 | `/crowbar give <player> [amount]` | | Give crowbars | `hcfcore.crowbar.admin` |

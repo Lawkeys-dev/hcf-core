@@ -1,6 +1,6 @@
 # Abilities (partner items)
 
-*Configured in [`abilities.yml`](../reference/configuration/abilities.md). Commands: `/ability`, `/ability give`, `/ability reset`.*
+*Configured in [`abilities.yml`](../reference/configuration/abilities.md). Commands: `/ability`, `/ability give`; `/cooldown reset` for staff.*
 
 A partner item is an item that **does something when it is used**: right-clicked, thrown, hit with, shot from, or reeled in. What it does is its **type**, built into the plugin; which ones a server runs, and every value they read, are `abilities.yml`'s. The plugin ships 42 — several share a type, such as the four that only give effects.
 
@@ -9,7 +9,6 @@ A partner item is an item that **does something when it is used**: right-clicked
 | `/ability` | A menu of every ability, with your cooldown on each | everyone |
 | `/ability list` | The abilities, in chat | everyone |
 | `/ability give <player> <ability> [amount]` | Hand one out — from the console too: a killstreak, a redeem code, a store | `hcfcore.ability.admin` |
-| `/ability reset <player> [all\|global\|<ability>]` | End a player's cooldowns: `all` (the default) — every ability's, every Pocket Bard set's and the shared one; `global` — the shared one only; an ability's id — that one only | `hcfcore.ability.admin` |
 
 ## Shared rules
 
@@ -23,6 +22,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 - **Nothing is spent on a refusal**: on cooldown, in a refused zone, no target — the item stays, and no cooldown starts.
 - An ability item is never placed as a block — a Crafting Chaos stays a crafting table in hand.
 - Most are used up — one taken from the stack. Some stay: the Grappling Hook for good, and those with `uses` — the Olympia (30), the Pumpkin Reaper and the Nausea Axe (10), the Portable Archer (5) — until their durability bar, which counts the uses left, runs out. Hits and shots do not wear them, nor a chance that misses.
+- Staff end a player's cooldowns with `/cooldown reset <player> [what]` — all of them, `abilities`, `global` (the shared one) or one ability's id ([Commands](../reference/commands.md)).
 - Lunar Client players see each cooldown as an icon ([Integrations](../server/integrations.md)).
 
 ## The 42 abilities

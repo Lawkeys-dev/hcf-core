@@ -49,15 +49,19 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
         return new UiSettings(
                 new ScoreboardRules(true, 20L, "&c&lHCF", List.of(
                         "&7&m----------------",
-                        "&cTeam: &f%team%",
-                        "&cDTR: %dtr_coloured%",
-                        "&cKills: &f%kills%",
-                        "&cStreak: &f%killstreak%",
-                        "&cBalance: &a$%balance%",
-                        "%combat_line%",
-                        "%pearl_line%",
-                        "%phase_line%",
-                        "%event_line%",
+                        "[team]&cTeam: &f%team%",
+                        "[team]&cDTR: %dtr_coloured%",
+                        "[stats]&cKills: &f%kills%",
+                        "[stats]&cStreak: &f%killstreak%",
+                        "[balance]&cBalance: &a$%balance%",
+                        "[combat]%combat_line%",
+                        "[cooldowns]%pearl_line%",
+                        "[cooldowns]%cooldown_notch-apple_line%",
+                        "[cooldowns]%cooldown_golden-apple_line%",
+                        "[cooldowns]%cooldown_chorus-fruit_line%",
+                        "[cooldowns]%cooldown_totem_line%",
+                        "[events]%phase_line%",
+                        "[events]%event_line%",
                         "&7&m----------------")),
                 new TablistRules(false, List.of("&c&lHCF"), List.of("&7%online% online")));
     }

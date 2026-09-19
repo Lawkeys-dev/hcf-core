@@ -38,7 +38,8 @@ public final class PvpSettingsLoader {
                 loadSafeZones(section.getConfigurationSection("safe-zones"), defaults.safeZones()),
                 loadLootProtection(section.getConfigurationSection("loot-protection"), defaults.lootProtection()),
                 loadFriendlyFire(section.getConfigurationSection("friendly-fire"), defaults.friendlyFire(), warn),
-                loadEnderPearl(section.getConfigurationSection("ender-pearl-cooldown"), defaults.enderPearl(), warn));
+                loadEnderPearl(section.getConfigurationSection("ender-pearl-cooldown"), defaults.enderPearl(), warn),
+                loadItemCooldowns(section.getConfigurationSection("item-cooldowns"), defaults.itemCooldowns(), warn));
     }
 
     private static PvpSettings.DeathbanRules loadDeathban(ConfigurationSection section,
@@ -98,6 +99,44 @@ public final class PvpSettingsLoader {
                 section.getBoolean("show-on-item", defaults.showOnItem()),
                 section.getBoolean("clear-on-death", defaults.clearOnDeath()),
                 section.getBoolean("block-teleport", defaults.blockTeleport()));
+    }
+
+    private static PvpSettings.ItemCooldownRules loadItemCooldowns(ConfigurationSection section,
+                                                                   PvpSettings.ItemCooldownRules defaults,
+                                                                   Consumer<String> warn) {
+        if (section == null) {
+            return defaults;
+        }
+        ConfigurationSection items = section.getConfigurationSection("items");
+        if (items == null) {
+            return new PvpSettings.ItemCooldownRules(section.getBoolean("enabled", defaults.enabled()), defaults.items());
+        }
+        java.util.List<PvpSettings.ItemCooldown> read = new java.util.ArrayList<>();
+        java.util.Set<String> materials = new java.util.HashSet<>();
+        for (String id : items.getKeys(false)) {
+            ConfigurationSection item = items.getConfigurationSection(id);
+            String at = "item-cooldowns.items." + id;
+            if (item == null || !id.matches("[a-z0-9_-]{1,32}")) {
+                warn.accept(at + ": an id is 1 to 32 lower-case letters, digits, _ or -, with its settings under it; ignored.");
+                continue;
+            }
+            String material = item.getString("material", "").trim().toUpperCase(Locale.ROOT);
+            if (material.startsWith("MINECRAFT:")) {
+                material = material.substring("MINECRAFT:".length());
+            }
+            if (org.bukkit.Material.getMaterial(material) == null) {
+                warn.accept(at + ".material: '" + item.getString("material") + "' is not an item; ignored.");
+                continue;
+            }
+            if (!materials.add(material)) {
+                warn.accept(at + ".material: " + material + " already has a cooldown; ignored.");
+                continue;
+            }
+            long seconds = Math.max(0L, Durations.capSeconds(item.getLong("seconds", 0L), at + ".seconds", warn));
+            read.add(new PvpSettings.ItemCooldown(id, material, seconds, item.getString("name", "&f" + id),
+                    item.getBoolean("show-on-item", true), item.getBoolean("clear-on-death", true)));
+        }
+        return new PvpSettings.ItemCooldownRules(section.getBoolean("enabled", defaults.enabled()), read);
     }
 
     private static PvpSettings.StrengthRules loadStrength(ConfigurationSection section,

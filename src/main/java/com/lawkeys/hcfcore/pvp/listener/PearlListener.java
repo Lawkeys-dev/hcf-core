@@ -41,7 +41,7 @@ public final class PearlListener implements Listener {
     public void onPearl(PlayerLaunchProjectileEvent event) {
         PvpSettings.EnderPearlRules rules = module.getSettings().enderPearl();
         if (!rules.enabled() || rules.seconds() <= 0 || !(event.getProjectile() instanceof EnderPearl)
-                || module.getPearlExempt().test(event.getItemStack())) {
+                || module.getPartnerItems().test(event.getItemStack())) {
             return;
         }
         Player player = event.getPlayer();

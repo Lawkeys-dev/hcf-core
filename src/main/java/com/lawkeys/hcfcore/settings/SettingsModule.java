@@ -129,6 +129,9 @@ public final class SettingsModule {
         // The seams of the modules this one switches (ARCHITECTURE.md section 14).
         if (ui != null) {
             ui.setBoardFilter(player -> isOn(player, PlayerSetting.SCOREBOARD));
+            // A tagged row whose section has no setting stays shown: a typo hides nothing.
+            ui.setRowFilter((player, section) -> PlayerSetting.scoreboardSection(section)
+                    .map(setting -> isOn(player, setting)).orElse(true));
         }
         if (schedule != null) {
             schedule.setTipFilter(player -> isOn(player, PlayerSetting.TIPS));
