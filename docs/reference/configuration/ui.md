@@ -49,7 +49,7 @@ Needs the **PacketEvents** plugin, 2.13 or later for Minecraft 26.2 — see [Int
 |---|---|---|
 | `header`, `footer` | lines | Above and below the grid |
 | `latency` | `0` | The connection bars every cell shows, in milliseconds: `0` full bars, below `0` none |
-| `skin.texture`, `skin.signature` | empty | The default head, of every cell without a head of its own, as [mineskin.org](https://mineskin.org) gives it; empty for the game's default head — the same one in every cell |
+| `skin.texture`, `skin.signature` | a dark grey square | The default head, of every cell without a head of its own, as [mineskin.org](https://mineskin.org) gives it — the game shows only a skin Mojang signed. As shipped, a plain dark grey square (mineskin.org, "soju-tab-gray8"); empty for the game's own default head, the same one in every cell |
 | `column-1` … `column-4` | see above | Twenty cells each, top to bottom. An empty line is a blank cell; so is a cell whose placeholders are all empty — the grid never shifts. A longer column is cut at twenty, and the console says so |
 
 **Heads.** A cell may start with the head it shows:
