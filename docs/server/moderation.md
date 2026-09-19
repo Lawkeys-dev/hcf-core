@@ -156,12 +156,9 @@ As shipped:
 | Offence | `/strike add … <offence>` | Points lost |
 |---|---|---|
 | Cheating | `cheating` | 50% |
-| Bug abuse | `bug-abuse` | 50% |
-| Ban evasion | `ban-evasion` | 50% |
+| Bug abuse | `bug-abuse` | 40% |
 | Kill boosting | `boosting` | 40% |
 | Teaming | `teaming` | 35% |
-| Alt abuse | `alt-abuse` | 35% |
-| Claim abuse | `claim-abuse` | 25% |
 | Other | `other` | 25% |
 
 ```yaml title="staff.yml"

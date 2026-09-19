@@ -113,7 +113,7 @@ Every example on this page is **taken from the shipped `staff.yml`**. Changes ap
 | `offences.<id>.points-loss-percent` | 25 to 50 | Share of the team's points a strike for it takes, rounded down |
 | `offences.<id>.commands` | none | Console commands run with it: `%team%`, `%strikes%`, `%offence%` |
 
-The shipped offences are `cheating`, `bug-abuse`, `ban-evasion` (50%), `boosting` (40%), `teaming`, `alt-abuse` (35%), `claim-abuse` and `other` (25%). Add, rename or remove any: the id is what staff type after `/strike add <team>`.
+The shipped offences are `cheating` (50%), `bug-abuse` and `boosting` (40%), `teaming` (35%) and `other` (25%). Add, rename or remove any: the id is what staff type after `/strike add <team>`.
 
 *A `staff.yml` from before offences, with a `ladder`, keeps working with the shipped offences and a warning: move its numbers to `offences` and `disband-at`.*
 

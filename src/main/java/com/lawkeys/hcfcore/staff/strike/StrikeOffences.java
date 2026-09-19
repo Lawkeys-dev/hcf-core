@@ -53,12 +53,9 @@ public final class StrikeOffences {
     public static StrikeOffences defaults() {
         return of(List.of(
                 new Offence("cheating", "Cheating", 50, List.of()),
-                new Offence("bug-abuse", "Bug abuse", 50, List.of()),
-                new Offence("ban-evasion", "Ban evasion", 50, List.of()),
+                new Offence("bug-abuse", "Bug abuse", 40, List.of()),
                 new Offence("boosting", "Kill boosting", 40, List.of()),
                 new Offence("teaming", "Teaming", 35, List.of()),
-                new Offence("alt-abuse", "Alt abuse", 35, List.of()),
-                new Offence("claim-abuse", "Claim abuse", 25, List.of()),
                 new Offence("other", "Other", 25, List.of())), 3, message -> { });
     }
 

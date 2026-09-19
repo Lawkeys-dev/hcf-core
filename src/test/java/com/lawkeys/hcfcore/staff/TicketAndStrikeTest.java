@@ -332,6 +332,8 @@ class TicketAndStrikeTest {
             StrikeOffences shipped = StrikeOffences.defaults();
             assertEquals(50, shipped.get("cheating").orElseThrow().pointsLossPercent());
             assertEquals(40, shipped.get("boosting").orElseThrow().pointsLossPercent());
+            assertEquals(40, shipped.get("bug-abuse").orElseThrow().pointsLossPercent());
+            assertEquals(5, shipped.all().size(), "cheating, bug abuse, boosting, teaming, other");
             assertEquals(35, shipped.get("TEAMING").orElseThrow().pointsLossPercent(), "whatever the case typed");
             assertTrue(shipped.get("jaywalking").isEmpty());
         }

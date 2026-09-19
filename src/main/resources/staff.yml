@@ -218,22 +218,13 @@ strikes:
       points-loss-percent: 50
     bug-abuse:
       name: "Bug abuse"
-      points-loss-percent: 50
-    ban-evasion:
-      name: "Ban evasion"
-      points-loss-percent: 50
+      points-loss-percent: 40
     boosting:
       name: "Kill boosting"
       points-loss-percent: 40
     teaming:
       name: "Teaming"
       points-loss-percent: 35
-    alt-abuse:
-      name: "Alt abuse"
-      points-loss-percent: 35
-    claim-abuse:
-      name: "Claim abuse"
-      points-loss-percent: 25
     other:
       name: "Other"
       points-loss-percent: 25
