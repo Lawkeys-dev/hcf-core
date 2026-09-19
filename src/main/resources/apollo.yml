@@ -83,7 +83,7 @@ cooldowns:
 # a focused team - takes the focus colour, except to their own team.
 nametags:
   enabled: true
-  team-line: "%color%%team% &7| &e%dtr%"
+  team-line: "%color%%team% {dark}| {warning}%dtr%"
   name-line: "%color%%player%"
   colors:
     self: "&a"

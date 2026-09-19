@@ -104,6 +104,7 @@ extra:
 
 nav:
   - Home: index.md
+  - Theme Builder: https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html
   - Getting started:
       - getting-started/index.md
       - Installation: getting-started/installation.md

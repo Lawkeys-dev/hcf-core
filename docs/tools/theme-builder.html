@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HCFCore Theme Builder</title>
-<meta name="description" content="Design the look of HCFCore - colours, prefix, menus, scoreboard - and download a theme.yml ready to drop into plugins/HCFCore/.">
+<meta name="description" content="Design the whole look of HCFCore - colours and gradients, prefix, menus, scoreboard, tab, chat, nametags, holograms - and download files ready to drop into plugins/HCFCore/.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 /* One visual world on purpose: a Minecraft night. Single theme, every colour painted. */
 :root {
@@ -25,39 +26,53 @@
 html, body { background: var(--ground); }
 body { color: var(--ink); font: 15px/1.5 "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; }
 a { color: var(--chosen); }
-.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; }
+code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .9em; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; }
 .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-h1 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: clamp(28px, 4vw, 42px); line-height: 1.05; margin: 0 0 6px; text-wrap: balance; }
+h1 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.02; margin: 0 0 6px; text-wrap: balance; }
 h2 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: 19px; margin: 0; }
-.lede { color: var(--muted); max-width: 70ch; margin: 0; }
+.lede { color: var(--muted); max-width: 74ch; margin: 0; }
 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.back { font-size: 13px; }
+.links { display: flex; gap: 14px; font-size: 13px; flex-wrap: wrap; }
 
-.presets { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
-.preset { text-align: left; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; cursor: pointer; display: grid; gap: 7px; }
+.palette-head { margin-top: 22px; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.presets { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 9px; }
+.preset { text-align: left; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 11px; cursor: pointer; display: grid; gap: 6px; }
 .preset[aria-pressed="true"] { border-color: var(--chosen); box-shadow: inset 0 0 0 1px var(--chosen); }
-.preset .name { font-weight: 700; }
-.preset .blurb { font-size: 12.5px; color: var(--muted); }
-.swatches { display: flex; gap: 4px; }
-.swatches i { width: 18px; height: 18px; border-radius: 3px; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.35); }
+.preset .name { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-size: 17px; line-height: 1.1; text-shadow: 2px 2px 0 rgba(0,0,0,.5); }
+.preset .blurb { font-size: 12px; color: var(--muted); }
+.swatches { display: flex; gap: 3px; }
+.swatches i { flex: 1; height: 14px; border-radius: 3px; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.35); }
+.fade-tag { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #1a1400; background: linear-gradient(90deg, #ffe08a, #f5b32e, #ff6a3d); border-radius: 999px; padding: 1px 7px; justify-self: start; }
 
-.main { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); gap: 18px; align-items: start; }
-@media (max-width: 940px) { .main { grid-template-columns: minmax(0, 1fr); } }
-.editor { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 18px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto; }
-@media (max-width: 940px) { .editor { position: static; max-height: none; } }
-fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; min-width: 0; }
-legend { padding: 0; margin-bottom: 4px; }
-.roles { display: grid; gap: 8px; }
-.role { display: grid; grid-template-columns: 34px minmax(0, 1fr) 92px; gap: 8px; align-items: center; }
-.role input[type="color"] { width: 34px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; cursor: pointer; }
-.role label { font-size: 13px; line-height: 1.2; }
-.role small { display: block; color: var(--muted); font-size: 11px; }
-.role input[type="text"] { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; padding: 5px 7px; }
+.main { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 980px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.editor { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 14px 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto; }
+@media (max-width: 980px) { .editor { position: static; max-height: none; } }
+details { border-bottom: 1px solid var(--line); padding-block: 10px; }
+details:last-of-type { border-bottom: 0; }
+summary { cursor: pointer; font-weight: 700; font-size: 14px; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--muted); font-weight: 600; }
+details[open] summary::after { content: "−"; }
+summary small { font-weight: 500; color: var(--muted); font-size: 12px; margin-left: 8px; }
+.body { display: grid; gap: 12px; padding-top: 12px; }
+.roles { display: grid; gap: 10px; }
+.role { display: grid; gap: 5px; }
+.role-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.role-top label { font-size: 13px; font-weight: 600; }
+.role-top small { color: var(--muted); font-size: 11px; }
+.role-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.role-row input[type="color"] { width: 32px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 5px; background: none; cursor: pointer; }
+.role-row input[type="text"] { width: 88px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; padding: 5px 6px; }
+.role-row .check { font-size: 12px; }
+.bar { height: 6px; border-radius: 3px; }
 .field { display: grid; gap: 4px; }
 .field > label, .field > span { font-size: 13px; font-weight: 600; }
 .hint { font-size: 12px; color: var(--muted); margin: 0; }
-input[type="text"], select, textarea { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; }
-textarea { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; resize: vertical; }
+input[type="text"], select, textarea { width: 100%; font: inherit; font-size: 13.5px; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; }
+textarea { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; resize: vertical; line-height: 1.5; }
+.mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; }
 .seg { display: flex; flex-wrap: wrap; gap: 6px; }
 .seg label { cursor: pointer; position: relative; }
 .seg input { position: absolute; opacity: 0; pointer-events: none; }
@@ -68,7 +83,8 @@ textarea { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12
 .panes { display: flex; flex-wrap: wrap; gap: 5px; }
 .panes button { width: 24px; height: 24px; border-radius: 3px; border: 1px solid rgba(0,0,0,.4); cursor: pointer; padding: 0; }
 .panes button[aria-pressed="true"] { outline: 2px solid var(--chosen); outline-offset: 2px; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .slot:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, .slot:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 .previews { display: grid; gap: 18px; min-width: 0; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
@@ -77,10 +93,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 .mc { font-family: "Pixelify Sans", ui-monospace, monospace; font-size: 16px; line-height: 1.35; text-shadow: 2px 2px 0 rgba(0,0,0,.55); white-space: pre-wrap; word-break: break-word; }
 .world { background: linear-gradient(180deg, #5f82ad 0%, #88a9cf 46%, #5b7639 46.5%, #45602b 100%); border-radius: 6px; padding: 14px; min-width: 0; }
-.chat { background: rgba(0,0,0,.42); padding: 6px 8px; display: grid; gap: 2px; max-width: 700px; }
-.chatbar { margin-top: 8px; background: rgba(0,0,0,.55); height: 22px; max-width: 700px; }
+.chat { background: rgba(0,0,0,.42); padding: 6px 8px; display: grid; gap: 2px; max-width: 720px; }
+.chatbar { margin-top: 8px; background: rgba(0,0,0,.55); height: 22px; max-width: 720px; }
 
-.menus { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
 .gui-wrap { position: relative; overflow-x: auto; max-width: 100%; padding-bottom: 4px; }
 .gui { background: #c6c6c6; border: 3px solid; border-color: #fff #555 #555 #fff; border-radius: 3px; padding: 8px 8px 10px; width: max-content; }
 .gui-title { color: #404040; margin: 0 0 6px 2px; }
@@ -90,31 +105,40 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .slot .pane { position: absolute; inset: 3px; opacity: .85; }
 .slot .item { width: 22px; height: 22px; border-radius: 3px; box-shadow: inset -3px -3px 0 rgba(0,0,0,.25), inset 3px 3px 0 rgba(255,255,255,.25); }
 .slot .arrow { font: 600 20px/1 "Pixelify Sans", monospace; color: #3b3b3b; }
+.slot.hoverable { cursor: pointer; }
 .slot.hoverable:hover::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.45); }
-.tooltip { position: absolute; z-index: 5; pointer-events: none; background: rgba(16, 0, 16, .95); border: 2px solid #28007a; border-radius: 3px; padding: 5px 8px; max-width: 330px; }
+.tooltip { position: absolute; z-index: 5; pointer-events: none; background: rgba(16, 0, 16, .95); border: 2px solid #28007a; border-radius: 3px; padding: 5px 8px; max-width: 340px; }
 .tooltip .mc { font-size: 15px; }
-.menu-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .side-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: start; }
-@media (max-width: 700px) { .side-grid { grid-template-columns: minmax(0, 1fr); } }
-.sidebar { background: rgba(0,0,0,.42); padding: 4px 8px 6px; min-width: 200px; }
+@media (max-width: 720px) { .side-grid { grid-template-columns: minmax(0, 1fr); } }
+.sidebar { background: rgba(0,0,0,.42); padding: 4px 8px 6px; min-width: 210px; }
 .sidebar .title { text-align: center; margin-bottom: 2px; }
-.sidebar .row { display: flex; justify-content: space-between; gap: 16px; }
 .tab { background: rgba(0,0,0,.42); padding: 8px 12px; text-align: center; }
 .tab .players { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 10px; margin: 8px 0; text-align: left; }
 .tab .players div { background: rgba(255,255,255,.08); padding: 1px 6px; }
+.tab.off { opacity: .45; }
+
+.scene { display: flex; gap: 22px; justify-content: space-around; align-items: flex-end; flex-wrap: wrap; padding-top: 8px; }
+.figure { display: grid; justify-items: center; gap: 6px; }
+.tag { background: rgba(0,0,0,.35); padding: 1px 6px; text-align: center; }
+.body-pix { width: 26px; height: 58px; border-radius: 3px; background: linear-gradient(180deg, #c79b73 0 26%, #3a6ea5 26% 62%, #2f3b6b 62% 100%); box-shadow: inset -4px 0 0 rgba(0,0,0,.2); }
+.figure small { color: #e8eaef; font-size: 11px; text-shadow: 1px 1px 0 #000; }
+.holo { display: grid; justify-items: center; gap: 2px; }
+.holo .mc { background: rgba(0,0,0,.28); padding: 0 6px; }
+.beacon { width: 34px; height: 34px; background: #5ad2d2; box-shadow: inset -5px -5px 0 rgba(0,0,0,.25); margin-top: 6px; }
 
 .export { display: grid; gap: 10px; }
 .file-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .file-tabs button, .btn { font: 600 13px/1 "Manrope", system-ui, sans-serif; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; padding: 8px 12px; cursor: pointer; }
 .file-tabs button[aria-selected="true"] { border-color: var(--chosen); color: var(--chosen); }
 .btn.primary { background: var(--chosen); color: #1d1500; border-color: var(--chosen); }
-pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border-radius: 8px; padding: 12px; font: 12.5px/1.55 "JetBrains Mono", ui-monospace, monospace; color: #cfd6e3; overflow: auto; max-height: 460px; }
+pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border-radius: 8px; padding: 12px; font: 12px/1.55 "JetBrains Mono", ui-monospace, monospace; color: #cfd6e3; overflow: auto; max-height: 460px; white-space: pre; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .status { font-size: 13px; color: var(--muted); }
+.steps { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 2px; }
 .tokens { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tokens td { border-top: 1px solid var(--line); padding: 5px 6px; vertical-align: top; }
-.tokens code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12.5px; }
 .table-wrap { overflow-x: auto; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -125,89 +149,128 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
     <header>
       <div class="eyebrow">HCFCore · theme.yml</div>
       <h1>Theme Builder</h1>
-      <p class="lede">Design how HCFCore looks - colours, the message prefix, menus, the scoreboard - and watch it live below. Then download <code>theme.yml</code>, drop it in <code>plugins/HCFCore/</code> and run <code>/hcf reload</code>. Every message, menu and board of the plugin follows.</p>
+      <p class="lede">The whole look of HCFCore, in one place: colours and gradients, the message prefix, menus, the scoreboard, the tab list, chat, nametags and holograms - live below. Download the files, drop them in <code>plugins/HCFCore/</code>, run <code>/hcf reload</code>.</p>
     </header>
-    <a class="back" href="../reference/configuration/theme/">theme.yml reference →</a>
+    <nav class="links" aria-label="Documentation">
+      <a href="../reference/configuration/theme/">theme.yml reference</a>
+      <a href="../">Documentation</a>
+      <a href="https://github.com/Lawkeys-dev/hcf-core">GitHub</a>
+    </nav>
   </div>
 
-  <section class="presets" id="presets" aria-label="Starting points"></section>
+  <div class="palette-head">
+    <h2>Palettes</h2>
+    <p class="hint">A starting point - every colour stays yours to change. Gradients fade letter by letter, as Minecraft 26.2 draws them.</p>
+  </div>
+  <section class="presets" id="presets" aria-label="Palettes"></section>
 
   <div class="main">
     <form class="editor" id="editor" onsubmit="return false">
-      <fieldset>
-        <legend class="eyebrow">Colours</legend>
-        <div class="roles" id="roles"></div>
-      </fieldset>
+      <details open>
+        <summary>Colours <small>theme.yml</small></summary>
+        <div class="body"><div class="roles" id="roles"></div></div>
+      </details>
 
-      <fieldset>
-        <legend class="eyebrow">Prefix</legend>
-        <div class="field">
-          <label for="prefixText">Text</label>
-          <input type="text" id="prefixText" maxlength="24" autocomplete="off">
+      <details open>
+        <summary>Prefix and symbols <small>theme.yml</small></summary>
+        <div class="body">
+          <div class="two">
+            <div class="field"><label for="prefixText">Prefix text</label><input type="text" id="prefixText" maxlength="24" autocomplete="off"></div>
+            <div class="field"><span>Bold</span><label class="check"><input type="checkbox" id="prefixBold"> Bold prefix</label></div>
+          </div>
+          <div class="field"><span>Shape</span><div class="seg" id="prefixStyle"></div></div>
+          <div class="field">
+            <label for="prefixRaw">Prefix as written</label>
+            <input type="text" id="prefixRaw" class="mono" autocomplete="off" spellcheck="false">
+            <p class="hint">Free to edit: tokens, &amp; codes, &amp;#rrggbb. On the announcements: events, phases, a team's news, strikes.</p>
+          </div>
+          <div class="field"><span>List symbol <code>{bullet}</code></span><div class="seg" id="bullet"></div></div>
+          <div class="field"><label for="action">Click line <code>{action}</code></label><input type="text" id="action" maxlength="8" autocomplete="off"></div>
+          <label class="check"><input type="checkbox" id="smallCaps"> Titles in small capitals (ᴀʙɪʟɪᴛɪᴇꜱ)</label>
         </div>
-        <div class="field">
-          <span>Shape</span>
-          <div class="seg" id="prefixStyle"></div>
-        </div>
-        <label class="check"><input type="checkbox" id="prefixBold"> Bold</label>
-        <div class="field">
-          <label for="prefixRaw">As written in theme.yml</label>
-          <input type="text" id="prefixRaw" autocomplete="off" spellcheck="false">
-          <p class="hint">Edit it freely: tokens, &amp; codes and &amp;#rrggbb colours all work. The shipped messages put it on announcements - events, phases, a team's news.</p>
-        </div>
-      </fieldset>
+      </details>
 
-      <fieldset>
-        <legend class="eyebrow">Symbols and titles</legend>
-        <div class="field">
-          <span>List symbol <code>{bullet}</code></span>
-          <div class="seg" id="bullet"></div>
+      <details>
+        <summary>Menus <small>theme.yml</small></summary>
+        <div class="body">
+          <div class="field"><span>Frame</span><div class="seg" id="frame"></div></div>
+          <div class="field"><span>Frame pane</span><div class="panes" id="pane"></div></div>
+          <div class="field"><span>Corner pane</span><div class="panes" id="cornerPane"></div></div>
+          <div class="field"><label for="m-settings-title">/settings title</label><input type="text" id="m-settings-title" class="mono"></div>
+          <div class="two">
+            <div class="field"><label for="m-previous">Previous page</label><input type="text" id="m-previous" class="mono"></div>
+            <div class="field"><label for="m-next">Next page</label><input type="text" id="m-next" class="mono"></div>
+          </div>
+          <div class="field"><label for="m-page">Page line</label><input type="text" id="m-page" class="mono"></div>
+          <div class="field"><label for="m-separator">Line under an item's name</label><input type="text" id="m-separator" class="mono"><p class="hint">Empty for none.</p></div>
         </div>
-        <div class="field">
-          <label for="action">Click line <code>{action}</code></label>
-          <input type="text" id="action" maxlength="8" autocomplete="off">
-        </div>
-        <label class="check"><input type="checkbox" id="smallCaps"> Titles in small capitals (ᴀʙɪʟɪᴛɪᴇꜱ)</label>
-      </fieldset>
+      </details>
 
-      <fieldset>
-        <legend class="eyebrow">Menus</legend>
-        <div class="field">
-          <span>Frame</span>
-          <div class="seg" id="frame"></div>
+      <details>
+        <summary>Scoreboard <small>ui.yml</small></summary>
+        <div class="body">
+          <div class="two">
+            <label class="check"><input type="checkbox" id="sbEnabled"> Scoreboard on</label>
+            <div class="field"><label for="sbTicks">Redrawn every (ticks)</label><input type="text" id="sbTicks" class="mono" inputmode="numeric"></div>
+          </div>
+          <div class="field"><label for="sbTitle">Title</label><input type="text" id="sbTitle" class="mono"></div>
+          <div class="field"><span>Separator rows</span><div class="seg" id="sbSep"></div></div>
+          <div class="field"><label for="serverIp">Server address, bottom row</label><input type="text" id="serverIp" maxlength="40" autocomplete="off"></div>
+          <div class="field">
+            <label for="sbRows">Rows, top to bottom</label>
+            <textarea id="sbRows" rows="12" spellcheck="false"></textarea>
+            <p class="hint">One per line. A row whose placeholders are all empty disappears. <code>[team]</code>, <code>[cooldowns]</code>… at the start lets each player hide it in /settings. 15 rows are shown at most.</p>
+          </div>
         </div>
-        <div class="field">
-          <span>Frame pane</span>
-          <div class="panes" id="pane"></div>
-        </div>
-        <div class="field">
-          <span>Corner pane</span>
-          <div class="panes" id="cornerPane"></div>
-        </div>
-      </fieldset>
+      </details>
 
-      <fieldset>
-        <legend class="eyebrow">Scoreboard (ui.yml)</legend>
-        <div class="field">
-          <span>Separator</span>
-          <div class="seg" id="sbSep"></div>
+      <details>
+        <summary>Tab list <small>ui.yml</small></summary>
+        <div class="body">
+          <label class="check"><input type="checkbox" id="tabEnabled"> Header and footer on</label>
+          <div class="field"><label for="tabHeader">Header, one line per row</label><textarea id="tabHeader" rows="3" spellcheck="false"></textarea></div>
+          <div class="field"><label for="tabFooter">Footer, one line per row</label><textarea id="tabFooter" rows="3" spellcheck="false"></textarea></div>
         </div>
-        <div class="field">
-          <label for="serverIp">Server address, bottom row</label>
-          <input type="text" id="serverIp" maxlength="40" autocomplete="off">
+      </details>
+
+      <details>
+        <summary>Chat <small>set in theme.yml</small></summary>
+        <div class="body">
+          <div class="field"><label for="chatFormat">Line format</label><input type="text" id="chatFormat" class="mono"><p class="hint"><code>%kills%</code> <code>%prefix%</code> (LuckPerms) <code>%player%</code> <code>%suffix%</code> <code>%message%</code></p></div>
+          <div class="field"><label for="killsFormat">Kills badge <code>%kills%</code></label><input type="text" id="killsFormat" class="mono"></div>
+          <div class="field"><label for="teamChat">Team chat</label><input type="text" id="teamChat" class="mono"></div>
+          <div class="field"><label for="allyChat">Ally chat</label><input type="text" id="allyChat" class="mono"></div>
         </div>
-      </fieldset>
+      </details>
+
+      <details>
+        <summary>Nametags <small>Lunar Client · set in theme.yml</small></summary>
+        <div class="body">
+          <div class="field"><label for="ntTeam">Team line</label><input type="text" id="ntTeam" class="mono"></div>
+          <div class="field"><label for="ntName">Name line</label><input type="text" id="ntName" class="mono"></div>
+          <div class="field"><span>Colour <code>%color%</code> by relation</span><div class="two" id="ntColors"></div></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Holograms <small>set in theme.yml</small></summary>
+        <div class="body">
+          <div class="field"><label for="hTitle">Zone title</label><input type="text" id="hTitle" class="mono"></div>
+          <div class="field"><label for="hHeld">Held by</label><input type="text" id="hHeld" class="mono"></div>
+          <div class="field"><label for="hTime">Time left</label><input type="text" id="hTime" class="mono"></div>
+        </div>
+      </details>
     </form>
 
     <div class="previews">
       <section class="card" aria-labelledby="h-chat">
-        <div class="card-head"><h2 id="h-chat">Chat</h2><p>The plugin's own messages, as shipped</p></div>
+        <div class="card-head"><h2 id="h-chat">Chat</h2><p>The plugin's own messages, a player's line, team and ally chat</p></div>
         <div class="world"><div class="chat mc" id="chat"></div><div class="chatbar"></div></div>
       </section>
 
       <section class="card" aria-labelledby="h-menu">
-        <div class="card-head"><h2 id="h-menu">Menus</h2><p>Hover an item for its tooltip</p></div>
-        <div class="menu-tabs seg" id="menuPick"></div>
+        <div class="card-head"><h2 id="h-menu">Menus</h2><p>Hover an item for its tooltip · the arrows turn the page</p></div>
+        <div class="seg" id="menuPick"></div>
         <div class="gui-wrap" id="guiWrap">
           <div class="gui"><div class="gui-title mc" id="guiTitle"></div><div class="slots" id="slots"></div></div>
           <div class="tooltip" id="tooltip" hidden><div class="mc" id="tooltipText"></div></div>
@@ -215,29 +278,34 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
       </section>
 
       <section class="card" aria-labelledby="h-board">
-        <div class="card-head"><h2 id="h-board">Scoreboard and tab</h2><p>In combat, with a pearl and a Gapple on cooldown</p></div>
+        <div class="card-head"><h2 id="h-board">Scoreboard and tab</h2><p>In combat, a pearl and a Gapple on cooldown</p></div>
         <div class="world side-grid">
           <div class="tab mc" id="tab"></div>
           <div class="sidebar mc" id="sidebar"></div>
         </div>
       </section>
 
+      <section class="card" aria-labelledby="h-world">
+        <div class="card-head"><h2 id="h-world">In the world</h2><p>Nametags as you see them, and a KOTH hologram</p></div>
+        <div class="world scene" id="scene"></div>
+      </section>
+
       <section class="card export" aria-labelledby="h-export">
-        <div class="card-head"><h2 id="h-export">Your files</h2><p>Ready to use - no editing needed</p></div>
+        <div class="card-head"><h2 id="h-export">Your files</h2><p>Complete files - nothing to edit by hand</p></div>
+        <ol class="steps">
+          <li>Download both files - or the zip - into <code>plugins/HCFCore/</code>, replacing <code>theme.yml</code> and <code>ui.yml</code>.</li>
+          <li>Run <code>/hcf reload</code>. Chat, nametags and texts are carried by <code>theme.yml</code> itself: nothing else to change.</li>
+        </ol>
         <div class="file-tabs" role="tablist" id="fileTabs">
           <button type="button" role="tab" aria-selected="true" data-file="theme" id="tab-theme">theme.yml</button>
-          <button type="button" role="tab" aria-selected="false" data-file="ui" id="tab-ui">ui.yml - scoreboard</button>
+          <button type="button" role="tab" aria-selected="false" data-file="ui" id="tab-ui">ui.yml</button>
           <button type="button" role="tab" aria-selected="false" data-file="import" id="tab-import">Import a theme.yml</button>
         </div>
-        <div id="panel-file">
-          <pre class="code" id="code" tabindex="0"></pre>
-          <p class="hint" id="fileHint"></p>
-        </div>
-        <div id="panel-import" hidden>
-          <textarea id="importText" rows="10" placeholder="Paste your theme.yml here…" spellcheck="false"></textarea>
-        </div>
+        <div id="panel-file"><pre class="code" id="code" tabindex="0"></pre></div>
+        <div id="panel-import" hidden><textarea id="importText" rows="10" placeholder="Paste your theme.yml here…" spellcheck="false"></textarea></div>
         <div class="actions">
-          <button type="button" class="btn primary" id="download">Download theme.yml</button>
+          <button type="button" class="btn primary" id="zip">Download both (.zip)</button>
+          <button type="button" class="btn" id="download">Download this file</button>
           <button type="button" class="btn" id="copy">Copy</button>
           <button type="button" class="btn" id="load" hidden>Load it</button>
           <span class="status" id="status" aria-live="polite"></span>
@@ -245,7 +313,7 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
       </section>
 
       <section class="card" aria-labelledby="h-tokens">
-        <div class="card-head"><h2 id="h-tokens">Tokens</h2><p>Use them in lang/en.yml and any other file</p></div>
+        <div class="card-head"><h2 id="h-tokens">Tokens</h2><p>Use them anywhere: lang/en.yml, every other file</p></div>
         <div class="table-wrap"><table class="tokens" id="tokens"></table></div>
       </section>
     </div>
@@ -253,62 +321,81 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
 </div>
 
 <script>
-const ROLES = [
-  ["primary", "Primary", "prefix, titles, names, labels"],
-  ["secondary", "Secondary", "values: players, teams, numbers"],
-  ["text", "Text", "the body of a message, chat"],
-  ["muted", "Muted", "secondary info, descriptions"],
-  ["dark", "Dark", "brackets, separators, symbols"],
-  ["success", "Success", "something done"],
-  ["error", "Error", "something refused, a cooldown"],
-  ["warning", "Warning", "announcements, events"],
-];
-const PANES = {
-  BLACK: "#1d1d21", GRAY: "#474f52", LIGHT_GRAY: "#9d9d97", WHITE: "#f9fffe", RED: "#b02e26", ORANGE: "#f9801d",
-  YELLOW: "#fed83d", LIME: "#80c71f", GREEN: "#5e7c16", CYAN: "#169c9c", LIGHT_BLUE: "#3ab3da", BLUE: "#3c44aa",
-  PURPLE: "#8932b8", MAGENTA: "#c74ebd", PINK: "#f38baa", BROWN: "#835432",
+// ---------------------------------------------------------------------------
+// What ships with the plugin: the defaults every field starts from, and what a
+// theme leaves out of its file when unchanged.
+// ---------------------------------------------------------------------------
+const SHIPPED = {
+  menus: { previous: "{primary}« Previous page", next: "{primary}Next page »", page: "{muted}Page {secondary}%page%{muted}/{secondary}%pages%",
+    separator: "{dark}&m                              ", settingsTitle: "{primary}&lYour settings" },
+  chat: { format: "%kills%%prefix%{text}%player%%suffix%{dark}: {text}%message%", killsFormat: "{dark}[{primary}%value%{dark}]&r ",
+    team: "{primary}[Team] {secondary}%player%{muted}: {secondary}%message%", ally: "{primary}[Ally] {secondary}%player%{muted}: {secondary}%message%" },
+  nametags: { team: "%color%%team% {dark}| {warning}%dtr%", name: "%color%%player%",
+    colors: { self: "&a", ally: "&9", enemy: "&c", focus: "&d", neutral: "&f" } },
+  holo: { title: "{primary}&l%event%", held: "{muted}Held by {success}%team%", time: "{muted}Time left: {secondary}%time%" },
+  sb: { enabled: true, title: "{primary}&lHCF", rows: [
+    "[team]{primary}Team {dark}{bullet} {secondary}%team%", "[team]{primary}DTR {dark}{bullet} %dtr_coloured%",
+    "[stats]{primary}Kills {dark}{bullet} {secondary}%kills%", "[stats]{primary}Streak {dark}{bullet} {secondary}%killstreak%",
+    "[balance]{primary}Balance {dark}{bullet} {success}%balance%", "[team]%focus_line%", "[team]%rally_line%", "[combat]%combat_line%",
+    "[cooldowns]%pearl_line%", "[cooldowns]%cooldown_notch-apple_line%", "[cooldowns]%cooldown_golden-apple_line%",
+    "[cooldowns]%cooldown_chorus-fruit_line%", "[cooldowns]%cooldown_totem_line%", "[class]%class_line%", "[class]%class_energy_line%",
+    "[class]%archer_tag_line%", "[events]%phase_line%", "[events]%event_line%", "[events]%king_line%", "[events]%king_location_line%",
+    "[events]%conquest_line%", "[events]%conquest_zone_1%", "[events]%conquest_zone_2%", "[events]%conquest_zone_3%",
+    "[events]%conquest_zone_4%", "[timers]%timer_1%", "[timers]%timer_2%", "[timers]%timer_3%"] },
+  tab: { enabled: false, header: ["{primary}&lHCF", "{muted}Hardcore Factions"], footer: ["{text}Online {dark}{bullet} {secondary}%online%", "{muted}play.yourserver.net"] },
 };
-const PRESETS = [
-  { id: "or", name: "Or royal", blurb: "Gold and cream - as shipped.",
-    colors: { primary: "#F5B32E", secondary: "#FFE39A", text: "#F7F1E3", muted: "#B3A88F", dark: "#5E5540", success: "#8CE36B", error: "#F2594B", warning: "#FFD24A" },
-    prefixText: "HCF", prefixStyle: "arrow", prefixBold: true, bullet: "➥", action: "» ", smallCaps: true, frame: "full", pane: "BLACK", cornerPane: "YELLOW", sbSep: "blocks" },
-  { id: "braise", name: "Braise", blurb: "The classic HCF red, warm and direct.",
-    colors: { primary: "#FF4D3D", secondary: "#FFB23F", text: "#F2EDE9", muted: "#A7A09B", dark: "#5A524E", success: "#6BE37A", error: "#FF5A5A", warning: "#FFD24A" },
-    prefixText: "HCF", prefixStyle: "brackets", prefixBold: true, bullet: "»", action: "» ", smallCaps: false, frame: "full", pane: "BLACK", cornerPane: "RED", sbSep: "line" },
-  { id: "givre", name: "Givre", blurb: "Icy blue, clean and modern.",
-    colors: { primary: "#56C8FF", secondary: "#9BE7FF", text: "#EAF6FF", muted: "#9AB3C3", dark: "#4A5F6D", success: "#5EF0A8", error: "#FF6B7A", warning: "#FFD66B" },
-    prefixText: "HCF", prefixStyle: "pipe", prefixBold: true, bullet: "●", action: "● ", smallCaps: true, frame: "full", pane: "BLACK", cornerPane: "LIGHT_BLUE", sbSep: "bars" },
-  { id: "amethyste", name: "Améthyste", blurb: "Violet and pink, more playful.",
-    colors: { primary: "#B07CFF", secondary: "#FF7CE0", text: "#F1EAFF", muted: "#A99BC0", dark: "#54496A", success: "#6DEBA0", error: "#FF6B8B", warning: "#FFD66B" },
-    prefixText: "HCF", prefixStyle: "star", prefixBold: true, bullet: "✦", action: "✦ ", smallCaps: true, frame: "bars", pane: "BLACK", cornerPane: "PURPLE", sbSep: "bars" },
-  { id: "classique", name: "Classique", blurb: "The game's own 16 colours.",
-    colors: { primary: "#FF5555", secondary: "#FFFF55", text: "#FFFFFF", muted: "#AAAAAA", dark: "#555555", success: "#55FF55", error: "#FF5555", warning: "#FFAA00" },
-    prefixText: "HCF", prefixStyle: "brackets", prefixBold: false, bullet: "-", action: "", smallCaps: false, frame: "none", pane: "GRAY", cornerPane: "GRAY", sbSep: "line" },
+const MESSAGE_KEYS = { // theme field -> lang key, written under messages: when changed
+  "menus.previous": ["menus", "previous"], "menus.next": ["menus", "next"], "menus.page": ["menus", "page"],
+  "menus.separator": ["menus", "separator"], "settings.menu-title": ["menus", "settingsTitle"],
+  "team.chat.format-team": ["chat", "team"], "team.chat.format-ally": ["chat", "ally"],
+  "events.hologram.title": ["holo", "title"], "events.hologram.held-by": ["holo", "held"], "events.hologram.time-left": ["holo", "time"],
+};
+const ROLES = [
+  ["primary", "Primary", "prefix, titles, names, labels"], ["secondary", "Secondary", "values: players, teams, numbers"],
+  ["text", "Text", "the body of a message, chat"], ["muted", "Muted", "secondary info, descriptions"],
+  ["dark", "Dark", "brackets, separators, symbols"], ["success", "Success", "something done"],
+  ["error", "Error", "something refused, a cooldown"], ["warning", "Warning", "announcements, events"],
+];
+const PANES = { BLACK: "#1d1d21", GRAY: "#474f52", LIGHT_GRAY: "#9d9d97", WHITE: "#f9fffe", RED: "#b02e26", ORANGE: "#f9801d",
+  YELLOW: "#fed83d", LIME: "#80c71f", GREEN: "#5e7c16", CYAN: "#169c9c", LIGHT_BLUE: "#3ab3da", BLUE: "#3c44aa",
+  PURPLE: "#8932b8", MAGENTA: "#c74ebd", PINK: "#f38baa", BROWN: "#835432" };
+const P = (primary, secondary, text, muted, dark, success, error, warning) => ({ primary, secondary, text, muted, dark, success, error, warning });
+const PALETTES = [
+  { id: "royal-gold", name: "Royal Gold", blurb: "Gold and cream - as shipped.", colors: P("#F5B32E", "#FFE39A", "#F7F1E3", "#B3A88F", "#5E5540", "#8CE36B", "#F2594B", "#FFD24A"), bullet: "➥", pane: "BLACK", cornerPane: "YELLOW", prefixStyle: "arrow" },
+  { id: "molten-gold", name: "Molten Gold", blurb: "Gold melting into amber.", colors: P("#FFE08A>#F5B32E>#E07B1F", "#FFE39A", "#F7F1E3", "#B3A88F", "#5E5540", "#8CE36B", "#F2594B", "#FFD24A"), bullet: "➥", pane: "BLACK", cornerPane: "ORANGE", prefixStyle: "arrow" },
+  { id: "ember", name: "Ember", blurb: "The classic HCF red, warm and direct.", colors: P("#FF4D3D", "#FFB23F", "#F2EDE9", "#A7A09B", "#5A524E", "#6BE37A", "#FF5A5A", "#FFD24A"), bullet: "»", pane: "BLACK", cornerPane: "RED", prefixStyle: "brackets" },
+  { id: "magma", name: "Magma", blurb: "Red to orange, burning hot.", colors: P("#FF2E4D>#FF6A3D>#FFB23F", "#FFD0A0", "#F4ECE6", "#AA9E96", "#5A4A44", "#6BE37A", "#FF4D5E", "#FFB23F"), bullet: "»", pane: "BLACK", cornerPane: "ORANGE", prefixStyle: "brackets" },
+  { id: "sunset", name: "Sunset", blurb: "Orange, pink, violet.", colors: P("#FFB23F>#FF5E7A>#B07CFF", "#FFD6E0", "#F6EEF2", "#B0A0AE", "#5A4658", "#7BEAA0", "#FF5E7A", "#FFB23F"), bullet: "✦", pane: "BLACK", cornerPane: "MAGENTA", prefixStyle: "star" },
+  { id: "cherry", name: "Cherry", blurb: "Pink to deep red.", colors: P("#FF8FB1>#E8335F", "#FFC4D6", "#F8EDF1", "#B39BA4", "#5B4450", "#7BE3A0", "#E8335F", "#FFC061"), bullet: "❥", pane: "BLACK", cornerPane: "PINK", prefixStyle: "pipe" },
+  { id: "frost", name: "Frost", blurb: "Icy blue, clean and modern.", colors: P("#56C8FF", "#9BE7FF", "#EAF6FF", "#9AB3C3", "#4A5F6D", "#5EF0A8", "#FF6B7A", "#FFD66B"), bullet: "●", pane: "BLACK", cornerPane: "LIGHT_BLUE", prefixStyle: "pipe" },
+  { id: "ocean", name: "Ocean", blurb: "Turquoise into deep blue.", colors: P("#3DE8FF>#2E6BFF", "#A8E6FF", "#EAF4FF", "#94A9C2", "#3F5169", "#4FF0B5", "#FF6B7A", "#FFD66B"), bullet: "▸", pane: "BLACK", cornerPane: "CYAN", prefixStyle: "pipe" },
+  { id: "aurora", name: "Aurora", blurb: "Northern lights: green, cyan, violet.", colors: P("#5EF0A8>#56C8FF>#B07CFF", "#C9F7FF", "#EDF6F4", "#9DB3B0", "#44565A", "#5EF0A8", "#FF6B8B", "#FFE07A"), bullet: "✦", pane: "BLACK", cornerPane: "LIME", prefixStyle: "star" },
+  { id: "mint", name: "Mint", blurb: "Fresh greens.", colors: P("#B4FFD0>#2ED68A", "#D8FFE6", "#F0F8F2", "#9DB5A6", "#43574A", "#2ED68A", "#FF6B6B", "#FFE07A"), bullet: "➤", pane: "BLACK", cornerPane: "LIME", prefixStyle: "arrow" },
+  { id: "neon", name: "Neon", blurb: "Magenta to cyan, arcade night.", colors: P("#FF3DF2>#3DE8FF", "#F9B8FF", "#F2EEFF", "#A89CC0", "#43365A", "#3DFF9E", "#FF3D6E", "#FFE83D"), bullet: "▸", pane: "BLACK", cornerPane: "PURPLE", prefixStyle: "brackets" },
+  { id: "amethyst", name: "Amethyst", blurb: "Violet and pink, more playful.", colors: P("#B07CFF", "#FF7CE0", "#F1EAFF", "#A99BC0", "#54496A", "#6DEBA0", "#FF6B8B", "#FFD66B"), bullet: "✦", pane: "BLACK", cornerPane: "PURPLE", prefixStyle: "star" },
+  { id: "midnight", name: "Midnight", blurb: "Silver fading to slate.", colors: P("#F2F4F8>#8A93A6", "#D7DCE6", "#E8EAF0", "#8A93A6", "#4A5060", "#7FE0A0", "#F0707A", "#F0D080"), bullet: "•", pane: "GRAY", cornerPane: "LIGHT_GRAY", prefixStyle: "pipe" },
+  { id: "classic", name: "Classic", blurb: "The game's own 16 colours.", colors: P("#FF5555", "#FFFF55", "#FFFFFF", "#AAAAAA", "#555555", "#55FF55", "#FF5555", "#FFAA00"), bullet: "-", pane: "GRAY", cornerPane: "GRAY", prefixStyle: "brackets" },
 ];
 const CHOICES = {
   prefixStyle: [["brackets", "[HCF]"], ["pipe", "HCF ┃"], ["arrow", "HCF »"], ["star", "✦ HCF"]],
-  bullet: [["➥", "➥"], ["»", "»"], ["●", "●"], ["✦", "✦"], ["▸", "▸"], ["-", "-"], [":", ":"]],
+  bullet: [["➥", "➥"], ["»", "»"], ["➤", "➤"], ["▸", "▸"], ["●", "●"], ["•", "•"], ["✦", "✦"], ["❥", "❥"], ["-", "-"], [":", ":"]],
   frame: [["full", "Full frame"], ["bars", "Top and bottom"], ["none", "None"]],
   sbSep: [["blocks", "▪ ▪ ▪"], ["bars", "▬▬▬"], ["line", "────"], ["none", "None"]],
 };
 const SEPARATORS = { blocks: "▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪", bars: "▬▬▬▬▬▬▬▬▬▬▬▬▬▬", line: "&m                        ", none: null };
 
-const KEY = "hcfcore-theme-builder";
-let state = fresh(PRESETS[0]);
-let menuShown = "settings";
-let fileShown = "theme";
-function fresh(p) {
-  const s = structuredClone(p);
-  s.prefixRaw = prefixFor(s);
-  s.serverIp = "play.yourserver.net";
-  return s;
+function base() {
+  return {
+    palette: "royal-gold", colors: { ...PALETTES[0].colors }, prefixText: "HCF", prefixStyle: "arrow", prefixBold: true, prefixRaw: "",
+    bullet: "➥", action: "» ", smallCaps: true, frame: "full", pane: "BLACK", cornerPane: "YELLOW",
+    menus: { ...SHIPPED.menus }, chat: { ...SHIPPED.chat }, nametags: structuredClone(SHIPPED.nametags), holo: { ...SHIPPED.holo },
+    sb: { enabled: true, ticks: "20", title: SHIPPED.sb.title, sep: "blocks", ip: "play.yourserver.net", rows: [...SHIPPED.sb.rows] },
+    tab: structuredClone(SHIPPED.tab),
+  };
 }
-try { const raw = localStorage.getItem(KEY); if (raw) state = Object.assign(fresh(PRESETS[0]), JSON.parse(raw)); } catch (e) {}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
-
+function withPrefix(s) { s.prefixRaw = prefixFor(s); return s; }
 function prefixFor(s) {
-  const t = (s.prefixText || "HCF").trim() || "HCF";
-  const b = s.prefixBold ? "&l" : "";
+  const t = (s.prefixText || "HCF").trim() || "HCF", b = s.prefixBold ? "&l" : "";
   switch (s.prefixStyle) {
     case "brackets": return "{dark}[{primary}" + b + t + "&r{dark}] ";
     case "pipe": return "{primary}" + b + t + "&r{dark} ┃ ";
@@ -316,22 +403,88 @@ function prefixFor(s) {
     default: return "{primary}" + b + t + "&r{dark} » ";
   }
 }
+const KEY = "hcfcore-theme-builder-v2";
+let state = withPrefix(base());
+try { const raw = localStorage.getItem(KEY); if (raw) state = deepMerge(withPrefix(base()), JSON.parse(raw)); } catch (e) {}
+function deepMerge(target, source) {
+  for (const [k, v] of Object.entries(source || {})) {
+    if (v && typeof v === "object" && !Array.isArray(v) && target[k] && typeof target[k] === "object" && !Array.isArray(target[k])) deepMerge(target[k], v);
+    else target[k] = v;
+  }
+  return target;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
-// ---------- The plugin's own rules, in JavaScript: Theme#apply, Theme#title, ColorCodes ----------
+// ---------------------------------------------------------------------------
+// The plugin's own rules, in JavaScript: Theme#apply (with gradients), Theme#title
+// ---------------------------------------------------------------------------
+const MARK = "\u0001";
 function apply(input) {
   const once = replace(input, true);
-  return once.includes("{") ? replace(once, false) : once;
+  const twice = once.includes("{") ? replace(once, false) : once;
+  return twice.includes(MARK) ? expand(twice) : twice;
 }
 function replace(input, withPrefix) {
   return input.replace(/\{([a-z]+)\}/g, (m, name) => {
-    if (state.colors[name]) return "&" + state.colors[name].toUpperCase();
+    const c = state.colors[name];
+    if (c) return c.includes(">") ? MARK + name + MARK : "&" + c.toUpperCase();
     if (withPrefix && name === "prefix") return state.prefixRaw;
     if (name === "bullet") return state.bullet;
     if (name === "action") return state.action;
     return m;
   });
 }
-const SMALL_FROM = "abcdefghijklmnopqrstuvwxyz", SMALL_TO = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ";
+function expand(input) {
+  let out = "", i = 0;
+  while (i < input.length) {
+    if (input[i] !== MARK) { out += input[i++]; continue; }
+    const close = input.indexOf(MARK, i + 1);
+    if (close < 0) break;
+    const role = input.slice(i + 1, close);
+    let j = close + 1;
+    while (j < input.length) {
+      const c = input[j];
+      if (c === MARK) break;
+      if (c === "&" && j + 1 < input.length) {
+        const n = input[j + 1].toLowerCase();
+        if (n === "&") { j += 2; continue; }
+        if (n === "#" || n === "r" || /[0-9a-f]/.test(n)) break;
+      }
+      j++;
+    }
+    out += fade(stops(state.colors[role]), input.slice(close + 1, j));
+    i = j;
+  }
+  return out;
+}
+function stops(g) { return g.split(">").map(s => { const v = parseInt(s.trim().slice(1), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; }); }
+function fade(st, seg) {
+  const letters = [], formatsAt = [];
+  let formats = "", i = 0;
+  const chars = [...seg];
+  while (i < chars.length) {
+    const c = chars[i];
+    if (c === "&" && i + 1 < chars.length) {
+      const n = chars[i + 1].toLowerCase();
+      if (n === "&") { letters.push("&&"); formatsAt.push(formats); i += 2; continue; }
+      if ("klmno".includes(n)) { formats += "&" + n; i += 2; continue; }
+    }
+    letters.push(c); formatsAt.push(formats); i++;
+  }
+  let out = "";
+  letters.forEach((l, k) => {
+    if (!l.trim()) { out += l; return; }
+    const t = letters.length === 1 ? 0 : k / (letters.length - 1);
+    out += "&" + hexAt(st, t) + formatsAt[k] + l;
+  });
+  return out;
+}
+function hexAt(st, t) {
+  const scaled = t * (st.length - 1), from = Math.min(Math.floor(scaled), st.length - 2), local = scaled - from;
+  const a = st[from], b = st[from + 1];
+  return "#" + [0, 1, 2].map(k => Math.round(a[k] + (b[k] - a[k]) * local).toString(16).padStart(2, "0")).join("").toUpperCase();
+}
+const SMALL_FROM = "abcdefghijklmnopqrstuvwxyz", SMALL_TO = [..."ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ"];
 function title(input) {
   if (!state.smallCaps) return input;
   let out = "", token = false, placeholder = false;
@@ -341,24 +494,22 @@ function title(input) {
     if (c === "&" && i + 1 < input.length) { out += c + input[++i]; continue; }
     if (c === "{") token = true; else if (c === "}") token = false; else if (c === "%") placeholder = !placeholder;
     const k = token || placeholder ? -1 : SMALL_FROM.indexOf(c.toLowerCase());
-    out += k < 0 ? c : [...SMALL_TO][k];
+    out += k < 0 ? c : SMALL_TO[k];
   }
   return out;
 }
 const LEGACY = { 0: "#000000", 1: "#0000aa", 2: "#00aa00", 3: "#00aaaa", 4: "#aa0000", 5: "#aa00aa", 6: "#ffaa00", 7: "#aaaaaa",
   8: "#555555", 9: "#5555ff", a: "#55ff55", b: "#55ffff", c: "#ff5555", d: "#ff55ff", e: "#ffff55", f: "#ffffff" };
-function render(target, raw, placeholders = {}) {
-  let str = apply(raw);
-  for (const [k, v] of Object.entries(placeholders)) str = str.split("%" + k + "%").join(v);
-  str = apply(str);
+function fill(raw, ph) { let s = raw; for (const [k, v] of Object.entries(ph || {})) s = s.split("%" + k + "%").join(v); return s; }
+function render(target, raw, ph) {
+  const str = apply(fill(apply(raw), ph));
   target.textContent = "";
-  let color = "#ffffff", bold = false, italic = false, strike = false, under = false;
+  let color = "#ffffff", bold = false, italic = false, strike = false, under = false, last = 0, m;
   const re = /&#([0-9a-fA-F]{6})|&([0-9a-fk-orA-FK-OR])/g;
-  let last = 0, m;
   const push = (text) => {
     if (!text) return;
     const s = document.createElement("span");
-    s.textContent = text;
+    s.textContent = text.replace(/&&/g, "&");
     s.style.color = color;
     if (bold) s.style.fontWeight = "600";
     if (italic) s.style.fontStyle = "italic";
@@ -367,15 +518,12 @@ function render(target, raw, placeholders = {}) {
     target.append(s);
   };
   while ((m = re.exec(str))) {
-    push(str.slice(last, m.index));
-    last = re.lastIndex;
+    push(str.slice(last, m.index)); last = re.lastIndex;
     if (m[1]) { color = "#" + m[1]; bold = italic = strike = under = false; continue; }
     const code = m[2].toLowerCase();
     if (LEGACY[code]) { color = LEGACY[code]; bold = italic = strike = under = false; }
-    else if (code === "l") bold = true;
-    else if (code === "o") italic = true;
-    else if (code === "m") strike = true;
-    else if (code === "n") under = true;
+    else if (code === "l") bold = true; else if (code === "o") italic = true;
+    else if (code === "m") strike = true; else if (code === "n") under = true;
     else if (code === "r") { color = "#ffffff"; bold = italic = strike = under = false; }
   }
   push(str.slice(last));
@@ -386,25 +534,31 @@ function el(tag, attrs = {}, text) {
   if (text !== undefined) n.textContent = text;
   return n;
 }
+function cssFill(colour) {
+  if (!colour.includes(">")) return colour;
+  return "linear-gradient(90deg, " + colour.split(">").map(s => s.trim()).join(", ") + ")";
+}
 
-// ---------- Chat ----------
-const MESSAGES = [
-  ["{success}Team {secondary}%team% {success}created. Invite members with {secondary}/team invite <player>{success}.", { team: "Wizards" }],
-  ["{prefix}{success}%player% joined the team.", { player: "ownedbynoname" }],
-  ["{prefix}{secondary}%team% {warning}is capturing {secondary}%event%{warning}. {muted}%time% {muted}remaining.", { team: "Wizards", event: "Citadel", time: "4m 12s" }],
-  ["{prefix}{success}%team% {primary}captured {warning}%event%{primary}!", { team: "Wizards", event: "Citadel" }],
-  ["{error}You cannot throw an ender pearl for {secondary}%time%{error}.", { time: "12s" }],
-  ["{error}You are now in combat for {secondary}%seconds%s{error}. You cannot teleport or log out safely.", { seconds: "30" }],
-  ["{prefix}{error}&l%team% {error}is now RAIDABLE!", { team: "Raiders" }],
-  ["%kills%{text}Lawkeys{dark}: {text}on push the koth, go go", { kills: "{dark}[{primary}12{dark}] " }],
-];
+// ---------------------------------------------------------------------------
+// Previews
+// ---------------------------------------------------------------------------
 function chat() {
   const box = document.getElementById("chat");
   box.textContent = "";
-  for (const [raw, ph] of MESSAGES) { const d = el("div"); render(d, raw, ph); box.append(d); }
+  const lines = [
+    ["{success}Team {secondary}%team% {success}created. Invite members with {secondary}/team invite <player>{success}.", { team: "Wizards" }],
+    ["{prefix}{success}%player% joined the team.", { player: "ownedbynoname" }],
+    ["{prefix}{secondary}%team% {warning}is capturing {secondary}%event%{warning}. {muted}%time% {muted}remaining.", { team: "Wizards", event: "Citadel", time: "4m 12s" }],
+    ["{prefix}{success}%team% {primary}captured {warning}%event%{primary}!", { team: "Wizards", event: "Citadel" }],
+    ["{error}You cannot throw an ender pearl for {secondary}%time%{error}.", { time: "12s" }],
+    ["{prefix}{error}&l%team% {error}is now RAIDABLE!", { team: "Raiders" }],
+    [state.chat.format, { kills: fill(state.chat.killsFormat, { value: "12" }), prefix: "&7[VIP] ", player: "Lawkeys", suffix: "", message: "on push the koth, go go" }],
+    [state.chat.team, { player: "ownedbynoname", message: "rally at the gate" }],
+    [state.chat.ally, { player: "Notch", message: "we hold the left side" }],
+  ];
+  for (const [raw, ph] of lines) { const d = el("div"); render(d, raw, ph); box.append(d); }
 }
 
-// ---------- Menus: MenuLayout#of, in JavaScript ----------
 function layout(count, frame, page) {
   const full = frame === "full", bars = full || frame === "bars";
   const width = full ? 7 : 9, framedRows = bars ? 2 : 0;
@@ -418,15 +572,13 @@ function layout(count, frame, page) {
   const rows = innerRows + framedRows + (paged && !bars ? 1 : 0);
   const frameSlots = new Set(), corners = new Set();
   for (let s = 0; s < rows * 9; s++) {
-    const r = Math.floor(s / 9), c = s % 9;
-    const edgeRow = r === 0 || r === rows - 1, edgeCol = c === 0 || c === 8;
+    const r = Math.floor(s / 9), c = s % 9, edgeRow = r === 0 || r === rows - 1, edgeCol = c === 0 || c === 8;
     if (bars && (edgeRow || (full && edgeCol))) { frameSlots.add(s); if (edgeRow && edgeCol) corners.add(s); }
   }
   const top = bars ? 1 : 0, left = full ? 1 : 0, slots = [];
   let placed = 0;
   for (let r = 0; r < innerRows && placed < onPage; r++) {
-    const inRow = Math.min(width, onPage - placed);
-    const spread = innerRows === 1 && inRow * 2 - 1 <= width;
+    const inRow = Math.min(width, onPage - placed), spread = innerRows === 1 && inRow * 2 - 1 <= width;
     const step = spread ? 2 : 1, span = (inRow - 1) * step + 1, start = Math.floor((width - span) / 2);
     for (let k = 0; k < inRow; k++) slots.push((top + r) * 9 + left + start + k * step);
     placed += inRow;
@@ -447,51 +599,47 @@ const ABILITIES = ["Switcher", "Thunderbolt", "Combo Ability", "Lucky Mode", "Ra
   "Rose Thorn", "Pumpkin Reaper", "Hulk Smash", "Sticky Web", "Med Kit", "Grappling Hook", "Nausea Axe", "Bunny Hop", "Ice Berg", "Antidote",
   "Golden Head", "Grabber", "Poisonous Potato", "Fake Pearl", "Rocket", "Combo Fish", "Anti-Build Bone", "Rotten Egg", "Rage Strength",
   "Olympia", "Baguette", "Sun", "Scrambler", "Lucky Bard", "Disarmer Wand"];
+let menuShown = "settings", menuPage = 0;
 const MENUS = {
-  settings: { label: "/settings", title: "{primary}&lYour settings", build: () => {
-    const l = layout(SETTINGS.length, state.frame, 0);
-    return { l, items: SETTINGS.map(([n, d, on]) => ({ color: on ? "#80c71f" : "#6b6b6b",
-      tip: ["{secondary}" + n, sep(), "{muted}" + d, "", "{muted}Currently: " + (on ? "{success}On" : "{error}Off"), "{secondary}{action}Click to switch"] })) };
-  } },
-  abilities: { label: "/ability", title: "{primary}&lAbilities", build: (page) => {
+  settings: { label: "/settings", title: () => state.menus.settingsTitle, build: () => ({ l: layout(SETTINGS.length, state.frame, 0),
+    items: SETTINGS.map(([n, d, on]) => ({ color: on ? "#80c71f" : "#6b6b6b",
+      tip: ["{secondary}" + n, state.menus.separator, "{muted}" + d, "", "{muted}Currently: " + (on ? "{success}On" : "{error}Off"), "{secondary}{action}Click to switch"] })) }) },
+  abilities: { label: "/ability", title: () => "{primary}&lAbilities", build: (page) => {
     const l = layout(ABILITIES.length, state.frame, page);
     return { l, items: l.slots.map((_, i) => {
-      const n = ABILITIES[l.first + i];
-      const ready = (l.first + i) % 3 !== 1;
+      const n = ABILITIES[l.first + i], ready = (l.first + i) % 3 !== 1;
       return { color: ABILITY_COLORS[(l.first + i) % ABILITY_COLORS.length],
-        tip: ["&6&l" + n, sep(), "{muted}What it does, as abilities.yml says.", "", "{dark}Type {bullet} " + n.toLowerCase().replace(/ /g, "-"),
+        tip: ["&6&l" + n, state.menus.separator, "{muted}What it does, as abilities.yml says.", "", "{dark}Type {bullet} " + n.toLowerCase().replace(/ /g, "-"),
           ready ? "{success}Ready" : "{error}Cooldown: {secondary}1m 12s"] };
     }) };
   } },
-  pocket: { label: "Pocket Bard", title: "{primary}&lPocket Bard", build: () => {
-    // Its sets sit where abilities.yml says; the frame goes around them.
-    const framed = layout((3 - 2) * 7, state.frame, 0);
-    const slots = [10, 12, 14, 16];
-    const l2 = { rows: 3, slots, frameSlots: state.frame === "none" ? new Set() : (framed.rows === 3 ? framed.frameSlots : new Set()),
+  pocket: { label: "Pocket Bard", title: () => "{primary}&lPocket Bard", build: () => {
+    const framed = layout(7, state.frame, 0);
+    const l = { rows: 3, slots: [10, 12, 14, 16], frameSlots: framed.rows === 3 ? framed.frameSlots : new Set(),
       corners: framed.rows === 3 ? framed.corners : new Set(), previous: -1, next: -1, page: 0, pages: 1, first: 0 };
-    return { l: l2, items: [["&c3x Strength", "#f9801d"], ["&73x Resistance", "#c6c6c6"], ["&a3x Jump", "#f9fffe"], ["&b3x Speed", "#f9fffe"]]
-      .map(([n, c]) => ({ color: c, tip: [n, sep(), "&7* &aTeam Members", "", "{secondary}{action}Click to pick"] })) };
+    return { l, items: [["&c3x Strength", "#f9801d"], ["&73x Resistance", "#c6c6c6"], ["&a3x Jump", "#f9fffe"], ["&b3x Speed", "#f9fffe"]]
+      .map(([n, c]) => ({ color: c, tip: [n, state.menus.separator, "&7* &aTeam Members", "", "{secondary}{action}Click to pick"] })) };
   } },
 };
-let abilityPage = 0;
-function sep() { return "{dark}&m                              "; }
 function menu() {
   const m = MENUS[menuShown];
-  const { l, items } = m.build(abilityPage);
-  render(document.getElementById("guiTitle"), title(m.title));
+  const { l, items } = m.build(menuPage);
+  render(document.getElementById("guiTitle"), title(m.title()));
   const slots = document.getElementById("slots");
   slots.textContent = "";
   const bySlot = new Map(l.slots.map((s, i) => [s, items[i]]));
+  const page = fill(state.menus.page, { page: String(l.page + 1), pages: String(l.pages) });
   for (let s = 0; s < l.rows * 9; s++) {
     const slot = el("div", { class: "slot" });
     const it = bySlot.get(s);
     if (it) {
       const item = el("div", { class: "item" }); item.style.background = it.color;
-      slot.append(item); slot.classList.add("hoverable"); slot.tabIndex = 0; slot.dataset.tip = it.tip.join("\n");
+      slot.append(item); slot.classList.add("hoverable"); slot.tabIndex = 0;
+      slot.dataset.tip = it.tip.filter((x, k) => !(k === 1 && !x)).join("\n");
     } else if (s === l.previous || s === l.next) {
       slot.append(el("span", { class: "arrow" }, s === l.previous ? "←" : "→"));
       slot.classList.add("hoverable"); slot.tabIndex = 0;
-      slot.dataset.tip = (s === l.previous ? "{primary}« Previous page" : "{primary}Next page »") + "\n{muted}Page {secondary}" + (l.page + 1) + "{muted}/{secondary}" + l.pages;
+      slot.dataset.tip = (s === l.previous ? state.menus.previous : state.menus.next) + "\n" + page;
       slot.dataset.turn = s === l.previous ? "-1" : "1";
     } else if (l.frameSlots.has(s)) {
       const pane = el("div", { class: "pane" });
@@ -502,104 +650,158 @@ function menu() {
   }
 }
 
-// ---------- Scoreboard and tab ----------
+const SAMPLE = { team: "Wizards", dtr_coloured: "{success}3.5", kills: "12", killstreak: "4", balance: "$1,250",
+  combat_line: "{primary}Combat {dark}{bullet} {error}24s", pearl_line: "{primary}Enderpearl {dark}{bullet} {warning}9s",
+  "cooldown_notch-apple_line": "{primary}Gapple {dark}{bullet} {warning}58m 12s" };
 function sidebar() {
   const box = document.getElementById("sidebar");
   box.textContent = "";
-  const t = el("div", { class: "title" }); render(t, title("{primary}&l" + ((state.prefixText || "HCF").trim() || "HCF"))); box.append(t);
-  const s = SEPARATORS[state.sbSep];
-  const rows = [];
-  if (s) rows.push("{dark}" + s);
-  rows.push("{primary}Team {dark}{bullet} {secondary}Wizards", "{primary}DTR {dark}{bullet} {success}3.5", "{primary}Kills {dark}{bullet} {secondary}12",
-    "{primary}Streak {dark}{bullet} {secondary}4", "{primary}Balance {dark}{bullet} {success}$1,250", "{primary}Combat {dark}{bullet} {error}24s",
-    "{primary}Enderpearl {dark}{bullet} {warning}9s", "{primary}Gapple {dark}{bullet} {warning}58m 12s");
-  if (s) rows.push("{dark}" + s);
-  if (state.serverIp.trim()) rows.push("{muted}" + state.serverIp.trim());
-  for (const r of rows) { const d = el("div", { class: "row" }); const left = el("span"); render(left, r); d.append(left); box.append(d); }
+  box.style.opacity = state.sb.enabled ? "1" : ".4";
+  const t = el("div", { class: "title" }); render(t, title(state.sb.title)); box.append(t);
+  let shown = 0;
+  for (const raw of sbLines()) {
+    const row = raw.replace(/^\[[a-zA-Z0-9_-]+\]/, "");
+    const names = [...row.matchAll(/%([a-z0-9_-]+)%/gi)].map(m => m[1]);
+    if (names.length && names.every(n => !SAMPLE[n])) continue;
+    const text = fill(row, SAMPLE);
+    if (!text.trim() || shown >= 15) continue;
+    const d = el("div"); render(d, text); box.append(d); shown++;
+  }
+}
+function sbLines() {
+  const s = SEPARATORS[state.sb.sep], sep = s ? ["{dark}" + s] : [];
+  return [...sep, ...state.sb.rows, ...sep, ...(state.sb.ip.trim() ? ["{muted}" + state.sb.ip.trim()] : [])];
 }
 function tab() {
   const box = document.getElementById("tab");
   box.textContent = "";
-  const head = el("div"); render(head, "{primary}&l" + ((state.prefixText || "HCF").trim() || "HCF") + "\n{muted}Hardcore Factions");
+  box.classList.toggle("off", !state.tab.enabled);
+  const head = el("div"); render(head, state.tab.header.join("\n"), { online: "42" });
   const players = el("div", { class: "players" });
   for (const [n, t] of [["Lawkeys", "Wizards"], ["ownedbynoname", "Wizards"], ["Notch", ""], ["Dinnerbone", "Raiders"]]) {
     const d = el("div"); render(d, (t ? "{dark}[{secondary}" + t + "{dark}] " : "") + "{text}" + n); players.append(d);
   }
-  const foot = el("div"); render(foot, "{text}Online {dark}{bullet} {secondary}42" + (state.serverIp.trim() ? "\n{muted}" + state.serverIp.trim() : ""));
+  const foot = el("div"); render(foot, state.tab.footer.join("\n"), { online: "42" });
   box.append(head, players, foot);
+  if (!state.tab.enabled) box.title = "The tab header and footer are off: switch them on under Tab list.";
+}
+function scene() {
+  const box = document.getElementById("scene");
+  box.textContent = "";
+  const people = [["self", "Lawkeys", "Wizards", "3.5", "You"], ["ally", "Notch", "Knights", "2.1", "An ally"],
+    ["enemy", "Dinnerbone", "Raiders", "0.5", "An enemy"], ["focus", "jeb_", "Raiders", "0.5", "Your focus"]];
+  for (const [rel, name, team, dtr, label] of people) {
+    const f = el("div", { class: "figure" });
+    const color = state.nametags.colors[rel];
+    const t1 = el("div", { class: "tag mc" }); render(t1, state.nametags.team, { color, team, dtr });
+    const t2 = el("div", { class: "tag mc" }); render(t2, state.nametags.name, { color, player: name });
+    f.append(t1, t2, el("div", { class: "body-pix" }), el("small", {}, label));
+    box.append(f);
+  }
+  const h = el("div", { class: "holo" });
+  for (const [raw, ph] of [[state.holo.title, { event: "Citadel" }], [state.holo.held, { team: "Wizards" }], [state.holo.time, { time: "4m 12s" }]]) {
+    const d = el("div", { class: "mc" }); render(d, raw, ph); h.append(d);
+  }
+  h.append(el("div", { class: "beacon" }));
+  box.append(h);
+}
+function tokens() {
+  const t = document.getElementById("tokens");
+  t.textContent = "";
+  const rows = [...ROLES.map(([k, l, h]) => ["{" + k + "}", h, "{" + k + "}" + l + " sample"]),
+    ["{prefix}", "starts the announcements", "{prefix}{text}an announcement"],
+    ["{bullet}", "the list symbol", "{primary}Label {dark}{bullet} {secondary}value"],
+    ["{action}", "starts a menu's click line", "{secondary}{action}Click to switch"]];
+  for (const [tok, what, sample] of rows) {
+    const tr = el("tr");
+    const a = el("td"); a.append(el("code", {}, tok));
+    const c = el("td", { class: "mc" }); c.style.background = "#1b1b1b"; render(c, sample);
+    tr.append(a, el("td", {}, what), c); t.append(tr);
+  }
 }
 
-// ---------- The files ----------
-function yamlString(s) { return '"' + s.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"'; }
+// ---------------------------------------------------------------------------
+// The files
+// ---------------------------------------------------------------------------
+function q(s) { return '"' + String(s).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"'; }
 function themeYml() {
   const c = state.colors;
-  return `# ---------------------------------------------------------------------------
-# theme.yml - the look of the whole plugin
-# Made with the HCFCore Theme Builder. Drop it in plugins/HCFCore/ and run
-# /hcf reload: every message, menu and board follows.
-#
-# Every text the plugin shows can use these tokens instead of colour codes:
-#   {primary} {secondary} {text} {muted} {dark} {success} {error} {warning}
-#   {prefix} {bullet} {action}
-# Legacy codes (&a, &l...) and hex colours written as &#rrggbb work anywhere.
-# ---------------------------------------------------------------------------
-
-colors:
-${ROLES.map(([k]) => `  ${k}: "${c[k].toUpperCase()}"`).join("\n")}
-
-# Starts the announcements - events, the map's phases, a team's own news - and
-# any message you add it to with {prefix}.
-prefix: ${yamlString(state.prefixRaw)}
-# The list symbol: scoreboard rows, event lines.
-bullet: ${yamlString(state.bullet)}
-# Menu and scoreboard titles in small capitals.
-small-caps-titles: ${state.smallCaps}
-
-menus:
-  # full: panes all around the menu; bars: the top and bottom rows; none.
-  frame: ${state.frame}
-  pane: ${state.pane}_STAINED_GLASS_PANE
-  corner-pane: ${state.cornerPane}_STAINED_GLASS_PANE
-  # What starts the line of an item saying what a click does.
-  action: ${yamlString(state.action)}
-`;
+  const out = [];
+  out.push("# ---------------------------------------------------------------------------",
+    "# theme.yml - the look of the whole plugin",
+    "# Made with the HCFCore Theme Builder: https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html",
+    "# Drop it in plugins/HCFCore/ and run /hcf reload: every message, menu and board follows.",
+    "#",
+    "# Tokens for any text: {primary} {secondary} {text} {muted} {dark} {success}",
+    "# {error} {warning} {prefix} {bullet} {action}. A colour may be a gradient,",
+    "# \"#F5B32E>#FF4D3D\": its text fades letter by letter.",
+    "# ---------------------------------------------------------------------------", "",
+    "colors:", ...ROLES.map(([k]) => `  ${k}: ${q(c[k].toUpperCase())}`), "",
+    "prefix: " + q(state.prefixRaw), "bullet: " + q(state.bullet), "small-caps-titles: " + state.smallCaps, "",
+    "menus:", "  frame: " + state.frame, `  pane: ${state.pane}_STAINED_GLASS_PANE`, `  corner-pane: ${state.cornerPane}_STAINED_GLASS_PANE`,
+    "  action: " + q(state.action));
+  const messages = {};
+  for (const [key, [group, field]] of Object.entries(MESSAGE_KEYS)) {
+    if (state[group][field] !== SHIPPED[group][field]) messages[key] = state[group][field];
+  }
+  if (Object.keys(messages).length) {
+    out.push("", "# Texts of lang/en.yml this theme words its own way.", "messages:");
+    for (const [k, v] of Object.entries(messages)) out.push(`  ${k}: ${q(v)}`);
+  }
+  if (state.chat.format !== SHIPPED.chat.format || state.chat.killsFormat !== SHIPPED.chat.killsFormat) {
+    out.push("", "# In place of chat.yml's.", "chat:", "  format: " + q(state.chat.format), "  kills-format: " + q(state.chat.killsFormat));
+  }
+  const nt = state.nametags, snt = SHIPPED.nametags;
+  if (nt.team !== snt.team || nt.name !== snt.name || JSON.stringify(nt.colors) !== JSON.stringify(snt.colors)) {
+    out.push("", "# In place of apollo.yml's nametags (Lunar Client).", "nametags:", "  team-line: " + q(nt.team), "  name-line: " + q(nt.name), "  colors:",
+      ...Object.entries(nt.colors).map(([k, v]) => `    ${k}: ${q(v)}`));
+  }
+  return out.join("\n") + "\n";
 }
 function uiYml() {
-  const s = SEPARATORS[state.sbSep];
-  const sepLine = s ? [`    - "{dark}${s}"`] : [];
-  const rows = ["[team]{primary}Team {dark}{bullet} {secondary}%team%", "[team]{primary}DTR {dark}{bullet} %dtr_coloured%",
-    "[stats]{primary}Kills {dark}{bullet} {secondary}%kills%", "[stats]{primary}Streak {dark}{bullet} {secondary}%killstreak%",
-    "[balance]{primary}Balance {dark}{bullet} {success}%balance%", "[team]%focus_line%", "[team]%rally_line%", "[combat]%combat_line%",
-    "[cooldowns]%pearl_line%", "[cooldowns]%cooldown_notch-apple_line%", "[cooldowns]%cooldown_golden-apple_line%",
-    "[cooldowns]%cooldown_chorus-fruit_line%", "[cooldowns]%cooldown_totem_line%", "[class]%class_line%", "[class]%class_energy_line%",
-    "[class]%archer_tag_line%", "[events]%phase_line%", "[events]%event_line%", "[events]%king_line%", "[events]%king_location_line%",
-    "[events]%conquest_line%", "[events]%conquest_zone_1%", "[events]%conquest_zone_2%", "[events]%conquest_zone_3%",
-    "[events]%conquest_zone_4%", "[timers]%timer_1%", "[timers]%timer_2%", "[timers]%timer_3%"];
-  const ip = state.serverIp.trim() ? [`    - "{muted}${state.serverIp.trim().replace(/"/g, "")}"`] : [];
-  return `# In ui.yml, replace the scoreboard's "title:" and "lines:" with these.
-scoreboard:
-  title: ${yamlString("{primary}&l" + ((state.prefixText || "HCF").trim() || "HCF"))}
-  lines:
-${[...sepLine, ...rows.map(r => `    - "${r}"`), ...sepLine, ...ip].join("\n")}
-`;
+  return ["# ---------------------------------------------------------------------------",
+    "# ui.yml - the scoreboard and the tab list",
+    "# Made with the HCFCore Theme Builder. Drop it in plugins/HCFCore/ and run /hcf reload.",
+    "#",
+    "# A row whose placeholders all come out empty is dropped. A row starting with a",
+    "# tag - [team], [stats], [balance], [combat], [cooldowns], [class], [events],",
+    "# [timers] - can be hidden by each player in /settings. The placeholders are",
+    "# listed in the documentation: reference/placeholders.",
+    "# ---------------------------------------------------------------------------", "",
+    "scoreboard:", "  enabled: " + state.sb.enabled, "  update-ticks: " + (/^\d+$/.test(String(state.sb.ticks).trim()) ? String(state.sb.ticks).trim() : "20"), "  title: " + q(state.sb.title), "  lines:",
+    ...sbLines().map(r => "    - " + q(r)), "",
+    "tablist:", "  enabled: " + state.tab.enabled, "  header:", ...state.tab.header.map(r => "    - " + q(r)),
+    "  footer:", ...state.tab.footer.map(r => "    - " + q(r)), ""].join("\n");
 }
 function importTheme(text) {
-  const next = structuredClone(state);
-  let section = null, found = 0;
+  const next = deepMerge(withPrefix(base()), JSON.parse(JSON.stringify(state)));
+  let section = null, sub = null, found = 0;
+  const unq = (raw) => raw.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
   for (const line of text.split(/\r?\n/)) {
     if (/^\s*(#|$)/.test(line)) continue;
-    const m = line.match(/^(\s*)([a-z-]+):\s*(.*?)\s*(#.*)?$/i);
+    const m = line.match(/^(\s*)([A-Za-z0-9._-]+):\s*(.*?)\s*$/);
     if (!m) continue;
-    const indent = m[1].length, key = m[2], raw = m[3];
-    if (indent === 0) section = raw === "" ? key : null;
-    const value = raw.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
-    if (indent > 0 && section === "colors" && /^#?[0-9a-f]{6}$/i.test(value)) {
-      next.colors[key] = (value.startsWith("#") ? value : "#" + value).toUpperCase(); found++;
-    } else if (indent > 0 && section === "menus") {
+    const indent = m[1].length, key = m[2], raw = m[3].replace(/\s+#[^"']*$/, ""), value = unq(raw);
+    if (indent === 0) { section = raw === "" ? key : null; sub = null; }
+    if (indent === 2 && raw === "") sub = key;
+    if (section === "colors" && indent === 2 && /^#?[0-9a-f]{6}(\s*>\s*#?[0-9a-f]{6})*$/i.test(value)) {
+      next.colors[key] = value.split(">").map(s => { s = s.trim(); return (s.startsWith("#") ? s : "#" + s).toUpperCase(); }).join(">"); found++;
+    } else if (section === "menus" && indent === 2) {
       if (key === "frame" && ["full", "bars", "none"].includes(value)) { next.frame = value; found++; }
       if (key === "pane") { next.pane = value.replace(/_STAINED_GLASS_PANE$/, ""); found++; }
       if (key === "corner-pane") { next.cornerPane = value.replace(/_STAINED_GLASS_PANE$/, ""); found++; }
       if (key === "action") { next.action = value; found++; }
+    } else if (section === "messages" && indent === 2 && MESSAGE_KEYS[key]) {
+      const [g, f] = MESSAGE_KEYS[key]; next[g][f] = value; found++;
+    } else if (section === "chat" && indent === 2) {
+      if (key === "format") { next.chat.format = value; found++; }
+      if (key === "kills-format") { next.chat.killsFormat = value; found++; }
+    } else if (section === "nametags") {
+      if (indent === 2 && key === "team-line") { next.nametags.team = value; found++; }
+      if (indent === 2 && key === "name-line") { next.nametags.name = value; found++; }
+      if (indent === 4 && sub === "colors") { next.nametags.colors[key] = value; found++; }
+    } else if (section === "scoreboard" && indent === 2 && key === "update-ticks") {
+      next.sb.ticks = value; found++;
     } else if (indent === 0 && raw !== "") {
       if (key === "prefix") { next.prefixRaw = value; found++; }
       if (key === "bullet") { next.bullet = value; found++; }
@@ -608,31 +810,42 @@ function importTheme(text) {
   }
   if (!PANES[next.pane]) next.pane = "BLACK";
   if (!PANES[next.cornerPane]) next.cornerPane = next.pane;
+  next.palette = null;
   return found ? next : null;
 }
 
-// ---------- Editor ----------
-function drawPresets() {
+// ---------------------------------------------------------------------------
+// Editor
+// ---------------------------------------------------------------------------
+function drawPalettes() {
   const box = document.getElementById("presets");
   box.textContent = "";
-  for (const p of PRESETS) {
-    const same = JSON.stringify(p.colors) === JSON.stringify(state.colors);
-    const b = el("button", { type: "button", class: "preset", "aria-pressed": String(same) });
+  for (const p of PALETTES) {
+    const b = el("button", { type: "button", class: "preset", "aria-pressed": String(state.palette === p.id) });
     const sw = el("div", { class: "swatches" });
-    for (const r of ["primary", "secondary", "text", "muted", "success", "error"]) { const i = el("i"); i.style.background = p.colors[r]; sw.append(i); }
-    b.append(sw, el("span", { class: "name" }, p.name), el("span", { class: "blurb" }, p.blurb));
-    b.addEventListener("click", () => { state = Object.assign(fresh(p), { serverIp: state.serverIp }); sync(); changed(); });
+    for (const r of ["primary", "secondary", "muted", "success", "error"]) { const i = el("i"); i.style.background = cssFill(p.colors[r]); sw.append(i); }
+    const name = el("span", { class: "name" });
+    const keep = state.colors; state.colors = p.colors;
+    render(name, "{primary}" + p.name);
+    state.colors = keep;
+    b.append(sw, name, el("span", { class: "blurb" }, p.blurb));
+    if (Object.values(p.colors).some(c => c.includes(">"))) b.append(el("span", { class: "fade-tag" }, "Gradient"));
+    b.addEventListener("click", () => {
+      state.palette = p.id; state.colors = { ...p.colors }; state.bullet = p.bullet; state.pane = p.pane; state.cornerPane = p.cornerPane;
+      state.prefixStyle = p.prefixStyle; state.prefixRaw = prefixFor(state);
+      sync(); changed();
+    });
     box.append(b);
   }
 }
-function seg(id, key, onPick) {
+function seg(id, get, set, key) {
   const box = document.getElementById(id);
   box.textContent = "";
   for (const [value, label] of CHOICES[key]) {
     const l = el("label");
-    const input = el("input", { type: "radio", name: key, value, id: key + "-" + CSS.escape(value) });
-    input.checked = state[key] === value;
-    input.addEventListener("change", () => { state[key] = value; if (onPick) onPick(); changed(); });
+    const input = el("input", { type: "radio", name: id, value, id: id + "-" + encodeURIComponent(value).replace(/%/g, "") });
+    input.checked = get() === value;
+    input.addEventListener("change", () => { set(value); changed(); });
     l.append(input, el("span", {}, label));
     box.append(l);
   }
@@ -648,78 +861,123 @@ function panes(id, key) {
     box.append(b);
   }
 }
-function sync() {
+function roleEditor() {
   const roles = document.getElementById("roles");
   roles.textContent = "";
   for (const [key, label, hint] of ROLES) {
     const row = el("div", { class: "role" });
-    const pick = el("input", { type: "color", id: "c-" + key, value: state.colors[key].toLowerCase(), "aria-label": label + " colour" });
-    const hex = el("input", { type: "text", id: "h-" + key, value: state.colors[key].toUpperCase(), maxlength: "7", "aria-label": label + " hex", spellcheck: "false" });
-    pick.addEventListener("input", () => { state.colors[key] = pick.value.toUpperCase(); hex.value = state.colors[key]; changed(); });
-    hex.addEventListener("input", () => {
-      const v = hex.value.trim();
-      if (/^#?[0-9a-f]{6}$/i.test(v)) { state.colors[key] = (v.startsWith("#") ? v : "#" + v).toUpperCase(); pick.value = state.colors[key].toLowerCase(); changed(); }
-    });
-    const lab = el("label", { for: "c-" + key }, label);
-    lab.append(el("small", {}, "{" + key + "} · " + hint));
-    row.append(pick, lab, hex);
+    const top = el("div", { class: "role-top" });
+    top.append(el("label", { for: "c-" + key }, label + " {" + key + "}"), el("small", {}, hint));
+    const line = el("div", { class: "role-row" });
+    const bar = el("div", { class: "bar" });
+    const draw = () => {
+      line.textContent = "";
+      const parts = state.colors[key].split(">");
+      parts.forEach((hex, k) => {
+        const pick = el("input", { type: "color", value: hex.toLowerCase(), id: k === 0 ? "c-" + key : "c-" + key + "-" + k, "aria-label": label + " colour " + (k + 1) });
+        const text = el("input", { type: "text", value: hex.toUpperCase(), maxlength: "7", spellcheck: "false", "aria-label": label + " hex " + (k + 1) });
+        const set = (v) => { parts[k] = v.toUpperCase(); state.colors[key] = parts.join(">"); state.palette = null; bar.style.background = cssFill(state.colors[key]); changed(false); };
+        pick.addEventListener("input", () => { text.value = pick.value.toUpperCase(); set(pick.value); });
+        text.addEventListener("input", () => { const v = text.value.trim(); if (/^#?[0-9a-f]{6}$/i.test(v)) { const h = v.startsWith("#") ? v : "#" + v; pick.value = h.toLowerCase(); set(h); } });
+        line.append(pick, text);
+      });
+      const fadeLabel = el("label", { class: "check" });
+      const fadeBox = el("input", { type: "checkbox" });
+      fadeBox.checked = parts.length > 1;
+      fadeBox.addEventListener("change", () => {
+        state.colors[key] = fadeBox.checked ? parts[0] + ">" + shade(parts[0]) : parts[0];
+        state.palette = null; draw(); changed(false);
+      });
+      fadeLabel.append(fadeBox, document.createTextNode("Gradient"));
+      line.append(fadeLabel);
+      if (parts.length > 1 && parts.length < 4) {
+        const more = el("button", { type: "button", class: "btn", style: "padding:4px 8px" }, "+ stop");
+        more.addEventListener("click", () => { state.colors[key] += ">" + shade(parts[parts.length - 1]); state.palette = null; draw(); changed(false); });
+        line.append(more);
+      }
+      bar.style.background = cssFill(state.colors[key]);
+    };
+    draw();
+    row.append(top, line, bar);
     roles.append(row);
   }
-  document.getElementById("prefixText").value = state.prefixText;
-  document.getElementById("prefixBold").checked = !!state.prefixBold;
-  document.getElementById("prefixRaw").value = state.prefixRaw;
-  document.getElementById("action").value = state.action;
-  document.getElementById("smallCaps").checked = !!state.smallCaps;
-  document.getElementById("serverIp").value = state.serverIp;
-  const rebuild = () => { state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; };
-  seg("prefixStyle", "prefixStyle", rebuild);
-  seg("bullet", "bullet"); seg("frame", "frame"); seg("sbSep", "sbSep");
+}
+function shade(hex) {
+  const v = parseInt(hex.slice(1), 16);
+  const r = (v >> 16) & 255, g = (v >> 8) & 255, b = v & 255;
+  return "#" + [b, r, g].map(x => Math.round(x * 0.8 + 40).toString(16).padStart(2, "0")).join("").toUpperCase();
+}
+const BIND = [
+  ["prefixText", () => state.prefixText, v => { state.prefixText = v; state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; }],
+  ["prefixRaw", () => state.prefixRaw, v => { state.prefixRaw = v; }],
+  ["action", () => state.action, v => { state.action = v; }],
+  ["m-settings-title", () => state.menus.settingsTitle, v => { state.menus.settingsTitle = v; }],
+  ["m-previous", () => state.menus.previous, v => { state.menus.previous = v; }],
+  ["m-next", () => state.menus.next, v => { state.menus.next = v; }],
+  ["m-page", () => state.menus.page, v => { state.menus.page = v; }],
+  ["m-separator", () => state.menus.separator, v => { state.menus.separator = v; }],
+  ["sbTitle", () => state.sb.title, v => { state.sb.title = v; }],
+  ["sbTicks", () => state.sb.ticks, v => { state.sb.ticks = v; }],
+  ["serverIp", () => state.sb.ip, v => { state.sb.ip = v; }],
+  ["sbRows", () => state.sb.rows.join("\n"), v => { state.sb.rows = v.split("\n").filter(x => x.trim()); }],
+  ["tabHeader", () => state.tab.header.join("\n"), v => { state.tab.header = v.split("\n"); }],
+  ["tabFooter", () => state.tab.footer.join("\n"), v => { state.tab.footer = v.split("\n"); }],
+  ["chatFormat", () => state.chat.format, v => { state.chat.format = v; }],
+  ["killsFormat", () => state.chat.killsFormat, v => { state.chat.killsFormat = v; }],
+  ["teamChat", () => state.chat.team, v => { state.chat.team = v; }],
+  ["allyChat", () => state.chat.ally, v => { state.chat.ally = v; }],
+  ["ntTeam", () => state.nametags.team, v => { state.nametags.team = v; }],
+  ["ntName", () => state.nametags.name, v => { state.nametags.name = v; }],
+  ["hTitle", () => state.holo.title, v => { state.holo.title = v; }],
+  ["hHeld", () => state.holo.held, v => { state.holo.held = v; }],
+  ["hTime", () => state.holo.time, v => { state.holo.time = v; }],
+];
+const CHECKS = [
+  ["prefixBold", () => state.prefixBold, v => { state.prefixBold = v; state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; }],
+  ["smallCaps", () => state.smallCaps, v => { state.smallCaps = v; }],
+  ["sbEnabled", () => state.sb.enabled, v => { state.sb.enabled = v; }],
+  ["tabEnabled", () => state.tab.enabled, v => { state.tab.enabled = v; }],
+];
+for (const [id, , set] of BIND) document.getElementById(id).addEventListener("input", e => { set(e.target.value); changed(); });
+for (const [id, , set] of CHECKS) document.getElementById(id).addEventListener("change", e => { set(e.target.checked); changed(); });
+function sync() {
+  roleEditor();
+  for (const [id, get] of BIND) document.getElementById(id).value = get();
+  for (const [id, get] of CHECKS) document.getElementById(id).checked = !!get();
+  seg("prefixStyle", () => state.prefixStyle, v => { state.prefixStyle = v; state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; }, "prefixStyle");
+  seg("bullet", () => state.bullet, v => { state.bullet = v; }, "bullet");
+  seg("frame", () => state.frame, v => { state.frame = v; }, "frame");
+  seg("sbSep", () => state.sb.sep, v => { state.sb.sep = v; }, "sbSep");
   panes("pane", "pane"); panes("cornerPane", "cornerPane");
+  const colours = document.getElementById("ntColors");
+  colours.textContent = "";
+  for (const rel of Object.keys(state.nametags.colors)) {
+    const f = el("div", { class: "field" });
+    const input = el("input", { type: "text", id: "nt-" + rel, class: "mono", value: state.nametags.colors[rel] });
+    input.addEventListener("input", () => { state.nametags.colors[rel] = input.value; changed(); });
+    f.append(el("label", { for: "nt-" + rel }, rel), input);
+    colours.append(f);
+  }
   const pick = document.getElementById("menuPick");
   pick.textContent = "";
   for (const [id, m] of Object.entries(MENUS)) {
     const l = el("label");
-    const input = el("input", { type: "radio", name: "menu", value: id, id: "menu-" + id });
+    const input = el("input", { type: "radio", name: "menuShown", value: id, id: "menu-" + id });
     input.checked = menuShown === id;
-    input.addEventListener("change", () => { menuShown = id; abilityPage = 0; menu(); });
+    input.addEventListener("change", () => { menuShown = id; menuPage = 0; menu(); });
     l.append(input, el("span", {}, m.label));
     pick.append(l);
   }
 }
-document.getElementById("prefixText").addEventListener("input", e => { state.prefixText = e.target.value; state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; changed(); });
-document.getElementById("prefixBold").addEventListener("change", e => { state.prefixBold = e.target.checked; state.prefixRaw = prefixFor(state); document.getElementById("prefixRaw").value = state.prefixRaw; changed(); });
-document.getElementById("prefixRaw").addEventListener("input", e => { state.prefixRaw = e.target.value; changed(); });
-document.getElementById("action").addEventListener("input", e => { state.action = e.target.value; changed(); });
-document.getElementById("smallCaps").addEventListener("change", e => { state.smallCaps = e.target.checked; changed(); });
-document.getElementById("serverIp").addEventListener("input", e => { state.serverIp = e.target.value; changed(); });
-
-function tokens() {
-  const t = document.getElementById("tokens");
-  t.textContent = "";
-  const rows = [...ROLES.map(([k, l, h]) => ["{" + k + "}", h, "{" + k + "}" + l]),
-    ["{prefix}", "starts the announcements", "{prefix}{text}an announcement"],
-    ["{bullet}", "the list symbol", "{primary}Label {dark}{bullet} {secondary}value"],
-    ["{action}", "starts a menu's click line", "{secondary}{action}Click to switch"]];
-  for (const [tok, what, sample] of rows) {
-    const tr = el("tr");
-    const a = el("td"); a.append(el("code", {}, tok));
-    const b = el("td", {}, what);
-    const c = el("td", { class: "mc" }); c.style.background = "#1b1b1b"; render(c, sample);
-    tr.append(a, b, c); t.append(tr);
-  }
-}
-function files() {
-  const text = fileShown === "ui" ? uiYml() : themeYml();
-  document.getElementById("code").textContent = text;
-  document.getElementById("fileHint").textContent = fileShown === "ui"
-    ? "The scoreboard's rows with your separator and address. Rows tagged [team], [cooldowns]... can be hidden by each player in /settings."
-    : "Save it as plugins/HCFCore/theme.yml, then /hcf reload. Only the look changes: no message, no setting.";
-  document.getElementById("download").textContent = fileShown === "ui" ? "Download ui.yml part" : "Download theme.yml";
-}
-function renderAll() { chat(); menu(); sidebar(); tab(); tokens(); drawPresets(); if (fileShown !== "import") files(); }
+function renderAll() { chat(); menu(); sidebar(); tab(); scene(); tokens(); drawPalettes(); files(); }
 function changed() { save(); renderAll(); }
 
-// File tabs
+// Files panel
+let fileShown = "theme";
+function files() {
+  if (fileShown === "import") return;
+  document.getElementById("code").textContent = fileShown === "ui" ? uiYml() : themeYml();
+}
 document.getElementById("fileTabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-file]");
   if (!b) return;
@@ -728,24 +986,33 @@ document.getElementById("fileTabs").addEventListener("click", e => {
   const importing = fileShown === "import";
   document.getElementById("panel-file").hidden = importing;
   document.getElementById("panel-import").hidden = !importing;
-  document.getElementById("download").hidden = importing;
-  document.getElementById("copy").hidden = importing;
+  for (const id of ["download", "copy", "zip"]) document.getElementById(id).hidden = importing;
   document.getElementById("load").hidden = !importing;
   setStatus("");
-  if (!importing) files();
+  files();
 });
 function setStatus(t) { document.getElementById("status").textContent = t; }
+function saveBlob(blob, name) {
+  const a = el("a", { href: URL.createObjectURL(blob), download: name });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 document.getElementById("copy").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(document.getElementById("code").textContent); setStatus("Copied."); }
   catch (e) { setStatus("Copy blocked by the browser: select the text and copy it."); }
 });
 document.getElementById("download").addEventListener("click", () => {
   const ui = fileShown === "ui";
-  const blob = new Blob([ui ? uiYml() : themeYml()], { type: "text/yaml;charset=utf-8" });
-  const a = el("a", { href: URL.createObjectURL(blob), download: ui ? "ui-scoreboard.yml" : "theme.yml" });
-  document.body.append(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  setStatus(ui ? "Downloaded ui-scoreboard.yml." : "Downloaded theme.yml.");
+  saveBlob(new Blob([ui ? uiYml() : themeYml()], { type: "text/yaml;charset=utf-8" }), ui ? "ui.yml" : "theme.yml");
+  setStatus("Downloaded " + (ui ? "ui.yml" : "theme.yml") + ".");
+});
+document.getElementById("zip").addEventListener("click", async () => {
+  if (!window.JSZip) { setStatus("The zip library did not load: download each file instead."); return; }
+  const zip = new JSZip();
+  zip.file("theme.yml", themeYml());
+  zip.file("ui.yml", uiYml());
+  saveBlob(await zip.generateAsync({ type: "blob" }), "hcfcore-theme.zip");
+  setStatus("Downloaded hcfcore-theme.zip: theme.yml and ui.yml.");
 });
 document.getElementById("load").addEventListener("click", () => {
   const next = importTheme(document.getElementById("importText").value);
@@ -753,7 +1020,7 @@ document.getElementById("load").addEventListener("click", () => {
   state = next; sync(); changed(); setStatus("Loaded: tweak it, then download it again.");
 });
 
-// Tooltips, and the page arrows
+// Tooltips and page arrows
 const wrap = document.getElementById("guiWrap"), tip = document.getElementById("tooltip"), tipText = document.getElementById("tooltipText");
 function showTip(slot, x, y) {
   if (!slot.dataset.tip) { tip.hidden = true; return; }
@@ -770,12 +1037,19 @@ wrap.addEventListener("focusout", () => { tip.hidden = true; });
 function turn(e) {
   const s = e.target.closest(".slot[data-turn]");
   if (!s) return;
-  abilityPage = Math.max(0, abilityPage + Number(s.dataset.turn));
+  menuPage = Math.max(0, menuPage + Number(s.dataset.turn));
   menu();
 }
 wrap.addEventListener("click", turn);
 wrap.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); turn(e); } });
 
+// ?palette=aurora opens the builder on that palette: a link can show one off.
+const wanted = new URLSearchParams(location.search).get("palette");
+const linked = PALETTES.find(p => p.id === wanted);
+if (linked) {
+  state.palette = linked.id; state.colors = { ...linked.colors }; state.bullet = linked.bullet; state.pane = linked.pane;
+  state.cornerPane = linked.cornerPane; state.prefixStyle = linked.prefixStyle; state.prefixRaw = prefixFor(state);
+}
 sync();
 renderAll();
 </script>

@@ -18,6 +18,12 @@
 # Change a colour here and it changes everywhere at once. Legacy codes (&a,
 # &l...) and hex colours written as &#rrggbb still work anywhere.
 #
+# A colour may be a gradient: two colours or more, "#F5B32E>#FF4D3D". The text
+# it colours fades from one to the next, letter by letter.
+#
+# Design yours with live previews, and download this file, with the Theme
+# Builder: https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html
+#
 # /hcf reload applies changes. Lines "# --8<-- [start:...]" and "# --8<--
 # [end:...]" mark the parts the online documentation quotes from this file.
 # ---------------------------------------------------------------------------
@@ -54,3 +60,28 @@ menus:
   # What starts the line of an item saying what a click does.
   action: "» "
 # --8<-- [end:menus]
+
+# --8<-- [start:overrides]
+# A theme can carry a whole look, so one file is all a server needs to import.
+# Each section below is optional; what it sets is used in place of the other
+# file's, and what it leaves out stays theirs.
+#
+# messages:          any text of lang/en.yml, by its key - nested or dotted
+#   menus:
+#     next: "{primary}Next »"
+#   team.chat.format-team: "{primary}[Team] {secondary}%player%{dark}: {text}%message%"
+#
+# chat:              chat.yml's line format
+#   format: "%kills%%prefix%{text}%player%%suffix%{dark}: {text}%message%"
+#   kills-format: "{dark}[{primary}%value%{dark}]&r "
+#
+# nametags:          apollo.yml's nametags (Lunar Client)
+#   team-line: "%color%%team% {dark}| {warning}%dtr%"
+#   name-line: "%color%%player%"
+#   colors:
+#     self: "&a"
+#     ally: "&9"
+#     enemy: "&c"
+#     focus: "&d"
+#     neutral: "&f"
+# --8<-- [end:overrides]

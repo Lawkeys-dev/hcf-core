@@ -73,7 +73,7 @@ class LunarRulesTest {
     @Test
     void aNametagHasATeamLineOnlyForAPlayerWithATeam() {
         NametagStyle style = LunarSettings.defaults().nametags().style();
-        assertEquals(List.of("&cWizards &7| &e1.10", "&cbob"),
+        assertEquals(List.of("&cWizards {dark}| {warning}1.10", "&cbob"),
                 style.lines(NametagStyle.Relation.ENEMY, "Wizards", "1.10", "bob"));
         assertEquals(List.of("&fbob"), style.lines(NametagStyle.Relation.NEUTRAL, null, null, "bob"));
         NametagStyle nameOnly = new NametagStyle("", "%color%%player%", Map.of());

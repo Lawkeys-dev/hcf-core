@@ -11,9 +11,17 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 ![Java 25](https://img.shields.io/badge/Java-25-orange)
 [![License: MIT + attribution](https://img.shields.io/badge/license-MIT%20%2B%20attribution-green)](LICENSE)
 
-### 📖 [Read the documentation](https://lawkeys-dev.github.io/hcf-core/)
+### 📖 [Read the documentation](https://lawkeys-dev.github.io/hcf-core/) · 🎨 [Design your theme](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)
 
 </div>
+
+---
+
+## Make it yours: the Theme Builder
+
+Every colour, prefix, menu, scoreboard row, tab line, chat format, nametag and hologram of the plugin follows one file, `theme.yml`. **The [Theme Builder](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html) designs it in your browser**, with live previews of the chat, the menus, the scoreboard, the tab list, nametags and holograms: start from one of 14 palettes - gradients included, fading letter by letter - tune every colour, then download `theme.yml` and `ui.yml` and drop them into `plugins/HCFCore/`. No editing by hand.
+
+[![The Theme Builder, with the Sunset palette](docs/assets/theme-builder.png)](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)
 
 ---
 
@@ -63,7 +71,7 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1061 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1066 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).

@@ -119,6 +119,11 @@ public final class LangManager {
     }
 
     private String lookup(String key) {
+        // A text theme.yml sets comes first: a theme carries its own wording of the look.
+        String themed = theme.overrides().messages().get(key);
+        if (themed != null) {
+            return themed;
+        }
         if (messages != null) {
             String value = messages.getString(key);
             if (value != null) {

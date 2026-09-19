@@ -18,13 +18,19 @@ import java.util.regex.Pattern;
  * <p>Pure Java: {@link #apply} turns the tokens into {@code &} codes, which
  * {@code ColorCodes} then translates as ever.
  *
- * @param colors    role to hex colour, {@code #rrggbb}
+ * <p>A role may be a <em>gradient</em>, {@code #F5B32E>#FF4D3D} - two colours or more:
+ * the text it colours fades from one to the next, letter by letter, up to the next
+ * colour change.
+ *
+ * @param colors    role to hex colour, {@code #rrggbb}, or a gradient, {@code #rrggbb>#rrggbb}
  * @param prefix    what {@code {prefix}} becomes; it may use the colour tokens
  * @param bullet    what {@code {bullet}} becomes: a list symbol, {@code ➥}
  * @param smallCaps whether menu and scoreboard titles are written in small capitals
  * @param menus     how menus are framed
+ * @param overrides what the theme sets in place of the other files: texts, chat, nametags
  */
-public record Theme(Map<String, String> colors, String prefix, String bullet, boolean smallCaps, Menus menus) {
+public record Theme(Map<String, String> colors, String prefix, String bullet, boolean smallCaps, Menus menus,
+                    Overrides overrides) {
 
     /** Every colour role, in the order the file lists them. */
     public static final java.util.List<String> ROLES = java.util.List.of(
@@ -32,6 +38,9 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
 
     private static final Pattern TOKEN = Pattern.compile("\\{([a-z]+)}");
     private static final Pattern HEX = Pattern.compile("#?[0-9a-fA-F]{6}");
+    private static final Pattern GRADIENT = Pattern.compile("#?[0-9a-fA-F]{6}(\\s*>\\s*#?[0-9a-fA-F]{6})+");
+    /** Marks where a gradient role starts, until {@link #expandGradients} lays it out. */
+    private static final char MARK = '\u0001';
     private static final String SMALL_FROM = "abcdefghijklmnopqrstuvwxyz";
     private static final String SMALL_TO = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ";
 
@@ -56,6 +65,27 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
         }
     }
 
+    /**
+     * What the theme sets in place of the other files, so one {@code theme.yml} carries
+     * a whole look. Each is optional: {@code null}, or empty, leaves the other file's.
+     *
+     * @param messages       language key ({@code menus.next}) to text, over {@code lang/en.yml}
+     * @param chatFormat     over {@code chat.yml}'s {@code format}
+     * @param killsFormat    over {@code chat.yml}'s {@code kills-format}
+     * @param nametagTeam    over {@code apollo.yml}'s {@code nametags.team-line}
+     * @param nametagName    over {@code apollo.yml}'s {@code nametags.name-line}
+     * @param nametagColors  relation ({@code self}, {@code ally}...) to its colour, over {@code nametags.colors}
+     */
+    public record Overrides(Map<String, String> messages, String chatFormat, String killsFormat,
+                            String nametagTeam, String nametagName, Map<String, String> nametagColors) {
+        public static final Overrides NONE = new Overrides(Map.of(), null, null, null, null, Map.of());
+
+        public Overrides {
+            messages = Map.copyOf(Objects.requireNonNullElse(messages, Map.of()));
+            nametagColors = Map.copyOf(Objects.requireNonNullElse(nametagColors, Map.of()));
+        }
+    }
+
     public Theme {
         Map<String, String> clean = new LinkedHashMap<>();
         colors.forEach((role, hex) -> clean.put(role.toLowerCase(Locale.ROOT), normalise(hex)));
@@ -63,6 +93,11 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
         prefix = Objects.requireNonNullElse(prefix, "");
         bullet = Objects.requireNonNullElse(bullet, "");
         Objects.requireNonNull(menus, "menus");
+        overrides = Objects.requireNonNullElse(overrides, Overrides.NONE);
+    }
+
+    public Theme(Map<String, String> colors, String prefix, String bullet, boolean smallCaps, Menus menus) {
+        this(colors, prefix, bullet, smallCaps, menus, Overrides.NONE);
     }
 
     /** As shipped: Or royal, the owner's choice of 19/09/2026. */
@@ -85,9 +120,21 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
         return value != null && HEX.matcher(value.trim()).matches();
     }
 
-    private static String normalise(String hex) {
-        String value = hex.trim();
-        return (value.startsWith("#") ? value : "#" + value).toUpperCase(Locale.ROOT);
+    /** @return whether this is a colour a role may be: a hex colour, or a gradient of them */
+    public static boolean isColour(String value) {
+        return value != null && (isHex(value) || GRADIENT.matcher(value.trim()).matches());
+    }
+
+    private static String normalise(String colour) {
+        StringBuilder out = new StringBuilder();
+        for (String stop : colour.split(">")) {
+            String value = stop.trim();
+            if (!out.isEmpty()) {
+                out.append('>');
+            }
+            out.append((value.startsWith("#") ? value : "#" + value).toUpperCase(Locale.ROOT));
+        }
+        return out.toString();
     }
 
     /**
@@ -101,7 +148,8 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
         }
         String once = replace(input, true);
         // The prefix may itself use the colour tokens.
-        return once.indexOf('{') < 0 ? once : replace(once, false);
+        String twice = once.indexOf('{') < 0 ? once : replace(once, false);
+        return twice.indexOf(MARK) < 0 ? twice : expandGradients(twice);
     }
 
     private String replace(String input, boolean withPrefix) {
@@ -109,7 +157,9 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
         StringBuilder out = new StringBuilder(input.length() + 16);
         while (tokens.find()) {
             String name = tokens.group(1);
-            String value = colors.containsKey(name) ? "&" + colors.get(name)
+            String colour = colors.get(name);
+            String value = colour != null && colour.indexOf('>') >= 0 ? MARK + name + MARK
+                    : colour != null ? "&" + colour
                     : withPrefix && name.equals("prefix") ? prefix
                     : name.equals("bullet") ? bullet
                     : name.equals("action") ? menus.action()
@@ -118,6 +168,119 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
         }
         tokens.appendTail(out);
         return out.toString();
+    }
+
+    /**
+     * Lays each gradient out: the text after a gradient role, up to the next colour
+     * change, gets a colour per letter, fading through the role's stops. A format
+     * ({@code &l}) inside it is kept on every letter - a colour code resets it.
+     */
+    private String expandGradients(String input) {
+        StringBuilder out = new StringBuilder(input.length() * 4);
+        int i = 0;
+        while (i < input.length()) {
+            char c = input.charAt(i);
+            if (c != MARK) {
+                out.append(c);
+                i++;
+                continue;
+            }
+            int close = input.indexOf(MARK, i + 1);
+            if (close < 0) {
+                break;
+            }
+            String role = input.substring(i + 1, close);
+            int end = segmentEnd(input, close + 1);
+            out.append(gradient(stops(colors.get(role)), input.substring(close + 1, end)));
+            i = end;
+        }
+        return out.toString();
+    }
+
+    /** Where a gradient stops: the next gradient, or the next colour code - a format code does not. */
+    private static int segmentEnd(String input, int from) {
+        int j = from;
+        while (j < input.length()) {
+            char c = input.charAt(j);
+            if (c == MARK) {
+                return j;
+            }
+            if (c == '&' && j + 1 < input.length()) {
+                char next = Character.toLowerCase(input.charAt(j + 1));
+                if (next == '&') {
+                    j += 2;
+                    continue;
+                }
+                if (next == '#' || next == 'r' || (next >= '0' && next <= '9') || (next >= 'a' && next <= 'f')) {
+                    return j;
+                }
+            }
+            j++;
+        }
+        return input.length();
+    }
+
+    private static int[][] stops(String gradient) {
+        String[] parts = gradient.split(">");
+        int[][] out = new int[parts.length][];
+        for (int k = 0; k < parts.length; k++) {
+            int rgb = Integer.parseInt(parts[k].trim().substring(1), 16);
+            out[k] = new int[] {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
+        }
+        return out;
+    }
+
+    private static String gradient(int[][] stops, String segment) {
+        // What is shown, one entry per letter; the formats met on the way are kept for the letters after them.
+        java.util.List<String> letters = new java.util.ArrayList<>();
+        java.util.List<String> formatsAt = new java.util.ArrayList<>();
+        StringBuilder formats = new StringBuilder();
+        int i = 0;
+        while (i < segment.length()) {
+            char c = segment.charAt(i);
+            if (c == '&' && i + 1 < segment.length()) {
+                char next = Character.toLowerCase(segment.charAt(i + 1));
+                if (next == '&') {
+                    letters.add("&&");
+                    formatsAt.add(formats.toString());
+                    i += 2;
+                    continue;
+                }
+                if (next >= 'k' && next <= 'o') {
+                    formats.append('&').append(next);
+                    i += 2;
+                    continue;
+                }
+            }
+            int cp = segment.codePointAt(i);
+            letters.add(new String(Character.toChars(cp)));
+            formatsAt.add(formats.toString());
+            i += Character.charCount(cp);
+        }
+        StringBuilder out = new StringBuilder(segment.length() * 16);
+        int count = letters.size();
+        for (int k = 0; k < count; k++) {
+            String letter = letters.get(k);
+            if (letter.isBlank()) {
+                out.append(letter);
+                continue;
+            }
+            double t = count == 1 ? 0.0 : (double) k / (count - 1);
+            out.append('&').append(hexAt(stops, t)).append(formatsAt.get(k)).append(letter);
+        }
+        return out.toString();
+    }
+
+    private static String hexAt(int[][] stops, double t) {
+        double scaled = t * (stops.length - 1);
+        int from = Math.min((int) Math.floor(scaled), stops.length - 2);
+        double local = scaled - from;
+        int[] a = stops[from];
+        int[] b = stops[from + 1];
+        int r = (int) Math.round(a[0] + (b[0] - a[0]) * local);
+        int g = (int) Math.round(a[1] + (b[1] - a[1]) * local);
+        int bl = (int) Math.round(a[2] + (b[2] - a[2]) * local);
+        return String.format(Locale.ROOT, "#%02X%02X%02X", r, g, bl);
     }
 
     /**

@@ -38,6 +38,44 @@ class ThemeTest {
     }
 
     @Test
+    void aGradientFadesLetterByLetterUpToTheNextColour() {
+        Theme fade = withPrimary("#000000>#FFFFFF");
+        assertEquals("&#000000A&#808080B&#FFFFFFC&#B3A88F rest", fade.apply("{primary}ABC{muted} rest"));
+    }
+
+    @Test
+    void aGradientKeepsItsFormatsOnEveryLetterAndSkipsSpaces() {
+        Theme fade = withPrimary("#000000>#FFFFFF");
+        assertEquals("&#000000&lA &#FFFFFF&lB&r!", fade.apply("{primary}&lA B&r!"));
+    }
+
+    @Test
+    void aGradientMayHaveMoreThanTwoStops() {
+        Theme fade = withPrimary("#FF0000>#00FF00>#0000FF");
+        assertEquals("&#FF0000a&#00FF00b&#0000FFc", fade.apply("{primary}abc"));
+    }
+
+    @Test
+    void aGradientInThePrefixFadesToo() {
+        Theme fade = withPrimary("#000000>#FFFFFF");
+        assertEquals("&#000000&lH&#808080&lC&#FFFFFF&lF&r&#5E5540 » ", fade.apply("{prefix}"));
+    }
+
+    @Test
+    void aGradientIsAColourARoleMayBe() {
+        assertTrue(Theme.isColour("#F5B32E>#FF4D3D"));
+        assertTrue(Theme.isColour("f5b32e > ff4d3d > 00ff00"));
+        assertFalse(Theme.isColour("#F5B32E>"));
+        assertEquals("#F5B32E>#FF4D3D", withPrimary("f5b32e > ff4d3d").colors().get("primary"), "written the one way");
+    }
+
+    private Theme withPrimary(String colour) {
+        java.util.Map<String, String> colors = new java.util.LinkedHashMap<>(theme.colors());
+        colors.put("primary", colour);
+        return new Theme(colors, theme.prefix(), theme.bullet(), theme.smallCaps(), theme.menus());
+    }
+
+    @Test
     void anUnknownTokenIsLeftAsWritten() {
         assertEquals("a {brace} here", theme.apply("a {brace} here"));
         assertEquals("no tokens", theme.apply("no tokens"));

@@ -24,8 +24,9 @@ public final class ThemeLoader {
         if (read != null) {
             for (String role : read.getKeys(false)) {
                 String value = read.getString(role, "");
-                if (!Theme.isHex(value)) {
-                    warn.accept("colors." + role + ": '" + value + "' is not a hex colour (#rrggbb); ignored.");
+                if (!Theme.isColour(value)) {
+                    warn.accept("colors." + role + ": '" + value + "' is not a hex colour (#rrggbb) nor a gradient"
+                            + " (#rrggbb>#rrggbb); ignored.");
                     continue;
                 }
                 colors.put(role, value);
@@ -44,6 +45,37 @@ public final class ThemeLoader {
         }
         return new Theme(colors, section.getString("prefix", defaults.prefix()),
                 section.getString("bullet", defaults.bullet()),
-                section.getBoolean("small-caps-titles", defaults.smallCaps()), readMenus);
+                section.getBoolean("small-caps-titles", defaults.smallCaps()), readMenus, overrides(section, warn));
+    }
+
+    /** The optional sections that set, in place of the other files, texts, the chat's format, nametags. */
+    private static Theme.Overrides overrides(ConfigurationSection section, Consumer<String> warn) {
+        Map<String, String> messages = new LinkedHashMap<>();
+        ConfigurationSection texts = section.getConfigurationSection("messages");
+        if (texts != null) {
+            // Nested as in lang/en.yml, or dotted on one line: both are the key's full path.
+            for (String key : texts.getKeys(true)) {
+                if (texts.isString(key)) {
+                    messages.put(key, texts.getString(key));
+                } else if (!texts.isConfigurationSection(key)) {
+                    warn.accept("messages." + key + ": a text is expected; ignored.");
+                }
+            }
+        }
+        ConfigurationSection chat = section.getConfigurationSection("chat");
+        ConfigurationSection nametags = section.getConfigurationSection("nametags");
+        Map<String, String> relations = new LinkedHashMap<>();
+        ConfigurationSection colours = nametags == null ? null : nametags.getConfigurationSection("colors");
+        if (colours != null) {
+            for (String relation : colours.getKeys(false)) {
+                relations.put(relation.toLowerCase(java.util.Locale.ROOT), colours.getString(relation, ""));
+            }
+        }
+        return new Theme.Overrides(messages,
+                chat == null ? null : chat.getString("format"),
+                chat == null ? null : chat.getString("kills-format"),
+                nametags == null ? null : nametags.getString("team-line"),
+                nametags == null ? null : nametags.getString("name-line"),
+                relations);
     }
 }

@@ -13,9 +13,16 @@ hide:
 
 [Get started :material-rocket-launch:](getting-started/index.md){ .md-button .md-button--primary }
 [How the game works :material-sword-cross:](gameplay/index.md){ .md-button }
+[Design your theme :material-palette:](tools/theme-builder.html){ .md-button }
 [GitHub :fontawesome-brands-github:](https://github.com/Lawkeys-dev/hcf-core){ .md-button }
 
 </div>
+
+## Make it yours
+
+**Every colour, prefix, menu, scoreboard row, tab line, chat format, nametag and hologram follows one file, [`theme.yml`](reference/configuration/theme.md).** The **[Theme Builder](tools/theme-builder.html)** designs it with live previews - start from one of 14 palettes, gradients included, tune each colour, and download files ready to drop into `plugins/HCFCore/`.
+
+[![The Theme Builder, with the Sunset palette](assets/theme-builder.png)](tools/theme-builder.html)
 
 ## Everything an HCF server needs, in one plugin
 

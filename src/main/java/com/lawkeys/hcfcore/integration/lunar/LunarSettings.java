@@ -49,7 +49,7 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
                 new TeamView(true, 0x55FF55, 48.0),
                 new Cooldowns(true, true, "DIAMOND_SWORD", true, "CLOCK", true, "NETHER_STAR", true, "ENDER_PEARL", true,
                         true, true),
-                new Nametags(true, new NametagStyle("%color%%team% &7| &e%dtr%", "%color%%player%", Map.of(
+                new Nametags(true, new NametagStyle("%color%%team% {dark}| {warning}%dtr%", "%color%%player%", Map.of(
                         NametagStyle.Relation.SELF, "&a",
                         NametagStyle.Relation.ALLY, "&9",
                         NametagStyle.Relation.ENEMY, "&c",

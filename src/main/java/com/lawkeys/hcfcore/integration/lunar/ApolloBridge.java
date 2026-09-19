@@ -444,7 +444,7 @@ final class ApolloBridge implements LunarBridge, Listener {
         }
         for (Map.Entry<String, List<String>> entry : plan.send().entrySet()) {
             List<Component> lines = entry.getValue().stream()
-                    .map(line -> (Component) LEGACY.deserialize(ColorCodes.translate(line)))
+                    .map(line -> (Component) LEGACY.deserialize(com.lawkeys.hcfcore.lang.LangManager.colorize(line)))
                     .toList();
             nametagModule.overrideNametag(apollo, UUID.fromString(entry.getKey()),
                     Nametag.builder().lines(lines).build());
@@ -481,6 +481,6 @@ final class ApolloBridge implements LunarBridge, Listener {
 
     /** Waypoint names are plain text: colour codes, typed or translated, are dropped. */
     private static String plain(String text) {
-        return ColorCodes.strip(ColorCodes.translate(text));
+        return ColorCodes.strip(com.lawkeys.hcfcore.lang.LangManager.colorize(text));
     }
 }

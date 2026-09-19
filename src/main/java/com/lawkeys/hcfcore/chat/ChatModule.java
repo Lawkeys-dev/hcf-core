@@ -136,7 +136,13 @@ public final class ChatModule {
 
     public void reloadSettings() {
         var section = ConfigManager.loadFile(plugin, "chat.yml");
-        this.settings = ChatSettingsLoader.load(section,
+        ChatSettings read = ChatSettingsLoader.load(section,
                 warning -> plugin.getLogger().warning("chat.yml: " + warning));
+        // theme.yml may set the look of a line in place of chat.yml.
+        var theme = com.lawkeys.hcfcore.lang.LangManager.theme().overrides();
+        this.settings = new ChatSettings(read.enabled(),
+                theme.chatFormat() != null ? theme.chatFormat() : read.format(),
+                theme.killsFormat() != null ? theme.killsFormat() : read.killsFormat(),
+                read.rangeBlocks(), read.logTeamChat());
     }
 }

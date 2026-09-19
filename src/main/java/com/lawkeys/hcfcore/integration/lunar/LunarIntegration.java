@@ -78,7 +78,27 @@ public final class LunarIntegration {
     }
 
     private static LunarSettings load(Plugin plugin) {
-        return LunarSettingsLoader.load(ConfigManager.loadFile(plugin, "apollo.yml"),
+        LunarSettings read = LunarSettingsLoader.load(ConfigManager.loadFile(plugin, "apollo.yml"),
                 warning -> plugin.getLogger().warning("apollo.yml: " + warning));
+        return withTheme(read, com.lawkeys.hcfcore.lang.LangManager.theme().overrides());
+    }
+
+    /** theme.yml may set the nametags' look in place of apollo.yml. */
+    static LunarSettings withTheme(LunarSettings read, com.lawkeys.hcfcore.theme.Theme.Overrides theme) {
+        NametagStyle style = read.nametags().style();
+        java.util.Map<NametagStyle.Relation, String> colors = new java.util.EnumMap<>(NametagStyle.Relation.class);
+        colors.putAll(style.colors());
+        theme.nametagColors().forEach((relation, colour) -> {
+            for (NametagStyle.Relation known : NametagStyle.Relation.values()) {
+                if (known.name().equalsIgnoreCase(relation)) {
+                    colors.put(known, colour);
+                }
+            }
+        });
+        NametagStyle themed = new NametagStyle(
+                theme.nametagTeam() != null ? theme.nametagTeam() : style.teamLine(),
+                theme.nametagName() != null ? theme.nametagName() : style.nameLine(), colors);
+        return new LunarSettings(read.enabled(), read.updateTicks(), read.waypoints(), read.teamView(),
+                read.cooldowns(), new LunarSettings.Nametags(read.nametags().enabled(), themed));
     }
 }

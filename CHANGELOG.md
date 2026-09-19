@@ -8,11 +8,13 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ### Added
 - **A theme for the whole plugin** (`theme.yml`): eight colours by role, a message prefix, a list symbol, small-capital titles, framed menus. Every text is written with tokens — `{primary}`, `{secondary}`, `{muted}`, `{success}`, `{error}`, `{prefix}`, `{bullet}`, `{action}` — so a colour changed there changes everywhere. Shipped as "Or royal": gold and cream, a bold `HCF »` on the announcements, `Label ➥ value` scoreboard rows, black-framed menus with gold corners. Hex colours (`&#rrggbb`) now work in any text.
-- **The Theme Builder** ([online](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)): design a theme with live previews of the chat, the menus, the scoreboard and the tab, then download a `theme.yml` ready to drop in — and the scoreboard's rows for `ui.yml`. It reads a `theme.yml` you already have.
+- **Gradients**: a colour of `theme.yml` may be `"#F5B32E>#FF4D3D"` — two colours or more — and the text it colours fades letter by letter.
+- **A whole look in one file**: `theme.yml` may also set texts (`messages`, any key of `lang/en.yml`), the chat line (`chat`) and the Lunar nametags (`nametags`), in place of the other files.
+- **The Theme Builder** ([online](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)): design the whole look — colours and gradients, prefix, menus, scoreboard, tab list, chat, nametags, holograms — with live previews, from 14 palettes, and download a complete `theme.yml` and `ui.yml`, one by one or zipped. It reads a `theme.yml` you already have.
 - Menus page themselves when their items do not fit — `/ability` has two pages, `/tickets` is no longer capped at 54.
 
 ### Changed
-- Every shipped message, menu, scoreboard row, hologram line and chat format uses the theme. *An existing `lang/en.yml`, `ui.yml` and the other files keep their look: take the new ones from the jar for the theme's, then put your changes back. The Pocket Bard menu is 27 slots, its sets at 10, 12, 14 and 16. `staff.ticket.menu.more` is gone.*
+- Every shipped message, menu, scoreboard row, hologram line and chat format uses the theme. The Lunar nametags' team line uses the theme too. *An existing `lang/en.yml`, `ui.yml` and the other files keep their look: take the new ones from the jar for the theme's, then put your changes back. The Pocket Bard menu is 27 slots, its sets at 10, 12, 14 and 16. `staff.ticket.menu.more` is gone.*
 
 ## [0.6.0] - 2026-09-19
 
