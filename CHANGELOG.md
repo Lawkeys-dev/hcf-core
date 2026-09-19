@@ -6,6 +6,12 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-19
+
+A look for the whole plugin — one theme, gradients, and the Theme Builder to design it — and the tab list of an HCF server: the grid, with heads, or the classic list with LuckPerms ranks, and nothing to install. Strikes by offence, elevator signs.
+
+*Tried in game on Paper 26.2 with two players: the theme, both tab lists, strikes, elevators and the staff mode. A setting or two changed: the Changed section says what to do.*
+
 ### Added
 - **Elevator signs** (`elevators.yml`): a sign written `[Elevator]` over `Up` or `Down` takes whoever right-clicks it up or down its column — straight to the next elevator sign in that column, whatever lies between, or, for a sign alone in its column, to the next floor. Refused on an enemy's land unless it is raidable; optionally kept to one's own land or refused in combat.
 - **A theme for the whole plugin** (`theme.yml`): eight colours by role, a message prefix, a list symbol, small-capital titles, framed menus. Every text is written with tokens — `{primary}`, `{secondary}`, `{muted}`, `{success}`, `{error}`, `{prefix}`, `{bullet}`, `{action}` — so a colour changed there changes everywhere. Shipped as "Or royal": gold and cream, a bold `HCF »` on the announcements, `Label ➥ value` scoreboard rows, black-framed menus with gold corners. Hex colours (`&#rrggbb`) now work in any text.
@@ -14,7 +20,6 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **The Theme Builder** ([online](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)): design the whole look — colours and gradients, prefix, menus, scoreboard, tab list, chat, nametags, holograms — with live previews in the game's typeface, items and skins, from 14 palettes, and download a complete `theme.yml` and `ui.yml`, one by one or zipped. It reads a `theme.yml` you already have.
 - **Two tab lists** (`ui.yml`, `tablist.style`): **the HCF grid** — four columns of twenty cells in place of the player list: player info and location, team and members, server and events, top teams, every cell yours to write, **with heads** — an icon beside each category title, each member's face beside their name, a dark grey square in every other cell, and any account's skin or any mineskin.org skin wherever you want one — set in the Theme Builder by name or mineskin.org link — and **the classic list**, each player written with their **LuckPerms prefix and suffix** and ordered by rank, kills or name. `auto`, as shipped, shows the grid on an HCF server and the list on a kitmap. The grid needs **nothing installed**: the plugin sends the server's own tab list packets. The Theme Builder previews and writes both, and lets you change a title's head by clicking it in the preview — a player's name or a mineskin.org link.
 - Menus page themselves when their items do not fit — `/ability` has two pages, `/tickets` is no longer capped at 54.
-
 - **Strikes by offence**: a strike is given for an offence — cheating (50% of the team's points), bug abuse, kill boosting (40%), teaming (35%), other (25%) — and a team is disbanded at its 3rd active strike, whatever they were for (`staff.yml`, `strikes.offences` and `disband-at`). `/strike add <team|player> <offence> [details]`; `/strike offences` lists them. `/team show` writes a struck team's `Strikes: N`; a strike is no longer announced in the general chat — staff are told, and the team's members when it disbands them — and the details staff add are for staff only.
 
 ### Changed
@@ -117,7 +122,8 @@ Classes and events.
 ### Added
 - First public version: teams, territory and DTR, combat and deathbans, lives, capture events (KOTH, Citadel, Conquest, Kill the King), Mountains, SOTW/EOTW/Purge, economy with Vault, kits and abilities, custom enchants and limiters, moderation tools, scoreboard and chat, holograms, redeem codes, the Lunar Client integration, and this documentation.
 
-[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.7.0
 [0.6.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.6.0
 [0.5.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.5.0
 [0.4.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.4.0
