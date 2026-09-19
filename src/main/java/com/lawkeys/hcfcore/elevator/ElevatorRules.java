@@ -11,8 +11,12 @@ import java.util.function.IntPredicate;
  * another elevator sign up or down the same column is where the player goes, whatever
  * lies between - no pillar of blocks needed. Only a sign alone in its column looks for
  * a floor: a height whose block below stands firm and whose two blocks are free for a
- * player to stand in, the search starting from the player's feet - their own floor
- * never counts. Either search goes no further than {@code maxDistance} blocks.
+ * player to stand in.
+ *
+ * <p><strong>Everything is measured from the sign, never from the rider</strong>: a
+ * player standing a block below an {@code Up} sign once had the floor under the sign
+ * found for them - the sign itself. The floor a sign serves is the one whose rider
+ * reads it at their feet or at eye level; that floor never counts. Either search goes no further than {@code maxDistance} blocks.
  */
 public final class ElevatorRules {
 
@@ -42,17 +46,39 @@ public final class ElevatorRules {
     }
 
     /**
-     * Where the player's feet go at a linked sign: as high above or below it as they
-     * stood from the sign they clicked, within one block - a sign read at eye level
-     * is found at eye level on arrival.
+     * Where the rider's feet go at a linked sign: in front of it with the sign at eye
+     * level, or at their feet - the first with two free blocks, preferring one with
+     * ground under it. Only the sign decides, not where the rider stood.
+     *
+     * @return the height, or empty for no room in front of the sign
      */
-    public static int feetAtLinked(int clickedSignY, int feetY, int targetSignY) {
-        int offset = Math.max(0, Math.min(1, clickedSignY - feetY));
-        return targetSignY - offset;
+    public static OptionalInt arrivalAtLinked(int targetSignY, IntPredicate firm, IntPredicate free) {
+        int[] candidates = {targetSignY - 1, targetSignY};
+        for (int y : candidates) {
+            if (firm.test(y - 1) && free.test(y) && free.test(y + 1)) {
+                return OptionalInt.of(y);
+            }
+        }
+        for (int y : candidates) {
+            if (free.test(y) && free.test(y + 1)) {
+                return OptionalInt.of(y);
+            }
+        }
+        return OptionalInt.empty();
     }
 
     /**
-     * @param feetY       the height of the player's feet
+     * The height a floor search starts from: the floor a sign serves never counts.
+     * Going up, anything above the sign; going down, anything below the floor of a
+     * rider who reads it at eye level.
+     */
+    public static int searchFrom(int signY, Direction direction) {
+        return direction == Direction.UP ? signY : signY - 1;
+    }
+
+    /**
+     * @param feetY       the height the search starts from, never counted itself;
+     *                    {@link #searchFrom} for a sign
      * @param minY        the world's lowest height
      * @param maxY        the world's highest height, exclusive
      * @param maxDistance how far to look, in blocks; {@code 0} for the whole column

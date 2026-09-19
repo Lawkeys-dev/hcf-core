@@ -122,20 +122,19 @@ public final class ElevatorModule {
         World world = sign.getWorld();
         int x = sign.getX();
         int z = sign.getZ();
-        int feet = player.getLocation().getBlockY();
         OptionalInt floor;
         OptionalInt linked = ElevatorRules.linkedSign(sign.getY(), world.getMinHeight(), world.getMaxHeight(),
                 direction, settings.maxDistance(), y -> isElevator(world.getBlockAt(x, y, z)));
         if (linked.isPresent()) {
             // Another elevator in the column: straight there, whatever lies between.
-            int arrival = ElevatorRules.feetAtLinked(sign.getY(), feet, linked.getAsInt());
-            if (!free(world.getBlockAt(x, arrival, z)) || !free(world.getBlockAt(x, arrival + 1, z))) {
+            floor = ElevatorRules.arrivalAtLinked(linked.getAsInt(),
+                    y -> firm(world.getBlockAt(x, y, z)), y -> free(world.getBlockAt(x, y, z)));
+            if (floor.isEmpty()) {
                 lang.send(player, ElevatorMessages.NO_ROOM);
                 return;
             }
-            floor = OptionalInt.of(arrival);
         } else {
-            floor = ElevatorRules.destination(feet, world.getMinHeight(), world.getMaxHeight(), direction,
+            floor = ElevatorRules.destination(ElevatorRules.searchFrom(sign.getY(), direction), world.getMinHeight(), world.getMaxHeight(), direction,
                     settings.maxDistance(), y -> firm(world.getBlockAt(x, y, z)), y -> free(world.getBlockAt(x, y, z)));
         }
         if (floor.isEmpty()) {

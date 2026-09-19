@@ -83,8 +83,8 @@ Up
 
 — or `Down` — is an elevator: **right-click it and you go up or down the sign's column.**
 
-- **Linked elevators**: with another elevator sign up or down the same column, you go straight to it — nothing is needed between them, no pillar of blocks. You arrive as high in front of it as you stood in front of the first.
-- **A sign alone in its column** takes you to the next floor that way: a block you can stand on with two free blocks above it — no lava, fire or water.
+- **Linked elevators**: with another elevator sign up or down the same column, you go straight to it — nothing is needed between them, no pillar of blocks. You arrive in front of it with the sign at eye level — or at your feet, if that is where the room is — and never inside a wall: two free blocks, or the elevator refuses.
+- **A sign alone in its column** takes you to the next floor that way, counted from the sign — where you stand does not matter: a block you can stand on with two free blocks above it — no lava, fire or water.
 
 The finished sign turns gold.
 

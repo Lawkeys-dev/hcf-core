@@ -60,10 +60,25 @@ class ElevatorRulesTest {
     }
 
     @Test
-    void theRiderArrivesAsHighAboveTheSignAsTheyLeft() {
-        assertEquals(89, ElevatorRules.feetAtLinked(65, 64, 90), "a sign at eye level stays at eye level");
-        assertEquals(90, ElevatorRules.feetAtLinked(65, 65, 90), "a sign at the feet stays at the feet");
-        assertEquals(89, ElevatorRules.feetAtLinked(70, 64, 90), "never more than a block below it");
+    void theArrivalAtALinkedSignDependsOnTheSignAlone() {
+        IntPredicate ground = y -> y == 88;
+        assertEquals(89, ElevatorRules.arrivalAtLinked(90, ground, y -> y != 88).getAsInt(),
+                "the sign at eye level, standing on the ground");
+        assertEquals(90, ElevatorRules.arrivalAtLinked(90, y -> y == 89, y -> y != 89).getAsInt(),
+                "a sign placed on the floor is read at the feet");
+        assertTrue(ElevatorRules.arrivalAtLinked(90, y -> true, y -> y > 91).isEmpty(), "no room in front of it");
+    }
+
+    @Test
+    void aRiderABlockBelowAnUpSignIsNeverPutOnIt() {
+        // The block under the sign is firm and the sign passable: from the rider's
+        // feet (64), the sign's own height (65) looked like a floor.
+        IntPredicate firm = y -> y == 64 || y == 70;
+        IntPredicate free = y -> y != 64 && y != 70;
+        int from = ElevatorRules.searchFrom(65, ElevatorRules.Direction.UP);
+        assertEquals(71, ElevatorRules.destination(from, -64, 320, ElevatorRules.Direction.UP, 0, firm, free).getAsInt());
+        assertTrue(ElevatorRules.destination(ElevatorRules.searchFrom(71, ElevatorRules.Direction.UP), -64, 320,
+                ElevatorRules.Direction.UP, 0, firm, free).isEmpty(), "nothing above the top floor");
     }
 
     @Test
