@@ -231,12 +231,6 @@ public enum AbilityType {
             return Optional.empty();
         }
         String normalised = word.trim().toUpperCase(Locale.ROOT).replace('-', '_');
-        // The names these two had until they were renamed: a file written then still loads.
-        normalised = switch (normalised) {
-            case "NINJA" -> NINJA_TRACK.name();
-            case "ANTI_TRAP_STAR" -> REVERSE_NINJA_TRACK.name();
-            default -> normalised;
-        };
         for (AbilityType type : values()) {
             if (type.name().equals(normalised)) {
                 return Optional.of(type);

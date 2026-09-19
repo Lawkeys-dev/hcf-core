@@ -82,13 +82,6 @@ class AbilitiesTest {
         }
 
         @Test
-        void theNinjaTracksOldTypeNamesStillLoad() {
-            assertEquals(AbilityType.NINJA_TRACK, AbilityType.parse("ninja").orElseThrow());
-            assertEquals(AbilityType.REVERSE_NINJA_TRACK, AbilityType.parse("anti-trap-star").orElseThrow());
-            assertEquals(AbilityType.REVERSE_NINJA_TRACK, AbilityType.parse("reverse-ninja-track").orElseThrow());
-        }
-
-        @Test
         void aSettingNotGivenTakesItsTypesDefault() {
             Ability thunderbolt = parse(Map.of("bolt", ability("thunderbolt", "GOLD_INGOT"))).ability("bolt").orElseThrow();
             assertEquals(20.0, thunderbolt.params().decimal("chance"));

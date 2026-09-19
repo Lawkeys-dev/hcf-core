@@ -527,12 +527,12 @@ public final class AbilityModule {
                 lang.send(target.get(), AbilityMessages.FOCUSED, "player", player.getName(), "seconds", String.valueOf(seconds));
             }
             case NINJA_TRACK, REVERSE_NINJA_TRACK -> {
-                // The Ninja goes to whom you hit; the others to who hit you.
-                boolean ninja = ability.type() == AbilityType.NINJA_TRACK;
+                // The Ninja Track goes to whom you hit; the Reverse Ninja Track to who hit you.
+                boolean toVictim = ability.type() == AbilityType.NINJA_TRACK;
                 long within = p.whole("hit-within-seconds");
-                Optional<Player> target = recentAttacker(player, ninja ? lastVictim : lastHit, within, now);
+                Optional<Player> target = recentAttacker(player, toVictim ? lastVictim : lastHit, within, now);
                 if (target.isEmpty()) {
-                    lang.send(player, ninja ? AbilityMessages.NO_VICTIM : AbilityMessages.NO_ATTACKER,
+                    lang.send(player, toVictim ? AbilityMessages.NO_VICTIM : AbilityMessages.NO_ATTACKER,
                             "seconds", String.valueOf(within));
                     return;
                 }
@@ -820,7 +820,7 @@ public final class AbilityModule {
         return Optional.ofNullable(Bukkit.getPlayer(hit.attacker()));
     }
 
-    /** Remembers who hit whom last: Focus Mode and the teleports go by it - the Ninja by whom one hit. */
+    /** Remembers who hit whom last: Focus Mode and the teleports go by it - the Ninja Track by whom one hit. */
     public void recordHit(Player attacker, Player victim) {
         long now = System.currentTimeMillis();
         lastHit.put(victim.getUniqueId(), new Hit(attacker.getUniqueId(), now));
