@@ -565,18 +565,41 @@ public final class StaffModule {
     }
 
     private void giveToolbar(Player player) {
+        boolean vanished = manager.isVanished(player.getUniqueId());
         for (Map.Entry<Integer, ToolbarItem> entry : settings.staffMode().toolbar().items().entrySet()) {
-            ItemStack item = build(entry.getValue());
+            ItemStack item = build(entry.getValue(), vanished);
             if (item != null) {
                 player.getInventory().setItem(entry.getKey(), item);
             }
         }
     }
 
-    private ItemStack build(ToolbarItem spec) {
-        Material material = Material.matchMaterial(spec.material());
+    /**
+     * Redraws the toolbar items that show whether their holder is vanished - the grey
+     * or green dye - wherever the player has put them. Called when vanish changes.
+     */
+    private void refreshVanishItems(Player player) {
+        if (!manager.isInStaffMode(player.getUniqueId())) {
+            return;
+        }
+        boolean vanished = manager.isVanished(player.getUniqueId());
+        var inventory = player.getInventory();
+        for (int index = 0; index < inventory.getSize(); index++) {
+            ToolbarItem spec = bindingOf(inventory.getItem(index));
+            if (spec != null && spec.vanishedMaterial() != null) {
+                ItemStack item = build(spec, vanished);
+                if (item != null) {
+                    inventory.setItem(index, item);
+                }
+            }
+        }
+    }
+
+    private ItemStack build(ToolbarItem spec, boolean vanished) {
+        String materialName = spec.materialFor(vanished);
+        Material material = Material.matchMaterial(materialName);
         if (material == null || !material.isItem()) {
-            plugin.getLogger().warning("staff.yml: '" + spec.material()
+            plugin.getLogger().warning("staff.yml: '" + materialName
                     + "' in slot " + spec.slot() + " is not an item; that slot stays empty.");
             return null;
         }
@@ -633,6 +656,7 @@ public final class StaffModule {
                 other.hidePlayer(plugin, player);
             }
         }
+        refreshVanishItems(player);
     }
 
     public void showToEveryone(Player player) {
@@ -641,6 +665,7 @@ public final class StaffModule {
                 other.showPlayer(plugin, player);
             }
         }
+        refreshVanishItems(player);
     }
 
     /**

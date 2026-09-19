@@ -25,9 +25,21 @@ import java.util.Objects;
  * @param command     command to run, without the leading slash
  * @param needsTarget whether the command needs a player to act on, which makes the
  *                    item work by clicking somebody rather than by clicking the air
+ * @param vanishedMaterial the material while its holder is vanished, or {@code null} for
+ *                    the same - the vanish switch shows its state: grey off, green on
  */
 public record ToolbarItem(int slot, String material, String name, List<String> lore,
-                          String command, boolean needsTarget) {
+                          String command, boolean needsTarget, String vanishedMaterial) {
+
+    public ToolbarItem(int slot, String material, String name, List<String> lore, String command,
+                       boolean needsTarget) {
+        this(slot, material, name, lore, command, needsTarget, null);
+    }
+
+    /** @return the material to show, for a holder vanished or not */
+    public String materialFor(boolean vanished) {
+        return vanished && vanishedMaterial != null && !vanishedMaterial.isBlank() ? vanishedMaterial : material;
+    }
 
     /** The widest inventory slot a player has, so a misconfigured slot is caught on load. */
     public static final int MAX_SLOT = 35;

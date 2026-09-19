@@ -24,10 +24,10 @@ Each slot of `staff-mode.items` is an item that runs a command. The shipped bar:
 | Slot | Item | Command |
 |---|---|---|
 | 0 | Player Tracker (compass) | `staff tpnearest` |
-| 1 | Random Teleport (ender pearl) | `staff randomtp` |
+| 1 | Random Teleport (eye of ender) | `staff randomtp` |
 | 2 | Inspect (book) — right-click a player | `invsee %player%` |
 | 3 | Freeze (packed ice) — right-click a player | `freeze %player%` |
-| 7 | Vanish (lime dye) | `vanish` |
+| 7 | Vanish — grey dye while you can be seen, green while vanished | `vanish` |
 | 8 | Leave Staff Mode (barrier) | `staff` |
 
 ??? example "The toolbar as shipped in `staff.yml`"
@@ -51,6 +51,7 @@ staff-mode:
 - `command` has no leading `/`, and **runs as you**, so your own permissions apply. Any command works, another plugin's included.
 - `%player%` is the player you right-clicked, `%staff%` is you.
 - `needs-target: true` makes the item work only by right-clicking a player.
+- `vanished-material` is the item shown while you are vanished, `material` the one shown otherwise: the shipped Vanish switch is a grey dye that turns green. It changes the moment vanish does, wherever you put it.
 
 ## Vanish
 

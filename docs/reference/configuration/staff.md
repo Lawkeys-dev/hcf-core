@@ -34,6 +34,7 @@ Every example on this page is **taken from the shipped `staff.yml`**. Changes ap
 | `name`, `lore` | Its name and lines, `&` colours |
 | `command` | Run as the staff member, without `/`. `%player%` is the player clicked, `%staff%` the staff member. Any command, another plugin's included |
 | `needs-target` | `true` if the item works only by right-clicking a player |
+| `vanished-material` | The item shown while its holder is vanished, in place of `material` — the shipped Vanish switch: `GRAY_DYE`, `LIME_DYE` when vanished |
 
 ## Vanish and staff chat
 

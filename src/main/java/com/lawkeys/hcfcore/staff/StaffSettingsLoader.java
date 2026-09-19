@@ -96,7 +96,8 @@ public final class StaffSettingsLoader {
                     itemSection.getString("name"),
                     itemSection.getStringList("lore"),
                     Objects.requireNonNullElse(itemSection.getString("command"), ""),
-                    itemSection.getBoolean("needs-target", false)));
+                    itemSection.getBoolean("needs-target", false),
+                    itemSection.getString("vanished-material")));
         }
         return StaffToolbar.of(items, message -> warn.accept("staff-mode.items: " + message));
     }

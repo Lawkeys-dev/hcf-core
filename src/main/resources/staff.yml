@@ -55,7 +55,7 @@ staff-mode:
         - "{muted}Teleports you to the nearest player."
       command: "staff tpnearest"
     1:
-      material: ENDER_PEARL
+      material: ENDER_EYE
       name: "{primary}&lRandom Teleport"
       lore:
         - "{muted}Teleports you to a random player."
@@ -77,10 +77,13 @@ staff-mode:
       command: "freeze %player%"
       needs-target: true
     7:
-      material: LIME_DYE
+      # Grey while you can be seen, green while you are vanished.
+      material: GRAY_DYE
+      vanished-material: LIME_DYE
       name: "{success}&lVanish"
       lore:
         - "{muted}Toggles whether players can see you."
+        - "{muted}Grey: seen. Green: vanished."
       command: "vanish"
     8:
       material: BARRIER
