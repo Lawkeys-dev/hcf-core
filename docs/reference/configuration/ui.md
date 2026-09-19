@@ -60,8 +60,9 @@ Needs the **PacketEvents** plugin, 2.13 or later for Minecraft 26.2 — see [Int
 | `[head:member:3]` | The member of `%member_3%` |
 | `[head:top:1]` | The leader of `%top_team_1%` |
 | `[head:MHF_Chest]` | Any Minecraft account's skin, by name. The `MHF_` accounts are the classic icons: `MHF_Chest`, `MHF_Question`, `MHF_Exclamation`, `MHF_ArrowRight`, `MHF_Present1`, `MHF_TNT`… |
+| `[head:mineskin:<id>]` | A skin of [mineskin.org](https://mineskin.org), by the 32-character id of its page — or the page's link itself, `[head:https://mineskin.org/skins/<id>]`. Any image made into a skin there, signed |
 
-An online player's head is theirs at once; any other is asked of Mojang once, off the main thread, and remembered until the server stops — the default head shows meanwhile, and in a blank cell. An account that does not exist is reported once in the console.
+The [Theme Builder](../../getting-started/theme-builder.md) lists every head of the grid but the members': type a name or paste a mineskin.org link there. An online player's head is theirs at once; any other is asked of Mojang — or mineskin.org — once, off the main thread, and remembered until the server stops — the default head shows meanwhile, and in a blank cell. An account that does not exist is reported once in the console.
 
 ### The classic list
 

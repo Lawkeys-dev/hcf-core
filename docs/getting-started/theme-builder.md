@@ -9,6 +9,7 @@ The Theme Builder designs the look of HCFCore in your browser, and writes the fi
 - **Start from a palette** — 14 of them, 9 fading from one colour to another letter by letter — then change any colour, or turn it into a gradient of its own.
 - **Set the whole look**: the message prefix and the list symbol, the menus' frame and panes, the scoreboard's title, rows and separators, the tab list in both its styles — the HCF grid's four columns, the classic list's names and order — the chat line, team and ally chat, Lunar Client nametags, capture zone holograms.
 - **See it as players will**, in the game's own typeface and items: chat, a few menus with their tooltips, the scoreboard, the tab list as the HCF grid or the classic list, nametags above real skins, a hologram.
+- **Pick the tab list's heads**: every head of the grid but the members' — the titles' icons — takes a player's name or a [mineskin.org](https://mineskin.org) link.
 - **Download two files**, `theme.yml` and `ui.yml` — one by one or in a zip — complete and ready to use.
 - **Read back a theme** you already have: paste your `theme.yml`, change it, download it again.
 
@@ -22,4 +23,4 @@ Every message, menu, board and hologram follows. The chat line, the nametags and
 !!! tip "Share a palette"
     A link to the builder can open it on a palette: `theme-builder.html?palette=aurora`, `?palette=molten-gold`, `?palette=neon`...
 
-*The previews use [Minecraft-Font](https://github.com/IdreesInc/Minecraft-Font), an open rendition of the game's typeface under the SIL Open Font License, and show the game's item textures and players' skins, loaded from public services; none of them is part of HCFCore.*
+*The previews use [Minecraft-Font](https://github.com/IdreesInc/Minecraft-Font), an open rendition of the game's typeface under the SIL Open Font License, and show the game's item textures and players' skins — skins generated on [mineskin.org](https://mineskin.org), drawn from their texture files —, loaded from public services; none of them is part of HCFCore.*

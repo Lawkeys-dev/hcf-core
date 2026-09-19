@@ -153,6 +153,8 @@ tablist:
     #   [head:MHF_Chest]   any Minecraft account's skin, by name - the MHF_
     #                      accounts are the classic icons: MHF_Chest, MHF_Question,
     #                      MHF_Exclamation, MHF_ArrowRight, MHF_Present1, MHF_TNT...
+    #   [head:mineskin:<id>]  a skin of mineskin.org, by the id of its page - or the
+    #                      page's link itself: [head:https://mineskin.org/skins/<id>]
     # Heads are asked of Mojang once and remembered; until then, and in a cell
     # that is blank, the default head shows.
     column-1:

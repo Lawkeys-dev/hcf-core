@@ -126,7 +126,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .tab .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 6px 0; text-align: left; }
 .tab .cell { display: flex; align-items: center; gap: 3px; background: rgba(255,255,255,.12); min-height: 18px; padding: 0 3px; font-size: 12px; overflow: hidden; white-space: nowrap; }
 .tab .cell > span { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: pre; }
-.tab .head { width: 12px; height: 12px; flex: none; background-size: 96px 96px; background-position: -12px -12px; image-rendering: pixelated; }
+.tab .head { width: 12px; height: 12px; flex: none; image-rendering: pixelated; }
+.head-row { display: grid; grid-template-columns: 22px minmax(0, 11em) minmax(0, 1fr); gap: 8px; align-items: center; }
+.head-row .face { width: 22px; height: 22px; image-rendering: pixelated; border-radius: 3px; }
+.head-row label { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tab .ping { width: 10px; height: 8px; flex: none; image-rendering: pixelated; }
 .tab .classic { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .tab-scroll { overflow-x: auto; }
@@ -254,7 +257,9 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
               <div class="field"><label for="gridCol2">Column 2</label><textarea id="gridCol2" rows="8" spellcheck="false"></textarea></div>
               <div class="field"><label for="gridCol3">Column 3</label><textarea id="gridCol3" rows="8" spellcheck="false"></textarea></div>
               <div class="field"><label for="gridCol4">Column 4</label><textarea id="gridCol4" rows="8" spellcheck="false"></textarea>
-                <p class="hint">Twenty cells per column; an empty line is a blank cell, and so is a cell whose placeholders are all empty - the grid never shifts. Besides the scoreboard's: <code>%location%</code> <code>%x%</code> <code>%z%</code> <code>%direction%</code> <code>%team_name_line%</code> <code>%members_online%</code> <code>%members_total%</code> <code>%team_balance%</code> <code>%team_points%</code> <code>%members_title%</code> <code>%member_1%</code>…<code>%member_20%</code> <code>%top_team_1%</code>…<code>%top_team_10%</code> <code>%no_event_line%</code> <code>%prefix%</code> <code>%suffix%</code>. A cell may start with its head: <code>[head:self]</code>, <code>[head:member:3]</code>, <code>[head:top:1]</code> (that team's leader), or any account's skin by name - <code>[head:MHF_Chest]</code>, <code>[head:MHF_Question]</code>…</p></div>
+                <p class="hint">Twenty cells per column; an empty line is a blank cell, and so is a cell whose placeholders are all empty - the grid never shifts. Besides the scoreboard's: <code>%location%</code> <code>%x%</code> <code>%z%</code> <code>%direction%</code> <code>%team_name_line%</code> <code>%members_online%</code> <code>%members_total%</code> <code>%team_balance%</code> <code>%team_points%</code> <code>%members_title%</code> <code>%member_1%</code>…<code>%member_20%</code> <code>%top_team_1%</code>…<code>%top_team_10%</code> <code>%no_event_line%</code> <code>%prefix%</code> <code>%suffix%</code>. A cell may start with its head: <code>[head:self]</code>, <code>[head:member:3]</code>, <code>[head:top:1]</code> (that team's leader), or any account's skin by name - <code>[head:MHF_Chest]</code>, <code>[head:MHF_Question]</code>… - or a mineskin.org skin, <code>[head:mineskin:&lt;id&gt;]</code>. Easier: the Heads list below.</p></div>
+              <div class="field"><span>Heads</span><div id="gridHeads" class="grid-heads" style="display:grid;gap:6px"></div>
+                <p class="hint">Every head of the grid but your members' and the grey squares: type a player's name, paste a <a href="https://mineskin.org" target="_blank" rel="noopener">mineskin.org</a> link, or <code>self</code> for the viewer's own. Empty turns it into a grey square. The preview finds a name in mineskin.org's gallery; in game, any account works.</p></div>
               <div class="field"><label for="gridLatency">Connection bars of every cell (ms)</label><input type="text" id="gridLatency" class="mono" inputmode="numeric"><p class="hint">0 is full bars, below 0 none.</p></div>
             </div>
           </details>
@@ -411,18 +416,89 @@ const PANES = { BLACK: "#1d1d21", GRAY: "#474f52", LIGHT_GRAY: "#9d9d97", WHITE:
 // The game's own textures, from a public mirror of its assets - never copied into this repository.
 const TEXTURES = "https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.8/assets/minecraft/textures/";
 const texture = (path) => TEXTURES + path + ".png";
-// A player's skin, from the first render service that answers; a drawn figure if none does.
-const SKIN_SOURCES = [
-  (name) => "https://mc-heads.net/body/" + encodeURIComponent(name) + "/150",
-  (name) => "https://minotar.net/armor/body/" + encodeURIComponent(name) + "/150.png",
-];
-const FALLBACK_SKIN = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 32" shape-rendering="crispEdges"><rect x="4" y="0" width="8" height="8" fill="#c79b73"/><rect x="4" y="0" width="8" height="2" fill="#3b2a1e"/><rect x="5" y="4" width="2" height="1" fill="#fff"/><rect x="9" y="4" width="2" height="1" fill="#fff"/><rect x="4" y="8" width="8" height="12" fill="#3aa6a6"/><rect x="0" y="8" width="4" height="12" fill="#3aa6a6"/><rect x="12" y="8" width="4" height="12" fill="#3aa6a6"/><rect x="0" y="17" width="4" height="3" fill="#c79b73"/><rect x="12" y="17" width="4" height="3" fill="#c79b73"/><rect x="4" y="20" width="8" height="12" fill="#3f3fa8"/><rect x="8" y="20" width="1" height="12" fill="#35358f"/></svg>');
-function skinImage(name) {
-  const img = el("img", { class: "skin", alt: name + "'s skin", loading: "lazy", referrerpolicy: "no-referrer" });
-  let tried = 0;
-  img.addEventListener("error", () => { tried++; img.src = tried < SKIN_SOURCES.length ? SKIN_SOURCES[tried](name) : FALLBACK_SKIN; });
-  img.src = SKIN_SOURCES[0](name);
-  return img;
+// Skins come from mineskin.org, and only from there: each sample player is a skin
+// generated on mineskin.org - its id, and its texture, which the game's own texture
+// server hands out - drawn here, head and body, from the skin file itself.
+const MINESKIN = {
+  Lawkeys: { id: "f483f0a8594f4cf9afde023e40a1a8b5", texture: "380ee7435a5bce1f9b5a65e5de4319577c2e266c8a3aef3b58a0eff14f4adf2c", slim: true },
+  ownedbynoname: { id: "95be659c13424f49a23485bf65b0d4a0", texture: "98983597e1944bd5a6b29233b3236c58f34b30a1c3d097013172fa72aba66fd4" },
+  Notch: { id: "a68dad4dcef148bfb9b1efe86ac4f4b5", texture: "292009a4925b58f02c77dadc3ecef07ea4c7472f64e0fdc32ce5522489362680" },
+  jeb_: { id: "b144de763d7b4149be07f466b4708c02", texture: "7fd9ba42a7c81eeea22f1524271ae85a8e045ce0af5a6ae16c6406ae917e68b5" },
+  Dinnerbone: { id: "df404ef59e9e46ce968e52129783e6b9", texture: "50c410fad8d9d8825ad56b0e443e2777a6b46bfa20dacd1d2f55edc71fbeb06d" },
+  // The MHF_ icons the shipped tab list puts beside its titles.
+  mhf_arrowright: { id: "93e5c24f4bfd4c3cb2bdda14f14b49da", texture: "d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158" },
+  mhf_question: { id: "70b9e1fd51ce451896215f3291845568", texture: "d34e063cafb467a5c8de43ec78619399f369f4a52434da8017a983cdd92516a0" },
+  mhf_present1: { id: "af3cc6eeb5144a92845a5868607a4780", texture: "2e10ac999703c735bf7ba6da63f9842d415c5bde07a742f96f3060e11ccfa6c6" },
+  mhf_chest: { texture: "758305e527fcf08525fdff07e4cd6e79774acdd426cc27327d45df8a5ff86419" },
+  mhf_exclamation: { texture: "40b05e699d28b3a278a92d169dca9d57c0791d07994d82de3f9ed4a48afe0e1d" },
+  mhf_villager: { texture: "b4bd832813ac38e68648938d7a32f6ba29801aaf317404367f214b78b4d4754c" },
+};
+const skinFiles = new Map();
+function skinFile(hash) {
+  if (!skinFiles.has(hash)) skinFiles.set(hash, new Promise((ok, fail) => {
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => ok(img); img.onerror = fail;
+    img.src = "https://textures.minecraft.net/texture/" + hash;
+  }));
+  return skinFiles.get(hash);
+}
+// What a head is, from what was typed: a mineskin.org link or id, or a player's name.
+const looked = new Map();
+function lookUp(spec) {
+  const t = String(spec || "").trim(), lower = t.toLowerCase();
+  if (!t) return Promise.resolve(null);
+  const known = MINESKIN[t] || MINESKIN[lower] || Object.entries(MINESKIN).find(([k]) => k.toLowerCase() === lower)?.[1];
+  if (known) return Promise.resolve(known);
+  if (looked.has(lower)) return looked.get(lower);
+  const id = mineskinId(t);
+  const ask = (url) => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+  const found = id
+    ? ask("https://api.mineskin.org/v2/skins/" + id).then(d => d && d.skin ? fromMineskin(d.skin) : null)
+    // A name: the newest skin of that name in mineskin.org's gallery.
+    : ask("https://api.mineskin.org/v2/skins?size=50&filter=" + encodeURIComponent(t)).then(d => {
+        const hit = d && (d.skins || []).find(s => (s.name || "").toLowerCase() === lower);
+        return hit ? ask("https://api.mineskin.org/v2/skins/" + hit.uuid).then(x => x && x.skin ? fromMineskin(x.skin) : null) : null;
+      });
+  looked.set(lower, found);
+  return found;
+}
+function mineskinId(t) {
+  const m = t.toLowerCase().replace(/-/g, "").match(/(?:mineskin\.org\/(?:skins\/)?|mineskin:|^)([0-9a-f]{32})(?:[?#/].*)?$/);
+  return m ? m[1] : null;
+}
+function fromMineskin(skin) {
+  const url = (skin.texture && skin.texture.url && skin.texture.url.skin) || "";
+  const texture = url.split("/").pop();
+  return texture ? { id: skin.uuid, texture, slim: skin.variant === "slim" } : null;
+}
+// A face, 8 by 8 with its hat layer, drawn at any size.
+function headCanvas(spec, cls) {
+  const c = el("canvas", { class: cls || "head", width: "8", height: "8" });
+  const g = c.getContext("2d"); g.fillStyle = "#555555"; g.fillRect(0, 0, 8, 8);
+  if (spec) lookUp(spec).then(s => s ? skinFile(s.texture) : null).then(img => {
+    if (!img) return;
+    g.imageSmoothingEnabled = false; g.clearRect(0, 0, 8, 8);
+    g.drawImage(img, 8, 8, 8, 8, 0, 0, 8, 8); g.drawImage(img, 40, 8, 8, 8, 0, 0, 8, 8);
+  }).catch(() => {});
+  return c;
+}
+// A body seen from the front, both layers, as the game lays a skin out.
+function bodyCanvas(name) {
+  const c = el("canvas", { class: "skin", width: "16", height: "32", role: "img", "aria-label": name + "'s skin" });
+  lookUp(name).then(s => s ? skinFile(s.texture).then(img => [s, img]) : null).then(r => {
+    if (!r) return;
+    const [s, img] = r, g = c.getContext("2d"), old = img.height === 32, w = s.slim ? 3 : 4;
+    g.imageSmoothingEnabled = false;
+    const d = (sx, sy, sw, sh, dx, dy) => g.drawImage(img, sx, sy, sw, sh, dx, dy, sw, sh);
+    d(8, 8, 8, 8, 4, 0); d(20, 20, 8, 12, 4, 8);
+    d(44, 20, w, 12, 4 - w, 8); d(4, 20, 4, 12, 4, 20);
+    if (old) { d(44, 20, w, 12, 12, 8); d(4, 20, 4, 12, 8, 20); }
+    else { d(36, 52, w, 12, 12, 8); d(20, 52, 4, 12, 8, 20);
+      d(40, 8, 8, 8, 4, 0); d(20, 36, 8, 12, 4, 8); d(44, 36, w, 12, 4 - w, 8); d(52, 52, w, 12, 12, 8);
+      d(4, 36, 4, 12, 4, 20); d(4, 52, 4, 12, 8, 20); }
+    if (old) d(40, 8, 8, 8, 4, 0);
+  }).catch(() => {});
+  return c;
 }
 const P = (primary, secondary, text, muted, dark, success, error, warning) => ({ primary, secondary, text, muted, dark, success, error, warning });
 const PALETTES = [
@@ -737,35 +813,30 @@ function sbLines() {
 const TAB_SAMPLE = { deaths: "5", kdr: "2.40", location: "{warning}Wizards", x: "-120", z: "348", direction: "NE", ping: "34", online: "42",
   team_name_line: "{secondary}Wizards", members_online: "3", members_total: "5", team_balance: "$4,800", team_points: "310",
   members_title: "{primary}&lMembers", member_1: "{success}{primary}**{secondary}Lawkeys", member_2: "{success}{primary}*{secondary}ownedbynoname",
-  member_3: "{success}{secondary}Steve", member_4: "{muted}Alex", member_5: "{muted}Herobrine",
+  member_3: "{success}{secondary}Notch", member_4: "{muted}jeb_", member_5: "{muted}Dinnerbone",
   top_team_1: "{muted}1. {secondary}Raiders {dark}{bullet} {primary}540", top_team_2: "{muted}2. {secondary}Wizards {dark}{bullet} {primary}310",
   top_team_3: "{muted}3. {secondary}Knights {dark}{bullet} {primary}220", top_team_4: "{muted}4. {secondary}Pirates {dark}{bullet} {primary}95",
   event_line: "{warning}&lKOTH Castle {dark}{bullet} {secondary}4:12" };
 let tabShown = "hcf";
 // The grid's default head, as ui.yml ships it: a plain dark grey square, signed by Mojang.
 const GREY_HEAD = { texture: "ewogICJ0aW1lc3RhbXAiIDogMTYyMTcwNTk1MDY4MCwKICAicHJvZmlsZUlkIiA6ICJjZGM5MzQ0NDAzODM0ZDdkYmRmOWUyMmVjZmM5MzBiZiIsCiAgInByb2ZpbGVOYW1lIiA6ICJSYXdMb2JzdGVycyIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS80ZDk5NDhkODUyNWQyNzU4YWY1YzFiNmJhMzIyZmZiMzgzM2Q5Nzk3NDUwMGQ0YTZhYTliZjkxODU4MjNlOGVjIgogICAgfQogIH0KfQ==", signature: "IoKU9gDR+OW5f4AKhJyU6v16kCr4Efu0+s4SRAUaFtcccSKVxjg8TKW35MbOFkOsEagzXgiRcxDFV3E5k7GEaSqVl/YxiWkJ3oxts+hcz5zKsLyOfb6uvefSfAkCLPdQOGS/XYU2jZCLsmxynUG33B7suf/uEsRobNoKbdYDAvqDiKYMkmLK8qJTMoQgQJqRTf31wJShTNLFcFkTr/NdfsPQQhRl9Ayf8VtbClEVEpxZRtgO2LwJtrIgRQezS6Ie4GHD5hBpgLe678UQHvcSnMZqurI0QU4afH4J4Frmv0LW9DTF3KaxEsHf5eQLNelUZ+ywY81Xjb8JBAf+HdmRuVRGd5Gjt13OYecItODhLcWsmh0f9PJZR7EwFdk/nBeCkAwgGXg9SgIt+S8GGbDfQqvrgBCHWvl/iGjSl2wIPRyUpjDHJ3p4+k5HMqTRVA6JY6rNutj+tpEGuVh2hvRLgzXdsEs67diJ3Bvdxi2mam3dtCR/BIxzG5lg8P1S5tiIIEnuiynjwPmprylSjU61L0BZj+o0xlIT3jEqLGZUlZq/8vZuydLDGSLO0Ims78HwlYo08n18lfSeMG7zpN3RSv7VkAf5mGus+IPeInzWFkZ6XDI0fzaYDeHj12o6AxmQxB9U6uCjVi/JAYffAByFc8+oD1+tBCjpfV257efV4Wk=" };
-const STEVE = texture("entity/player/wide/steve");
 function pingIcon(latency) {
   const ms = parseInt(latency, 10);
   const n = isNaN(ms) ? 5 : ms < 0 ? "unknown" : ms < 150 ? 5 : ms < 300 ? 4 : ms < 600 ? 3 : ms < 1000 ? 2 : 1;
   return el("img", { class: "ping", alt: "", src: texture("gui/sprites/icon/ping_" + n) });
 }
 // Who a [head:...] shows in the preview: the sample's own players and team leaders.
-const SAMPLE_MEMBERS = ["Lawkeys", "ownedbynoname", "Steve", "Alex", "Herobrine"];
+const SAMPLE_MEMBERS = ["Lawkeys", "ownedbynoname", "Notch", "jeb_", "Dinnerbone"];
 function tabHead(tag) {
-  let name = null;
+  let spec = null;
   if (tag) {
     const t = tag.trim(), lower = t.toLowerCase(), n = parseInt(lower.split(":")[1], 10);
-    if (lower === "self") name = "Lawkeys";
-    else if (lower.startsWith("member:")) name = SAMPLE_MEMBERS[n - 1] || null;
-    else if (lower.startsWith("top:")) name = ["Dinnerbone", "Lawkeys", "jeb_", "Notch"][n - 1] || null;
-    else if (/^[A-Za-z0-9_]{1,16}$/.test(t)) name = t;
+    if (lower === "self") spec = "Lawkeys";
+    else if (lower.startsWith("member:")) spec = SAMPLE_MEMBERS[n - 1] || null;
+    else if (lower.startsWith("top:")) spec = ["Dinnerbone", "Lawkeys", "jeb_", "Notch"][n - 1] || null;
+    else spec = t;
   }
-  const steve = () => { const i = el("i", { class: "head" }); i.style.background = "#555555"; return i; };
-  if (!name) return steve();
-  const img = el("img", { class: "head", alt: "", src: "https://mc-heads.net/avatar/" + encodeURIComponent(name) + "/12", referrerpolicy: "no-referrer", loading: "lazy" });
-  img.addEventListener("error", () => img.replaceWith(steve()), { once: true });
-  return img;
+  return headCanvas(spec);
 }
 function tab() {
   const box = document.getElementById("tab");
@@ -795,16 +866,14 @@ function tab() {
   } else {
     body = el("div", { class: "grid classic" });
     let people = [["Lawkeys", "&c[Owner] ", "", "Wizards", 100, 18], ["ownedbynoname", "&b[Mod] ", "", "Wizards", 50, 7],
-      ["Notch", "&6[VIP] ", " &e✦", "Raiders", 10, 25], ["Dinnerbone", "", "", "", 0, 3], ["jeb_", "&6[VIP] ", "", "Raiders", 10, 12], ["Alex", "", "", "", 0, 0]];
+      ["Notch", "&6[VIP] ", " &e✦", "Raiders", 10, 25], ["Dinnerbone", "", "", "", 0, 3], ["jeb_", "&6[VIP] ", "", "Raiders", 10, 12]];
     const by = look.sort === "rank" ? (a, b) => b[4] - a[4] : look.sort === "kills" ? (a, b) => b[5] - a[5] : () => 0;
     people = [...people].sort((a, b) => by(a, b) || a[0].toLowerCase().localeCompare(b[0].toLowerCase()));
     for (const [name, prefix, suffix, team, , kills] of people) {
       const cell = el("div", { class: "cell" }), text = el("span");
       render(text, fill(look.name, { prefix, suffix, player: name, team, kills: String(kills), ping: "34",
         team_tag: team ? "{muted}[{secondary}" + team + "{muted}] " : "" }));
-      const face = el("img", { class: "head", alt: "", src: "https://mc-heads.net/avatar/" + encodeURIComponent(name) + "/12", referrerpolicy: "no-referrer", loading: "lazy" });
-      face.addEventListener("error", () => { face.replaceWith(Object.assign(el("i", { class: "head" }), { style: "background-image:url(" + STEVE + ")" })); }, { once: true });
-      cell.append(face, text, pingIcon(34));
+      cell.append(headCanvas(name), text, pingIcon(34));
       body.append(cell);
     }
   }
@@ -820,7 +889,7 @@ function scene() {
     const color = state.nametags.colors[rel];
     const t1 = el("div", { class: "tag mc" }); render(t1, state.nametags.team, { color, team, dtr });
     const t2 = el("div", { class: "tag mc" }); render(t2, state.nametags.name, { color, player: name });
-    f.append(t1, t2, skinImage(name), el("small", {}, label));
+    f.append(t1, t2, bodyCanvas(name), el("small", {}, label));
     box.append(f);
   }
   const h = el("div", { class: "holo" });
@@ -1062,7 +1131,7 @@ const BIND = [
   ["gridHeader", () => state.tab.hcf.header.join("\n"), v => { state.tab.hcf.header = v.split("\n"); tabShown = "hcf"; }],
   ["gridFooter", () => state.tab.hcf.footer.join("\n"), v => { state.tab.hcf.footer = v.split("\n"); tabShown = "hcf"; }],
   ...[0, 1, 2, 3].map(c => ["gridCol" + (c + 1), () => (state.tab.hcf.columns[c] || []).join("\n"),
-    v => { state.tab.hcf.columns[c] = v.split("\n"); tabShown = "hcf"; }]),
+    v => { state.tab.hcf.columns[c] = v.split("\n"); tabShown = "hcf"; headsEditor(); }]),
   ["gridLatency", () => state.tab.hcf.latency, v => { state.tab.hcf.latency = v; }],
   ["classicHeader", () => state.tab.classic.header.join("\n"), v => { state.tab.classic.header = v.split("\n"); tabShown = "classic"; }],
   ["classicFooter", () => state.tab.classic.footer.join("\n"), v => { state.tab.classic.footer = v.split("\n"); tabShown = "classic"; }],
@@ -1096,6 +1165,7 @@ function sync() {
   seg("tabStyle", () => state.tab.style, v => { state.tab.style = v; if (v !== "auto") tabShown = v; }, "tabStyle");
   seg("classicSort", () => state.tab.classic.sort, v => { state.tab.classic.sort = v; tabShown = "classic"; }, "classicSort");
   seg("tabPick", () => tabShown, v => { tabShown = v; }, "tabPick");
+  headsEditor();
   panes("pane", "pane"); panes("cornerPane", "cornerPane");
   const colours = document.getElementById("ntColors");
   colours.textContent = "";
@@ -1116,6 +1186,40 @@ function sync() {
     l.append(input, el("span", {}, m.label));
     pick.append(l);
   }
+}
+// The heads a server owner picks: every [head:...] of the grid but the members' and the top teams'.
+function headLabel(line, c, r) {
+  const text = ColorStrip(line).replace(/\{[a-z]+\}/g, "").replace(/%([a-z0-9_]+)%/gi, (m, k) => k.replace(/_line$|_title$/, "").replace(/_/g, " ")).trim();
+  return text ? text[0].toUpperCase() + text.slice(1) : "Column " + (c + 1) + ", row " + (r + 1);
+}
+function headsEditor() {
+  const box = document.getElementById("gridHeads");
+  box.textContent = "";
+  state.tab.hcf.columns.forEach((col, c) => (col || []).forEach((line, r) => {
+    const m = line.match(/^\[head:([^\]]+)\]/);
+    if (!m) return;
+    const v = m[1].trim(), lower = v.toLowerCase();
+    if (lower.startsWith("member:") || lower.startsWith("top:")) return;
+    const id = "head-" + c + "-" + r;
+    const input = el("input", { type: "text", id, class: "mono", autocomplete: "off", spellcheck: "false",
+      placeholder: "Name, mineskin.org link or self", value: lower.startsWith("mineskin:") ? "https://mineskin.org/skins/" + v.slice(9) : v });
+    input.addEventListener("change", () => {
+      const t = input.value.trim(), skin = mineskinId(t);
+      let tag;
+      if (!t) tag = "";
+      else if (t.toLowerCase() === "self") tag = "[head:self]";
+      else if (skin) tag = "[head:mineskin:" + skin + "]";
+      else if (/^[A-Za-z0-9_]{1,16}$/.test(t)) tag = "[head:" + t + "]";
+      else { input.setAttribute("aria-invalid", "true"); setStatus("Not a player name or a mineskin.org link: " + t); return; }
+      col[r] = tag + line.slice(m[0].length);
+      document.getElementById("gridCol" + (c + 1)).value = col.join("\n");
+      tabShown = "hcf"; changed(); headsEditor();
+    });
+    const face = headCanvas(lower === "self" ? "Lawkeys" : v.replace(/^mineskin:/i, ""), "face");
+    const row = el("div", { class: "head-row" });
+    row.append(face, el("label", { for: id }, headLabel(line.slice(m[0].length), c, r)), input);
+    box.append(row);
+  }));
 }
 function renderAll() { chat(); menu(); sidebar(); tab(); scene(); tokens(); drawPalettes(); files(); }
 function changed() { save(); renderAll(); }

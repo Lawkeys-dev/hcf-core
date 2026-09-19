@@ -40,6 +40,19 @@ class HeadTagTest {
     }
 
     @Test
+    void aMineskinSkinIsGivenByIdOrByLink() {
+        String id = "95be659c13424f49a23485bf65b0d4a0";
+        for (String line : new String[] {"[head:mineskin:" + id + "]x", "[head:https://mineskin.org/skins/" + id + "]x",
+                "[head:mineskin.org/skins/95be659c-1342-4f49-a234-85bf65b0d4a0]x"}) {
+            HeadTag tag = HeadTag.parse(line);
+            assertEquals(HeadTag.Kind.MINESKIN, tag.kind(), line);
+            assertEquals(id, tag.name(), line);
+            assertEquals("x", tag.text());
+        }
+        assertEquals(HeadTag.Kind.NONE, HeadTag.parse("[head:mineskin:12345]x").kind(), "not an id");
+    }
+
+    @Test
     void everyCellFallsOnTheSameDefaultSkin() {
         for (int i = 0; i < TabGrid.SIZE; i++) {
             assertEquals(TabGrid.DEFAULT_SKIN, Math.floorMod(TabGrid.id(i).hashCode(), TabGrid.DEFAULT_SKINS));

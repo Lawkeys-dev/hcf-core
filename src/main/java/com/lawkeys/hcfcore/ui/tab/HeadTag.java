@@ -14,16 +14,19 @@ import java.util.regex.Pattern;
  *       of {@code %member_3%};</li>
  *   <li>{@code [head:top:1]} - the leader of the first of the top teams;</li>
  *   <li>{@code [head:MHF_Chest]} - any Minecraft account's skin, by name: the
- *       {@code MHF_} accounts are the classic icons (a chest, a question mark, arrows...).</li>
+ *       {@code MHF_} accounts are the classic icons (a chest, a question mark, arrows...);</li>
+ *   <li>{@code [head:mineskin:<id>]}, or a mineskin.org link - a skin of mineskin.org,
+ *       signed there, by the 32-character id its page shows.</li>
  * </ul>
  * A line without a tag shows the grid's default head.
  */
 public record HeadTag(Kind kind, int index, String name, String text) {
 
-    public enum Kind { NONE, SELF, MEMBER, TOP, ACCOUNT }
+    public enum Kind { NONE, SELF, MEMBER, TOP, ACCOUNT, MINESKIN }
 
     private static final Pattern TAG = Pattern.compile("^\\[head:([^\\]]+)]");
     private static final Pattern ACCOUNT_NAME = Pattern.compile("[A-Za-z0-9_]{1,16}");
+    private static final Pattern MINESKIN_ID = Pattern.compile("[0-9a-f]{32}");
 
     public HeadTag {
         Objects.requireNonNull(kind, "kind");
@@ -40,6 +43,18 @@ public record HeadTag(Kind kind, int index, String name, String text) {
         String rest = source.substring(matcher.end());
         String value = matcher.group(1).trim();
         String lower = value.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("mineskin:") || lower.contains("mineskin.org")) {
+            String tail = lower.startsWith("mineskin:") && !lower.contains("mineskin.org")
+                    ? lower.substring("mineskin:".length()) : lower.substring(lower.lastIndexOf('/') + 1);
+            String id = tail.replace("-", "").trim();
+            int query = id.indexOf('?');
+            if (query >= 0) {
+                id = id.substring(0, query);
+            }
+            return MINESKIN_ID.matcher(id).matches()
+                    ? new HeadTag(Kind.MINESKIN, 0, id, rest)
+                    : new HeadTag(Kind.NONE, 0, null, rest);
+        }
         if (lower.equals("self")) {
             return new HeadTag(Kind.SELF, 0, null, rest);
         }

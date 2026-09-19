@@ -63,7 +63,7 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1083 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1084 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).

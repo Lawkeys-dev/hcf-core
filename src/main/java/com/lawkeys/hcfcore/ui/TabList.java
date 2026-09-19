@@ -238,6 +238,7 @@ final class TabList {
             case TOP -> tag.index() <= top.size()
                     ? top.get(tag.index() - 1).getLeader().map(this::playerHead).orElse(null) : null;
             case ACCOUNT -> accountHead(tag.name());
+            case MINESKIN -> mineskinHead(tag.name());
         };
     }
 
@@ -280,6 +281,44 @@ final class TabList {
                 if (!found) {
                     plugin.getLogger().warning("ui.yml: no Minecraft account named '" + name
                             + "' for a [head:" + name + "] of the tab list; the cell shows the default head.");
+                }
+            });
+        }
+        return null;
+    }
+
+    /** A skin of mineskin.org, by id: asked of its API once, off the main thread. */
+    private GridTab.Skin mineskinHead(String id) {
+        String key = "mineskin:" + id;
+        Optional<GridTab.Skin> known = accountHeads.get(key);
+        if (known != null) {
+            return known.orElse(null);
+        }
+        if (fetching.add(key)) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                GridTab.Skin skin = null;
+                try {
+                    var request = java.net.http.HttpRequest.newBuilder(
+                                    java.net.URI.create("https://api.mineskin.org/v2/skins/" + id))
+                            .header("User-Agent", "HCFCore/" + plugin.getPluginMeta().getVersion())
+                            .timeout(java.time.Duration.ofSeconds(15))
+                            .GET().build();
+                    var response = java.net.http.HttpClient.newHttpClient()
+                            .send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200) {
+                        var data = com.google.gson.JsonParser.parseString(response.body()).getAsJsonObject()
+                                .getAsJsonObject("skin").getAsJsonObject("texture").getAsJsonObject("data");
+                        skin = new GridTab.Skin(data.get("value").getAsString(), data.get("signature").getAsString());
+                    }
+                } catch (java.io.IOException | RuntimeException e) {
+                    skin = null;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                accountHeads.put(key, Optional.ofNullable(skin));
+                if (skin == null) {
+                    plugin.getLogger().warning("ui.yml: mineskin.org has no skin " + id + " for a [head:mineskin:"
+                            + id + "] of the tab list, or could not be reached; the cell shows the default head.");
                 }
             });
         }
