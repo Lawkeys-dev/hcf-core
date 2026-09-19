@@ -18,12 +18,6 @@ hide:
 
 </div>
 
-## Make it yours
-
-**Every colour, prefix, menu, scoreboard row, tab line, chat format, nametag and hologram follows one file, [`theme.yml`](reference/configuration/theme.md).** The **[Theme Builder](tools/theme-builder.html)** designs it with live previews - start from one of 14 palettes, gradients included, tune each colour, and download files ready to drop into `plugins/HCFCore/`.
-
-[![The Theme Builder, with the Sunset palette](assets/theme-builder.png)](tools/theme-builder.html)
-
 ## Everything an HCF server needs, in one plugin
 
 <div class="grid cards" markdown>

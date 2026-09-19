@@ -104,13 +104,13 @@ extra:
 
 nav:
   - Home: index.md
-  - Theme Builder: https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html
   - Getting started:
       - getting-started/index.md
       - Installation: getting-started/installation.md
       - Setting up a map: getting-started/setup-guide.md
       - Game modes: getting-started/game-modes.md
       - Upgrading: getting-started/upgrading.md
+      - Theme Builder: getting-started/theme-builder.md
       - Changelog: changelog.md
   - How the game works:
       - gameplay/index.md

@@ -7,9 +7,12 @@
 <meta name="description" content="Design the whole look of HCFCore - colours and gradients, prefix, menus, scoreboard, tab, chat, nametags, holograms - and download files ready to drop into plugins/HCFCore/.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
+/* The game's typeface: Minecraft-Font by Idrees Hassan, SIL Open Font License 1.1 (fonts/OFL.txt). */
+@font-face { font-family: "Minecraft"; src: url("fonts/Minecraft.otf") format("opentype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Minecraft"; src: url("fonts/Minecraft-Bold.otf") format("opentype"); font-weight: 700; font-display: swap; }
 /* One visual world on purpose: a Minecraft night. Single theme, every colour painted. */
 :root {
   --ground: #121419;
@@ -29,8 +32,8 @@ a { color: var(--chosen); }
 code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .9em; }
 .wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 24px 64px; }
 .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-h1 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.02; margin: 0 0 6px; text-wrap: balance; }
-h2 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: 19px; margin: 0; }
+h1 { font-family: "Minecraft", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.02; margin: 0 0 6px; text-wrap: balance; }
+h2 { font-family: "Minecraft", "Manrope", system-ui, sans-serif; font-weight: 600; font-size: 19px; margin: 0; }
 .lede { color: var(--muted); max-width: 74ch; margin: 0; }
 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .links { display: flex; gap: 14px; font-size: 13px; flex-wrap: wrap; }
@@ -39,7 +42,7 @@ h2 { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-weight
 .presets { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 9px; }
 .preset { text-align: left; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 11px; cursor: pointer; display: grid; gap: 6px; }
 .preset[aria-pressed="true"] { border-color: var(--chosen); box-shadow: inset 0 0 0 1px var(--chosen); }
-.preset .name { font-family: "Pixelify Sans", "Manrope", system-ui, sans-serif; font-size: 17px; line-height: 1.1; text-shadow: 2px 2px 0 rgba(0,0,0,.5); }
+.preset .name { font-family: "Minecraft", "Manrope", system-ui, sans-serif; font-size: 17px; line-height: 1.1; text-shadow: 2px 2px 0 rgba(0,0,0,.5); }
 .preset .blurb { font-size: 12px; color: var(--muted); }
 .swatches { display: flex; gap: 3px; }
 .swatches i { flex: 1; height: 14px; border-radius: 3px; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.35); }
@@ -91,7 +94,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .card-head p { margin: 0; color: var(--muted); font-size: 12.5px; }
 
-.mc { font-family: "Pixelify Sans", ui-monospace, monospace; font-size: 16px; line-height: 1.35; text-shadow: 2px 2px 0 rgba(0,0,0,.55); white-space: pre-wrap; word-break: break-word; }
+.mc { font-family: "Minecraft", ui-monospace, monospace; font-size: 16px; line-height: 1.35; text-shadow: 2px 2px 0 rgba(0,0,0,.55); white-space: pre-wrap; word-break: break-word; }
 .world { background: linear-gradient(180deg, #5f82ad 0%, #88a9cf 46%, #5b7639 46.5%, #45602b 100%); border-radius: 6px; padding: 14px; min-width: 0; }
 .chat { background: rgba(0,0,0,.42); padding: 6px 8px; display: grid; gap: 2px; max-width: 720px; }
 .chatbar { margin-top: 8px; background: rgba(0,0,0,.55); height: 22px; max-width: 720px; }
@@ -102,9 +105,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .gui-title span { text-shadow: none !important; }
 .slots { display: grid; grid-template-columns: repeat(9, 36px); }
 .slot { width: 36px; height: 36px; background: #8b8b8b; border: 2px solid; border-color: #373737 #fff #fff #373737; position: relative; display: grid; place-items: center; }
-.slot .pane { position: absolute; inset: 3px; opacity: .85; }
-.slot .item { width: 22px; height: 22px; border-radius: 3px; box-shadow: inset -3px -3px 0 rgba(0,0,0,.25), inset 3px 3px 0 rgba(255,255,255,.25); }
-.slot .arrow { font: 600 20px/1 "Pixelify Sans", monospace; color: #3b3b3b; }
+.slot img { width: 32px; height: 32px; image-rendering: pixelated; display: block; }
+.slot .pane { position: absolute; inset: 0; width: 32px; height: 32px; }
+.slot .arrow { font: 700 20px/1 "Minecraft", monospace; color: #3b3b3b; }
 .slot.hoverable { cursor: pointer; }
 .slot.hoverable:hover::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.45); }
 .tooltip { position: absolute; z-index: 5; pointer-events: none; background: rgba(16, 0, 16, .95); border: 2px solid #28007a; border-radius: 3px; padding: 5px 8px; max-width: 340px; }
@@ -122,11 +125,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .scene { display: flex; gap: 22px; justify-content: space-around; align-items: flex-end; flex-wrap: wrap; padding-top: 8px; }
 .figure { display: grid; justify-items: center; gap: 6px; }
 .tag { background: rgba(0,0,0,.35); padding: 1px 6px; text-align: center; }
-.body-pix { width: 26px; height: 58px; border-radius: 3px; background: linear-gradient(180deg, #c79b73 0 26%, #3a6ea5 26% 62%, #2f3b6b 62% 100%); box-shadow: inset -4px 0 0 rgba(0,0,0,.2); }
+.skin { height: 150px; width: auto; image-rendering: pixelated; filter: drop-shadow(3px 4px 0 rgba(0,0,0,.25)); }
 .figure small { color: #e8eaef; font-size: 11px; text-shadow: 1px 1px 0 #000; }
 .holo { display: grid; justify-items: center; gap: 2px; }
 .holo .mc { background: rgba(0,0,0,.28); padding: 0 6px; }
-.beacon { width: 34px; height: 34px; background: #5ad2d2; box-shadow: inset -5px -5px 0 rgba(0,0,0,.25); margin-top: 6px; }
+.beacon { width: 48px; height: 48px; image-rendering: pixelated; margin-top: 6px; }
 
 .export { display: grid; gap: 10px; }
 .file-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -269,7 +272,7 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
       </section>
 
       <section class="card" aria-labelledby="h-menu">
-        <div class="card-head"><h2 id="h-menu">Menus</h2><p>Hover an item for its tooltip · the arrows turn the page</p></div>
+        <div class="card-head"><h2 id="h-menu">Menus</h2><p>Hover an item for its tooltip</p></div>
         <div class="seg" id="menuPick"></div>
         <div class="gui-wrap" id="guiWrap">
           <div class="gui"><div class="gui-title mc" id="guiTitle"></div><div class="slots" id="slots"></div></div>
@@ -359,6 +362,10 @@ const ROLES = [
 const PANES = { BLACK: "#1d1d21", GRAY: "#474f52", LIGHT_GRAY: "#9d9d97", WHITE: "#f9fffe", RED: "#b02e26", ORANGE: "#f9801d",
   YELLOW: "#fed83d", LIME: "#80c71f", GREEN: "#5e7c16", CYAN: "#169c9c", LIGHT_BLUE: "#3ab3da", BLUE: "#3c44aa",
   PURPLE: "#8932b8", MAGENTA: "#c74ebd", PINK: "#f38baa", BROWN: "#835432" };
+// The game's own textures, from a public mirror of its assets - never copied into this repository.
+const TEXTURES = "https://cdn.jsdelivr.net/gh/InventivetalentDev/minecraft-assets@1.21.8/assets/minecraft/textures/";
+const texture = (path) => TEXTURES + path + ".png";
+const skin = (name) => "https://mc-heads.net/body/" + encodeURIComponent(name) + "/150";
 const P = (primary, secondary, text, muted, dark, success, error, warning) => ({ primary, secondary, text, muted, dark, success, error, warning });
 const PALETTES = [
   { id: "royal-gold", name: "Royal Gold", blurb: "Gold and cream - as shipped.", colors: P("#F5B32E", "#FFE39A", "#F7F1E3", "#B3A88F", "#5E5540", "#8CE36B", "#F2594B", "#FFD24A"), bullet: "➥", pane: "BLACK", cornerPane: "YELLOW", prefixStyle: "arrow" },
@@ -502,7 +509,8 @@ const LEGACY = { 0: "#000000", 1: "#0000aa", 2: "#00aa00", 3: "#00aaaa", 4: "#aa
   8: "#555555", 9: "#5555ff", a: "#55ff55", b: "#55ffff", c: "#ff5555", d: "#ff55ff", e: "#ffff55", f: "#ffffff" };
 function fill(raw, ph) { let s = raw; for (const [k, v] of Object.entries(ph || {})) s = s.split("%" + k + "%").join(v); return s; }
 function render(target, raw, ph) {
-  const str = apply(fill(apply(raw), ph));
+  // Placeholders first, then the theme - as the plugin does: a gradient spans the filled-in text.
+  const str = apply(fill(raw, ph));
   target.textContent = "";
   let color = "#ffffff", bold = false, italic = false, strike = false, under = false, last = 0, m;
   const re = /&#([0-9a-fA-F]{6})|&([0-9a-fk-orA-FK-OR])/g;
@@ -511,7 +519,7 @@ function render(target, raw, ph) {
     const s = document.createElement("span");
     s.textContent = text.replace(/&&/g, "&");
     s.style.color = color;
-    if (bold) s.style.fontWeight = "600";
+    if (bold) s.style.fontWeight = "700";
     if (italic) s.style.fontStyle = "italic";
     const deco = [strike ? "line-through" : "", under ? "underline" : ""].filter(Boolean).join(" ");
     if (deco) s.style.textDecoration = deco;
@@ -587,40 +595,32 @@ function layout(count, frame, page) {
   return { rows, slots, frameSlots, corners, page, pages, first,
     previous: paged && page > 0 ? lastRow + 3 : -1, next: paged && page < pages - 1 ? lastRow + 5 : -1 };
 }
-const SETTINGS = [["Scoreboard", "The board on the right of your screen.", true], ["Private messages", "Messages from other players.", true],
-  ["Tips", "The occasional line of advice in chat.", true], ["Pick up cobblestone", "Off, you leave cobblestone on the ground.", false],
-  ["Scoreboard: team", "Your team, its DTR, focus and rally rows.", true], ["Scoreboard: statistics", "Your kills and killstreak.", true],
-  ["Scoreboard: balance", "Your balance.", true], ["Scoreboard: combat tag", "Your combat tag.", true],
-  ["Scoreboard: cooldowns", "Your ender pearl and item cooldowns.", true], ["Scoreboard: class", "Your class, its energy.", true],
-  ["Scoreboard: events", "SOTW, EOTW, KOTH, the King, Conquest.", false], ["Scoreboard: timers", "The server's custom timers.", true]];
-const ABILITY_COLORS = ["#fed83d", "#9d9d97", "#3ab3da", "#835432", "#f9fffe", "#f9801d", "#b02e26", "#80c71f", "#8932b8", "#c74ebd"];
-const ABILITIES = ["Switcher", "Thunderbolt", "Combo Ability", "Lucky Mode", "Rage Ball", "Crafting Chaos", "Focus Mode", "Ninja Track",
-  "Portable Archer", "Invisibility", "Time Warp", "Pocket Bard", "Berserk", "Close Call", "Switch Stick", "Belch Bomb", "Reverse Ninja Track",
-  "Rose Thorn", "Pumpkin Reaper", "Hulk Smash", "Sticky Web", "Med Kit", "Grappling Hook", "Nausea Axe", "Bunny Hop", "Ice Berg", "Antidote",
-  "Golden Head", "Grabber", "Poisonous Potato", "Fake Pearl", "Rocket", "Combo Fish", "Anti-Build Bone", "Rotten Egg", "Rage Strength",
-  "Olympia", "Baguette", "Sun", "Scrambler", "Lucky Bard", "Disarmer Wand"];
 let menuShown = "settings", menuPage = 0;
 const MENUS = {
-  settings: { label: "/settings", title: () => state.menus.settingsTitle, build: () => ({ l: layout(SETTINGS.length, state.frame, 0),
-    items: SETTINGS.map(([n, d, on]) => ({ color: on ? "#80c71f" : "#6b6b6b",
-      tip: ["{secondary}" + n, state.menus.separator, "{muted}" + d, "", "{muted}Currently: " + (on ? "{success}On" : "{error}Off"), "{secondary}{action}Click to switch"] })) }) },
-  abilities: { label: "/ability", title: () => "{primary}&lAbilities", build: (page) => {
-    const l = layout(ABILITIES.length, state.frame, page);
-    return { l, items: l.slots.map((_, i) => {
-      const n = ABILITIES[l.first + i], ready = (l.first + i) % 3 !== 1;
-      return { color: ABILITY_COLORS[(l.first + i) % ABILITY_COLORS.length],
-        tip: ["&6&l" + n, state.menus.separator, "{muted}What it does, as abilities.yml says.", "", "{dark}Type {bullet} " + n.toLowerCase().replace(/ /g, "-"),
-          ready ? "{success}Ready" : "{error}Cooldown: {secondary}1m 12s"] };
-    }) };
+  settings: { label: "/settings", title: () => state.menus.settingsTitle, build: () => {
+    const items = [["Scoreboard", "The board on the right of your screen.", true],
+      ["Private messages", "Messages from other players.", true],
+      ["Pick up cobblestone", "Off, you leave cobblestone on the ground.", false]];
+    return { l: layout(items.length, state.frame, 0), items: items.map(([n, d, on]) => ({ tex: on ? "item/lime_dye" : "item/gray_dye",
+      tip: ["{secondary}" + n, state.menus.separator, "{muted}" + d, "", "{muted}Currently: " + (on ? "{success}On" : "{error}Off"), "{secondary}{action}Click to switch"] })) };
+  } },
+  abilities: { label: "/ability", title: () => "{primary}&lAbilities", build: () => {
+    const items = [["&6&lSun", "block/sunflower_front", "Right click: enemies around you", "burn and are blinded.", true],
+      ["&e&lOlympia", "item/iron_horse_armor", "A shotgun that fires", "incendiary eggs.", false],
+      ["&6&lGrappling Hook", "item/fishing_rod", "Cast at a block and reel", "in to fly to it.", true]];
+    return { l: layout(items.length, state.frame, 0), items: items.map(([n, tex, l1, l2, ready]) => ({ tex,
+      tip: [n, state.menus.separator, "&7" + l1, "&7" + l2, "", "{dark}Type {bullet} " + ColorStrip(n).toLowerCase().replace(/ /g, "-"),
+        ready ? "{success}Ready" : "{error}Cooldown: {secondary}1m 12s"] })) };
   } },
   pocket: { label: "Pocket Bard", title: () => "{primary}&lPocket Bard", build: () => {
     const framed = layout(7, state.frame, 0);
     const l = { rows: 3, slots: [10, 12, 14, 16], frameSlots: framed.rows === 3 ? framed.frameSlots : new Set(),
       corners: framed.rows === 3 ? framed.corners : new Set(), previous: -1, next: -1, page: 0, pages: 1, first: 0 };
-    return { l, items: [["&c3x Strength", "#f9801d"], ["&73x Resistance", "#c6c6c6"], ["&a3x Jump", "#f9fffe"], ["&b3x Speed", "#f9fffe"]]
-      .map(([n, c]) => ({ color: c, tip: [n, state.menus.separator, "&7* &aTeam Members", "", "{secondary}{action}Click to pick"] })) };
+    return { l, items: [["&c3x Strength", "item/blaze_powder"], ["&73x Resistance", "item/iron_ingot"], ["&a3x Jump", "item/feather"], ["&b3x Speed", "item/sugar"]]
+      .map(([n, tex]) => ({ tex, tip: [n, state.menus.separator, "&7* &aTeam Members", "", "{secondary}{action}Click to pick"] })) };
   } },
 };
+function ColorStrip(s) { return s.replace(/&[0-9a-fk-or]/gi, ""); }
 function menu() {
   const m = MENUS[menuShown];
   const { l, items } = m.build(menuPage);
@@ -633,18 +633,16 @@ function menu() {
     const slot = el("div", { class: "slot" });
     const it = bySlot.get(s);
     if (it) {
-      const item = el("div", { class: "item" }); item.style.background = it.color;
-      slot.append(item); slot.classList.add("hoverable"); slot.tabIndex = 0;
+      slot.append(el("img", { src: texture(it.tex), alt: "", loading: "lazy" })); slot.classList.add("hoverable"); slot.tabIndex = 0;
       slot.dataset.tip = it.tip.filter((x, k) => !(k === 1 && !x)).join("\n");
     } else if (s === l.previous || s === l.next) {
-      slot.append(el("span", { class: "arrow" }, s === l.previous ? "←" : "→"));
+      slot.append(el("img", { src: texture("item/arrow"), alt: s === l.previous ? "Previous page" : "Next page" }));
       slot.classList.add("hoverable"); slot.tabIndex = 0;
       slot.dataset.tip = (s === l.previous ? state.menus.previous : state.menus.next) + "\n" + page;
       slot.dataset.turn = s === l.previous ? "-1" : "1";
     } else if (l.frameSlots.has(s)) {
-      const pane = el("div", { class: "pane" });
-      pane.style.background = PANES[l.corners.has(s) ? state.cornerPane : state.pane];
-      slot.append(pane);
+      const colour = (l.corners.has(s) ? state.cornerPane : state.pane).toLowerCase();
+      slot.append(el("img", { class: "pane", src: texture("block/" + colour + "_stained_glass"), alt: "" }));
     }
     slots.append(slot);
   }
@@ -688,21 +686,21 @@ function tab() {
 function scene() {
   const box = document.getElementById("scene");
   box.textContent = "";
-  const people = [["self", "Lawkeys", "Wizards", "3.5", "You"], ["ally", "Notch", "Knights", "2.1", "An ally"],
-    ["enemy", "Dinnerbone", "Raiders", "0.5", "An enemy"], ["focus", "jeb_", "Raiders", "0.5", "Your focus"]];
+  const people = [["self", "Lawkeys", "Wizards", "3.5", "You"], ["ally", "ownedbynoname", "Knights", "2.1", "An ally"],
+    ["enemy", "Notch", "Raiders", "0.5", "An enemy"], ["focus", "jeb_", "Raiders", "0.5", "Your focus"]];
   for (const [rel, name, team, dtr, label] of people) {
     const f = el("div", { class: "figure" });
     const color = state.nametags.colors[rel];
     const t1 = el("div", { class: "tag mc" }); render(t1, state.nametags.team, { color, team, dtr });
     const t2 = el("div", { class: "tag mc" }); render(t2, state.nametags.name, { color, player: name });
-    f.append(t1, t2, el("div", { class: "body-pix" }), el("small", {}, label));
+    f.append(t1, t2, el("img", { class: "skin", src: skin(name), alt: name + "'s skin", loading: "lazy" }), el("small", {}, label));
     box.append(f);
   }
   const h = el("div", { class: "holo" });
   for (const [raw, ph] of [[state.holo.title, { event: "Citadel" }], [state.holo.held, { team: "Wizards" }], [state.holo.time, { time: "4m 12s" }]]) {
     const d = el("div", { class: "mc" }); render(d, raw, ph); h.append(d);
   }
-  h.append(el("div", { class: "beacon" }));
+  h.append(el("img", { class: "beacon", src: texture("block/beacon"), alt: "" }));
   box.append(h);
 }
 function tokens() {

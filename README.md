@@ -17,14 +17,6 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 
 ---
 
-## Make it yours: the Theme Builder
-
-Every colour, prefix, menu, scoreboard row, tab line, chat format, nametag and hologram of the plugin follows one file, `theme.yml`. **The [Theme Builder](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html) designs it in your browser**, with live previews of the chat, the menus, the scoreboard, the tab list, nametags and holograms: start from one of 14 palettes - gradients included, fading letter by letter - tune every colour, then download `theme.yml` and `ui.yml` and drop them into `plugins/HCFCore/`. No editing by hand.
-
-[![The Theme Builder, with the Sunset palette](docs/assets/theme-builder.png)](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)
-
----
-
 ## Features
 
 | | |

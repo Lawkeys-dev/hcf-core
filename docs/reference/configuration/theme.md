@@ -5,7 +5,7 @@ The look of the whole plugin: its colours by role, its message prefix, its menus
 **How it plays:** [:octicons-arrow-right-24: Chat, scoreboard and settings](../../gameplay/interface.md)
 
 !!! tip "Theme Builder"
-    Design your theme with live previews — chat, menus, scoreboard, tab — and download a `theme.yml` ready to drop into `plugins/HCFCore/`: **[open the Theme Builder](../../tools/theme-builder.html)**. It also reads a `theme.yml` you already have, and writes the scoreboard's rows for `ui.yml`.
+    Design it with live previews, and download the files: [Theme Builder](../../getting-started/theme-builder.md).
 
 Every example on this page is **taken from the shipped `theme.yml`**. Changes apply with `/hcf reload`.
 
