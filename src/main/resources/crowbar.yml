@@ -23,12 +23,12 @@ enabled: true
 # --8<-- [start:item]
 item:
   material: GOLDEN_HOE
-  name: "&6&lCrowbar"
+  name: "{primary}&lCrowbar"
   # %uses% is how many frames it has left.
   lore:
-    - "&7Right-click an End portal frame to take it out."
-    - "&7Only in the wilderness or your own claim."
-    - "&7Uses left: &f%uses%"
+    - "{muted}Right-click an End portal frame to take it out."
+    - "{muted}Only in the wilderness or your own claim."
+    - "{muted}Uses left: {secondary}%uses%"
 # --8<-- [end:item]
 
 # --8<-- [start:limits]

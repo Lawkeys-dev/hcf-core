@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# theme.yml - the look of the whole plugin
+#
+# Every text the plugin shows - lang/en.yml, and the names and lines of the other
+# files - can use these tokens instead of colour codes:
+#
+#   {primary}    the main colour: the prefix, titles, names
+#   {secondary}  values: players, teams, numbers, times
+#   {text}       the body of a message
+#   {muted}      secondary information, item descriptions
+#   {dark}       brackets and separators
+#   {success}    something done
+#   {error}      something refused
+#   {warning}    announcements and events
+#   {prefix}     the message prefix below
+#   {bullet}     the list symbol below
+#
+# Change a colour here and it changes everywhere at once. Legacy codes (&a,
+# &l...) and hex colours written as &#rrggbb still work anywhere.
+#
+# /hcf reload applies changes. Lines "# --8<-- [start:...]" and "# --8<--
+# [end:...]" mark the parts the online documentation quotes from this file.
+# ---------------------------------------------------------------------------
+
+# --8<-- [start:colors]
+colors:
+  primary: "#F5B32E"
+  secondary: "#FFE39A"
+  text: "#F7F1E3"
+  muted: "#B3A88F"
+  dark: "#5E5540"
+  success: "#8CE36B"
+  error: "#F2594B"
+  warning: "#FFD24A"
+# --8<-- [end:colors]
+
+# --8<-- [start:prefix]
+# Starts the announcements - events, the map's phases, a team's own news - and
+# any message you add it to with {prefix}.
+prefix: "{primary}&lHCF&r{dark} » "
+# The list symbol: scoreboard rows, event lines.
+bullet: "➥"
+# Menu and scoreboard titles in small capitals: ᴀʙɪʟɪᴛɪᴇꜱ.
+small-caps-titles: true
+# --8<-- [end:prefix]
+
+# --8<-- [start:menus]
+menus:
+  # full: panes all around the menu; bars: the top and bottom rows; none.
+  frame: full
+  # The frame's pane and the four corners'.
+  pane: BLACK_STAINED_GLASS_PANE
+  corner-pane: YELLOW_STAINED_GLASS_PANE
+  # What starts the line of an item saying what a click does.
+  action: "» "
+# --8<-- [end:menus]

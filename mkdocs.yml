@@ -147,6 +147,7 @@ nav:
       - Configuration:
           - reference/configuration/index.md
           - config.yml: reference/configuration/config.md
+          - theme.yml: reference/configuration/theme.md
           - teams.yml: reference/configuration/teams.md
           - claims.yml: reference/configuration/claims.md
           - dtr.yml: reference/configuration/dtr.md

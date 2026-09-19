@@ -30,8 +30,8 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
     }
 
     public static AbilitySettings defaults() {
-        return new AbilitySettings(true, 10, 10, "&dAbilities", new DisabledIn(true, true, true, true, true, false),
-                List.of(), "&dPocket Bard", 9, List.of());
+        return new AbilitySettings(true, 10, 10, "{primary}&lAbilities", new DisabledIn(true, true, true, true, true, false),
+                List.of(), "{primary}&lPocket Bard", 27, List.of());
     }
 
     public Optional<Ability> ability(String id) {

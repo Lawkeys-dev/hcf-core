@@ -45,7 +45,7 @@ enabled: true
 enchants:
 
   fire-resistance:
-    name: "&6Fire Resistance"
+    name: "{primary}Fire Resistance"
     type: effect
     effect: fire_resistance
     max-level: 1
@@ -53,7 +53,7 @@ enchants:
 
   # --8<-- [start:effect-enchant]
   speed:
-    name: "&bSpeed"
+    name: "{secondary}Speed"
     type: effect
     effect: speed
     max-level: 2
@@ -61,21 +61,21 @@ enchants:
   # --8<-- [end:effect-enchant]
 
   jump-boost:
-    name: "&aJump Boost"
+    name: "{success}Jump Boost"
     type: effect
     effect: jump_boost
     max-level: 2
     applies-to: [boots]
 
   night-vision:
-    name: "&9Night Vision"
+    name: "{primary}Night Vision"
     type: effect
     effect: night_vision
     max-level: 1
     applies-to: [helmet]
 
   invisibility:
-    name: "&7Invisibility"
+    name: "{muted}Invisibility"
     type: effect
     effect: invisibility
     max-level: 1
@@ -83,7 +83,7 @@ enchants:
 
   # --8<-- [start:hellforged]
   hellforged:
-    name: "&cHellforged"
+    name: "{error}Hellforged"
     type: hellforged
     max-level: 4
     applies-to: [armor]
@@ -92,7 +92,7 @@ enchants:
 
   # --8<-- [start:implanted]
   implanted:
-    name: "&2Implanted"
+    name: "{success}Implanted"
     type: implanted
     max-level: 3
     applies-to: [helmet]
@@ -102,7 +102,7 @@ enchants:
 
   # --8<-- [start:recover]
   recover:
-    name: "&dRecover"
+    name: "{primary}Recover"
     type: recover
     max-level: 2
     applies-to: [chestplate]
@@ -113,7 +113,7 @@ enchants:
 
   # --8<-- [start:autosmelt]
   autosmelt:
-    name: "&6Autosmelt"
+    name: "{primary}Autosmelt"
     type: autosmelt
     max-level: 1
     applies-to: [pickaxe]

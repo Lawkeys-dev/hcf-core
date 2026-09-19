@@ -4,9 +4,10 @@ import com.lawkeys.hcfcore.kit.Kit;
 import com.lawkeys.hcfcore.kit.KitLayout;
 import com.lawkeys.hcfcore.kit.KitMessages;
 import com.lawkeys.hcfcore.kit.KitModule;
+import com.lawkeys.hcfcore.lang.LangManager;
+import com.lawkeys.hcfcore.theme.MenuStyle;
 import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,7 +38,6 @@ public final class KitLayoutMenu implements InventoryHolder {
 
     public static final int RESET_SLOT = 44;
     private static final int INFO_SLOT = 40;
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
 
     private final KitModule module;
     private final UUID playerId;
@@ -51,8 +51,8 @@ public final class KitLayoutMenu implements InventoryHolder {
         this.kit = kit;
         this.items = items;
         this.inventory = Bukkit.createInventory(this, KitLayout.EDITOR_SIZE,
-                LEGACY.deserialize(module.getLang().get(KitMessages.LAYOUT_TITLE, "kit", kit.displayName())));
-        ItemStack filler = button(Material.GRAY_STAINED_GLASS_PANE, " ", null);
+                MenuStyle.title(module.getLang().get(KitMessages.LAYOUT_TITLE, "kit", kit.displayName())));
+        ItemStack filler = MenuStyle.pane(LangManager.theme().menus().pane());
         for (int slot = KitLayout.EDITOR_OFF_HAND + 1; slot < KitLayout.EDITOR_SIZE; slot++) {
             inventory.setItem(slot, filler);
         }

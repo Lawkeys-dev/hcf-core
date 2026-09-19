@@ -14,7 +14,8 @@ scoreboard:
   # fine as any countdown on it needs; lowering it costs a redraw per player per
   # tick for no visible gain.
   update-ticks: 20
-  title: "&c&lHCF"
+  # Written in small capitals when theme.yml says so (small-caps-titles).
+  title: "{primary}&lHCF"
 
   # --8<-- [start:scoreboard-lines]
   # The rows, top to bottom. A scoreboard shows at most 15; anything past that is
@@ -63,12 +64,12 @@ scoreboard:
   # scoreboard, which each player may hide in /settings (settings.yml,
   # "scoreboard-<section>"). Tag a row as you like; an untagged row always shows.
   lines:
-    - "&7&m----------------"
-    - "[team]&cTeam: &f%team%"
-    - "[team]&cDTR: %dtr_coloured%"
-    - "[stats]&cKills: &f%kills%"
-    - "[stats]&cStreak: &f%killstreak%"
-    - "[balance]&cBalance: &a%balance%"
+    - "{dark}▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪"
+    - "[team]{primary}Team {dark}{bullet} {secondary}%team%"
+    - "[team]{primary}DTR {dark}{bullet} %dtr_coloured%"
+    - "[stats]{primary}Kills {dark}{bullet} {secondary}%kills%"
+    - "[stats]{primary}Streak {dark}{bullet} {secondary}%killstreak%"
+    - "[balance]{primary}Balance {dark}{bullet} {success}%balance%"
     - "[team]%focus_line%"
     - "[team]%rally_line%"
     - "[combat]%combat_line%"
@@ -92,7 +93,8 @@ scoreboard:
     - "[timers]%timer_1%"
     - "[timers]%timer_2%"
     - "[timers]%timer_3%"
-    - "&7&m----------------"
+    - "{dark}▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪"
+    - "{muted}play.yourserver.net"
   # --8<-- [end:scoreboard-lines]
 # --8<-- [end:scoreboard]
 
@@ -102,7 +104,9 @@ tablist:
   # asked for is the kind of thing an operator notices and has to go turn off.
   enabled: false
   header:
-    - "&c&lHCF"
+    - "{primary}&lHCF"
+    - "{muted}Hardcore Factions"
   footer:
-    - "&7%online% online"
+    - "{text}Online {dark}{bullet} {secondary}%online%"
+    - "{muted}play.yourserver.net"
 # --8<-- [end:tablist]

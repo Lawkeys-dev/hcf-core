@@ -22,6 +22,7 @@ The files are written on the first start and **never overwritten** afterwards.
 | File | Controls | Switch |
 |---|---|---|
 | [`config.yml`](config.md) | Language, game mode (`kitmap-mode`), storage (SQLite or MySQL, save interval) | — |
+| [`theme.yml`](theme.md) | The look of everything: colours by role, the message prefix, the list symbol, small-capital titles, the menus' frame | — |
 | [`teams.yml`](teams.md) | Team names, size, co-leaders, invitation expiry, the role needed for each action, alliances, focus, rally, bank, the Team Points scale, KOTH caps | always on |
 | [`claims.yml`](claims.md) | Claim limits, placement rules, protection, HQ and base, `/team hq` and `/team stuck` countdowns, claimable worlds, roles for claiming, the warzone | `enabled` |
 | [`dtr.yml`](dtr.md) | Maximum DTR, loss per death, floor, regeneration, announcements | `enabled` |

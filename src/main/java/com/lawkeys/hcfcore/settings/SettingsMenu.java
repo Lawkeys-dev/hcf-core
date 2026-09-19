@@ -1,8 +1,9 @@
 package com.lawkeys.hcfcore.settings;
 
+import com.lawkeys.hcfcore.theme.MenuLayout;
+import com.lawkeys.hcfcore.theme.MenuStyle;
 import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,21 +24,21 @@ import java.util.Objects;
  */
 public final class SettingsMenu implements InventoryHolder {
 
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
-
     private final SettingsModule module;
     private final Player viewer;
     private final List<PlayerSetting> shown;
+    private final MenuLayout layout;
     private final Inventory inventory;
 
     private SettingsMenu(SettingsModule module, Player viewer) {
         this.module = module;
         this.viewer = viewer;
         this.shown = module.offered();
-        int size = Math.max(9, (shown.size() + 8) / 9 * 9);
-        this.inventory = Bukkit.createInventory(this, size,
-                LEGACY.deserialize(module.getLang().get(SettingsMessages.MENU_TITLE)));
+        this.layout = MenuStyle.layout(shown.size(), 0);
+        this.inventory = Bukkit.createInventory(this, layout.size(),
+                MenuStyle.title(module.getLang().get(SettingsMessages.MENU_TITLE)));
         redraw();
+        MenuStyle.decorate(inventory, layout, module.getLang());
     }
 
     public static void open(SettingsModule module, Player viewer) {
@@ -52,7 +53,8 @@ public final class SettingsMenu implements InventoryHolder {
 
     /** @return the setting shown in this slot, or {@code null} for none */
     public PlayerSetting settingAt(int rawSlot) {
-        return rawSlot >= 0 && rawSlot < shown.size() ? shown.get(rawSlot) : null;
+        int index = layout.itemSlots().indexOf(rawSlot);
+        return index >= 0 && index < shown.size() ? shown.get(index) : null;
     }
 
     public Player viewer() {
@@ -61,8 +63,8 @@ public final class SettingsMenu implements InventoryHolder {
 
     /** Draws every item again from the settings as they are now. */
     public void redraw() {
-        for (int slot = 0; slot < shown.size(); slot++) {
-            inventory.setItem(slot, icon(shown.get(slot)));
+        for (int i = 0; i < shown.size() && i < layout.itemSlots().size(); i++) {
+            inventory.setItem(layout.itemSlots().get(i), icon(shown.get(i)));
         }
     }
 
@@ -71,6 +73,10 @@ public final class SettingsMenu implements InventoryHolder {
         ItemStack item = ItemStack.of(on ? Material.LIME_DYE : Material.GRAY_DYE);
         String state = module.getLang().get(on ? SettingsMessages.STATE_ON : SettingsMessages.STATE_OFF);
         List<Component> lore = new ArrayList<>();
+        Component separator = MenuStyle.separator(module.getLang());
+        if (separator != null) {
+            lore.add(separator);
+        }
         lore.add(ItemText.line(module.getLang().get(SettingsMessages.description(setting))));
         lore.add(Component.empty());
         lore.add(ItemText.line(module.getLang().get(SettingsMessages.LORE_STATE, "state", state)));

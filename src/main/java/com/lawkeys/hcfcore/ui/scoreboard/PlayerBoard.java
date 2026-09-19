@@ -1,7 +1,6 @@
 package com.lawkeys.hcfcore.ui.scoreboard;
 
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Criteria;
@@ -99,6 +98,6 @@ public final class PlayerBoard {
     }
 
     private static net.kyori.adventure.text.Component component(String legacy) {
-        return LegacyComponentSerializer.legacySection().deserialize(legacy);
+        return com.lawkeys.hcfcore.util.LegacyText.SERIALIZER.deserialize(legacy);
     }
 }

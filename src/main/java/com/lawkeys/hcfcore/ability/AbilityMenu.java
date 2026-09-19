@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.ability;
 
-import com.lawkeys.hcfcore.lang.LangManager;
+import com.lawkeys.hcfcore.theme.MenuLayout;
+import com.lawkeys.hcfcore.theme.MenuStyle;
 import com.lawkeys.hcfcore.util.Durations;
 import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
@@ -19,23 +20,35 @@ import java.util.List;
  */
 public final class AbilityMenu implements InventoryHolder {
 
+    private final AbilityModule module;
+    private final MenuLayout layout;
     private final Inventory inventory;
 
     public AbilityMenu(AbilityModule module, Player viewer) {
+        this(module, viewer, 0);
+    }
+
+    public AbilityMenu(AbilityModule module, Player viewer, int page) {
+        this.module = module;
         AbilitySettings settings = module.getSettings();
-        int size = Math.max(9, Math.min(54, (settings.abilities().size() + 8) / 9 * 9));
-        this.inventory = Bukkit.createInventory(this, size, ItemText.line(LangManager.colorize(settings.menuTitle())));
+        List<Ability> abilities = settings.abilities();
+        this.layout = MenuStyle.layout(abilities.size(), page);
+        this.inventory = Bukkit.createInventory(this, layout.size(), MenuStyle.title(settings.menuTitle()));
         long now = System.currentTimeMillis();
         var lang = module.getLang();
-        int slot = 0;
-        for (Ability ability : settings.abilities()) {
-            if (slot >= size) {
-                break;
-            }
+        for (int i = 0; i < layout.itemSlots().size(); i++) {
+            Ability ability = abilities.get(layout.firstItem() + i);
             ItemStack icon = module.buildItem(ability, 1);
             long left = module.getCooldowns().remaining(viewer.getUniqueId(), ability.id(), now);
             icon.editMeta(meta -> {
-                List<Component> lore = meta.lore() == null ? new ArrayList<>() : new ArrayList<>(meta.lore());
+                List<Component> lore = new ArrayList<>();
+                Component separator = MenuStyle.separator(lang);
+                if (separator != null) {
+                    lore.add(separator);
+                }
+                if (meta.lore() != null) {
+                    lore.addAll(meta.lore());
+                }
                 lore.add(Component.empty());
                 lore.add(ItemText.line(lang.get(AbilityMessages.MENU_TYPE, "type", ability.type().configName())));
                 lore.add(ItemText.line(left > 0
@@ -43,8 +56,22 @@ public final class AbilityMenu implements InventoryHolder {
                         : lang.get(AbilityMessages.MENU_READY)));
                 meta.lore(lore);
             });
-            inventory.setItem(slot++, icon);
+            inventory.setItem(layout.itemSlots().get(i), icon);
         }
+        MenuStyle.decorate(inventory, layout, lang);
+    }
+
+    /** @return the page this slot's arrow leads to, or {@code -1} if it holds none */
+    public int pageAt(int rawSlot) {
+        if (rawSlot >= 0 && rawSlot == layout.previous()) {
+            return layout.page() - 1;
+        }
+        return rawSlot >= 0 && rawSlot == layout.next() ? layout.page() + 1 : -1;
+    }
+
+    /** Opens another page of this menu. */
+    public void turnTo(Player viewer, int page) {
+        viewer.openInventory(new AbilityMenu(module, viewer, page).getInventory());
     }
 
     @Override

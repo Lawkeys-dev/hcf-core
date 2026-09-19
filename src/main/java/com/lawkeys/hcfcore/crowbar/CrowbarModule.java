@@ -63,10 +63,10 @@ public final class CrowbarModule {
         }
 
         static Settings defaults() {
-            return new Settings(true, Material.GOLDEN_HOE, "&6&lCrowbar",
-                    List.of("&7Right-click an End portal frame to take it out.",
-                            "&7Only in the wilderness or your own claim.",
-                            "&7Uses left: &f%uses%"),
+            return new Settings(true, Material.GOLDEN_HOE, "{primary}&lCrowbar",
+                    List.of("{muted}Right-click an End portal frame to take it out.",
+                            "{muted}Only in the wilderness or your own claim.",
+                            "{muted}Uses left: {secondary}%uses%"),
                     0, 0L, 0.0);
         }
     }

@@ -60,7 +60,7 @@ public final class HologramModule implements Listener {
 
     public static final String ADMIN_PERMISSION = "hcfcore.hologram.admin";
 
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
+    private static final LegacyComponentSerializer LEGACY = com.lawkeys.hcfcore.util.LegacyText.SERIALIZER;
 
     private final Plugin plugin;
     private final LangManager lang;

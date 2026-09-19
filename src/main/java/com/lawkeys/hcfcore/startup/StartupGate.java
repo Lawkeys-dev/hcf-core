@@ -3,7 +3,6 @@ package com.lawkeys.hcfcore.startup;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.startup.StartupBarrier.State;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -108,6 +107,6 @@ public final class StartupGate implements Listener {
         String message = lang.get(state == State.FAILED ? StartupMessages.LOGIN_FAILED : StartupMessages.LOGIN_LOADING);
         // LangManager already produces the section-sign form, so this is a straight
         // parse, as in DeathbanListener.
-        event.kickMessage(LegacyComponentSerializer.legacySection().deserialize(message));
+        event.kickMessage(com.lawkeys.hcfcore.util.LegacyText.SERIALIZER.deserialize(message));
     }
 }

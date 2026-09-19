@@ -65,7 +65,7 @@ public record ChatSettings(boolean enabled, String format, String killsFormat, i
 
     /** Built-in fallback, mirroring {@code resources/chat.yml}. */
     public static ChatSettings defaults() {
-        return new ChatSettings(true, "%kills%%prefix%&f%player%%suffix%&7: &f%message%",
-                "&7[&c%value%&7]&r ", 0, true);
+        return new ChatSettings(true, "%kills%%prefix%{text}%player%%suffix%{dark}: {text}%message%",
+                "{dark}[{primary}%value%{dark}]&r ", 0, true);
     }
 }

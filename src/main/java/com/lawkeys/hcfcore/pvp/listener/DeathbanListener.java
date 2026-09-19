@@ -8,7 +8,6 @@ import io.papermc.paper.connection.PlayerConfigurationConnection;
 import io.papermc.paper.connection.PlayerConnection;
 import io.papermc.paper.connection.PlayerLoginConnection;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -104,7 +103,7 @@ public final class DeathbanListener implements Listener {
                         "time", module.formatDuration(ban.get().remainingSeconds(System.currentTimeMillis())));
         // The section-sign form is what LangManager already produces, so this is a
         // straight parse rather than a re-rendering of the message.
-        event.kickMessage(LegacyComponentSerializer.legacySection().deserialize(message));
+        event.kickMessage(com.lawkeys.hcfcore.util.LegacyText.SERIALIZER.deserialize(message));
     }
 
     /**

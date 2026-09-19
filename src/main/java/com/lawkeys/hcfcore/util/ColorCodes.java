@@ -18,7 +18,8 @@ public final class ColorCodes {
     }
 
     /**
-     * Replaces {@code &x} with {@code §x} for every valid code {@code x}.
+     * Replaces {@code &x} with {@code §x} for every valid code {@code x}, and a hex
+     * colour {@code &#rrggbb} with the game's {@code §x§r§r§g§g§b§b}.
      *
      * <p>{@code &&} escapes a literal ampersand, and an {@code &} followed by
      * anything that is not a code is left alone - so a message like
@@ -37,7 +38,13 @@ public final class ColorCodes {
                 continue;
             }
             char next = chars[i + 1];
-            if (next == '&') {
+            if (next == '#' && isHex(chars, i + 2)) {
+                out.append(COLOR_CHAR).append('x');
+                for (int k = i + 2; k < i + 8; k++) {
+                    out.append(COLOR_CHAR).append(Character.toLowerCase(chars[k]));
+                }
+                i += 7;
+            } else if (next == '&') {
                 out.append('&');
                 i++;
             } else if (isCode(next)) {
@@ -60,10 +67,13 @@ public final class ColorCodes {
      * and the text comes out exactly as it was typed.
      *
      * <p>A raw {@link #COLOR_CHAR} is dropped: it needs no translation to format the
-     * line, and a command argument can carry one.
+     * line, and a command argument can carry one. A brace is followed by an invisible
+     * zero-width space, so a player who types {@code {prefix}} or {@code {primary}}
+     * does not get the theme's tokens ({@code theme.yml}) either.
      */
     public static String escape(String input) {
-        return input == null ? null : input.replace(String.valueOf(COLOR_CHAR), "").replace("&", "&&");
+        return input == null ? null
+                : input.replace(String.valueOf(COLOR_CHAR), "").replace("&", "&&").replace("{", "{\u200B");
     }
 
     /** Strips every already-translated formatting sequence from {@code input}. */
@@ -74,13 +84,27 @@ public final class ColorCodes {
         StringBuilder out = new StringBuilder(input.length());
         for (int i = 0; i < input.length(); i++) {
             char current = input.charAt(i);
-            if (current == COLOR_CHAR && i + 1 < input.length() && isCode(input.charAt(i + 1))) {
+            if (current == COLOR_CHAR && i + 1 < input.length()
+                    && (isCode(input.charAt(i + 1)) || Character.toLowerCase(input.charAt(i + 1)) == 'x')) {
                 i++;
                 continue;
             }
             out.append(current);
         }
         return out.toString();
+    }
+
+    /** Whether six hex digits start at {@code from}. */
+    private static boolean isHex(char[] chars, int from) {
+        if (from + 6 > chars.length) {
+            return false;
+        }
+        for (int k = from; k < from + 6; k++) {
+            if (Character.digit(chars[k], 16) < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Colours 0-9 and a-f, formats k-o, and reset r: the standard legacy code set. */

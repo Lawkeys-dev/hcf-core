@@ -50,43 +50,43 @@ staff-mode:
   items:
     0:
       material: COMPASS
-      name: "&b&lPlayer Tracker"
+      name: "{secondary}&lPlayer Tracker"
       lore:
-        - "&7Teleports you to the nearest player."
+        - "{muted}Teleports you to the nearest player."
       command: "staff tpnearest"
     1:
       material: ENDER_PEARL
-      name: "&d&lRandom Teleport"
+      name: "{primary}&lRandom Teleport"
       lore:
-        - "&7Teleports you to a random player."
+        - "{muted}Teleports you to a random player."
       command: "staff randomtp"
     2:
       material: BOOK
-      name: "&e&lInspect"
+      name: "{warning}&lInspect"
       lore:
-        - "&7Right-click a player to see"
-        - "&7what they are carrying."
+        - "{muted}Right-click a player to see"
+        - "{muted}what they are carrying."
       command: "invsee %player%"
       needs-target: true
     3:
       material: PACKED_ICE
-      name: "&b&lFreeze"
+      name: "{secondary}&lFreeze"
       lore:
-        - "&7Right-click a player to hold"
-        - "&7them for a check."
+        - "{muted}Right-click a player to hold"
+        - "{muted}them for a check."
       command: "freeze %player%"
       needs-target: true
     7:
       material: LIME_DYE
-      name: "&a&lVanish"
+      name: "{success}&lVanish"
       lore:
-        - "&7Toggles whether players can see you."
+        - "{muted}Toggles whether players can see you."
       command: "vanish"
     8:
       material: BARRIER
-      name: "&c&lLeave Staff Mode"
+      name: "{error}&lLeave Staff Mode"
       lore:
-        - "&7Gives your own items back."
+        - "{muted}Gives your own items back."
       command: "staff"
   # --8<-- [end:toolbar]
 # --8<-- [end:staff-mode]
@@ -105,14 +105,14 @@ staff-chat:
   enabled: true
   # %player% is who spoke, %message% is what they said. Their own & codes only
   # work with hcfcore.chat.color.
-  format: "&9[SC] &b%player%&7: &f%message%"
+  format: "{primary}[SC] {secondary}%player%{muted}: {secondary}%message%"
 # --8<-- [end:staff-chat]
 
 # --8<-- [start:broadcast]
 broadcast:
   # %message% is the text given to /broadcast; its & codes only work with
   # hcfcore.chat.color.
-  format: "&8[&cBroadcast&8] &f%message%"
+  format: "{dark}[{error}Broadcast{dark}] {secondary}%message%"
   # How many blank lines /clearchat pushes. There is no API to clear a client's
   # chat - the history lives on the client - so the only way is to push it off
   # the screen. Chat height differs between clients, hence the setting. Staff are

@@ -141,7 +141,7 @@ required-roles:
 #
 # Off by default: until you list a world below, nothing is reserved.
 warzone:
-  display-name: "&cWarzone"
+  display-name: "{error}Warzone"
 
   # Whether players may place and break blocks on unclaimed warzone land.
   # false is the usual HCF rule. Doors, chests and buttons are not building and

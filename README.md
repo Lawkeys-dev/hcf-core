@@ -32,7 +32,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 | **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, 42 partner items built in (Switcher, Ninja Track, Rage Ball, Pocket Bard, Grappling Hook…) and your own, killstreak rewards, custom enchants, effect commands (`/speed`, `/strength`…), enchantment, potion and effect caps, block limits per claim, a crowbar |
 | **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams |
 | **Everyday commands** | What an essentials plugin gives — `/ci`, `/feed`, `/fly`, `/god`, `/hat`, `/ec`, `/wb`, `/i`, `/tphere`, `/gmc`, `/day`… — each with its own permission, without what breaks HCF (`/tpa`, `/home`, `/back`, `/near`) |
-| **Interface** | Flicker-free scoreboard from template lines, each player hiding the sections they want in `/settings`, tab list, chat format with LuckPerms prefixes and kill counts, stats and leaderboards, holograms, player settings |
+| **Interface** | One theme for the whole plugin (`theme.yml`: colours by role, prefix, framed menus), flicker-free scoreboard from template lines, each player hiding the sections they want in `/settings`, tab list, chat format with LuckPerms prefixes and kill counts, stats and leaderboards, holograms, player settings |
 | **Integrations** | Vault, LuckPerms and Lunar Client (Apollo) — all optional |
 
 ## Quick start
@@ -63,7 +63,7 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1047 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1061 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).

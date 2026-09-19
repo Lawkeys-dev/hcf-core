@@ -10,7 +10,6 @@ import com.lawkeys.hcfcore.general.listener.GodModeListener;
 import com.lawkeys.hcfcore.general.listener.MessageListener;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.warmup.WarmupModule;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
@@ -181,7 +180,7 @@ public final class GeneralModule {
 
     /** The safe logout's own kick, with its own reason. */
     public void kickLoggingOut(Player player) {
-        player.kick(LegacyComponentSerializer.legacySection().deserialize(lang.get(GeneralMessages.LOGOUT_KICK)));
+        player.kick(com.lawkeys.hcfcore.util.LegacyText.SERIALIZER.deserialize(lang.get(GeneralMessages.LOGOUT_KICK)));
     }
 
     /**

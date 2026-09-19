@@ -30,13 +30,13 @@ enabled: true
 # do by default). Colour and obfuscated text are the tools of spam and of lines
 # dressed up as staff messages, so they are granted, not assumed. The same rule
 # applies in team and ally chat.
-format: "%kills%%prefix%&f%player%%suffix%&7: &f%message%"
+format: "%kills%%prefix%{text}%player%%suffix%{dark}: {text}%message%"
 
 # What %kills% expands to. %value% is the number. Separate from the template so
 # the brackets and the colour can be changed - or the whole thing emptied - with
 # no risk to the rest of the line. The trailing &r stops the prefix inheriting
 # the bracket colour.
-kills-format: "&7[&c%value%&7]&r "
+kills-format: "{dark}[{primary}%value%{dark}]&r "
 # --8<-- [end:format]
 
 # --8<-- [start:range-blocks]

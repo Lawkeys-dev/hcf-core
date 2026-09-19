@@ -6,6 +6,13 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+### Added
+- **A theme for the whole plugin** (`theme.yml`): eight colours by role, a message prefix, a list symbol, small-capital titles, framed menus. Every text is written with tokens — `{primary}`, `{secondary}`, `{muted}`, `{success}`, `{error}`, `{prefix}`, `{bullet}`, `{action}` — so a colour changed there changes everywhere. Shipped as "Or royal": gold and cream, a bold `HCF »` on the announcements, `Label ➥ value` scoreboard rows, black-framed menus with gold corners. Hex colours (`&#rrggbb`) now work in any text.
+- Menus page themselves when their items do not fit — `/ability` has two pages, `/tickets` is no longer capped at 54.
+
+### Changed
+- Every shipped message, menu, scoreboard row, hologram line and chat format uses the theme. *An existing `lang/en.yml`, `ui.yml` and the other files keep their look: take the new ones from the jar for the theme's, then put your changes back. The Pocket Bard menu is 27 slots, its sets at 10, 12, 14 and 16. `staff.ticket.menu.more` is gone.*
+
 ## [0.6.0] - 2026-09-19
 
 Partner items, and the cooldowns of an HCF server: the ender pearl, golden apples and the like, all on the scoreboard and on Lunar Client. The scoreboard can be trimmed by each player in `/settings`.

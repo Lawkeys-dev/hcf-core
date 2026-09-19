@@ -62,7 +62,7 @@ events:
   # ------------------------------------------------------------------
   # --8<-- [start:koth]
   koth:
-    display-name: "&6KOTH"
+    display-name: "{primary}KOTH"
 
     # The zone is the cuboid between the two corners, bounds included. Write the
     # corners in whichever order you walked them - they are normalised on load.
@@ -148,7 +148,7 @@ citadels:
 
   # --8<-- [start:citadel]
   citadel:
-    display-name: "&5Citadel"
+    display-name: "{primary}Citadel"
 
     # The zone to hold, inside the Citadel.
     world: world
@@ -221,7 +221,7 @@ kill-the-king:
 
   # --8<-- [start:ktk]
   ktk:
-    display-name: "&4Kill the King"
+    display-name: "{error}Kill the King"
     world: world
 
     # How long the King must survive.
@@ -265,7 +265,7 @@ kill-the-king:
     kit:
       helmet:
         material: DIAMOND_HELMET
-        name: "&6Crown of the King"
+        name: "{primary}Crown of the King"
         enchantments: {protection: 4, unbreaking: 3}
       chestplate:
         material: DIAMOND_CHESTPLATE
@@ -325,7 +325,7 @@ conquest:
 
   # --8<-- [start:conquest]
   conquest:
-    display-name: "&6Conquest"
+    display-name: "{primary}Conquest"
     world: world
 
     # Seconds a team must hold a zone alone to score from it.
@@ -352,19 +352,19 @@ conquest:
     # --8<-- [start:conquest-zones]
     zones:
       red:
-        display-name: "&cRed"
+        display-name: "{error}Red"
         corner-1: {x: 300, y: 60, z: 300}
         corner-2: {x: 306, y: 70, z: 306}
       blue:
-        display-name: "&9Blue"
+        display-name: "{primary}Blue"
         corner-1: {x: 340, y: 60, z: 300}
         corner-2: {x: 346, y: 70, z: 306}
       green:
-        display-name: "&aGreen"
+        display-name: "{success}Green"
         corner-1: {x: 300, y: 60, z: 340}
         corner-2: {x: 306, y: 70, z: 346}
       yellow:
-        display-name: "&eYellow"
+        display-name: "{warning}Yellow"
         corner-1: {x: 340, y: 60, z: 340}
         corner-2: {x: 346, y: 70, z: 346}
     # --8<-- [end:conquest-zones]

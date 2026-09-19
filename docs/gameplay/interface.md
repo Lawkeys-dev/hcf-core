@@ -41,6 +41,10 @@ Team and ally lines are also written to the console and the server log, with the
 - Ignore lists last for the session only.
 - Vanished staff cannot be found by `/msg`, nor by name completion.
 
+## The look
+
+Every message, menu, board and hologram follows one **theme** ([`theme.yml`](../reference/configuration/theme.md)): eight colours by role — gold, cream, green for a success, red for a refusal... — a bold `HCF »` prefix on the announcements, titles in small capitals, menus framed in black panes with gold corners and their items centred inside, a `➥` between a scoreboard label and its value. Change a colour there, and the whole plugin follows.
+
 ## Scoreboard
 
 A flicker-free sidebar, redrawn once a second (`update-ticks: 20`). **The board is a list of template lines** in `ui.yml`, top to bottom:

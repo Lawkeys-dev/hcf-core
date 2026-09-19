@@ -5,7 +5,6 @@ import com.lawkeys.hcfcore.staff.DeathSnapshot;
 import com.lawkeys.hcfcore.staff.StaffMessages;
 import com.lawkeys.hcfcore.staff.StaffModule;
 import com.lawkeys.hcfcore.util.Durations;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -139,7 +138,7 @@ public final class LastInvCommand implements TabExecutor {
             return;
         }
         Inventory view = Bukkit.createInventory(null, VIEW_SIZE,
-                LegacyComponentSerializer.legacySection().deserialize(module.getLang().get(
+                com.lawkeys.hcfcore.theme.MenuStyle.title(module.getLang().get(
                         StaffMessages.LASTINV_VIEW_TITLE,
                         "player", targetName, "index", String.valueOf(index + 1))));
         for (int slot = 0; slot < items.length && slot < VIEW_SIZE; slot++) {

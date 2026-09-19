@@ -30,11 +30,11 @@ tips:
   interval-seconds: 300
   # in-order, or random - which never shows the same tip twice running.
   order: in-order
-  prefix: "&8[&eTip&8] &7"
+  prefix: "{dark}[{warning}Tip{dark}] {muted}"
   messages:
-    - "Type &f/team help &7to see every team command."
-    - "&f/events &7lists what is running and what is coming."
-    - "&f/stats &7and &f/leaderboard &7show how you are doing."
+    - "Type {secondary}/team help {muted}to see every team command."
+    - "{secondary}/events {muted}lists what is running and what is coming."
+    - "{secondary}/stats {muted}and {secondary}/leaderboard {muted}show how you are doing."
 # --8<-- [end:tips]
 
 # --8<-- [start:schedules]
@@ -80,7 +80,7 @@ key-all:
   #     - "crates key give %player% vote 1"
   commands: []
   # Said once it has run; %count% is how many players received it.
-  broadcast: "&6&lKEY-ALL! &7%count% players received a key."
+  broadcast: "{primary}&lKEY-ALL! {muted}%count% players received a key."
   # The label of the countdown /keyall <duration> starts.
-  label: "&6Key-All"
+  label: "{primary}Key-All"
 # --8<-- [end:key-all]

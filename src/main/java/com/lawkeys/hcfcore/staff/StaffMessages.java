@@ -112,7 +112,6 @@ public final class StaffMessages {
     public static final String TICKET_NOTIFY_CLAIMED = "staff.ticket.notify-claimed";
     public static final String TICKET_NOTIFY_CLOSED = "staff.ticket.notify-closed";
     public static final String TICKET_MENU_TITLE = "staff.ticket.menu.title";
-    public static final String TICKET_MENU_MORE = "staff.ticket.menu.more";
     public static final String TICKET_MENU_REPORT_NAME = "staff.ticket.menu.report-name";
     public static final String TICKET_MENU_REQUEST_NAME = "staff.ticket.menu.request-name";
     public static final String TICKET_MENU_FROM = "staff.ticket.menu.from";

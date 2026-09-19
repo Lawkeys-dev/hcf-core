@@ -3,6 +3,7 @@ package com.lawkeys.hcfcore.lang;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import com.lawkeys.hcfcore.theme.Theme;
 import com.lawkeys.hcfcore.util.ColorCodes;
 import org.bukkit.plugin.Plugin;
 
@@ -156,6 +157,18 @@ public final class LangManager {
      * of the server API and therefore unit-tested.
      */
     public static String colorize(String input) {
-        return ColorCodes.translate(input);
+        return ColorCodes.translate(theme.apply(input));
+    }
+
+    /** The look every text is coloured with: {@code theme.yml}'s tokens, {@code {primary}} and the like. */
+    private static volatile Theme theme = Theme.defaults();
+
+    public static Theme theme() {
+        return theme;
+    }
+
+    /** Installs the theme. Called at startup and on {@code /hcf reload}, before anything is coloured. */
+    public static void setTheme(Theme newTheme) {
+        theme = java.util.Objects.requireNonNull(newTheme, "newTheme");
     }
 }

@@ -5,7 +5,6 @@ import com.lawkeys.hcfcore.events.DailySchedule;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.schedule.command.KeyAllCommand;
 import com.lawkeys.hcfcore.schedule.command.TimerCommand;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
@@ -229,6 +228,6 @@ public final class ScheduleModule {
     }
 
     private static void broadcast(String line) {
-        Bukkit.broadcast(LegacyComponentSerializer.legacySection().deserialize(line));
+        Bukkit.broadcast(com.lawkeys.hcfcore.util.LegacyText.SERIALIZER.deserialize(line));
     }
 }

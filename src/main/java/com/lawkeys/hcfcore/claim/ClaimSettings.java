@@ -126,7 +126,7 @@ public record ClaimSettings(
 
         /** No warzone anywhere: the default, so installing the plugin reserves nothing. */
         public static WarzoneRules none() {
-            return new WarzoneRules("&cWarzone", false, Map.of());
+            return new WarzoneRules("{error}Warzone", false, Map.of());
         }
 
         /**

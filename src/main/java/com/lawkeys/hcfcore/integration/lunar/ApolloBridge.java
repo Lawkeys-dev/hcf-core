@@ -74,7 +74,7 @@ import java.util.logging.Level;
  */
 final class ApolloBridge implements LunarBridge, Listener {
 
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
+    private static final LegacyComponentSerializer LEGACY = com.lawkeys.hcfcore.util.LegacyText.SERIALIZER;
     /** A cooldown whose end moved less than this is the one the client already shows. */
     private static final long COOLDOWN_TOLERANCE_MS = 1500L;
 

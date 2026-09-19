@@ -58,7 +58,7 @@ nodes:
   # ------------------------------------------------------------------
   # --8<-- [start:glowstone-mountain]
   glowstone-mountain:
-    display-name: "&eGlowstone Mountain"
+    display-name: "{warning}Glowstone Mountain"
 
     # --8<-- [start:node-region]
     # The region is the box between the two corners, bounds included. Write the
@@ -179,7 +179,7 @@ nodes:
   # ------------------------------------------------------------------
   # --8<-- [start:ore-mountain]
   ore-mountain:
-    display-name: "&bOre Mountain"
+    display-name: "{secondary}Ore Mountain"
     world: world
     corner-1:
       x: -80

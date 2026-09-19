@@ -1,8 +1,9 @@
 package com.lawkeys.hcfcore.pvpclass;
 
+import com.lawkeys.hcfcore.theme.MenuLayout;
+import com.lawkeys.hcfcore.theme.MenuStyle;
 import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -27,8 +28,6 @@ import java.util.Optional;
  */
 public final class DyesMenu implements InventoryHolder {
 
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
-    private static final int MAX_SLOTS = 54;
 
     /** One colour of one class. */
     public record Entry(PvpClass pvpClass, String colour, DyeEffect effect) {
@@ -37,14 +36,16 @@ public final class DyesMenu implements InventoryHolder {
     private final Inventory inventory;
 
     private DyesMenu(ClassModule module, Player viewer, List<Entry> entries) {
-        int size = Math.min(MAX_SLOTS, Math.max(9, (entries.size() + 8) / 9 * 9));
-        this.inventory = Bukkit.createInventory(this, size,
-                LEGACY.deserialize(module.getLang().get(ClassMessages.DYES_TITLE)));
+        // A few classes' colours: one page is plenty, and one more is left out rather than paged.
+        MenuLayout layout = MenuStyle.layout(entries.size(), 0);
+        this.inventory = Bukkit.createInventory(this, layout.size(),
+                MenuStyle.title(module.getLang().get(ClassMessages.DYES_TITLE)));
         Optional<String> worn = module.dyeColour(viewer);
         Optional<String> wornClass = module.getManager().active(viewer.getUniqueId()).map(PvpClass::id);
-        for (int slot = 0; slot < Math.min(size, entries.size()); slot++) {
-            inventory.setItem(slot, icon(module, entries.get(slot), worn, wornClass));
+        for (int i = 0; i < layout.itemSlots().size(); i++) {
+            inventory.setItem(layout.itemSlots().get(i), icon(module, entries.get(i), worn, wornClass));
         }
+        MenuStyle.decorate(inventory, layout, module.getLang());
     }
 
     /**
@@ -93,6 +94,10 @@ public final class DyesMenu implements InventoryHolder {
         ClassEffect effect = entry.effect().effect();
         String colour = PvpClass.readableItem(entry.colour());
         List<Component> lore = new ArrayList<>();
+        Component separator = MenuStyle.separator(lang);
+        if (separator != null) {
+            lore.add(separator);
+        }
         for (String line : List.of(
                 lang.get(ClassMessages.DYES_LORE_CLASS, "class", entry.pvpClass().displayName()),
                 lang.get(ClassMessages.DYES_LORE_EFFECT, "effect", effect.displayName(),

@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.ability;
 
 import com.lawkeys.hcfcore.lang.LangManager;
+import com.lawkeys.hcfcore.theme.MenuStyle;
 import com.lawkeys.hcfcore.util.ItemText;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -27,7 +28,7 @@ public final class PocketBardMenu implements InventoryHolder {
         this.pocketBard = Objects.requireNonNull(pocketBard, "pocketBard");
         AbilitySettings settings = module.getSettings();
         this.inventory = Bukkit.createInventory(this, settings.pocketBardSize(),
-                ItemText.line(LangManager.colorize(settings.pocketBardTitle())));
+                MenuStyle.title(settings.pocketBardTitle()));
         for (PocketBardItem item : settings.pocketBard()) {
             Material material = Objects.requireNonNull(Material.matchMaterial(item.material()));
             ItemStack icon = ItemStack.of(material, item.amount());
@@ -40,6 +41,8 @@ public final class PocketBardMenu implements InventoryHolder {
             inventory.setItem(item.slot(), icon);
             bySlot.put(item.slot(), item);
         }
+        // The sets sit where the file says; the frame goes around them.
+        MenuStyle.decorate(inventory, module.getLang());
     }
 
     public Ability pocketBard() {

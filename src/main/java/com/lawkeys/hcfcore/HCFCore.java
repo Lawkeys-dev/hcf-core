@@ -108,6 +108,7 @@ public final class HCFCore extends JavaPlugin {
         // 2. Messages, so any later startup failure can already be reported properly.
         this.langManager = new LangManager(this);
         this.langManager.load(configManager.getConfig().getString("language", "en"));
+        loadTheme();
 
         // 3. Resolve active game mode (HCF vs Kitmap) from config before initializing
         //    any mode-conditional module.
@@ -486,6 +487,13 @@ public final class HCFCore extends JavaPlugin {
         command.setTabCompleter(executor);
     }
 
+    /** theme.yml: the colours every text is written with. Before any module colours anything. */
+    private void loadTheme() {
+        LangManager.setTheme(com.lawkeys.hcfcore.theme.ThemeLoader.load(
+                com.lawkeys.hcfcore.config.ConfigManager.loadFile(this, "theme.yml"),
+                warning -> getLogger().warning("theme.yml: " + warning)));
+    }
+
     /**
      * Re-reads every configuration and language file, applying the new values to
      * the running modules without a restart (ARCHITECTURE.md section 2).
@@ -497,6 +505,7 @@ public final class HCFCore extends JavaPlugin {
     public void reloadEverything() {
         configManager.load();
         langManager.load(configManager.getConfig().getString("language", "en"));
+        loadTheme();
         if (teamModule != null) {
             teamModule.reloadSettings();
         }

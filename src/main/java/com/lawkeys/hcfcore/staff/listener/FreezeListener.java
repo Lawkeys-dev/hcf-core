@@ -8,7 +8,6 @@ import io.papermc.paper.connection.PlayerConfigurationConnection;
 import io.papermc.paper.connection.PlayerConnection;
 import io.papermc.paper.connection.PlayerLoginConnection;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -266,7 +265,7 @@ public final class FreezeListener implements Listener {
         if (playerId == null || !module.getBans().isBanned(playerId)) {
             return;
         }
-        event.kickMessage(LegacyComponentSerializer.legacySection()
+        event.kickMessage(com.lawkeys.hcfcore.util.LegacyText.SERIALIZER
                 .deserialize(module.getLang().get(StaffMessages.BAN_LOGIN_DENIED)));
     }
 

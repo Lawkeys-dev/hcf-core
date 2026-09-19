@@ -366,8 +366,13 @@ public final class AbilityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onMenuClick(InventoryClickEvent event) {
         InventoryHolder holder = event.getInventory().getHolder(false);
-        if (holder instanceof AbilityMenu) {
+        if (holder instanceof AbilityMenu menu) {
             event.setCancelled(true);
+            int page = event.getClickedInventory() == event.getInventory() ? menu.pageAt(event.getSlot()) : -1;
+            if (page >= 0 && event.getWhoClicked() instanceof Player viewer) {
+                // A tick later: a window is not opened from inside its own click.
+                org.bukkit.Bukkit.getScheduler().runTask(module.getPlugin(), () -> menu.turnTo(viewer, page));
+            }
             return;
         }
         if (!(holder instanceof PocketBardMenu menu)) {

@@ -5,11 +5,13 @@ import com.lawkeys.hcfcore.staff.StaffModule;
 import com.lawkeys.hcfcore.staff.ticket.Ticket;
 import com.lawkeys.hcfcore.staff.ticket.TicketStatus;
 import com.lawkeys.hcfcore.staff.ticket.TicketType;
+import com.lawkeys.hcfcore.theme.MenuLayout;
+import com.lawkeys.hcfcore.theme.MenuMessages;
+import com.lawkeys.hcfcore.theme.MenuStyle;
 import com.lawkeys.hcfcore.util.ColorCodes;
 import com.lawkeys.hcfcore.util.TextWrap;
 import com.lawkeys.hcfcore.util.ItemText;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -39,46 +41,60 @@ import java.util.Objects;
  */
 public final class TicketMenu implements InventoryHolder {
 
-    /** A double chest. More tickets than this are listed, not shown. */
-    static final int MAX_SLOTS = 54;
     /** Characters per lore line: the client never wraps lore by itself. */
     private static final int LORE_WIDTH = 40;
 
-    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
-
+    private final StaffModule module;
     private final TicketCommand actions;
+    private final MenuLayout layout;
     private final long[] ticketAtSlot;
     private final Inventory inventory;
 
-    private TicketMenu(StaffModule module, TicketCommand actions, List<Ticket> queue) {
+    private TicketMenu(StaffModule module, TicketCommand actions, List<Ticket> queue, int page) {
+        this.module = module;
         this.actions = actions;
-        int shown = Math.min(queue.size(), MAX_SLOTS);
-        int size = Math.max(9, (shown + 8) / 9 * 9);
-        this.ticketAtSlot = new long[size];
+        this.layout = MenuStyle.layout(queue.size(), page);
+        this.ticketAtSlot = new long[layout.size()];
         Arrays.fill(ticketAtSlot, -1L);
-        this.inventory = Bukkit.createInventory(this, size, LEGACY.deserialize(
+        this.inventory = Bukkit.createInventory(this, layout.size(), MenuStyle.title(
                 module.getLang().get(StaffMessages.TICKET_MENU_TITLE, "count", String.valueOf(queue.size()))));
         long now = System.currentTimeMillis();
-        for (int slot = 0; slot < shown; slot++) {
-            Ticket ticket = queue.get(slot);
+        for (int i = 0; i < layout.itemSlots().size(); i++) {
+            Ticket ticket = queue.get(layout.firstItem() + i);
+            int slot = layout.itemSlots().get(i);
             ticketAtSlot[slot] = ticket.id();
             inventory.setItem(slot, icon(module, ticket, now));
         }
+        MenuStyle.decorate(inventory, layout, module.getLang());
     }
 
     /** Opens the menu, or says the queue is empty rather than showing an empty chest. */
     public static void open(StaffModule module, TicketCommand actions, Player viewer) {
+        open(module, actions, viewer, 0);
+    }
+
+    /** Opens a page of the menu: the oldest tickets first. */
+    public static void open(StaffModule module, TicketCommand actions, Player viewer, int page) {
         Objects.requireNonNull(actions, "actions");
         List<Ticket> queue = module.getTickets().queue();
         if (queue.isEmpty()) {
             module.getLang().send(viewer, StaffMessages.TICKET_LIST_EMPTY);
             return;
         }
-        viewer.openInventory(new TicketMenu(module, actions, queue).getInventory());
-        if (queue.size() > MAX_SLOTS) {
-            module.getLang().send(viewer, StaffMessages.TICKET_MENU_MORE,
-                    "shown", String.valueOf(MAX_SLOTS), "count", String.valueOf(queue.size() - MAX_SLOTS));
+        viewer.openInventory(new TicketMenu(module, actions, queue, page).getInventory());
+    }
+
+    /** @return the page this slot's arrow leads to, or {@code -1} if it holds none */
+    public int pageAt(int rawSlot) {
+        if (rawSlot >= 0 && rawSlot == layout.previous()) {
+            return layout.page() - 1;
         }
+        return rawSlot >= 0 && rawSlot == layout.next() ? layout.page() + 1 : -1;
+    }
+
+    /** Opens another page of this menu. */
+    public void turnTo(Player staff, int page) {
+        open(module, actions, staff, page);
     }
 
     @Override
@@ -117,6 +133,7 @@ public final class TicketMenu implements InventoryHolder {
                         "id", id, "player", ticket.openedName());
 
         List<String> lore = new ArrayList<>();
+        lore.add(module.getLang().get(MenuMessages.SEPARATOR));
         lore.add(module.getLang().get(StaffMessages.TICKET_MENU_FROM, "player", ticket.openedName()));
         if (ticket.type() == TicketType.REPORT) {
             lore.add(module.getLang().get(StaffMessages.TICKET_MENU_ABOUT,

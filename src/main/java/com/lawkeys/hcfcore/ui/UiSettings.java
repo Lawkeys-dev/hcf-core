@@ -47,13 +47,13 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
     /** Built-in fallback, mirroring {@code resources/ui.yml}. */
     public static UiSettings defaults() {
         return new UiSettings(
-                new ScoreboardRules(true, 20L, "&c&lHCF", List.of(
-                        "&7&m----------------",
-                        "[team]&cTeam: &f%team%",
-                        "[team]&cDTR: %dtr_coloured%",
-                        "[stats]&cKills: &f%kills%",
-                        "[stats]&cStreak: &f%killstreak%",
-                        "[balance]&cBalance: &a$%balance%",
+                new ScoreboardRules(true, 20L, "{primary}&lHCF", List.of(
+                        "{dark}▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪",
+                        "[team]{primary}Team {dark}{bullet} {secondary}%team%",
+                        "[team]{primary}DTR {dark}{bullet} %dtr_coloured%",
+                        "[stats]{primary}Kills {dark}{bullet} {secondary}%kills%",
+                        "[stats]{primary}Streak {dark}{bullet} {secondary}%killstreak%",
+                        "[balance]{primary}Balance {dark}{bullet} {success}%balance%",
                         "[combat]%combat_line%",
                         "[cooldowns]%pearl_line%",
                         "[cooldowns]%cooldown_notch-apple_line%",
@@ -62,7 +62,8 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
                         "[cooldowns]%cooldown_totem_line%",
                         "[events]%phase_line%",
                         "[events]%event_line%",
-                        "&7&m----------------")),
-                new TablistRules(false, List.of("&c&lHCF"), List.of("&7%online% online")));
+                        "{dark}▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪ ▪")),
+                new TablistRules(false, List.of("{primary}&lHCF", "{muted}Hardcore Factions"),
+                        List.of("{text}Online {dark}{bullet} {secondary}%online%")));
     }
 }

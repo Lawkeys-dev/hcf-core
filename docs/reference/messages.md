@@ -5,10 +5,10 @@
 ```yaml title="lang/en.yml"
 team:
   create:
-    success: "&aTeam &f%team% &acreated. Invite members with &f/team invite <player>&a."
+    success: "{success}Team {secondary}%team% {success}created. Invite members with {secondary}/team invite <player>{success}."
 ```
 
-- **Colours** use `&` codes.
+- **Colours** are the theme's tokens — `{primary}`, `{secondary}`, `{muted}`, `{success}`, `{error}`... — set once in [`theme.yml`](configuration/theme.md). `{prefix}` starts the announcements, `{bullet}` is the list symbol, `{action}` starts a menu's "click to" line. `&` codes and `&#rrggbb` hex colours work too.
 - **Placeholders** are words between `%` signs, substituted by name — so their order in a sentence is free to change. Every message already contains the placeholders it receives; move or remove them freely. A placeholder a message does not receive is shown as typed.
 - **An empty message is not sent.** That is how you silence one:
 

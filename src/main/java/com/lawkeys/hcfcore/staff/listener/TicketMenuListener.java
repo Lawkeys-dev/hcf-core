@@ -42,6 +42,15 @@ public final class TicketMenuListener implements Listener {
                 || !(event.isLeftClick() || event.isRightClick())) {
             return;
         }
+        int page = menu.pageAt(event.getRawSlot());
+        if (page >= 0) {
+            Bukkit.getScheduler().runTask(module.getPlugin(), () -> {
+                if (staff.isOnline() && staff.hasPermission(StaffModule.STAFF_PERMISSION)) {
+                    menu.turnTo(staff, page);
+                }
+            });
+            return;
+        }
         long ticketId = menu.ticketAt(event.getRawSlot());
         if (ticketId < 0) {
             return;

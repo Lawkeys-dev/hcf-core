@@ -42,7 +42,7 @@ global:
   # player, this many seconds apart at most; longer, and the count starts over.
   hits-within-seconds: 10
   # The title of /ability's menu.
-  menu-title: "&dAbilities"
+  menu-title: "{primary}&lAbilities"
   # Where no ability works: a safe zone (spawn), a Citadel's claim, the zone of
   # a running event (KOTH, Citadel, Conquest), the Nether, the End, the warzone.
   disabled-in:
@@ -62,8 +62,8 @@ abilities:
     material: SNOWBALL          # SNOWBALL or EGG: it is thrown
     name: "&b&lSwitcher"
     lore:
-      - "&7Throw this snowball at a player to switch"
-      - "&7positions with them, max range of 8 blocks."
+      - "{muted}Throw this snowball at a player to switch"
+      - "{muted}positions with them, max range of 8 blocks."
     cooldown-seconds: 30
     distance: 8
   # --8<-- [end:switcher]
@@ -76,9 +76,9 @@ abilities:
     material: GOLD_INGOT
     name: "&e&lThunderbolt"
     lore:
-      - "&7Right click this item and for the next"
-      - "&710 seconds you have a chance to strike"
-      - "&7your opponent with lightning dealing -1.5"
+      - "{muted}Right click this item and for the next"
+      - "{muted}10 seconds you have a chance to strike"
+      - "{muted}your opponent with lightning dealing -1.5"
     cooldown-seconds: 120
     seconds: 10
     chance: 20
@@ -93,8 +93,8 @@ abilities:
     material: BOWL
     name: "&3&lCombo Ability"
     lore:
-      - "&7Right click this item and for the next 10 seconds"
-      - "&7each hit you get will give you a second of strength"
+      - "{muted}Right click this item and for the next 10 seconds"
+      - "{muted}each hit you get will give you a second of strength"
     cooldown-seconds: 120
     seconds: 10
     max-hits: 12
@@ -109,9 +109,9 @@ abilities:
     material: YELLOW_DYE
     name: "&a&lLucky Mode"
     lore:
-      - "&7Right click this item and for the"
-      - "&7next 10 seconds you will be given a damage"
-      - "&7change from -10% to 35% extra damage."
+      - "{muted}Right click this item and for the"
+      - "{muted}next 10 seconds you will be given a damage"
+      - "{muted}change from -10% to 35% extra damage."
     cooldown-seconds: 120
     seconds: 10
     min-percent: -10
@@ -126,10 +126,10 @@ abilities:
     material: EGG               # SNOWBALL or EGG: it is thrown
     name: "&c&lRage Ball"
     lore:
-      - "&7Throw this and when it lands every player"
-      - "&7in a radius of 8 blocks will be given effects:"
-      - "&7Teammates: Strength 2, Resistance 3"
-      - "&7Enemies: Wither 2"
+      - "{muted}Throw this and when it lands every player"
+      - "{muted}in a radius of 8 blocks will be given effects:"
+      - "{muted}Teammates: Strength 2, Resistance 3"
+      - "{muted}Enemies: Wither 2"
     cooldown-seconds: 120
     radius: 8
     cooldown-whole-team: true
@@ -148,9 +148,9 @@ abilities:
     material: CRAFTING_TABLE
     name: "&6&lCrafting Chaos"
     lore:
-      - "&7Hit a player with this item and have"
-      - "&7a chance of putting them in a"
-      - "&7crafting table when you hit them."
+      - "{muted}Hit a player with this item and have"
+      - "{muted}a chance of putting them in a"
+      - "{muted}crafting table when you hit them."
     cooldown-seconds: 120
     hits-required: 3
     chance: 20
@@ -165,8 +165,8 @@ abilities:
     material: GOLD_NUGGET
     name: "&9&lFocus Mode"
     lore:
-      - "&7Right click this item and the last person"
-      - "&7who hit you will take 25% more damage."
+      - "{muted}Right click this item and the last person"
+      - "{muted}who hit you will take 25% more damage."
     cooldown-seconds: 120
     damage-multiplier: 1.25
     seconds: 10
@@ -181,8 +181,8 @@ abilities:
     material: NETHER_STAR
     name: "&8&lNinja Track"
     lore:
-      - "&7Right click this item to teleport to"
-      - "&7the last person you hit in 3s."
+      - "{muted}Right click this item to teleport to"
+      - "{muted}the last person you hit in 3s."
     cooldown-seconds: 120
     delay-seconds: 3
     hit-within-seconds: 10
@@ -196,8 +196,8 @@ abilities:
     material: BOW
     name: "&2&lPortable Archer"
     lore:
-      - "&7Shoot someone with this bow"
-      - "&7to archer tag them for 10s."
+      - "{muted}Shoot someone with this bow"
+      - "{muted}to archer tag them for 10s."
     enchantments: {infinity: 1}
     cooldown-seconds: 60
     uses: 5
@@ -212,8 +212,8 @@ abilities:
     material: INK_SAC
     name: "&7&lInvisibility"
     lore:
-      - "&7Right click this item and you will be"
-      - "&7turned invisible even with armor on."
+      - "{muted}Right click this item and you will be"
+      - "{muted}turned invisible even with armor on."
     cooldown-seconds: 120
     effect: {effect: invisibility, level: 2, seconds: 120}
     hide-armor: true
@@ -228,8 +228,8 @@ abilities:
     material: FEATHER
     name: "&5&lTime Warp"
     lore:
-      - "&7Right click this item to teleport to"
-      - "&7your last pearl location in 2 seconds."
+      - "{muted}Right click this item to teleport to"
+      - "{muted}your last pearl location in 2 seconds."
     cooldown-seconds: 90
     pearl-within-seconds: 15
     delay-seconds: 2
@@ -244,8 +244,8 @@ abilities:
     material: ORANGE_DYE
     name: "&6&lPocket Bard"
     lore:
-      - "&7Right click this item to open the"
-      - "&7portable bard selection."
+      - "{muted}Right click this item to open the"
+      - "{muted}portable bard selection."
   # --8<-- [end:pocket-bard]
 
   # --8<-- [start:berserk]
@@ -256,8 +256,8 @@ abilities:
     material: RED_DYE
     name: "&4&lBerserk"
     lore:
-      - "&7Right click this item to receive godly"
-      - "&7effects but you are unable to pot for 8s"
+      - "{muted}Right click this item to receive godly"
+      - "{muted}effects but you are unable to pot for 8s"
     cooldown-seconds: 180
     seconds: 8
     effects:
@@ -275,8 +275,8 @@ abilities:
     material: COOKIE
     name: "&d&lClose Call"
     lore:
-      - "&7Right click this item to receive godly"
-      - "&7effects when you are lower than 3.5 hearts."
+      - "{muted}Right click this item to receive godly"
+      - "{muted}effects when you are lower than 3.5 hearts."
     cooldown-seconds: 120
     max-health-hearts: 3.5
     effects:
@@ -291,9 +291,9 @@ abilities:
     material: STICK
     name: "&e&lSwitch Stick"
     lore:
-      - "&7Right click this item to start a 10 second"
-      - "&7period where you are able to turn around the"
-      - "&7player you are attacking."
+      - "{muted}Right click this item to start a 10 second"
+      - "{muted}period where you are able to turn around the"
+      - "{muted}player you are attacking."
     cooldown-seconds: 120
     seconds: 10
     chance: 20
@@ -307,8 +307,8 @@ abilities:
     material: SLIME_BALL
     name: "&2&lBelch Bomb"
     lore:
-      - "&7Right click this item to give all enemies in a"
-      - "&7radius of 8 blocks slowness and blindness."
+      - "{muted}Right click this item to give all enemies in a"
+      - "{muted}radius of 8 blocks slowness and blindness."
     cooldown-seconds: 120
     radius: 8
     effects:
@@ -324,8 +324,8 @@ abilities:
     material: CLOCK
     name: "&3&lReverse Ninja Track"
     lore:
-      - "&7Right click this item to teleport to the last"
-      - "&7person who hit you in 3s."
+      - "{muted}Right click this item to teleport to the last"
+      - "{muted}person who hit you in 3s."
     cooldown-seconds: 120
     delay-seconds: 3
     hit-within-seconds: 10
@@ -339,8 +339,8 @@ abilities:
     material: ROSE_BUSH
     name: "&c&lRose Thorn"
     lore:
-      - "&7Hit a player with this item: for 10 seconds,"
-      - "&730% of the damage they deal you goes back to them."
+      - "{muted}Hit a player with this item: for 10 seconds,"
+      - "{muted}30% of the damage they deal you goes back to them."
     cooldown-seconds: 120
     seconds: 10
     reflect-percent: 30
@@ -356,8 +356,8 @@ abilities:
     material: DIAMOND_HOE
     name: "&c&lPumpkin Reaper"
     lore:
-      - "&7Hit a Diamond with this item: 50% chance"
-      - "&7their helmet becomes a pumpkin for 10 seconds."
+      - "{muted}Hit a Diamond with this item: 50% chance"
+      - "{muted}their helmet becomes a pumpkin for 10 seconds."
     cooldown-seconds: 30
     uses: 10
     chance: 50
@@ -372,8 +372,8 @@ abilities:
     material: PISTON
     name: "&2&lHulk Smash"
     lore:
-      - "&7Right click to throw every enemy within"
-      - "&710 blocks in the air."
+      - "{muted}Right click to throw every enemy within"
+      - "{muted}10 blocks in the air."
     cooldown-seconds: 30
     radius: 10
     height: 2                  # 1 is about 3 blocks
@@ -387,7 +387,7 @@ abilities:
     material: COBWEB
     name: "&f&lSticky Web"
     lore:
-      - "&7Right click: no fall damage for 10 seconds."
+      - "{muted}Right click: no fall damage for 10 seconds."
     cooldown-seconds: 30
     seconds: 10
   # --8<-- [end:sticky-web]
@@ -399,8 +399,8 @@ abilities:
     material: GLISTERING_MELON_SLICE
     name: "&c&lMed Kit"
     lore:
-      - "&7Right click to receive Regeneration III"
-      - "&7and Absorption V for 10 seconds."
+      - "{muted}Right click to receive Regeneration III"
+      - "{muted}and Absorption V for 10 seconds."
     cooldown-seconds: 120
     effects:
       - {effect: regeneration, level: 3, seconds: 10}
@@ -415,8 +415,8 @@ abilities:
     material: FISHING_ROD      # a grappling-hook is a FISHING_ROD
     name: "&6&lGrappling Hook"
     lore:
-      - "&7Cast at a block and reel in to fly to it."
-      - "&7No fall damage while in hand."
+      - "{muted}Cast at a block and reel in to fly to it."
+      - "{muted}No fall damage while in hand."
     cooldown-seconds: 15
     consume: false
     pull: 1.2                  # stronger above 1, weaker below
@@ -433,8 +433,8 @@ abilities:
     material: IRON_AXE
     name: "&e&lNausea Axe"
     lore:
-      - "&7Hit a player with this item: 50% chance"
-      - "&7to give them Nausea for 10 seconds."
+      - "{muted}Hit a player with this item: 50% chance"
+      - "{muted}to give them Nausea for 10 seconds."
     cooldown-seconds: 45
     uses: 10
     chance: 50
@@ -449,8 +449,8 @@ abilities:
     material: RABBIT_FOOT
     name: "&a&lBunny Hop"
     lore:
-      - "&7Right click to receive Speed III and"
-      - "&7Jump Boost IV for 10 seconds."
+      - "{muted}Right click to receive Speed III and"
+      - "{muted}Jump Boost IV for 10 seconds."
     cooldown-seconds: 90
     effects:
       - {effect: speed, level: 3, seconds: 10}
@@ -464,8 +464,8 @@ abilities:
     material: BLUE_ICE
     name: "&b&lIce Berg"
     lore:
-      - "&7Hit a player 3 times with this item to"
-      - "&7give them Slowness III for 5 seconds."
+      - "{muted}Hit a player 3 times with this item to"
+      - "{muted}give them Slowness III for 5 seconds."
     cooldown-seconds: 45
     hits-required: 3
     effects:
@@ -480,7 +480,7 @@ abilities:
     material: MILK_BUCKET
     name: "&f&lAntidote"
     lore:
-      - "&7Right click to remove your negative effects."
+      - "{muted}Right click to remove your negative effects."
     cooldown-seconds: 60
   # --8<-- [end:antidote]
 
@@ -491,8 +491,8 @@ abilities:
     material: GOLDEN_APPLE
     name: "&6&lGolden Head"
     lore:
-      - "&7Right click to eat it at once: Regeneration II"
-      - "&7for 10 seconds and Absorption II for 2 minutes."
+      - "{muted}Right click to eat it at once: Regeneration II"
+      - "{muted}for 10 seconds and Absorption II for 2 minutes."
     cooldown-seconds: 30
     effects:
       - {effect: regeneration, level: 2, seconds: 10}
@@ -506,8 +506,8 @@ abilities:
     material: TRIPWIRE_HOOK
     name: "&9&lGrabber"
     lore:
-      - "&7Hit a player with this item to pull"
-      - "&7them towards you."
+      - "{muted}Hit a player with this item to pull"
+      - "{muted}them towards you."
     cooldown-seconds: 15
     pull: 1.0                  # stronger above 1, weaker below
     max-speed: 4.0             # the fastest it carries them, in blocks a tick
@@ -521,8 +521,8 @@ abilities:
     material: POISONOUS_POTATO
     name: "&2&lPoisonous Potato"
     lore:
-      - "&7Hit a player 3 times with this item: Slowness II,"
-      - "&7Poison II and Nausea for 10 seconds."
+      - "{muted}Hit a player 3 times with this item: Slowness II,"
+      - "{muted}Poison II and Nausea for 10 seconds."
     cooldown-seconds: 120
     hits-required: 3
     effects:
@@ -539,8 +539,8 @@ abilities:
     material: ENDER_PEARL      # a fake-pearl is an ENDER_PEARL
     name: "&5&lFake Pearl"
     lore:
-      - "&7Throw it: it flies as a pearl and"
-      - "&7teleports nobody."
+      - "{muted}Throw it: it flies as a pearl and"
+      - "{muted}teleports nobody."
     cooldown-seconds: 15
   # --8<-- [end:fake-pearl]
 
@@ -551,7 +551,7 @@ abilities:
     material: FIREWORK_ROCKET
     name: "&c&lRocket"
     lore:
-      - "&7Right click to boost yourself into the air."
+      - "{muted}Right click to boost yourself into the air."
     cooldown-seconds: 30
     height: 3.5                # 1 is about 3 blocks
     no-fall-seconds: 6
@@ -565,8 +565,8 @@ abilities:
     material: TROPICAL_FISH
     name: "&e&lCombo Fish"
     lore:
-      - "&7Right click: for 5 seconds your hits"
-      - "&7follow each other much faster."
+      - "{muted}Right click: for 5 seconds your hits"
+      - "{muted}follow each other much faster."
     cooldown-seconds: 90
     seconds: 5
     hit-delay-ticks: 2
@@ -581,8 +581,8 @@ abilities:
     material: BONE
     name: "&a&lAnti-Build Bone"
     lore:
-      - "&7Hit a player 3 times with this item: for 15"
-      - "&7seconds they cannot build, break or open blocks."
+      - "{muted}Hit a player 3 times with this item: for 15"
+      - "{muted}seconds they cannot build, break or open blocks."
     cooldown-seconds: 120
     hits-required: 3
     seconds: 15
@@ -597,8 +597,8 @@ abilities:
     material: EGG              # SNOWBALL or EGG: it is thrown
     name: "&2&lRotten Egg"
     lore:
-      - "&7Throw it at a player: Slowness and"
-      - "&7Poison for 10 seconds."
+      - "{muted}Throw it at a player: Slowness and"
+      - "{muted}Poison for 10 seconds."
     cooldown-seconds: 30
     effects:
       - {effect: slowness, level: 1, seconds: 10}
@@ -612,8 +612,8 @@ abilities:
     material: NETHER_WART
     name: "&4&lRage Strength"
     lore:
-      - "&7Right click to receive Strength II"
-      - "&7for 8 seconds."
+      - "{muted}Right click to receive Strength II"
+      - "{muted}for 8 seconds."
     cooldown-seconds: 120
     effects:
       - {effect: strength, level: 2, seconds: 8}
@@ -629,8 +629,8 @@ abilities:
     material: IRON_HORSE_ARMOR
     name: "&e&lOlympia"
     lore:
-      - "&7A shotgun that fires incendiary eggs."
-      - "&7The recoil pushes you back."
+      - "{muted}A shotgun that fires incendiary eggs."
+      - "{muted}The recoil pushes you back."
     cooldown-seconds: 15
     uses: 30
     projectiles: 10
@@ -649,8 +649,8 @@ abilities:
     material: BREAD
     name: "&6&lBaguette"
     lore:
-      - "&7Hit a player 3 times with this item:"
-      - "&7their hunger bar drains for 10 seconds."
+      - "{muted}Hit a player 3 times with this item:"
+      - "{muted}their hunger bar drains for 10 seconds."
     cooldown-seconds: 120
     hits-required: 3
     food-lost: 14
@@ -666,8 +666,8 @@ abilities:
     material: SUNFLOWER
     name: "&6&lSun"
     lore:
-      - "&7Right click to explode the sun: the more"
-      - "&7enemies around you, the more it hurts."
+      - "{muted}Right click to explode the sun: the more"
+      - "{muted}enemies around you, the more it hurts."
     cooldown-seconds: 45
     radius: 8
     damage-hearts-per-player: 0.9
@@ -684,8 +684,8 @@ abilities:
     material: BLAZE_ROD
     name: "&a&lScrambler"
     lore:
-      - "&7Hit a player 3 times with this item"
-      - "&7to scramble their hotbar."
+      - "{muted}Hit a player 3 times with this item"
+      - "{muted}to scramble their hotbar."
     cooldown-seconds: 90
     hits-required: 3
   # --8<-- [end:scrambler]
@@ -698,8 +698,8 @@ abilities:
     material: GOLDEN_CARROT
     name: "&6&lLucky Bard"
     lore:
-      - "&7Test your luck to receive either"
-      - "&7positive or negative effects."
+      - "{muted}Test your luck to receive either"
+      - "{muted}positive or negative effects."
     cooldown-seconds: 60
     positive-chance: 50
     good-effects:
@@ -720,8 +720,8 @@ abilities:
     material: BREEZE_ROD
     name: "&6&lDisarmer Wand"
     lore:
-      - "&7Hit a player with this item: 50% chance"
-      - "&7to disarm them."
+      - "{muted}Hit a player with this item: 50% chance"
+      - "{muted}to disarm them."
     cooldown-seconds: 15
     chance: 50
   # --8<-- [end:disarmer-wand]
@@ -744,51 +744,51 @@ abilities:
 # then that set waits "cooldown-seconds" before its next use, and every item
 # waits for and starts the shared cooldown (global.cooldown-seconds).
 pocket-bard:
-  menu-title: "&dPocket Bard Selection"
-  menu-size: 9
+  menu-title: "{primary}&lPocket Bard"
+  menu-size: 27
   items:
     strength:
       material: BLAZE_POWDER
       name: "&6Strength II"
-      lore: ["&7* &aTeam Members"]
+      lore: ["{muted}* {success}Team Members"]
       amount: 3
       effect: {effect: strength, level: 2, seconds: 6}
       radius: 20
       include-self: true
-      slot: 1
+      slot: 10
       menu-name: "&c3x Strength"
       cooldown-seconds: 60
     resistance:
       material: IRON_INGOT
       name: "&6Resistance III"
-      lore: ["&7* &aTeam Members"]
+      lore: ["{muted}* {success}Team Members"]
       amount: 3
       effect: {effect: resistance, level: 3, seconds: 6}
       radius: 20
       include-self: true
-      slot: 2
+      slot: 12
       menu-name: "&73x Resistance"
       cooldown-seconds: 60
     jump-boost:
       material: FEATHER
       name: "&6Jump VII"
-      lore: ["&7* &aTeam Members"]
+      lore: ["{muted}* {success}Team Members"]
       amount: 3
       effect: {effect: jump_boost, level: 7, seconds: 6}
       radius: 20
       include-self: true
-      slot: 3
+      slot: 14
       menu-name: "&a3x Jump"
       cooldown-seconds: 60
     speed:
       material: SUGAR
       name: "&6Speed III"
-      lore: ["&7* &aTeam Members"]
+      lore: ["{muted}* {success}Team Members"]
       amount: 3
       effect: {effect: speed, level: 3, seconds: 6}
       radius: 20
       include-self: true
-      slot: 4
+      slot: 16
       menu-name: "&b3x Speed"
       cooldown-seconds: 60
 # --8<-- [end:pocket-bard-items]

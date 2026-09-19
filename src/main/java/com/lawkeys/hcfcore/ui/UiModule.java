@@ -25,7 +25,6 @@ import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.ui.listener.BoardListener;
 import com.lawkeys.hcfcore.ui.scoreboard.PlayerBoard;
 import com.lawkeys.hcfcore.util.Durations;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -165,7 +164,7 @@ public final class UiModule {
             return;
         }
         PlayerBoard board = boards.computeIfAbsent(player.getUniqueId(),
-                id -> new PlayerBoard(LangManager.colorize(settings.scoreboard().title())));
+                id -> new PlayerBoard(LangManager.colorize(LangManager.theme().title(settings.scoreboard().title()))));
         board.show(player);
         update(player, board);
         applyTablist(player);
@@ -345,7 +344,7 @@ public final class UiModule {
         // claim, and the board said "0.50" in green through an EOTW.
         boolean raidable = dtr.getManager().isRaidable(team.get().getId())
                 || dtr.getRaidOverride().everyTeamRaidable();
-        out.with("%dtr_coloured%", (raidable ? "&4" : "&a") + shown
+        out.with("%dtr_coloured%", (raidable ? "{error}" : "{success}") + shown
                 + (raidable ? " " + lang.get(UiMessages.DTR_RAIDABLE) : ""));
     }
 
@@ -479,7 +478,7 @@ public final class UiModule {
     }
 
     private static net.kyori.adventure.text.Component block(List<String> lines, LineRenderer out) {
-        return LegacyComponentSerializer.legacySection()
+        return com.lawkeys.hcfcore.util.LegacyText.SERIALIZER
                 .deserialize(LangManager.colorize(String.join("\n",
                         lines.stream().map(out::render).toList())));
     }

@@ -75,11 +75,11 @@ public record ScheduleSettings(boolean enabled, ZoneId zone, TipRules tips,
      */
     public static ScheduleSettings defaults() {
         return new ScheduleSettings(true, ZoneId.systemDefault(),
-                new TipRules(false, 300L, false, "&8[&eTip&8] &7", List.of(
-                        "Type &f/team help &7to see every team command.",
-                        "&f/events &7lists what is running and what is coming.",
-                        "&f/stats &7and &f/leaderboard &7show how you are doing.")),
+                new TipRules(false, 300L, false, "{dark}[{warning}Tip{dark}] {muted}", List.of(
+                        "Type {secondary}/team help {muted}to see every team command.",
+                        "{secondary}/events {muted}lists what is running and what is coming.",
+                        "{secondary}/stats {muted}and {secondary}/leaderboard {muted}show how you are doing.")),
                 List.of(), Map.of(),
-                new KeyAllRules("&6Key-All", "&6&lKEY-ALL! &7%count% players received a key.", List.of()));
+                new KeyAllRules("{primary}Key-All", "{primary}&lKEY-ALL! {muted}%count% players received a key.", List.of()));
     }
 }

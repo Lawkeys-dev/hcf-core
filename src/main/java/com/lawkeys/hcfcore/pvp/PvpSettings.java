@@ -190,9 +190,9 @@ public record PvpSettings(
                 new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS),
                 new EnderPearlRules(true, 15L, true, true, true),
                 new ItemCooldownRules(true, java.util.List.of(
-                        new ItemCooldown("notch-apple", "ENCHANTED_GOLDEN_APPLE", 3600L, "&6Gapple", true, false),
-                        new ItemCooldown("golden-apple", "GOLDEN_APPLE", 10L, "&eCrapple", true, true),
-                        new ItemCooldown("chorus-fruit", "CHORUS_FRUIT", 15L, "&dChorus", true, true),
-                        new ItemCooldown("totem", "TOTEM_OF_UNDYING", 120L, "&6Totem", true, false))));
+                        new ItemCooldown("notch-apple", "ENCHANTED_GOLDEN_APPLE", 3600L, "{primary}Gapple", true, false),
+                        new ItemCooldown("golden-apple", "GOLDEN_APPLE", 10L, "{primary}Crapple", true, true),
+                        new ItemCooldown("chorus-fruit", "CHORUS_FRUIT", 15L, "{primary}Chorus", true, true),
+                        new ItemCooldown("totem", "TOTEM_OF_UNDYING", 120L, "{primary}Totem", true, false))));
     }
 }

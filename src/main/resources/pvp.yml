@@ -86,25 +86,25 @@ item-cooldowns:
     notch-apple:
       material: ENCHANTED_GOLDEN_APPLE
       seconds: 3600
-      name: "&6Gapple"
+      name: "{primary}Gapple"
       show-on-item: true
       clear-on-death: false
     golden-apple:
       material: GOLDEN_APPLE
       seconds: 10
-      name: "&eCrapple"
+      name: "{primary}Crapple"
       show-on-item: true
       clear-on-death: true
     chorus-fruit:
       material: CHORUS_FRUIT
       seconds: 15
-      name: "&dChorus"
+      name: "{primary}Chorus"
       show-on-item: true
       clear-on-death: true
     totem:
       material: TOTEM_OF_UNDYING
       seconds: 120
-      name: "&6Totem"
+      name: "{primary}Totem"
       show-on-item: true
       clear-on-death: false
 # --8<-- [end:item-cooldowns]

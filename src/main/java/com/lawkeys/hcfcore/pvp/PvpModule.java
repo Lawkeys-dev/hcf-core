@@ -20,7 +20,6 @@ import com.lawkeys.hcfcore.pvp.legacy.CombatMode;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatListener;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatLoader;
 import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatSettings;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -634,7 +633,7 @@ public final class PvpModule {
                     : lang.get(died ? PvpMessages.DEATHBAN_APPLIED : PvpMessages.DEATHBAN_LOGIN_DENIED,
                             "time", formatDuration(ban.get().remainingSeconds(System.currentTimeMillis())));
             // LangManager already produces the section-sign form: a straight parse.
-            player.kick(LegacyComponentSerializer.legacySection().deserialize(reason));
+            player.kick(com.lawkeys.hcfcore.util.LegacyText.SERIALIZER.deserialize(reason));
         });
     }
 
