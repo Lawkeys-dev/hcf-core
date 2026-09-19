@@ -19,7 +19,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 
 ## Features
 
-| | |
+| Area | What it does |
 |---|---|
 | **Teams** | Roles, invitations, alliances, a bank, points and ranking, focus, rally, team and ally chat |
 | **Territory** | Chunk claims with buffers and connected land, full protection (blocks, entities, pistons, liquids, explosions), HQ and base, `/team stuck`, server land for spawn and roads, a warzone, a claim lock for SOTW, elevator signs |
