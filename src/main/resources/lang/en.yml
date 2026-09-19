@@ -1284,8 +1284,8 @@ elevator:
   # How a finished sign reads. %header% is elevators.yml's, %word% its way.
   sign:
     header: "{primary}&l%header%"
-    up: "{secondary}%word% {dark}▲"
-    down: "{secondary}%word% {dark}▼"
+    up: "{secondary}%word%"
+    down: "{secondary}%word%"
 
 # ---------------------------------------------------------------------------
 # /cooldown reset: %which% is one of the names below, or an ability's or an

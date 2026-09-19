@@ -84,9 +84,12 @@ public final class ElevatorListener implements Listener {
         if (way == null) {
             return;
         }
+        // Whether the land lets this player touch the sign - read before cancelling, which
+        // itself denies the block: cancelled first, no sign ever took anybody anywhere.
+        boolean refused = event.useInteractedBlock() == Event.Result.DENY;
         // Never the sign editor, whatever happens next.
         event.setCancelled(true);
-        if (event.useInteractedBlock() == Event.Result.DENY || event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
+        if (refused || event.getHand() != org.bukkit.inventory.EquipmentSlot.HAND) {
             return;
         }
         ElevatorRules.Direction direction;

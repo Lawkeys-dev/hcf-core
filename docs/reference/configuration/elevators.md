@@ -20,7 +20,7 @@ Every example on this page is **taken from the shipped `elevators.yml`**. Change
 | `own-territory-only` | `false` | Only on the rider's team's land |
 | `blocked-in-combat` | `false` | Refused while combat-tagged |
 
-How a finished sign reads — its colours, its arrows — is in `lang/en.yml` under `elevator.sign`, with the messages under `elevator`.
+How a finished sign reads — its colours — is in `lang/en.yml` under `elevator.sign`, with the messages under `elevator`.
 
 ## The whole shipped file
 

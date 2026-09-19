@@ -81,7 +81,7 @@ A sign written
 Up
 ```
 
-— or `Down` — is an elevator: **right-click it and you are taken to the next floor that way**, straight up or down the sign's column. A floor is a firm block with two free blocks above it: no lava, fire or water. The finished sign turns gold, with an arrow.
+— or `Down` — is an elevator: **right-click it and you are taken to the next floor that way**, straight up or down the sign's column. A floor is a firm block with two free blocks above it: no lava, fire or water. The finished sign turns gold.
 
 - Write one wherever you may build — your land, or the wilderness. Using one is touching a block: refused on an enemy's land, unless that team is raidable.
 - The sign is marked as an elevator when it is written: a sign that merely reads `[Elevator]` does nothing, and one keeps working if the words change in `elevators.yml`.
