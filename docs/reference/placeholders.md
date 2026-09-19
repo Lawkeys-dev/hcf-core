@@ -11,7 +11,7 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 | Placeholder | Shows |
 |---|---|
 | `%player%` | Your name |
-| `%online%` | Players online |
+| `%online%` | Players online — those you can see: vanished staff are not counted, except by staff who can see them |
 | `%world%` | The world you are in |
 | `%ping%` | Your ping |
 | `%team%` | Your team, or "None" |
@@ -52,7 +52,7 @@ The `*_line` placeholders, and the Conquest and timer rows, are whole rows whose
 | `%direction%` | Which way you face: `N`, `NE`, `E`… (`ui.tab.directions`) |
 | `%location%` | The claim you stand in, or the wilderness |
 | `%team_name_line%` | Your team's name, or how to make one |
-| `%members_online%` `%members_total%` | Your team's members online, and in all |
+| `%members_online%` `%members_total%` | Your team's members online — a vanished one counts as offline to whoever cannot see them — and in all |
 | `%team_balance%` `%team_points%` `%team_leader%` | Your team's bank, points and leader |
 | `%members_title%` | The members heading; empty without a team |
 | `%member_1%` … `%member_20%` | Your team's members, online first, then by rank, with the rank's marker |

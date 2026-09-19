@@ -230,7 +230,10 @@ public final class UiModule {
                 ? Optional.empty()
                 : teams.getManager().getTeamOf(player.getUniqueId());
         out.with("%team%", team.map(Team::getName).orElse(lang.get(UiMessages.NO_TEAM)));
-        out.with("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()));
+        // Only the players this viewer can see: a vanished staff member counted here
+        // gave their presence away (found in game, 20/09/2026). Staff who may see
+        // vanished players count them, as they see them.
+        out.with("%online%", String.valueOf(Bukkit.getOnlinePlayers().stream().filter(player::canSee).count()));
         out.with("%player%", player.getName());
         out.with("%world%", player.getWorld().getName());
         out.with("%ping%", String.valueOf(player.getPing()));

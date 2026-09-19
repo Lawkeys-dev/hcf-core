@@ -381,10 +381,10 @@ final class TabList {
         out.with("%team_name_line%", team.map(t -> lang.get(UiMessages.TAB_TEAM_NAME, "team", t.getName()))
                 .orElse(lang.get(UiMessages.TAB_NO_TEAM)));
         out.with("%members_title%", team.isPresent() ? lang.get(UiMessages.TAB_MEMBERS_TITLE) : "");
-        List<UUID> members = team.map(this::roster).orElse(List.of());
+        List<UUID> members = team.map(t -> roster(t, viewer)).orElse(List.of());
         out.with("%members_total%", team.map(t -> String.valueOf(t.getMemberCount())).orElse(""));
         out.with("%members_online%", team.map(t -> String.valueOf(
-                members.stream().filter(id -> Bukkit.getPlayer(id) != null).count())).orElse(""));
+                members.stream().filter(id -> seenOnline(viewer, id)).count())).orElse(""));
         out.with("%team_balance%", team.map(t -> money.apply(t.getBalance())).orElse(""));
         out.with("%team_points%", team.map(t -> String.valueOf(t.getPoints())).orElse(""));
         out.with("%team_leader%", team.flatMap(Team::getLeader).map(this::name).orElse(""));
@@ -398,7 +398,7 @@ final class TabList {
                     case CO_LEADER -> UiMessages.TAB_ROLE_CO_LEADER;
                     case MEMBER -> UiMessages.TAB_ROLE_MEMBER;
                 });
-                row = lang.get(Bukkit.getPlayer(id) != null ? UiMessages.TAB_MEMBER_ONLINE : UiMessages.TAB_MEMBER_OFFLINE,
+                row = lang.get(seenOnline(viewer, id) ? UiMessages.TAB_MEMBER_ONLINE : UiMessages.TAB_MEMBER_OFFLINE,
                         "role", marker, "player", name(id));
             }
             out.with("%member_" + (i + 1) + "%", row);
@@ -415,10 +415,19 @@ final class TabList {
         return members;
     }
 
-    /** Online first, then by rank, then by name. */
-    private List<UUID> roster(Team team) {
+    /**
+     * Whether a player is online as this viewer sees it: a vanished teammate is shown
+     * offline to whoever cannot see them, rather than giving them away.
+     */
+    private static boolean seenOnline(Player viewer, UUID id) {
+        Player player = Bukkit.getPlayer(id);
+        return player != null && viewer.canSee(player);
+    }
+
+    /** Online first, then by rank, then by name - online as the viewer sees it. */
+    private List<UUID> roster(Team team, Player viewer) {
         return team.getMemberIds().stream()
-                .sorted(Comparator.<UUID>comparingInt(id -> Bukkit.getPlayer(id) != null ? 0 : 1)
+                .sorted(Comparator.<UUID>comparingInt(id -> seenOnline(viewer, id) ? 0 : 1)
                         .thenComparing(id -> -team.getRole(id).orElse(TeamRole.MEMBER).weight())
                         .thenComparing(id -> name(id).toLowerCase(Locale.ROOT)))
                 .toList();

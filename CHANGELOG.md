@@ -23,6 +23,9 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - Strikes: the ladder (`strikes.ladder`, a sanction by number of strikes) is replaced by offences and `disband-at`. *A `staff.yml` with a `ladder` keeps working with the shipped offences, and says so: move its numbers to `strikes.offences` and `disband-at`. `/strike add` now takes an offence before the details.*
 - Every shipped message, menu, scoreboard row, hologram line and chat format uses the theme. The Lunar nametags' team line uses the theme too. *An existing `lang/en.yml`, `ui.yml` and the other files keep their look: take the new ones from the jar for the theme's, then put your changes back. The Pocket Bard menu is 27 slots, its sets at 10, 12, 14 and 16. `staff.ticket.menu.more` is gone.*
 
+### Fixed
+- `%online%` counted vanished staff, so the scoreboard and the tab list gave a vanished player away. It now counts the players each viewer can see; a vanished teammate also shows offline in the tab list's members to whoever cannot see them.
+
 ## [0.6.0] - 2026-09-19
 
 Partner items, and the cooldowns of an HCF server: the ender pearl, golden apples and the like, all on the scoreboard and on Lunar Client. The scoreboard can be trimmed by each player in `/settings`.
