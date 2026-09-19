@@ -82,6 +82,13 @@ class AbilitiesTest {
         }
 
         @Test
+        void theNinjaTracksOldTypeNamesStillLoad() {
+            assertEquals(AbilityType.NINJA_TRACK, AbilityType.parse("ninja").orElseThrow());
+            assertEquals(AbilityType.REVERSE_NINJA_TRACK, AbilityType.parse("anti-trap-star").orElseThrow());
+            assertEquals(AbilityType.REVERSE_NINJA_TRACK, AbilityType.parse("reverse-ninja-track").orElseThrow());
+        }
+
+        @Test
         void aSettingNotGivenTakesItsTypesDefault() {
             Ability thunderbolt = parse(Map.of("bolt", ability("thunderbolt", "GOLD_INGOT"))).ability("bolt").orElseThrow();
             assertEquals(20.0, thunderbolt.params().decimal("chance"));
@@ -93,15 +100,15 @@ class AbilitiesTest {
         void anAbilityThatCannotWorkIsLeftOut() {
             Map<String, Object> abilities = new LinkedHashMap<>();
             abilities.put("no-type", ability("teleport-everyone", "STICK"));
-            abilities.put("unknown-item", ability("ninja", "NOT_AN_ITEM"));
+            abilities.put("unknown-item", ability("ninja-track", "NOT_AN_ITEM"));
             abilities.put("thrown-stick", ability("switcher", "STICK"));
             abilities.put("sword-bow", ability("portable-archer", "DIAMOND_SWORD"));
             abilities.put("stone-pearl", ability("fake-pearl", "STONE"));
             abilities.put("stick-hook", ability("grappling-hook", "STICK"));
             abilities.put("thrown-apple", ability("thrown-effects", "APPLE"));
             abilities.put("empty-commands", ability("commands", "STICK"));
-            abilities.put("Bad Id!", ability("ninja", "NETHER_STAR"));
-            abilities.put("fine", ability("ninja", "NETHER_STAR"));
+            abilities.put("Bad Id!", ability("ninja-track", "NETHER_STAR"));
+            abilities.put("fine", ability("ninja-track", "NETHER_STAR"));
             AbilitySettings settings = parse(abilities);
             assertEquals(List.of("fine"), settings.abilities().stream().map(Ability::id).toList());
             assertEquals(9, warnings.size());
@@ -129,7 +136,7 @@ class AbilitiesTest {
 
         @Test
         void aDisabledAbilityIsLeftOutQuietly() {
-            Map<String, Object> off = ability("ninja", "NETHER_STAR");
+            Map<String, Object> off = ability("ninja-track", "NETHER_STAR");
             off.put("enabled", false);
             assertTrue(parse(Map.of("off", off)).abilities().isEmpty());
             assertTrue(warnings.isEmpty());

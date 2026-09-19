@@ -526,9 +526,9 @@ public final class AbilityModule {
                 lang.send(player, AbilityMessages.FOCUS, "player", target.get().getName(), "seconds", String.valueOf(seconds));
                 lang.send(target.get(), AbilityMessages.FOCUSED, "player", player.getName(), "seconds", String.valueOf(seconds));
             }
-            case NINJA, ANTI_TRAP_STAR -> {
+            case NINJA_TRACK, REVERSE_NINJA_TRACK -> {
                 // The Ninja goes to whom you hit; the others to who hit you.
-                boolean ninja = ability.type() == AbilityType.NINJA;
+                boolean ninja = ability.type() == AbilityType.NINJA_TRACK;
                 long within = p.whole("hit-within-seconds");
                 Optional<Player> target = recentAttacker(player, ninja ? lastVictim : lastHit, within, now);
                 if (target.isEmpty()) {

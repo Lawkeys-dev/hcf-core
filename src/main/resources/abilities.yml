@@ -177,7 +177,7 @@ abilities:
   # Teleports you, 3 seconds later, to the last player you hit (in the last 10
   # seconds).
   ninja-track:
-    type: ninja
+    type: ninja-track
     material: NETHER_STAR
     name: "&8&lNinja Track"
     lore:
@@ -320,7 +320,7 @@ abilities:
   # Teleports you, 3 seconds later, to the last player who hit you (in the last
   # 10 seconds) - out of a trap, onto the one who put you there.
   reverse-ninja-track:
-    type: anti-trap-star
+    type: reverse-ninja-track
     material: CLOCK
     name: "&3&lReverse Ninja Track"
     lore:

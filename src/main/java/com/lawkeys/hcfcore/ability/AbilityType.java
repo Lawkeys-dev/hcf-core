@@ -39,7 +39,7 @@ public enum AbilityType {
     FOCUS_MODE(Trigger.RIGHT_CLICK,
             Param.decimal("damage-multiplier", 1.25), Param.whole("seconds", 10), Param.whole("hit-within-seconds", 15)),
     /** Teleports, after {@code delay-seconds}, to the last player you hit (within {@code hit-within-seconds}). */
-    NINJA(Trigger.RIGHT_CLICK,
+    NINJA_TRACK(Trigger.RIGHT_CLICK,
             Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 10)),
     /** {@code hits-required} hits with it: they cannot build, break or open {@code blocked-blocks} for {@code seconds}. */
     ANTI_BUILD(Trigger.HIT,
@@ -77,7 +77,7 @@ public enum AbilityType {
             Param.decimal("radius", 8),
             Param.effects("effects", List.of(new AbilityEffect("slowness", 2, 6), new AbilityEffect("blindness", 2, 6)))),
     /** Teleports, after {@code delay-seconds}, to the last player who hit you (within {@code hit-within-seconds}). */
-    ANTI_TRAP_STAR(Trigger.RIGHT_CLICK,
+    REVERSE_NINJA_TRACK(Trigger.RIGHT_CLICK,
             Param.whole("delay-seconds", 3), Param.whole("hit-within-seconds", 10)),
     /** {@code effects} for you. */
     EFFECTS(Trigger.RIGHT_CLICK,
@@ -231,6 +231,12 @@ public enum AbilityType {
             return Optional.empty();
         }
         String normalised = word.trim().toUpperCase(Locale.ROOT).replace('-', '_');
+        // The names these two had until they were renamed: a file written then still loads.
+        normalised = switch (normalised) {
+            case "NINJA" -> NINJA_TRACK.name();
+            case "ANTI_TRAP_STAR" -> REVERSE_NINJA_TRACK.name();
+            default -> normalised;
+        };
         for (AbilityType type : values()) {
             if (type.name().equals(normalised)) {
                 return Optional.of(type);
