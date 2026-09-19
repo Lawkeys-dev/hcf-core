@@ -165,7 +165,7 @@ As shipped:
 --8<-- "src/main/resources/staff.yml:strike-offences"
 ```
 
-- **Who sees what.** Every strike is announced to the whole server, with the team's count — `STRIKE » Wizards received a strike (1/3)` — but not what it was for. `/team show` gives a struck team a `Strikes: 1` line, as a statistic. `/strike list` shows each strike's offence; the **details** staff add (`/strike add Wizards teaming allied with Raiders at the Citadel`) are for staff only.
+- **Who sees what.** **Nothing is said in the general chat.** Staff — `hcfcore.staff`, and the console — are told of each strike, its offence and details, the points taken and a disband. The team's online members are told when it is disbanded. `/team show` gives a struck team a `Strikes: 1` line, as a statistic, never what for. `/strike list` shows each strike's offence; the **details** staff add (`/strike add Wizards teaming allied with Raiders at the Citadel`) are for staff only.
 - Striking a player's name strikes their team and records the member.
 - The points are taken first, then the offence's `commands` run (with `%team%`, `%strikes%`, `%offence%`), then the team is disbanded if it reached `disband-at` — as by `/team forcedisband`.
 - A pardon does not give back points taken or undo a disband.

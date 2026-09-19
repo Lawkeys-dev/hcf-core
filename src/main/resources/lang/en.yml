@@ -768,12 +768,11 @@ staff:
   # Strikes against teams (staff.yml, strikes).
   strike:
     issued: "{muted}Struck {error}%team% {muted}for {secondary}%offence% {muted}(-{secondary}%percent%% {muted}points) - {secondary}%count% {muted}active ({secondary}#%id%{muted})."
-    announce: "{dark}[{primary}Staff{dark}] {secondary}%staff% {muted}struck {error}%team%%subject% {muted}for {secondary}%offence% {muted}({secondary}%count% {muted}active)%details%"
-    # To everybody: a strike is public - what it was for is not said. %max% is "/3"
-    # when a count disbands, else empty. %offence% is there if you want it.
-    broadcast: "{prefix}{error}&lSTRIKE {dark}» {error}%team% {muted}received a strike {dark}({secondary}%count%%max%{dark})"
-    points-lost: "{prefix}{error}%team% {muted}lost {secondary}%points% {muted}point(s)."
-    disbanded: "{prefix}{error}%team% {muted}has been disbanded after {secondary}%count% {muted}strikes."
+    # To staff only - nothing about a strike is said in the general chat; the team's
+    # members are told when it disbands them. %max% is "/3" when a count disbands.
+    announce: "{dark}[{primary}Staff{dark}] {secondary}%staff% {muted}struck {error}%team%%subject% {muted}for {secondary}%offence% {dark}({secondary}%count%%max%{dark})%details%"
+    points-lost: "{dark}[{primary}Staff{dark}] {error}%team% {muted}lost {secondary}%points% {muted}point(s)."
+    disbanded: "{dark}[{primary}Staff{dark}] {error}%team% {muted}has been disbanded after {secondary}%count% {muted}strikes."
     disband-refused: "{error}The strike is recorded, but %team% could not be disbanded - another plugin refused it."
     # Appended after the team where a strike was for a member.
     subject: " {muted}(for {secondary}%player%{muted})"

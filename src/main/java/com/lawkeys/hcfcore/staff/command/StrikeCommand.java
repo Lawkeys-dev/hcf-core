@@ -121,29 +121,26 @@ public final class StrikeCommand implements TabExecutor {
         module.getLang().send(sender, StaffMessages.STRIKE_ISSUED,
                 "team", team, "offence", offence.name(), "percent", String.valueOf(offence.pointsLossPercent()),
                 "count", count, "id", String.valueOf(outcome.strike().id()));
-        module.sendToStaffChannel(module.getLang().get(StaffMessages.STRIKE_ANNOUNCE,
-                "team", team, "staff", sender.getName(), "count", count, "offence", offence.name(),
-                "details", shownDetails, "subject", subject(target.subject())));
-        broadcast(StaffMessages.STRIKE_BROADCAST, "team", team, "count", count, "max", max,
-                "offence", offence.name());
+        // Staff only: a strike is not announced in the general chat. The team's members
+        // hear of it when it disbands them; /team show gives its count.
+        toStaff(StaffMessages.STRIKE_ANNOUNCE, "team", team, "staff", sender.getName(), "count", count, "max", max,
+                "offence", offence.name(), "details", shownDetails, "subject", subject(target.subject()));
         if (outcome.pointsLost() > 0) {
-            broadcast(StaffMessages.STRIKE_POINTS_LOST, "team", team, "points", String.valueOf(outcome.pointsLost()));
+            toStaff(StaffMessages.STRIKE_POINTS_LOST, "team", team, "points", String.valueOf(outcome.pointsLost()));
         }
         if (outcome.disbanded()) {
-            broadcast(StaffMessages.STRIKE_DISBANDED, "team", team, "count", count);
+            toStaff(StaffMessages.STRIKE_DISBANDED, "team", team, "count", count);
         }
         if (outcome.disbandRefused()) {
             module.getLang().send(sender, StaffMessages.STRIKE_DISBAND_REFUSED, "team", team);
         }
     }
 
-    private void broadcast(String key, String... placeholders) {
+    private void toStaff(String key, String... placeholders) {
         String message = module.getLang().get(key, placeholders);
-        if (message.isEmpty()) {
-            return;
+        if (!message.isEmpty()) {
+            module.sendToStaffChannel(message);
         }
-        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(message));
-        Bukkit.getConsoleSender().sendMessage(message);
     }
 
     private void list(CommandSender sender, String[] args, String label) {

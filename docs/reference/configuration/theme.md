@@ -40,7 +40,7 @@ Legacy codes (`&a`, `&l`, `&r`...) still work anywhere, and so does a hex colour
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `prefix` | `HCF »` in bold gold | What `{prefix}` becomes. The shipped messages put it on the **announcements**: events, the map's phases, a team's own news (a member joined, an ally, a focus, a rally, raidable), strikes. Add it to any message you like |
+| `prefix` | `HCF »` in bold gold | What `{prefix}` becomes. The shipped messages put it on the **announcements**: events, the map's phases, a team's own news (a member joined, an ally, a focus, a rally, raidable). Add it to any message you like |
 | `bullet` | `➥` | What `{bullet}` becomes: the scoreboard's `Label ➥ value` rows, event lines |
 | `small-caps-titles` | `true` | Menu and scoreboard titles in small capitals: `ᴀʙɪʟɪᴛɪᴇꜱ` |
 

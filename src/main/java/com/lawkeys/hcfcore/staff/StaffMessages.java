@@ -125,7 +125,6 @@ public final class StaffMessages {
     // Strikes
     public static final String STRIKE_ISSUED = "staff.strike.issued";
     public static final String STRIKE_ANNOUNCE = "staff.strike.announce";
-    public static final String STRIKE_BROADCAST = "staff.strike.broadcast";
     public static final String STRIKE_POINTS_LOST = "staff.strike.points-lost";
     public static final String STRIKE_DISBANDED = "staff.strike.disbanded";
     public static final String STRIKE_DISBAND_REFUSED = "staff.strike.disband-refused";
