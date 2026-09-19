@@ -41,7 +41,7 @@ hide:
 
     ---
 
-    Deathbans with rank tiers, combat tag and combat logging, safe zones, friendly fire rules, loot protection, the strength nerf — and a **classic 1.7.10 combat** mode: no attack cooldown, sword blocking, 1.7 knockback.
+    Deathbans with rank tiers, combat tag and combat logging, safe zones, friendly fire rules, loot protection, the strength nerf, ender pearl and item cooldowns — and a **classic 1.7.10 combat** mode: no attack cooldown, sword blocking, 1.7 knockback.
 
     [:octicons-arrow-right-24: Combat](gameplay/combat.md) · [Classic combat](gameplay/classic-combat.md)
 
@@ -81,7 +81,7 @@ hide:
 
     ---
 
-    A flicker-free scoreboard built from template lines, a tab list, a chat format with LuckPerms prefixes and kill counts, statistics and leaderboards, holograms, and per-player settings.
+    A flicker-free scoreboard built from template lines — each player hiding the sections they want — a tab list, a chat format with LuckPerms prefixes and kill counts, statistics and leaderboards, holograms, and per-player settings.
 
     [:octicons-arrow-right-24: Chat, scoreboard and settings](gameplay/interface.md)
 
@@ -89,7 +89,7 @@ hide:
 
     ---
 
-    Vault for shops and ranks, LuckPerms for chat prefixes, and Lunar Client through Apollo: waypoints, team view, cooldowns and nametags. All optional.
+    Vault for shops and ranks, LuckPerms for chat prefixes, and Lunar Client through Apollo: waypoints, team view, every cooldown and nametags. All optional.
 
     [:octicons-arrow-right-24: Integrations](server/integrations.md)
 

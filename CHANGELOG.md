@@ -6,15 +6,18 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-19
+
+Partner items, and the cooldowns of an HCF server: the ender pearl, golden apples and the like, all on the scoreboard and on Lunar Client. The scoreboard can be trimmed by each player in `/settings`.
+
+*Tried in game on Paper 26.2 with two players, except the damage a sword block takes off, which still awaits a two-player test.*
+
 ### Added
 - **Partner items**: 42 abilities built in (`abilities.yml`) — Switcher, Thunderbolt, Combo, Lucky Mode, Rage Ball, Crafting Chaos, Focus Mode, Ninja, Portable Archer, Invisibility, Time Warp, Pocket Bard, Berserk, Close Call, Switch Stick, Belch Bomb, Anti Trap Star, Rose Thorn, Pumpkin Reaper, Hulk Smash, Sticky Web, Med Kit, Grappling Hook, Nausea Axe, Bunny Hop, Ice Berg, Antidote, Golden Head, Grabber, Poisonous Potato, Fake Pearl, Rocket, Combo Fish, Anti-Build Bone, Rotten Egg, Rage Strength, Olympia, Baguette, Sun, Scrambler, Lucky Bard, Disarmer Wand — and a `commands` type for your own. 38 types, several generic: `effects`, `hit-effects`, `thrown-effects`. An item may stay and count its uses on its durability bar instead of being used up (`uses`): the Olympia, 30 shots, the Pumpkin Reaper and the Nausea Axe, 10 each, spent only when they work, and the Portable Archer, 5. The Pocket Bard has no cooldown; the items it gives wait 60 seconds between two uses, each set apart, and the shared cooldown. The Ninja Ability goes to the last player you hit, the Anti Trap Star to the last who hit you, 10 seconds back at most. The Sun catches and counts only the enemies in range. A chance that misses (Nausea Axe, Pumpkin Reaper, Disarmer Wand) starts the cooldown but keeps the item and its uses. A shared cooldown after any ability (10 s), and zones where none works (a safe zone, a Citadel's claim, a running event's zone, the Nether, the End). `/ability` shows them with your cooldowns; `/ability give` hands one out.
-
 - **Ender pearl cooldown**: 15 seconds between two pearls (`pvp.yml`, `ender-pearl-cooldown`), shown on the scoreboard (`%pearl_line%`), on the pearls in the hotbar and on Lunar Client (`apollo.yml`, `ender-pearl`). A death ends it. Until it is over, teleport commands are refused as in combat — `/spawn`, `/team hq`, `/team stuck`, `/top`, `/world` (`block-teleport`). *An existing `ui.yml` needs `"%pearl_line%"` added to its lines to show it; `pvp.yml` and `apollo.yml` work without the new keys, with the defaults.*
-
 - **Item cooldowns** (`pvp.yml`, `item-cooldowns`): the Gapple waits 1 hour, the Crapple 10 seconds, the chorus fruit 15, the totem 2 minutes — any item can be added. A use meanwhile is refused; a totem on cooldown saves nobody. Kept on the player, so the Gapple's hour survives logouts and restarts; shown on the scoreboard (`%cooldown_<id>_line%`), on the item and on Lunar Client. *An existing `ui.yml` needs the `%cooldown_<id>_line%` rows added to show them.*
 - **`/cooldown reset <player> [what]`** ends a player's cooldowns — `all` (the default), `abilities`, `global`, `pearl`, `items`, or one ability's or item's id (`hcfcore.cooldown.admin`).
 - **The scoreboard, section by section, in `/settings`**: team, statistics, balance, combat tag, cooldowns, class, events, timers. A row of `ui.yml` belongs to a section by a tag at its start — `[team]&cTeam: &f%team%` — placed as you like. *In an existing `ui.yml`, tag the rows; in `settings.yml`, add the `scoreboard-<section>` switches to `offered`.*
-
 - **Lunar Client shows every cooldown**: besides the combat tag, countdowns and partner items, now the ender pearl, the item cooldowns, the shared partner item cooldown, the Pocket Bard's sets, a class's click items and backstab, and the crowbar — each switchable in `apollo.yml` (`ability-global-icon`, `classes`, `crowbar`). *An existing `apollo.yml` works without the new keys.*
 
 ### Changed
@@ -94,7 +97,8 @@ Classes and events.
 ### Added
 - First public version: teams, territory and DTR, combat and deathbans, lives, capture events (KOTH, Citadel, Conquest, Kill the King), Mountains, SOTW/EOTW/Purge, economy with Vault, kits and abilities, custom enchants and limiters, moderation tools, scoreboard and chat, holograms, redeem codes, the Lunar Client integration, and this documentation.
 
-[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.6.0
 [0.5.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.5.0
 [0.4.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.3.0

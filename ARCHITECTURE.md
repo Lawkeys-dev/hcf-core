@@ -17,7 +17,7 @@ hcf-core/
 ├── src/main/java/com/lawkeys/hcfcore/
 │   ├── HCFCore.java                    # main class (JavaPlugin): module startup order, reload
 │   ├── api/event/                      # public Bukkit events (Team*Event) - the contract with other plugins
-│   ├── command/                        # /hcf (reload, version); VisiblePlayers, KnownPlayers
+│   ├── command/                        # /hcf (reload, version), /cooldown (reset across modules); VisiblePlayers, KnownPlayers
 │   ├── config/                         # ConfigManager (one file per module), ConfigTypeCheck
 │   ├── database/                       # DatabaseManager (HikariCP, MySQL/SQLite)
 │   │   ├── dao/                        # one Jdbc*Store per module
@@ -29,7 +29,7 @@ hcf-core/
 │   ├── team/                           # teams, roles, alliances, focus, rally, bank, points
 │   ├── claim/                          # territory, protection, HQ/base, server land, warzone, lockclaim
 │   ├── dtr/                            # DTR, regeneration, raid announcements
-│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire; legacy/ (classic 1.7.10 combat)
+│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire, ender pearl and item cooldowns; legacy/ (classic 1.7.10 combat)
 │   ├── pvpclass/                       # classes: Diamond, Bard, Archer, Rogue, Miner and those classes.yml defines
 │   ├── effectcommand/                  # /speed and the like: an effect until death (effect-commands.yml)
 │   ├── economy/                        # balances, /pay, /eco, /team deposit|withdraw
@@ -38,7 +38,7 @@ hcf-core/
 │   ├── phase/                          # SOTW, EOTW, the Purge
 │   ├── stats/                          # kills, deaths, killstreaks, playtime, leaderboards
 │   ├── chat/                           # public chat format, team/ally routing, local chat
-│   ├── ui/                             # scoreboard, tab list
+│   ├── ui/                             # scoreboard (rows tagged by section: ScoreboardRow), tab list
 │   ├── staff/                          # staff mode, vanish, freeze, invsee, lastinv; ticket/; strike/
 │   ├── kit/                            # kits, layouts, refill signs
 │   ├── ability/                        # partner items: 38 built-in types, abilities.yml
@@ -253,7 +253,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `TeamStore` | `team/` | `NO_OP` (everything in memory) | `database/dao/JdbcTeamStore` |
 | `TeamEventDispatcher` | `team/` | `NO_OP` (no Bukkit event) | `TeamModule` |
 | `RaidabilityPolicy` | `claim/` | `NEVER` (claims always protected) | `dtr/`, **wrapped** by `phase/` (EOTW, Purge) |
-| `TeleportGuard` | `claim/` | `ALLOW` (no teleport blocked) | `pvp/` |
+| `TeleportGuard` | `claim/` | `ALLOW` (no teleport blocked) | `pvp/` (a combat tag, an ender pearl cooldown) |
 | `ReservedRegionPolicy` | `claim/` | `NONE` (no reserved chunk) | `resourcenode/` |
 | `ClaimingPolicy` | `claim/` | `OPEN` (player claims open) | `phase/` (EOTW) |
 | `LockWindow` | `claim/` | `CLOSED` (no claim can be locked) | `phase/` (open during SOTW) |
@@ -268,9 +268,11 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `SpawnGuard` | `general/` | `ALLOW` (nobody refused) | `events/` (the King of Kill the King never enters spawn, `/spawn` included) |
 | `LogoutGuard` | `general/` | `ALLOW` (nobody refused) | `pvp/` (a tagged player cannot leave through `/logout`: that would be a combat log) |
 | Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `ability/` (`abilities.yml`) |
+| Partner items | `pvp/` | none recognised (every pearl and listed item counted) | `ability/` (a Fake Pearl, a Golden Head: their own cooldowns) |
 | `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel or Conquest zone, and the King during Kill the King) |
 | `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW and the Purge make everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |
+| Scoreboard row filter | `ui/` | every tagged row shows | `settings/` (a section switched off in `/settings`) |
 | Scoreboard placeholder sources | `ui/` | only `ui/`'s own placeholders | `pvpclass/` (`%class_line%`, `%class_energy_line%`, `%archer_tag_line%`) |
 | Tips filter | `schedule/` | everybody receives them | `settings/` |
 | `EffectCaps` (`util/`) | `pvpclass/`, `enchant/`, `events/` (the King), `effectcommand/` | `NONE` (every effect as asked) | `limiter/` (`effects.caps`: each module asks before giving an effect, so what it gives is what it recognises as its own) |
