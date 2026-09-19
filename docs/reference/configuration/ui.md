@@ -49,8 +49,19 @@ Needs the **PacketEvents** plugin, 2.13 or later for Minecraft 26.2 — see [Int
 |---|---|---|
 | `header`, `footer` | lines | Above and below the grid |
 | `latency` | `0` | The connection bars every cell shows, in milliseconds: `0` full bars, below `0` none |
-| `skin.texture`, `skin.signature` | empty | One skin for every cell's head, as [mineskin.org](https://mineskin.org) gives it; empty for the game's default heads |
+| `skin.texture`, `skin.signature` | empty | The default head, of every cell without a head of its own, as [mineskin.org](https://mineskin.org) gives it; empty for the game's default head — the same one in every cell |
 | `column-1` … `column-4` | see above | Twenty cells each, top to bottom. An empty line is a blank cell; so is a cell whose placeholders are all empty — the grid never shifts. A longer column is cut at twenty, and the console says so |
+
+**Heads.** A cell may start with the head it shows:
+
+| Tag | Head |
+|---|---|
+| `[head:self]` | The viewer's own |
+| `[head:member:3]` | The member of `%member_3%` |
+| `[head:top:1]` | The leader of `%top_team_1%` |
+| `[head:MHF_Chest]` | Any Minecraft account's skin, by name. The `MHF_` accounts are the classic icons: `MHF_Chest`, `MHF_Question`, `MHF_Exclamation`, `MHF_ArrowRight`, `MHF_Present1`, `MHF_TNT`… |
+
+An online player's head is theirs at once; any other is asked of Mojang once, off the main thread, and remembered until the server stops — the default head shows meanwhile, and in a blank cell. An account that does not exist is reported once in the console.
 
 ### The classic list
 

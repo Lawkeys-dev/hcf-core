@@ -124,8 +124,9 @@ tablist:
     # The connection bars every cell shows, in milliseconds: 0 is full bars,
     # below 0 is none.
     latency: 0
-    # A skin for every cell's head - the "value" and "signature" of a Mojang
-    # texture, as mineskin.org gives them. Empty: the game's default heads.
+    # The default head - of every cell without a [head:...] of its own: the
+    # "value" and "signature" of a Mojang texture, as mineskin.org gives them.
+    # Empty: the game's default head, the same one in every cell.
     skin:
       texture: ""
       signature: ""
@@ -143,16 +144,26 @@ tablist:
     #   %top_team_1% to %top_team_10%   the teams with most points
     #   %no_event_line%         a row saying nothing runs, when nothing does
     # The wording of the ready-made rows is in lang/en.yml, under ui.tab.
+    #
+    # A cell may start with the head it shows:
+    #   [head:self]        your own head
+    #   [head:member:3]    the head of %member_3%
+    #   [head:top:1]       the head of %top_team_1%'s leader
+    #   [head:MHF_Chest]   any Minecraft account's skin, by name - the MHF_
+    #                      accounts are the classic icons: MHF_Chest, MHF_Question,
+    #                      MHF_Exclamation, MHF_ArrowRight, MHF_Present1, MHF_TNT...
+    # Heads are asked of Mojang once and remembered; until then, and in a cell
+    # that is blank, the default head shows.
     column-1:
       - ""
-      - "{primary}&lPlayer Info"
+      - "[head:self]{primary}&lPlayer Info"
       - "{text}Kills {dark}{bullet} {secondary}%kills%"
       - "{text}Deaths {dark}{bullet} {secondary}%deaths%"
       - "{text}K/D {dark}{bullet} {secondary}%kdr%"
       - "{text}Streak {dark}{bullet} {secondary}%killstreak%"
       - "{text}Balance {dark}{bullet} {success}%balance%"
       - ""
-      - "{primary}&lLocation"
+      - "[head:MHF_ArrowRight]{primary}&lLocation"
       - "%location%"
       - "{secondary}%x%{muted}, {secondary}%z% {muted}(%direction%)"
       - ""
@@ -162,7 +173,7 @@ tablist:
       - "%class_energy_line%"
     column-2:
       - ""
-      - "{primary}&lTeam"
+      - "[head:MHF_Chest]{primary}&lTeam"
       - "%team_name_line%"
       - "{text}DTR {dark}{bullet} %dtr_coloured%"
       - "{text}Online {dark}{bullet} {secondary}%members_online%{muted}/{secondary}%members_total%"
@@ -170,24 +181,24 @@ tablist:
       - "{text}Points {dark}{bullet} {secondary}%team_points%"
       - ""
       - "%members_title%"
-      - "%member_1%"
-      - "%member_2%"
-      - "%member_3%"
-      - "%member_4%"
-      - "%member_5%"
-      - "%member_6%"
-      - "%member_7%"
-      - "%member_8%"
-      - "%member_9%"
-      - "%member_10%"
-      - "%member_11%"
+      - "[head:member:1]%member_1%"
+      - "[head:member:2]%member_2%"
+      - "[head:member:3]%member_3%"
+      - "[head:member:4]%member_4%"
+      - "[head:member:5]%member_5%"
+      - "[head:member:6]%member_6%"
+      - "[head:member:7]%member_7%"
+      - "[head:member:8]%member_8%"
+      - "[head:member:9]%member_9%"
+      - "[head:member:10]%member_10%"
+      - "[head:member:11]%member_11%"
     column-3:
       - ""
-      - "{primary}&lServer"
+      - "[head:MHF_Question]{primary}&lServer"
       - "{text}Online {dark}{bullet} {secondary}%online%"
       - "{text}Ping {dark}{bullet} {secondary}%ping%ms"
       - ""
-      - "{primary}&lEvents"
+      - "[head:MHF_Exclamation]{primary}&lEvents"
       - "%no_event_line%"
       - "%phase_line%"
       - "%event_line%"
@@ -198,17 +209,17 @@ tablist:
       - "%timer_3%"
     column-4:
       - ""
-      - "{primary}&lTop Teams"
-      - "%top_team_1%"
-      - "%top_team_2%"
-      - "%top_team_3%"
-      - "%top_team_4%"
-      - "%top_team_5%"
-      - "%top_team_6%"
-      - "%top_team_7%"
-      - "%top_team_8%"
-      - "%top_team_9%"
-      - "%top_team_10%"
+      - "[head:MHF_Present1]{primary}&lTop Teams"
+      - "[head:top:1]%top_team_1%"
+      - "[head:top:2]%top_team_2%"
+      - "[head:top:3]%top_team_3%"
+      - "[head:top:4]%top_team_4%"
+      - "[head:top:5]%top_team_5%"
+      - "[head:top:6]%top_team_6%"
+      - "[head:top:7]%top_team_7%"
+      - "[head:top:8]%top_team_8%"
+      - "[head:top:9]%top_team_9%"
+      - "[head:top:10]%top_team_10%"
   # --8<-- [end:tablist-hcf]
 
   # --8<-- [start:tablist-classic]

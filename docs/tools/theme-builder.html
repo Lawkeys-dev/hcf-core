@@ -254,7 +254,7 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
               <div class="field"><label for="gridCol2">Column 2</label><textarea id="gridCol2" rows="8" spellcheck="false"></textarea></div>
               <div class="field"><label for="gridCol3">Column 3</label><textarea id="gridCol3" rows="8" spellcheck="false"></textarea></div>
               <div class="field"><label for="gridCol4">Column 4</label><textarea id="gridCol4" rows="8" spellcheck="false"></textarea>
-                <p class="hint">Twenty cells per column; an empty line is a blank cell, and so is a cell whose placeholders are all empty - the grid never shifts. Besides the scoreboard's: <code>%location%</code> <code>%x%</code> <code>%z%</code> <code>%direction%</code> <code>%team_name_line%</code> <code>%members_online%</code> <code>%members_total%</code> <code>%team_balance%</code> <code>%team_points%</code> <code>%members_title%</code> <code>%member_1%</code>…<code>%member_20%</code> <code>%top_team_1%</code>…<code>%top_team_10%</code> <code>%no_event_line%</code> <code>%prefix%</code> <code>%suffix%</code>.</p></div>
+                <p class="hint">Twenty cells per column; an empty line is a blank cell, and so is a cell whose placeholders are all empty - the grid never shifts. Besides the scoreboard's: <code>%location%</code> <code>%x%</code> <code>%z%</code> <code>%direction%</code> <code>%team_name_line%</code> <code>%members_online%</code> <code>%members_total%</code> <code>%team_balance%</code> <code>%team_points%</code> <code>%members_title%</code> <code>%member_1%</code>…<code>%member_20%</code> <code>%top_team_1%</code>…<code>%top_team_10%</code> <code>%no_event_line%</code> <code>%prefix%</code> <code>%suffix%</code>. A cell may start with its head: <code>[head:self]</code>, <code>[head:member:3]</code>, <code>[head:top:1]</code> (that team's leader), or any account's skin by name - <code>[head:MHF_Chest]</code>, <code>[head:MHF_Question]</code>…</p></div>
               <div class="field"><label for="gridLatency">Connection bars of every cell (ms)</label><input type="text" id="gridLatency" class="mono" inputmode="numeric"><p class="hint">0 is full bars, below 0 none.</p></div>
             </div>
           </details>
@@ -386,18 +386,10 @@ const SHIPPED = {
     "[events]%conquest_zone_4%", "[timers]%timer_1%", "[timers]%timer_2%", "[timers]%timer_3%"] },
   tab: { enabled: true, style: "auto", ticks: "20",
     hcf: { header: ["", "{primary}&lHCF", ""], footer: ["", "{muted}play.yourserver.net", ""], latency: "0", columns: [
-      ["", "{primary}&lPlayer Info", "{text}Kills {dark}{bullet} {secondary}%kills%", "{text}Deaths {dark}{bullet} {secondary}%deaths%",
-        "{text}K/D {dark}{bullet} {secondary}%kdr%", "{text}Streak {dark}{bullet} {secondary}%killstreak%",
-        "{text}Balance {dark}{bullet} {success}%balance%", "", "{primary}&lLocation", "%location%",
-        "{secondary}%x%{muted}, {secondary}%z% {muted}(%direction%)", "", "%combat_line%", "%pearl_line%", "%class_line%", "%class_energy_line%"],
-      ["", "{primary}&lTeam", "%team_name_line%", "{text}DTR {dark}{bullet} %dtr_coloured%",
-        "{text}Online {dark}{bullet} {secondary}%members_online%{muted}/{secondary}%members_total%",
-        "{text}Balance {dark}{bullet} {success}%team_balance%", "{text}Points {dark}{bullet} {secondary}%team_points%", "", "%members_title%",
-        "%member_1%", "%member_2%", "%member_3%", "%member_4%", "%member_5%", "%member_6%", "%member_7%", "%member_8%", "%member_9%", "%member_10%", "%member_11%"],
-      ["", "{primary}&lServer", "{text}Online {dark}{bullet} {secondary}%online%", "{text}Ping {dark}{bullet} {secondary}%ping%ms", "",
-        "{primary}&lEvents", "%no_event_line%", "%phase_line%", "%event_line%", "%king_line%", "%conquest_line%", "%timer_1%", "%timer_2%", "%timer_3%"],
-      ["", "{primary}&lTop Teams", "%top_team_1%", "%top_team_2%", "%top_team_3%", "%top_team_4%", "%top_team_5%", "%top_team_6%",
-        "%top_team_7%", "%top_team_8%", "%top_team_9%", "%top_team_10%"]] },
+      ["", "[head:self]{primary}&lPlayer Info", "{text}Kills {dark}{bullet} {secondary}%kills%", "{text}Deaths {dark}{bullet} {secondary}%deaths%", "{text}K/D {dark}{bullet} {secondary}%kdr%", "{text}Streak {dark}{bullet} {secondary}%killstreak%", "{text}Balance {dark}{bullet} {success}%balance%", "", "[head:MHF_ArrowRight]{primary}&lLocation", "%location%", "{secondary}%x%{muted}, {secondary}%z% {muted}(%direction%)", "", "%combat_line%", "%pearl_line%", "%class_line%", "%class_energy_line%"],
+      ["", "[head:MHF_Chest]{primary}&lTeam", "%team_name_line%", "{text}DTR {dark}{bullet} %dtr_coloured%", "{text}Online {dark}{bullet} {secondary}%members_online%{muted}/{secondary}%members_total%", "{text}Balance {dark}{bullet} {success}%team_balance%", "{text}Points {dark}{bullet} {secondary}%team_points%", "", "%members_title%", "[head:member:1]%member_1%", "[head:member:2]%member_2%", "[head:member:3]%member_3%", "[head:member:4]%member_4%", "[head:member:5]%member_5%", "[head:member:6]%member_6%", "[head:member:7]%member_7%", "[head:member:8]%member_8%", "[head:member:9]%member_9%", "[head:member:10]%member_10%", "[head:member:11]%member_11%"],
+      ["", "[head:MHF_Question]{primary}&lServer", "{text}Online {dark}{bullet} {secondary}%online%", "{text}Ping {dark}{bullet} {secondary}%ping%ms", "", "[head:MHF_Exclamation]{primary}&lEvents", "%no_event_line%", "%phase_line%", "%event_line%", "%king_line%", "%conquest_line%", "%timer_1%", "%timer_2%", "%timer_3%"],
+      ["", "[head:MHF_Present1]{primary}&lTop Teams", "[head:top:1]%top_team_1%", "[head:top:2]%top_team_2%", "[head:top:3]%top_team_3%", "[head:top:4]%top_team_4%", "[head:top:5]%top_team_5%", "[head:top:6]%top_team_6%", "[head:top:7]%top_team_7%", "[head:top:8]%top_team_8%", "[head:top:9]%top_team_9%", "[head:top:10]%top_team_10%"]] },
     classic: { header: ["", "{primary}&lKITMAP", "{muted}Online {dark}{bullet} {secondary}%online%", ""], footer: ["", "{muted}play.yourserver.net", ""],
       name: "%prefix%{secondary}%player%%suffix%", sort: "rank" } },
 };
@@ -756,6 +748,24 @@ function pingIcon(latency) {
   const n = isNaN(ms) ? 5 : ms < 0 ? "unknown" : ms < 150 ? 5 : ms < 300 ? 4 : ms < 600 ? 3 : ms < 1000 ? 2 : 1;
   return el("img", { class: "ping", alt: "", src: texture("gui/sprites/icon/ping_" + n) });
 }
+// Who a [head:...] shows in the preview: the sample's own players and team leaders.
+const SAMPLE_MEMBERS = ["Lawkeys", "ownedbynoname", "Steve", "Alex", "Herobrine"];
+const SAMPLE_LEADERS = ["Dinnerbone", "Lawkeys", "jeb_", "Notch"];
+function tabHead(tag) {
+  let name = null;
+  if (tag) {
+    const t = tag.trim(), lower = t.toLowerCase(), n = parseInt(lower.split(":")[1], 10);
+    if (lower === "self") name = "Lawkeys";
+    else if (lower.startsWith("member:")) name = SAMPLE_MEMBERS[n - 1] || null;
+    else if (lower.startsWith("top:")) name = SAMPLE_LEADERS[n - 1] || null;
+    else if (/^[A-Za-z0-9_]{1,16}$/.test(t)) name = t;
+  }
+  const steve = () => { const i = el("i", { class: "head" }); i.style.backgroundImage = "url(" + STEVE + ")"; return i; };
+  if (!name) return steve();
+  const img = el("img", { class: "head", alt: "", src: "https://mc-heads.net/avatar/" + encodeURIComponent(name) + "/12", referrerpolicy: "no-referrer", loading: "lazy" });
+  img.addEventListener("error", () => img.replaceWith(steve()), { once: true });
+  return img;
+}
 function tab() {
   const box = document.getElementById("tab");
   box.textContent = "";
@@ -771,13 +781,13 @@ function tab() {
     body = el("div", { class: "grid" });
     const cols = [0, 1, 2, 3].map(c => look.columns[c] || []);
     for (let r = 0; r < 20; r++) for (let c = 0; c < 4; c++) {
-      const raw = cols[c][r] || "";
+      const tagged = (cols[c][r] || "").match(/^\[head:([^\]]+)\]/);
+      const raw = (cols[c][r] || "").slice(tagged ? tagged[0].length : 0);
       const names = [...raw.matchAll(/%([a-z0-9_-]+)%/gi)].map(m => m[1]);
       const blank = !raw || (names.length && names.every(n => !ph[n]));
       const cell = el("div", { class: "cell" }), text = el("span");
       if (!blank) render(text, fill(raw, ph));
-      const face = el("i", { class: "head" }); face.style.backgroundImage = "url(" + STEVE + ")";
-      cell.append(face, text, pingIcon(look.latency));
+      cell.append(tabHead(blank ? null : tagged && tagged[1]), text, pingIcon(look.latency));
       cell.style.gridColumn = String(c + 1); cell.style.gridRow = String(r + 1);
       body.append(cell);
     }

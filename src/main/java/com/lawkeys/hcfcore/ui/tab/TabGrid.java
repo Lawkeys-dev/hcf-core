@@ -23,9 +23,16 @@ public final class TabGrid {
     public static final int ROWS = 20;
     public static final int SIZE = COLUMNS * ROWS;
 
-    private static final List<UUID> IDS = IntStream.range(0, SIZE)
-            .mapToObj(i -> UUID.nameUUIDFromBytes(("hcfcore-tab-" + i).getBytes(StandardCharsets.UTF_8)))
-            .toList();
+    /**
+     * How many default skins the game picks from, and which one every cell gets. A
+     * head-less entry shows the default skin its identity falls on -
+     * {@code floorMod(uuid.hashCode(), 18)} - so random identities made a patchwork
+     * of nine faces; these are chosen to all fall on the same one.
+     */
+    static final int DEFAULT_SKINS = 18;
+    static final int DEFAULT_SKIN = 15;
+
+    private static final List<UUID> IDS = IntStream.range(0, SIZE).mapToObj(TabGrid::uniformId).toList();
     private static final Set<UUID> ID_SET = Set.copyOf(IDS);
 
     private TabGrid() {
@@ -46,6 +53,15 @@ public final class TabGrid {
             }
         }
         return cells;
+    }
+
+    private static UUID uniformId(int cell) {
+        for (int attempt = 0; ; attempt++) {
+            UUID id = UUID.nameUUIDFromBytes(("hcfcore-tab-" + cell + "-" + attempt).getBytes(StandardCharsets.UTF_8));
+            if (Math.floorMod(id.hashCode(), DEFAULT_SKINS) == DEFAULT_SKIN) {
+                return id;
+            }
+        }
     }
 
     /** @return the identity of a cell - the same on every server, every time */

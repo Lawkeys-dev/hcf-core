@@ -59,7 +59,7 @@ final class PacketGridTab implements GridTab {
     }
 
     @Override
-    public void show(Player viewer, List<Component> cells, Look look) {
+    public void show(Player viewer, List<Cell> cells, Look look) {
         viewers.add(viewer.getUniqueId());
         List<WrapperPlayServerPlayerInfoUpdate.PlayerInfo> unlisted = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -72,20 +72,28 @@ final class PacketGridTab implements GridTab {
                 WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED, unlisted));
         List<WrapperPlayServerPlayerInfoUpdate.PlayerInfo> entries = new ArrayList<>(TabGrid.SIZE);
         for (int cell = 0; cell < TabGrid.SIZE; cell++) {
-            entries.add(cell(cell, cell < cells.size() ? cells.get(cell) : Component.empty(), look));
+            entries.add(cell(cell, cell < cells.size() ? cells.get(cell) : new Cell(Component.empty(), null), look));
         }
         send(viewer, new WrapperPlayServerPlayerInfoUpdate(ADD, entries));
     }
 
     @Override
-    public void update(Player viewer, Map<Integer, Component> changed, Look look) {
-        if (changed.isEmpty() || !viewers.contains(viewer.getUniqueId())) {
+    public void update(Player viewer, Map<Integer, Cell> texts, Map<Integer, Cell> heads, Look look) {
+        if (!viewers.contains(viewer.getUniqueId())) {
             return;
         }
-        List<WrapperPlayServerPlayerInfoUpdate.PlayerInfo> entries = new ArrayList<>(changed.size());
-        changed.forEach((cell, text) -> entries.add(cell(cell, text, look)));
-        send(viewer, new WrapperPlayServerPlayerInfoUpdate(
-                WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_DISPLAY_NAME, entries));
+        if (!heads.isEmpty()) {
+            send(viewer, new WrapperPlayServerPlayerInfoRemove(heads.keySet().stream().map(TabGrid::id).toList()));
+            List<WrapperPlayServerPlayerInfoUpdate.PlayerInfo> entries = new ArrayList<>(heads.size());
+            heads.forEach((cell, value) -> entries.add(cell(cell, value, look)));
+            send(viewer, new WrapperPlayServerPlayerInfoUpdate(ADD, entries));
+        }
+        if (!texts.isEmpty()) {
+            List<WrapperPlayServerPlayerInfoUpdate.PlayerInfo> entries = new ArrayList<>(texts.size());
+            texts.forEach((cell, value) -> entries.add(cell(cell, value, look)));
+            send(viewer, new WrapperPlayServerPlayerInfoUpdate(
+                    WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_DISPLAY_NAME, entries));
+        }
     }
 
     @Override
@@ -130,11 +138,14 @@ final class PacketGridTab implements GridTab {
         PacketEvents.getAPI().getEventManager().unregisterListener(listener);
     }
 
-    private static WrapperPlayServerPlayerInfoUpdate.PlayerInfo cell(int cell, Component text, Look look) {
-        List<TextureProperty> textures = look.texture() == null || look.texture().isEmpty()
+    private static WrapperPlayServerPlayerInfoUpdate.PlayerInfo cell(int cell, Cell value, Look look) {
+        String texture = value.skin() != null ? value.skin().texture() : look.texture();
+        String signature = value.skin() != null ? value.skin().signature() : look.signature();
+        List<TextureProperty> textures = texture == null || texture.isEmpty()
                 ? List.of()
-                : List.of(new TextureProperty("textures", look.texture(),
-                        look.signature() == null || look.signature().isEmpty() ? null : look.signature()));
+                : List.of(new TextureProperty("textures", texture,
+                        signature == null || signature.isEmpty() ? null : signature));
+        Component text = value.text();
         UserProfile profile = new UserProfile(TabGrid.id(cell), TabGrid.name(cell), textures);
         return new WrapperPlayServerPlayerInfoUpdate.PlayerInfo(profile, true, look.latency(), GameMode.SURVIVAL,
                 text, null, TabGrid.listOrder(cell), true);

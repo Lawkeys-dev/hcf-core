@@ -22,11 +22,23 @@ public interface GridTab {
     record Look(int latency, String texture, String signature) {
     }
 
-    /** Takes the players off the viewer's list and puts the {@link TabGrid#SIZE} cells in. */
-    void show(Player viewer, List<Component> cells, Look look);
+    /** A signed skin texture, as Mojang gives it. */
+    record Skin(String texture, String signature) {
+    }
 
-    /** Rewrites the cells that changed, by index. */
-    void update(Player viewer, Map<Integer, Component> changed, Look look);
+    /** @param skin its head; {@code null} for the look's default */
+    record Cell(Component text, Skin skin) {
+    }
+
+    /** Takes the players off the viewer's list and puts the {@link TabGrid#SIZE} cells in. */
+    void show(Player viewer, List<Cell> cells, Look look);
+
+    /**
+     * Rewrites the cells that changed, by index: {@code texts} only their text,
+     * {@code heads} their head too - which the game reads only when an entry is
+     * added, so those are taken out and put back.
+     */
+    void update(Player viewer, Map<Integer, Cell> texts, Map<Integer, Cell> heads, Look look);
 
     /** Takes the cells away and gives the viewer the players back. */
     void hide(Player viewer);

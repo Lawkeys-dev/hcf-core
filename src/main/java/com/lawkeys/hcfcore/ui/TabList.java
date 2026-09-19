@@ -9,6 +9,7 @@ import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.team.TeamRole;
 import com.lawkeys.hcfcore.ui.tab.GridTab;
+import com.lawkeys.hcfcore.ui.tab.HeadTag;
 import com.lawkeys.hcfcore.ui.tab.TabGrid;
 import com.lawkeys.hcfcore.ui.tab.TabStyle;
 import com.lawkeys.hcfcore.util.LegacyText;
@@ -63,6 +64,12 @@ final class TabList {
     private boolean warnedNoGrid;
 
     private final Map<UUID, List<String>> shownCells = new ConcurrentHashMap<>();
+    private final Map<UUID, List<GridTab.Skin>> shownHeads = new ConcurrentHashMap<>();
+    /** Heads by player, taken from them while online, or asked of Mojang once. */
+    private final Map<UUID, GridTab.Skin> playerHeads = new ConcurrentHashMap<>();
+    /** Heads by account name ({@code [head:MHF_Chest]}); empty when the account has none. */
+    private final Map<String, Optional<GridTab.Skin>> accountHeads = new ConcurrentHashMap<>();
+    private final java.util.Set<Object> fetching = ConcurrentHashMap.newKeySet();
     private final Map<UUID, String> shownHeader = new ConcurrentHashMap<>();
     private final Map<UUID, String> shownName = new ConcurrentHashMap<>();
     /** Offline members' names, looked up once: never a disk read every second. */
@@ -115,6 +122,7 @@ final class TabList {
             clear(player);
         }
         shownCells.clear();
+        shownHeads.clear();
         shownHeader.clear();
         shownName.clear();
         active = null;
@@ -130,6 +138,7 @@ final class TabList {
 
     void forget(UUID playerId) {
         shownCells.remove(playerId);
+        shownHeads.remove(playerId);
         shownHeader.remove(playerId);
         shownName.remove(playerId);
         if (grid != null) {
@@ -160,13 +169,13 @@ final class TabList {
                 ? List.of() : teams.getManager().getTopTeamsByPoints(TOP_TEAM_ROWS);
         for (Player viewer : Bukkit.getOnlinePlayers()) {
             LineRenderer out = ui.renderer(viewer);
-            addTabValues(out, viewer, top);
+            List<UUID> members = addTabValues(out, viewer, top);
             boolean hcf = active == TabStyle.HCF;
             List<String> header = hcf ? rules.hcf().header() : rules.classic().header();
             List<String> footer = hcf ? rules.hcf().footer() : rules.classic().footer();
             drawHeader(viewer, out, header, footer);
             if (hcf) {
-                drawGrid(viewer, out, rules.hcf());
+                drawGrid(viewer, out, rules.hcf(), members, top);
             } else {
                 drawName(viewer, rules.classic());
             }
@@ -183,22 +192,107 @@ final class TabList {
         }
     }
 
-    private void drawGrid(Player viewer, LineRenderer out, UiSettings.GridRules rules) {
+    private void drawGrid(Player viewer, LineRenderer out, UiSettings.GridRules rules, List<UUID> members,
+                          List<Team> top) {
         List<String> cells = new ArrayList<>(TabGrid.SIZE);
+        List<GridTab.Skin> heads = new ArrayList<>(TabGrid.SIZE);
         for (String template : TabGrid.cells(rules.columns())) {
-            cells.add(template.isEmpty() || out.isEmptyRow(template) ? "" : LangManager.colorize(out.render(template)));
+            HeadTag tag = HeadTag.parse(template);
+            String text = tag.text();
+            boolean blank = text.isEmpty() || out.isEmptyRow(text);
+            cells.add(blank ? "" : LangManager.colorize(out.render(text)));
+            // A blank cell keeps the default head: an empty %member_5% shows nobody's face.
+            heads.add(blank ? null : head(tag, viewer, members, top));
         }
         GridTab.Look look = new GridTab.Look(rules.latency(), rules.texture(), rules.signature());
-        List<String> before = shownCells.put(viewer.getUniqueId(), cells);
+        UUID id = viewer.getUniqueId();
+        List<String> before = shownCells.put(id, cells);
+        List<GridTab.Skin> headsBefore = shownHeads.put(id, heads);
         if (before == null) {
-            grid.show(viewer, cells.stream().map(TabList::component).toList(), look);
+            List<GridTab.Cell> all = new ArrayList<>(TabGrid.SIZE);
+            for (int i = 0; i < TabGrid.SIZE; i++) {
+                all.add(new GridTab.Cell(component(cells.get(i)), heads.get(i)));
+            }
+            grid.show(viewer, all, look);
             return;
         }
-        Map<Integer, Component> changed = new LinkedHashMap<>();
-        for (int cell : TabGrid.changed(before, cells)) {
-            changed.put(cell, component(cells.get(cell)));
+        Map<Integer, GridTab.Cell> texts = new LinkedHashMap<>();
+        Map<Integer, GridTab.Cell> reheaded = new LinkedHashMap<>();
+        for (int i = 0; i < TabGrid.SIZE; i++) {
+            GridTab.Cell cell = new GridTab.Cell(component(cells.get(i)), heads.get(i));
+            if (!Objects.equals(headsBefore == null ? null : headsBefore.get(i), heads.get(i))) {
+                reheaded.put(i, cell);
+            } else if (!before.get(i).equals(cells.get(i))) {
+                texts.put(i, cell);
+            }
         }
-        grid.update(viewer, changed, look);
+        grid.update(viewer, texts, reheaded, look);
+    }
+
+    /** The head a cell asks for, or {@code null} for the default - also while it is still being fetched. */
+    private GridTab.Skin head(HeadTag tag, Player viewer, List<UUID> members, List<Team> top) {
+        return switch (tag.kind()) {
+            case NONE -> null;
+            case SELF -> playerHead(viewer.getUniqueId());
+            case MEMBER -> tag.index() <= members.size() ? playerHead(members.get(tag.index() - 1)) : null;
+            case TOP -> tag.index() <= top.size()
+                    ? top.get(tag.index() - 1).getLeader().map(this::playerHead).orElse(null) : null;
+            case ACCOUNT -> accountHead(tag.name());
+        };
+    }
+
+    private GridTab.Skin playerHead(UUID id) {
+        Player online = Bukkit.getPlayer(id);
+        if (online != null) {
+            GridTab.Skin skin = texturesOf(online.getPlayerProfile());
+            if (skin != null) {
+                playerHeads.put(id, skin);
+                return skin;
+            }
+        }
+        GridTab.Skin known = playerHeads.get(id);
+        if (known == null && fetching.add(id)) {
+            // An offline member: asked of Mojang once, off the main thread.
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                var profile = Bukkit.createProfile(id);
+                if (profile.complete(true)) {
+                    GridTab.Skin skin = texturesOf(profile);
+                    if (skin != null) {
+                        playerHeads.put(id, skin);
+                    }
+                }
+            });
+        }
+        return known;
+    }
+
+    private GridTab.Skin accountHead(String name) {
+        String key = name.toLowerCase(Locale.ROOT);
+        Optional<GridTab.Skin> known = accountHeads.get(key);
+        if (known != null) {
+            return known.orElse(null);
+        }
+        if (fetching.add(key)) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                var profile = Bukkit.createProfile(name);
+                boolean found = profile.complete(true);
+                accountHeads.put(key, Optional.ofNullable(found ? texturesOf(profile) : null));
+                if (!found) {
+                    plugin.getLogger().warning("ui.yml: no Minecraft account named '" + name
+                            + "' for a [head:" + name + "] of the tab list; the cell shows the default head.");
+                }
+            });
+        }
+        return null;
+    }
+
+    private static GridTab.Skin texturesOf(com.destroystokyo.paper.profile.PlayerProfile profile) {
+        for (var property : profile.getProperties()) {
+            if (property.getName().equals("textures")) {
+                return new GridTab.Skin(property.getValue(), property.getSignature() == null ? "" : property.getSignature());
+            }
+        }
+        return null;
     }
 
     /** A player's own entry in the classic list: their name as written, their place in the order. */
@@ -229,7 +323,7 @@ final class TabList {
     }
 
     /** The values only the tab list has: where the viewer is, their team's roster, the top teams. */
-    private void addTabValues(LineRenderer out, Player viewer, List<Team> top) {
+    private List<UUID> addTabValues(LineRenderer out, Player viewer, List<Team> top) {
         ChatDecorations meta = decorations.get();
         out.with("%prefix%", meta.prefix(viewer)).with("%suffix%", meta.suffix(viewer));
 
@@ -279,6 +373,7 @@ final class TabList {
         boolean quiet = List.of("%phase_line%", "%event_line%", "%king_line%", "%conquest_line%", "%timer_1%")
                 .stream().allMatch(key -> out.value(key).isEmpty());
         out.with("%no_event_line%", quiet ? lang.get(UiMessages.TAB_NO_EVENT) : "");
+        return members;
     }
 
     /** Online first, then by rank, then by name. */
