@@ -16,9 +16,16 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
                               DisabledIn disabledIn, List<Ability> abilities,
                               String pocketBardTitle, int pocketBardSize, List<PocketBardItem> pocketBard) {
 
-    /** Where abilities are refused. */
+    /**
+     * Where abilities are refused.
+     *
+     * @param eventTerritory the land of any event - its server team's claims
+     *                       ({@code /events claim}) - at all times, running or not,
+     *                       as on a safe zone; an event may say otherwise with its
+     *                       own {@code disable-abilities} key in {@code events.yml}
+     */
     public record DisabledIn(boolean safezone, boolean citadel, boolean events, boolean nether, boolean end,
-                             boolean warzone) {
+                             boolean warzone, boolean eventTerritory) {
     }
 
     public AbilitySettings {
@@ -30,7 +37,7 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
     }
 
     public static AbilitySettings defaults() {
-        return new AbilitySettings(true, 10, 10, "{primary}&lAbilities", new DisabledIn(true, true, true, true, true, false),
+        return new AbilitySettings(true, 10, 10, "{primary}&lAbilities", new DisabledIn(true, true, true, true, true, false, true),
                 List.of(), "{primary}&lPocket Bard", 27, List.of());
     }
 

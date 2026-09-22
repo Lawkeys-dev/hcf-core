@@ -52,6 +52,10 @@ global:
     nether: true
     end: true
     warzone: false
+    # The territory of every event - the land of its server team, drawn with
+    # /events claim - at all times, running or not, as on a safe zone. One event
+    # can say otherwise with "disable-abilities: true|false" in events.yml.
+    event-territory: true
 # --8<-- [end:global]
 
 abilities:

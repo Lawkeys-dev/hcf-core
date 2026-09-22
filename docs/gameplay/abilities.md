@@ -17,7 +17,7 @@ A partner item is an item that **does something when it is used**: right-clicked
 ```
 
 - **Two cooldowns**: each ability's own (`cooldown-seconds`), and a **shared one** after any ability — 10 seconds before the next, whichever it is. The Pocket Bard itself takes no part in it — the items it gives do.
-- **Where no ability works**: a safe zone (spawn), a Citadel's claim, the zone of a running KOTH, Citadel or Conquest, the Nether, the End — and the warzone if you switch it on.
+- **Where no ability works**: a safe zone (spawn), a Citadel's claim, **the territory of any event** (its land, drawn with `/events claim`, running or not — an event can allow them with `disable-abilities: false`), the zone of a running KOTH, Citadel or Conquest, the Nether, the End — and the warzone if you switch it on.
 - **An enemy is only reached if you could hit them**: never a teammate, nobody on a safe zone, nobody during SOTW, an ally only in an event area — the rules of a blow ([Combat](combat.md)). A teleport to a player who has since stepped onto a safe zone is cancelled.
 - **Nothing is spent on a refusal**: on cooldown, in a refused zone, no target — the item stays, and no cooldown starts.
 - An ability item is never placed as a block — a Crafting Chaos stays a crafting table in hand.

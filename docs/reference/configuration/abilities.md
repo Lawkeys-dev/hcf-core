@@ -23,6 +23,7 @@ Every example on this page is **taken from the shipped `abilities.yml`**. Change
 | `global.disabled-in.events` | `true` | No ability in the zone of a running KOTH, Citadel or Conquest |
 | `global.disabled-in.nether` · `end` | `true` | No ability in the Nether, the End |
 | `global.disabled-in.warzone` | `false` | No ability in the warzone |
+| `global.disabled-in.event-territory` | `true` | No ability on the territory of any event — the land of its server team, [`/events claim`](../../gameplay/events.md#setting-up-an-event-in-game) — at all times, running or not, as on a safe zone. An event decides for its own land with `disable-abilities: true` or `false` in `events.yml` |
 
 ## An ability
 

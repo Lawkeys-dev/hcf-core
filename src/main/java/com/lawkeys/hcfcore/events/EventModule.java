@@ -101,6 +101,9 @@ public final class EventModule {
     private volatile int setupClaimMargin = 10;
     private volatile int setupZoneHeight = 10;
     private volatile int setupTargetDistance = 10;
+    /** Which server teams are events' land, and what each event says of abilities there. */
+    private volatile com.lawkeys.hcfcore.events.setup.EventTerritories territories =
+            com.lawkeys.hcfcore.events.setup.EventTerritories.none();
     private static final DateTimeFormatter HOLOGRAM_TIME = DateTimeFormatter.ofPattern("HH:mm");
     private EventManager manager;
     private KingEventController king;
@@ -481,6 +484,51 @@ public final class EventModule {
     }
 
     /**
+     * Answers {@code ability/}: abilities are refused on an event's territory - the
+     * land of the server team its {@code claim} names, or of one named after it - at
+     * all times, as on a safe zone.
+     *
+     * @param byDefault {@code abilities.yml}'s {@code disabled-in.event-territory},
+     *                  for an event that says nothing itself ({@code disable-abilities})
+     */
+    public boolean abilitiesRefusedOnTerritory(Location location, boolean byDefault) {
+        if (location == null || location.getWorld() == null || claims == null || claims.getManager() == null) {
+            return false;
+        }
+        return claims.ownerAt(location)
+                .filter(team -> team.getType().isSystem())
+                .map(team -> territories.abilitiesRefused(team.getName(), byDefault))
+                .orElse(false);
+    }
+
+    /** Reads every event's territory team and its {@code disable-abilities}, from events.yml itself. */
+    private com.lawkeys.hcfcore.events.setup.EventTerritories readTerritories(ConfigurationSection file) {
+        List<com.lawkeys.hcfcore.events.setup.EventTerritories.Declared> declared = new ArrayList<>();
+        if (file == null) {
+            return com.lawkeys.hcfcore.events.setup.EventTerritories.none();
+        }
+        int maxName = teams.getSettings().names().maxLength();
+        for (String sectionName : com.lawkeys.hcfcore.events.setup.EventKind.sections()) {
+            ConfigurationSection section = file.getConfigurationSection(sectionName);
+            if (section == null || sectionName.equals("kill-the-king")) {
+                continue;
+            }
+            for (String id : section.getKeys(false)) {
+                ConfigurationSection entry = section.getConfigurationSection(id);
+                if (entry == null) {
+                    continue;
+                }
+                String claim = entry.getString("claim", "");
+                String team = claim == null || claim.isBlank()
+                        ? com.lawkeys.hcfcore.events.setup.TerritoryNames.forEvent(id, maxName) : claim.trim();
+                Boolean disable = entry.isBoolean("disable-abilities") ? entry.getBoolean("disable-abilities") : null;
+                declared.add(new com.lawkeys.hcfcore.events.setup.EventTerritories.Declared(id, team, disable));
+            }
+        }
+        return com.lawkeys.hcfcore.events.setup.EventTerritories.of(declared);
+    }
+
+    /**
      * @return the Citadel whose claim this location stands on: the land of the server
      *         team a {@code citadels:} entry names. Its rules hold at all times, whether
      *         the event runs or not
@@ -633,6 +681,7 @@ public final class EventModule {
             slide.getSettings().definitions().forEach(definition -> taken.add(definition.id().toLowerCase(java.util.Locale.ROOT)));
             totem.applySettings(TotemSettingsLoader.load(file, settings, taken, warn), settings.tickSeconds());
         }
+        this.territories = readTerritories(file);
         planning.applySettings(com.lawkeys.hcfcore.events.planning.PlanningController.load(
                 file == null ? null : file.getConfigurationSection("weekly-schedule"), warn));
         if (manager != null) {

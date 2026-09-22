@@ -4,7 +4,7 @@ Capture events: KOTHs, Citadels (a zone to hold inside a claimed Citadel with it
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/events.md)
 
-Every example on this page is **taken from the shipped `events.yml`**. Changes apply with `/hcf reload`. Event ids are shared by every kind — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break, Slide, Totem — and must be unique across the file. Any event with land may name its server team in a `claim` key: `/events delete` releases that team's land with the event.
+Every example on this page is **taken from the shipped `events.yml`**. Changes apply with `/hcf reload`. Event ids are shared by every kind — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break, Slide, Totem — and must be unique across the file. Any event with land may name its server team in a `claim` key: `/events delete` releases that team's land with the event. It may also say `disable-abilities: true` or `false`: whether partner items work on its land, overriding `disabled-in.event-territory` in [`abilities.yml`](abilities.md) (absent: that setting decides).
 
 !!! info "Every event can be set up in game"
     `/events create`, `claim`, `setzone`, `delzone`, `setblock` and `delete` write into the sections below for you, whatever the kind of event — the only commands in the plugin that ever rewrite a configuration file. See the [guide](../../gameplay/events.md#setting-up-an-event-in-game).

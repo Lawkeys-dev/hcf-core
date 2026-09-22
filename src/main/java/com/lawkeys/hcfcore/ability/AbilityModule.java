@@ -473,6 +473,9 @@ public final class AbilityModule {
         if (events != null && rules.citadel() && events.citadelAt(location).isPresent()) {
             return true;
         }
+        if (events != null && events.abilitiesRefusedOnTerritory(location, rules.eventTerritory())) {
+            return true;
+        }
         return events != null && rules.events() && events.inEventZone(location);
     }
 

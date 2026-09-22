@@ -56,7 +56,8 @@ public final class AbilityConfig {
                 bool(disabled.get("events"), d.events(), "global.disabled-in.events"),
                 bool(disabled.get("nether"), d.nether(), "global.disabled-in.nether"),
                 bool(disabled.get("end"), d.end(), "global.disabled-in.end"),
-                bool(disabled.get("warzone"), d.warzone(), "global.disabled-in.warzone"));
+                bool(disabled.get("warzone"), d.warzone(), "global.disabled-in.warzone"),
+                bool(disabled.get("event-territory"), d.eventTerritory(), "global.disabled-in.event-territory"));
 
         List<Ability> abilities = new ArrayList<>();
         map(root.get("abilities"), "abilities").forEach((key, value) -> {
