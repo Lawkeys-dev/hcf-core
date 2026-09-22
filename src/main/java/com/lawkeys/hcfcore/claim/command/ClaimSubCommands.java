@@ -527,8 +527,8 @@ public final class ClaimSubCommands {
 
         protected final ClaimModule claims;
 
-        StaffClaimSubCommand(ClaimModule claims, String name, String usage, String description) {
-            super(name, Set.of(), ADMIN_PERMISSION, usage, description, true, 1);
+        StaffClaimSubCommand(ClaimModule claims, String name, String usage, String description, boolean playerOnly) {
+            super(name, Set.of(), ADMIN_PERMISSION, usage, description, playerOnly, 1);
             this.claims = claims;
         }
 
@@ -540,11 +540,11 @@ public final class ClaimSubCommands {
             }
             Optional<Team> team = requireTeamByName(module, sender, args[0]);
             if (team.isPresent()) {
-                run(module, (Player) sender, team.get(), args);
+                run(module, sender, team.get(), args);
             }
         }
 
-        abstract void run(TeamModule module, Player player, Team team, String[] args);
+        abstract void run(TeamModule module, CommandSender sender, Team team, String[] args);
 
         @Override
         public List<String> tabComplete(TeamModule module, CommandSender sender, String[] args) {
@@ -574,12 +574,46 @@ public final class ClaimSubCommands {
     private static final class ForceClaim extends StaffClaimSubCommand {
 
         ForceClaim(ClaimModule claims) {
-            super(claims, "forceclaim", "<team>", "Draw a claim for any team, server teams included");
+            super(claims, "forceclaim", "<team> [x1 z1 x2 z2 [world]]",
+                    "Draw a claim for any team, or give its corners", false);
         }
 
+        /**
+         * With coordinates - {@code <x1> <z1> <x2> <z2> [world]} - the rectangle is claimed
+         * at once, with no wand: from the console too, which has no hand to hold one, so
+         * server land can be laid out by a script. The world defaults to the sender's.
+         */
         @Override
-        void run(TeamModule module, Player player, Team team, String[] args) {
-            claims.getWandSessions().give(player, new TeamClaimTask(claims, team.getId(), true));
+        void run(TeamModule module, CommandSender sender, Team team, String[] args) {
+            if (args.length == 1) {
+                if (!(sender instanceof Player player)) {
+                    module.getLang().send(sender, ClaimMessages.FORCECLAIM_USAGE);
+                    return;
+                }
+                claims.getWandSessions().give(player, new TeamClaimTask(claims, team.getId(), true));
+                return;
+            }
+            if (args.length < 5) {
+                module.getLang().send(sender, ClaimMessages.FORCECLAIM_USAGE);
+                return;
+            }
+            int[] corners = new int[4];
+            for (int i = 0; i < 4; i++) {
+                try {
+                    corners[i] = Integer.parseInt(args[i + 1]);
+                } catch (NumberFormatException e) {
+                    module.getLang().send(sender, ClaimMessages.FORCECLAIM_USAGE);
+                    return;
+                }
+            }
+            String world = args.length > 5 ? args[5]
+                    : sender instanceof Player player ? player.getWorld().getName() : null;
+            if (world == null) {
+                module.getLang().send(sender, ClaimMessages.FORCECLAIM_USAGE);
+                return;
+            }
+            report(module, sender, claims.getManager().claim(team, null, world,
+                    corners[0], corners[1], corners[2], corners[3]));
         }
     }
 
@@ -587,11 +621,11 @@ public final class ClaimSubCommands {
     private static final class ForceUnclaim extends StaffClaimSubCommand {
 
         ForceUnclaim(ClaimModule claims) {
-            super(claims, "forceunclaim", "<team> [all]", "Release a team's claim here, or all its land");
+            super(claims, "forceunclaim", "<team> [all]", "Release a team's claim here, or all its land", false);
         }
 
         @Override
-        void run(TeamModule module, Player player, Team team, String[] args) {
+        void run(TeamModule module, CommandSender player, Team team, String[] args) {
             ClaimManager manager = claims.getManager();
             if (args.length > 1 && args[1].equalsIgnoreCase("all")) {
                 TeamResult result = manager.unclaimAll(team, null);
@@ -603,7 +637,11 @@ public final class ClaimSubCommands {
                         "team", team.getName(), "count", result.getPlaceholders().getOrDefault("count", "0"));
                 return;
             }
-            org.bukkit.Location at = player.getLocation();
+            if (!(player instanceof Player standing)) {
+                module.getLang().send(player, ClaimMessages.FORCEUNCLAIM_CONSOLE);
+                return;
+            }
+            org.bukkit.Location at = standing.getLocation();
             TeamResult result = manager.unclaim(team, null, at.getWorld().getName(), at.getBlockX(), at.getBlockZ());
             if (!result.isSuccess()) {
                 report(module, player, result);

@@ -52,7 +52,7 @@ Spawn is a *server team* marked as a safe zone: nobody fights on it, no player t
     /team forceclaim Spawn
     ```
 
-    Left-click one corner, right-click the opposite one, then sneak and left-click: the rectangle between them, full height, is Spawn's — free, and as large as you like. Run it again to add another rectangle. `/team forceunclaim Spawn` releases the claim you stand in, `/team forceunclaim Spawn all` everything.
+    Left-click one corner, right-click the opposite one, then sneak and left-click: the rectangle between them, full height, is Spawn's — free, and as large as you like. Run it again to add another rectangle. Or give the corners, from the console too: `/team forceclaim Spawn -50 -50 50 50 world`. `/team forceunclaim Spawn` releases the claim you stand in, `/team forceunclaim Spawn all` everything.
 
 3. Set the world's spawn point with the vanilla `/setworldspawn`: that is where `/spawn` sends players (`general.yml` can point it at another world).
 

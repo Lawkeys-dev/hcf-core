@@ -272,6 +272,8 @@ claim:
 
   admin:
     unclaimed: "{success}Released %claim% from {secondary}%team%{success}."
+    forceclaim-usage: "{error}/team forceclaim <team> {muted}for the wand, or {error}/team forceclaim <team> <x1> <z1> <x2> <z2> [world] {muted}- the world is required from the console."
+    forceunclaim-console: "{error}From the console, only {secondary}/team forceunclaim <team> all{error}: there is nowhere you stand."
     unclaimed-all: "{success}Released all {secondary}%count% {success}claim(s) of {secondary}%team%{success}."
 
   unclaim:

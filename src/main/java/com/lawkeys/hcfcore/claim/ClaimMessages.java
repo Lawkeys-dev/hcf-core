@@ -39,6 +39,8 @@ public final class ClaimMessages {
 
     // Staff claiming for any team - server land, typically
     public static final String ADMIN_UNCLAIMED = "claim.admin.unclaimed";
+    public static final String FORCECLAIM_USAGE = "claim.admin.forceclaim-usage";
+    public static final String FORCEUNCLAIM_CONSOLE = "claim.admin.forceunclaim-console";
     public static final String ADMIN_UNCLAIMED_ALL = "claim.admin.unclaimed-all";
 
     // Unclaiming

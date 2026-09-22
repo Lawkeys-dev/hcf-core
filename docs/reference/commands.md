@@ -53,6 +53,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `createsystem <name> <safe\|combat>` | Create a server team — a safe zone like spawn, or a combat zone like a road | `hcfcore.team.admin` |
 | `setzone <team> <safe\|combat>` | Switch a server team between the two | `hcfcore.team.admin` |
 | `forceclaim <team>` | The claiming wand for any team, server teams included: free, and outside the size and placement rules; never over anybody's land | `hcfcore.claim.admin` |
+| `forceclaim <team> <x1> <z1> <x2> <z2> [world]` | The same rectangle claimed at once, by its corners — from the console too, where the world is required: server land laid out by a script | `hcfcore.claim.admin` |
 | `forceunclaim <team> [all]` | Release that team's claim you stand in, or all its land; no refund | `hcfcore.claim.admin` |
 | `forcedisband <team>` | Disband any team | `hcfcore.team.admin` |
 | `forcejoin <player> <team>` | Put a player in a team without an invite (the member cap still applies) | `hcfcore.team.admin` |
