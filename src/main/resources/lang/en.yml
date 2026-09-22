@@ -732,6 +732,11 @@ events:
     empty: "{muted}No event is planned in the next seven days."
     disabled: "{warning}The weekly schedule is off {muted}(events.yml, weekly-schedule) - only the events' daily times run."
     soon: "{prefix}%event% {muted}starts in {secondary}%time%{muted}."
+    # /schedule as a window (events.yml, weekly-schedule.menu): one item per day.
+    menu-title: "Event schedule"
+    menu-day: "%day% {muted}%date% {dark}(%count%)"
+    menu-entry: "{muted}%time% {dark}{bullet} %event%"
+    menu-day-empty: "{dark}Nothing planned"
     usage: "{error}Usage: {secondary}/schedule {muted}| {secondary}/schedule add <day> <HH:mm> <event> {muted}| {secondary}/schedule remove <day> <HH:mm> [event]"
     invalid-day: "{error}'%day%' is not a day of the week."
     invalid-time: "{error}'%time%' is not a time {muted}- HH:mm, like 18:00."

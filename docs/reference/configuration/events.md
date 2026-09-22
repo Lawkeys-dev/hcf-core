@@ -39,6 +39,8 @@ Which event starts at what time on which day, every week — see the [guide](../
 | `enabled` | `true` | Whether the plugin starts the weekly starts; `/schedule` lists them either way |
 | `announce-before-minutes` | `[15, 5, 1]` | Minutes before every start, weekly or daily, to announce it |
 | `days.<day>` | `[]` | `"HH:mm <event id>"` entries, read in `time-zone`. A day is `monday`...`sunday`, or its first three letters |
+| `menu.enabled` | `true` | `/schedule` opens a window, one item per day of the week ahead; `false` prints the list in the chat, as `/schedule chat` always does |
+| `menu.today-material` · `day-material` · `empty-material` | `CLOCK` · `PAPER` · `GRAY_DYE` | The item standing for today, for a day with events, and for a day with none |
 
 ## Zone holograms
 

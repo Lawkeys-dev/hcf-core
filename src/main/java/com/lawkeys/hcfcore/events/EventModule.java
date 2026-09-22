@@ -374,6 +374,8 @@ public final class EventModule {
 
         registerCommand("events", new EventsCommand(this));
         registerCommand("schedule", new com.lawkeys.hcfcore.events.planning.ScheduleCommand(this));
+        plugin.getServer().getPluginManager()
+                .registerEvents(new com.lawkeys.hcfcore.events.planning.ScheduleMenu.Clicks(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new CitadelListener(this), plugin);
 
         if (settings.definitions().isEmpty()) {

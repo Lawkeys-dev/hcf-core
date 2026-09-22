@@ -37,6 +37,11 @@ public final class ScheduleCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         String action = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
+        if (action.isEmpty() && sender instanceof org.bukkit.entity.Player player
+                && module.getPlanning().getSettings().menu().enabled()) {
+            ScheduleMenu.open(module, player);
+            return true;
+        }
         if (action.equals("add") || action.equals("remove")) {
             if (!sender.hasPermission(EventModule.ADMIN_PERMISSION)) {
                 module.getLang().send(sender, "general.no-permission");
@@ -220,7 +225,7 @@ public final class ScheduleCommand implements TabExecutor {
         List<String> options = new ArrayList<>();
         String action = args[0].toLowerCase(Locale.ROOT);
         if (args.length == 1) {
-            options.addAll(List.of("add", "remove"));
+            options.addAll(List.of("chat", "add", "remove"));
         } else if (args.length == 2 && (action.equals("add") || action.equals("remove"))) {
             for (DayOfWeek day : DayOfWeek.values()) {
                 options.add(day.name().toLowerCase(Locale.ROOT));

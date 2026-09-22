@@ -90,10 +90,13 @@ public record PvpSettings(
     }
 
     /**
-     * @param enabled disable PvP inside server-owned (system) team territory - the
-     *                spawn and warzone safe zones of FEATURES.md section 4
+     * @param enabled  disable PvP inside server-owned (system) team territory - the
+     *                 spawn and warzone safe zones of FEATURES.md section 4
+     * @param noDamage no damage of any kind on safe-zone land - fall, fire, drowning,
+     *                 a mob - not only no PvP
+     * @param keepFed  hunger never drops there, and is filled back up on arrival
      */
-    public record SafeZoneRules(boolean enabled) {
+    public record SafeZoneRules(boolean enabled, boolean noDamage, boolean keepFed) {
     }
 
     /**
@@ -185,7 +188,7 @@ public record PvpSettings(
                 new StrengthRules(true, 3.0, 1.5),
                 new KnockbackRules(false, 1.0, 1.0),
                 new AttackSpeedRules(false, 4.0),
-                new SafeZoneRules(true),
+                new SafeZoneRules(true, true, true),
                 new LootProtectionRules(true, 10L, true),
                 new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS),
                 new EnderPearlRules(true, 15L, true, true, true),

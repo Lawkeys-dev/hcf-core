@@ -171,8 +171,15 @@ safe-zones:
   #   wand to draw its land (again later: /team forceclaim <name>),
   # and /team setzone <name> <safe|combat> switches one later. An event's
   # territory is a combat zone made by /events create or /events claim.
-  # Turning this off makes every server team fightable, whatever its kind.
+  # Turning this off makes every server team fightable, whatever its kind - and
+  # takes the two rules below with it.
   enabled: true
+  # No damage of ANY kind on safe-zone land: a fall, fire, drowning, suffocation,
+  # a mob, a cactus. Spawn is where players sort themselves out between fights.
+  no-damage: true
+  # Hunger never drops there, and is filled back up when a player walks, teleports
+  # or logs in on safe-zone land.
+  keep-fed: true
 # --8<-- [end:safe-zones]
 
 # --8<-- [start:loot-protection]

@@ -218,6 +218,9 @@ public final class PvpSettingsLoader {
         if (section == null) {
             return defaults;
         }
-        return new PvpSettings.SafeZoneRules(section.getBoolean("enabled", defaults.enabled()));
+        return new PvpSettings.SafeZoneRules(
+                section.getBoolean("enabled", defaults.enabled()),
+                section.getBoolean("no-damage", defaults.noDamage()),
+                section.getBoolean("keep-fed", defaults.keepFed()));
     }
 }

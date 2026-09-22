@@ -201,7 +201,7 @@ The scoreboard shows `%totem_line%`: the team on its way and how many blocks it 
 
 ## The weekly schedule
 
-`/schedule` (`/planning`) lists every event start of the next seven days, day by day — for everybody. It merges two sources:
+`/schedule` (`/planning`) shows every event start of the next seven days — for everybody — as a **window**: one item per day, holding that day's events hour by hour. `/schedule chat` prints the same as a list, and `weekly-schedule.menu.enabled: false` makes the list the default. It merges two sources:
 
 - each event's own **daily** times, its `schedule` key — the same every day;
 - the **weekly schedule**, `weekly-schedule` in `events.yml`: which event starts at what time on which day of the week. The plugin starts them itself, exactly as `/events start` would.

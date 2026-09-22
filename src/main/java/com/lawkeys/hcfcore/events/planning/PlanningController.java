@@ -24,16 +24,38 @@ import java.util.function.Consumer;
  */
 public final class PlanningController {
 
+    /**
+     * {@code weekly-schedule.menu:} - {@code /schedule} as a window rather than a
+     * list in the chat.
+     *
+     * @param todayMaterial the item standing for today, then a day with events, then
+     *                      a day with none
+     */
+    public record MenuRules(boolean enabled, String todayMaterial, String dayMaterial, String emptyMaterial) {
+
+        public MenuRules {
+            Objects.requireNonNull(todayMaterial, "todayMaterial");
+            Objects.requireNonNull(dayMaterial, "dayMaterial");
+            Objects.requireNonNull(emptyMaterial, "emptyMaterial");
+        }
+
+        public static MenuRules defaults() {
+            return new MenuRules(true, "CLOCK", "PAPER", "GRAY_DYE");
+        }
+    }
+
     /** {@code weekly-schedule:} in {@code events.yml}. */
-    public record Settings(boolean enabled, List<Integer> announceBeforeMinutes, WeeklySchedule schedule) {
+    public record Settings(boolean enabled, List<Integer> announceBeforeMinutes, WeeklySchedule schedule,
+                           MenuRules menu) {
 
         public Settings {
             announceBeforeMinutes = List.copyOf(announceBeforeMinutes);
             Objects.requireNonNull(schedule, "schedule");
+            Objects.requireNonNull(menu, "menu");
         }
 
         public static Settings defaults() {
-            return new Settings(true, List.of(15, 5, 1), WeeklySchedule.empty());
+            return new Settings(true, List.of(15, 5, 1), WeeklySchedule.empty(), MenuRules.defaults());
         }
     }
 
@@ -70,9 +92,15 @@ public final class PlanningController {
                 days.put(day, daySection.getStringList(day));
             }
         }
+        ConfigurationSection menu = section.getConfigurationSection("menu");
+        MenuRules menuRules = menu == null ? MenuRules.defaults() : new MenuRules(
+                menu.getBoolean("enabled", MenuRules.defaults().enabled()),
+                menu.getString("today-material", MenuRules.defaults().todayMaterial()),
+                menu.getString("day-material", MenuRules.defaults().dayMaterial()),
+                menu.getString("empty-material", MenuRules.defaults().emptyMaterial()));
         return new Settings(section.getBoolean("enabled", true),
                 section.contains("announce-before-minutes") ? before : Settings.defaults().announceBeforeMinutes(),
-                WeeklySchedule.parse(days, warn));
+                WeeklySchedule.parse(days, warn), menuRules);
     }
 
     /** Takes new settings and warns about planned events that do not exist. */

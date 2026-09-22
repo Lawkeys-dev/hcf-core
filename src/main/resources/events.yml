@@ -105,6 +105,15 @@ weekly-schedule:
   enabled: true
   # Minutes before every start - weekly or daily - to announce it. [] for none.
   announce-before-minutes: [15, 5, 1]
+  # /schedule as a window rather than a list in the chat: one item per day of the
+  # week ahead. /schedule chat asks for the list either way, and the console
+  # always gets it.
+  menu:
+    enabled: true
+    today-material: CLOCK
+    day-material: PAPER
+    empty-material: GRAY_DYE
+
   # Shipped empty: the example events are not on your map yet. For instance:
   #   friday: ["20:00 koth"]
   #   saturday: ["18:00 conquest", "21:00 citadel"]

@@ -107,7 +107,11 @@ An item is used when it is eaten, or — a totem — when it saves its holder. T
 --8<-- "src/main/resources/pvp.yml:safe-zones"
 ```
 
-`enabled: false` makes every server team fightable, whatever its kind.
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | No PvP on the land of a **safe** server team. `false` makes every server team fightable, whatever its kind — and takes the two below with it |
+| `no-damage` | `true` | No damage of any kind there: a fall, fire, drowning, suffocation, a mob, a cactus |
+| `keep-fed` | `true` | Hunger never drops there, and is filled back up when a player walks, teleports or logs in on safe-zone land |
 
 ## Loot protection
 

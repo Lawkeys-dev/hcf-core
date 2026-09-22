@@ -402,6 +402,8 @@ public final class PvpModule {
         }
 
         plugin.getServer().getPluginManager().registerEvents(new CombatListener(this), plugin);
+        plugin.getServer().getPluginManager()
+                .registerEvents(new com.lawkeys.hcfcore.pvp.listener.SafeZoneListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new DeathbanListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new AttackSpeedListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new LootProtectionListener(this), plugin);

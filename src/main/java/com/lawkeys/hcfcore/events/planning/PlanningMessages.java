@@ -15,6 +15,10 @@ public final class PlanningMessages {
     public static final String EMPTY = "events.planning.empty";
     public static final String DISABLED = "events.planning.disabled";
     public static final String SOON = "events.planning.soon";
+    public static final String MENU_TITLE = "events.planning.menu-title";
+    public static final String MENU_DAY = "events.planning.menu-day";
+    public static final String MENU_ENTRY = "events.planning.menu-entry";
+    public static final String MENU_DAY_EMPTY = "events.planning.menu-day-empty";
     public static final String USAGE = "events.planning.usage";
     public static final String INVALID_DAY = "events.planning.invalid-day";
     public static final String INVALID_TIME = "events.planning.invalid-time";
