@@ -35,10 +35,11 @@ waypoints:
   focus: true       # a focused player, where they are; a focused team's HQ
   events: true      # every running event: KOTH and Citadel zones, Conquest zones,
                     # a DTC or Last Break core, a Slide zone, a Totem, the King
-  # How far above the event itself its waypoint is put, in blocks (0 to 320): a
-  # beam starting on the floor of a zone is lost behind the landscape. The King's
-  # follows the player and is never raised.
-  event-height: 60
+  # How far above the event itself its waypoint is put, in blocks (0 to 320).
+  # 0 puts it on the objective - the core, the column, the floor of the zone -
+  # which is where the beam should start. The King's follows the player and is
+  # never raised.
+  event-height: 0
   colors:
     hq: "#55FF55"
     base: "#00AA00"
