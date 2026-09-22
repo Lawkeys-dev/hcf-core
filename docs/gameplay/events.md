@@ -224,7 +224,7 @@ If a DTC or Last Break's core is not on a **system team's claim**, staff are war
 
 ```text
 /team createsystem <name> combat
-/team forceclaim <name> <radius>
+/team forceclaim <name>          # then draw the land with the wand
 ```
 
 ## Zone holograms

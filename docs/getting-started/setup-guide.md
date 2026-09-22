@@ -101,7 +101,7 @@ In `events.yml`, each event under `events:` is a zone — a `world` and two corn
 
 It ships with no `schedule`: give it daily times, for instance `schedule: ["18:00", "21:00"]`.
 
-Stand at each corner and read your coordinates with ++f3++. A **Citadel** (`citadels:` section) is a longer KOTH whose zone stands inside a claimed Citadel that refuses pearls, partner items, chorus fruit, elytra and Riptide: create its land with `/team createsystem Citadel combat` and `/team forceclaim Citadel <radius>` around the zone ([Capture events](../gameplay/events.md#citadel)). A **Conquest** (`conquest:` section) is several zones held at once for points; **Kill the King** (`kill-the-king:` section) needs the warzone of its world, and a world without a bedrock ceiling — not the Nether.
+Stand at each corner and read your coordinates with ++f3++. A **Citadel** (`citadels:` section) is a longer KOTH whose zone stands inside a claimed Citadel that refuses pearls, partner items, chorus fruit, elytra and Riptide: create its land with `/team createsystem Citadel combat` and `/team forceclaim Citadel` (then draw it with the wand) around the zone ([Capture events](../gameplay/events.md#citadel)). A **Conquest** (`conquest:` section) is several zones held at once for points; **Kill the King** (`kill-the-king:` section) needs the warzone of its world, and a world without a bedrock ceiling — not the Nether.
 
 Try each one with `/events start <id>` and stop it with `/events stop <id>`. `/events` lists what runs and what is coming.
 
@@ -118,7 +118,7 @@ Claim around a DTC or Last Break's core, the same way as a Citadel — the core 
 
 ```text
 /team createsystem Arena combat
-/team forceclaim Arena <radius>
+/team forceclaim Arena          # then draw the land with the wand
 ```
 
 See [Capture events](../gameplay/events.md#setting-up-dtc-last-break-slide-and-totem-in-game) for the full walkthrough.

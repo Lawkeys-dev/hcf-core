@@ -96,7 +96,7 @@ The world is on Peaceful: the game heals everybody there, whatever the plugin do
 Anyone of another team in the zone freezes the countdown — allies included, and, by default, players with no team (`teamless-players-contest`).
 
 **Pearls or partner items still work in the Citadel.**
-The restrictions hold on the land of the server team named by the Citadel's `claim` in `events.yml`: create it (`/team createsystem Citadel combat`) and claim the area (`/team forceclaim Citadel <radius>`). `/team here` shows who owns the chunk you stand in. The console warns when a Citadel starts without its claim. A Citadel written under `events:` rather than `citadels:` — as in files from before Citadels had a section of their own — is a plain KOTH with no restrictions: move it.
+The restrictions hold on the land of the server team named by the Citadel's `claim` in `events.yml`: create it (`/team createsystem Citadel combat`) and claim the area (`/team forceclaim Citadel` (then draw it with the wand)). `/team here` shows who owns the chunk you stand in. The console warns when a Citadel starts without its claim. A Citadel written under `events:` rather than `citadels:` — as in files from before Citadels had a section of their own — is a plain KOTH with no restrictions: move it.
 
 **The King's coordinates are not on the scoreboard.**
 They are the `%king_location_line%` row of `ui.yml`, added after `%king_line%` in the shipped file. A `ui.yml` written before it does not have the row: add it. The chat gives the position and the King's health once a minute (`announce-interval-seconds` in `events.yml`).

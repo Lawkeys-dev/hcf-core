@@ -68,8 +68,8 @@ team:
   # --- Lifecycle ---------------------------------------------------------
   # --- Server (system) teams: safe zones and combat zones -------------------
   system:
-    created-safe: "{success}Server team {secondary}%team% {success}created as a {secondary}safe zone {success}(no PvP while pvp.yml's safe-zones is on). Give it land with {secondary}/team forceclaim %team% [radius]{success}."
-    created-combat: "{success}Server team {secondary}%team% {success}created as a {secondary}combat zone {success}(PvP on). Give it land with {secondary}/team forceclaim %team% [radius]{success}."
+    created-safe: "{success}Server team {secondary}%team% {success}created as a {secondary}safe zone {success}(no PvP while pvp.yml's safe-zones is on). Give it land with {secondary}/team forceclaim %team%{success}."
+    created-combat: "{success}Server team {secondary}%team% {success}created as a {secondary}combat zone {success}(PvP on). Give it land with {secondary}/team forceclaim %team%{success}."
     zone-safe: "{secondary}%team% {success}is now a {secondary}safe zone{success}: nobody can be attacked on its land while pvp.yml's safe-zones is on."
     zone-combat: "{secondary}%team% {success}is now a {secondary}combat zone{success}: players can fight on its land."
     invalid-zone: "{error}'%input%' is not a zone kind - use safe or combat."
