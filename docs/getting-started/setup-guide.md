@@ -48,6 +48,8 @@ Spawn is a *server team* marked as a safe zone: nobody fights on it, no player t
 
 2. Draw its land with the claiming wand:
 
+    The command has just handed you the claiming wand (a golden hoe); to get it again later:
+
     ```text
     /team forceclaim Spawn
     ```
@@ -81,8 +83,7 @@ The radius is in blocks from the centre (0, 0 unless you set `center-x` / `cente
 A road, or an event area you want protected from building but open to fighting, is a *combat* server team:
 
 ```text
-/team createsystem North_Road combat
-/team forceclaim North_Road
+/team createsystem North_Road combat    # hands over the claiming wand
 ```
 
 Draw it with the wand, as long and narrow as it is — staff claims follow no size rule. `/team setzone <team> <safe|combat>` switches an existing server team.
@@ -101,27 +102,23 @@ In `events.yml`, each event under `events:` is a zone — a `world` and two corn
 
 It ships with no `schedule`: give it daily times, for instance `schedule: ["18:00", "21:00"]`.
 
-Stand at each corner and read your coordinates with ++f3++. A **Citadel** (`citadels:` section) is a longer KOTH whose zone stands inside a claimed Citadel that refuses pearls, partner items, chorus fruit, elytra and Riptide: create its land with `/team createsystem Citadel combat` and `/team forceclaim Citadel` (then draw it with the wand) around the zone ([Capture events](../gameplay/events.md#citadel)). A **Conquest** (`conquest:` section) is several zones held at once for points; **Kill the King** (`kill-the-king:` section) needs the warzone of its world, and a world without a bedrock ceiling — not the Nether.
+Stand at each corner and read your coordinates with ++f3++. A **Citadel** (`citadels:` section) is a longer KOTH whose zone stands inside a claimed Citadel that refuses pearls, partner items, chorus fruit, elytra and Riptide: draw its land around the zone with `/events claim citadel` ([Capture events](../gameplay/events.md#citadel)). A **Conquest** (`conquest:` section) is several zones held at once for points; **Kill the King** (`kill-the-king:` section) needs the warzone of its world, and a world without a bedrock ceiling — not the Nether.
 
 Try each one with `/events start <id>` and stop it with `/events stop <id>`. `/events` lists what runs and what is coming.
 
-**DTC, Last Break, Slide and Totem** (`dtc:`, `last-break:`, `slide:` and `totem:` sections) don't need `events.yml` edited by hand — lay them out in-game instead:
+**Or create your events in game**, whatever their kind, rather than editing `events.yml`: stand where the event should be and type
 
 ```text
-/events create dtc arena          # a zone centred on you, and (for DTC/Last Break) a core on the same spot
-/events setzone arena 1           # move a corner to where you stand
-/events setzone arena 2
-/events setcore arena             # move the core to the obsidian block you are looking at
+/events create koth north         # koth, citadel, ktk, conquest, dtc, lastbreak, slide, totem, minitotem
+/events info north                # what it has and lacks, with the command for each
+/events claim north               # redraw its territory with the wand
+/events setzone north             # redraw its zone with the wand
+/events setblock north            # DTC, Last Break, Totem: the core or column, on the block you look at
 ```
 
-Claim around a DTC or Last Break's core, the same way as a Citadel — the core is **permanent**, and staff are warned in the console and in chat if it is not on a system team's claim:
+`create` copies the shipped example of that kind to where you stand, makes its server team and claims its territory around it — server land, protected like spawn but fought on.
 
-```text
-/team createsystem Arena combat
-/team forceclaim Arena          # then draw the land with the wand
-```
-
-See [Capture events](../gameplay/events.md#setting-up-dtc-last-break-slide-and-totem-in-game) for the full walkthrough.
+See [Capture events](../gameplay/events.md#setting-up-an-event-in-game) for the full walkthrough.
 
 Reward commands run from the console. KOTH, Citadel, Conquest, DTC, Last Break, Slide and Totem rewards know `%team%` and `%event%` (a win belongs to a team, so there is no `%player%`); Kill the King's know `%player%` and `%event%`. See [Capture events](../gameplay/events.md).
 

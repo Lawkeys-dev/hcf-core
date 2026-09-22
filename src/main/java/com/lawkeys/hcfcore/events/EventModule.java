@@ -96,10 +96,11 @@ public final class EventModule {
     /** {@code zone-holograms} in events.yml. */
     private volatile boolean zoneHolograms = true;
     private volatile double zoneHologramHeight = 3.0;
-    /** {@code setup:} in events.yml - defaults used by {@code /events create} and {@code /events setcore}. */
-    private volatile int setupZoneRadius = 10;
+    /** {@code setup:} in events.yml - what the {@code /events} setup commands do by default. */
+    private volatile boolean setupAutoClaim = true;
+    private volatile int setupClaimMargin = 10;
     private volatile int setupZoneHeight = 10;
-    private volatile int setupCoreDistance = 10;
+    private volatile int setupTargetDistance = 10;
     private static final DateTimeFormatter HOLOGRAM_TIME = DateTimeFormatter.ofPattern("HH:mm");
     private EventManager manager;
     private KingEventController king;
@@ -168,14 +169,19 @@ public final class EventModule {
         return claims;
     }
 
-    /** @return the radius, in blocks, of the zone {@code /events create} centres on the player */
-    public int getSetupZoneRadius() {
-        return setupZoneRadius;
+    /** @return whether {@code /events create} claims the new event's territory at once */
+    public boolean isSetupAutoClaim() {
+        return setupAutoClaim;
     }
 
-    /** @return how far {@code /events setcore} looks for the block a player targets */
-    public int getSetupCoreDistance() {
-        return setupCoreDistance;
+    /** @return how many blocks of territory {@code /events create} claims around the new event's zones */
+    public int getSetupClaimMargin() {
+        return setupClaimMargin;
+    }
+
+    /** @return how far {@code /events setblock} looks for the block a player targets */
+    public int getSetupTargetDistance() {
+        return setupTargetDistance;
     }
 
     /**
@@ -463,8 +469,8 @@ public final class EventModule {
                 .filter(team -> team.getType().isSystem());
         if (owner.isEmpty()) {
             plugin.getLogger().warning("Citadel '" + eventId + "' names the claim '" + citadel.get().claim()
-                    + "', but no server team has that name: nothing is refused around the zone. Create it with "
-                    + "/team createsystem " + citadel.get().claim() + " combat, then /team forceclaim.");
+                    + "', but no server team has that name: nothing is refused around the zone. Create and claim it with "
+                    + "/events claim " + eventId + ".");
             return;
         }
         Cuboid zone = capture.get().zone();
@@ -472,7 +478,7 @@ public final class EventModule {
                 zone.minY(), (zone.minZ() + zone.maxZ()) / 2.0);
         if (centre.getWorld() == null || citadelAt(centre).isEmpty()) {
             plugin.getLogger().warning("Citadel '" + eventId + "': its zone to hold is not on the land of '"
-                    + citadel.get().claim() + "'. Claim the Citadel around the zone with /team forceclaim.");
+                    + citadel.get().claim() + "'. Claim the Citadel around the zone with /events claim " + eventId + ".");
         }
     }
 
@@ -556,9 +562,10 @@ public final class EventModule {
         this.zoneHolograms = holograms == null || holograms.getBoolean("enabled", true);
         this.zoneHologramHeight = holograms == null ? 3.0 : holograms.getDouble("height", 3.0);
         ConfigurationSection setup = file == null ? null : file.getConfigurationSection("setup");
-        this.setupZoneRadius = Math.max(1, setup == null ? 10 : setup.getInt("default-zone-radius", 10));
+        this.setupAutoClaim = setup == null || setup.getBoolean("auto-claim", true);
+        this.setupClaimMargin = Math.max(0, setup == null ? 10 : setup.getInt("claim-margin", 10));
         this.setupZoneHeight = Math.max(0, setup == null ? 10 : setup.getInt("zone-height", 10));
-        this.setupCoreDistance = Math.max(1, setup == null ? 10 : setup.getInt("setcore-distance", 10));
+        this.setupTargetDistance = Math.max(1, setup == null ? 10 : setup.getInt("target-distance", 10));
         if (king != null) {
             king.applySettings(KingSettingsLoader.load(file, settings, warn));
         }

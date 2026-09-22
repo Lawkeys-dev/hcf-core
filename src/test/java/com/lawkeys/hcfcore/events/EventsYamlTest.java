@@ -77,9 +77,11 @@ class EventsYamlTest {
         Map<String, Object> root = load();
         @SuppressWarnings("unchecked")
         Map<String, Object> setup = (Map<String, Object>) root.get("setup");
-        assertNotNull(setup, "events.yml needs a setup: section for /events create and /events setcore");
-        assertTrue(((Number) setup.get("default-zone-radius")).intValue() > 0);
-        assertTrue(((Number) setup.get("setcore-distance")).intValue() > 0);
+        assertNotNull(setup, "events.yml needs a setup: section for the /events setup commands");
+        assertEquals(Boolean.TRUE, setup.get("auto-claim"));
+        assertTrue(((Number) setup.get("claim-margin")).intValue() >= 0);
+        assertTrue(((Number) setup.get("target-distance")).intValue() > 0);
+        assertTrue(((Number) setup.get("zone-height")).intValue() >= 0);
     }
 
     /**

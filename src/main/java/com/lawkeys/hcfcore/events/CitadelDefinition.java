@@ -11,8 +11,8 @@ import java.util.Objects;
  * <p>Two zones, then. The zone to hold is the capture event's cuboid, run by the
  * ordinary capture engine like any KOTH ({@link CaptureEventDefinition}, found in
  * {@link EventSettings#definitions()} under the same id). The Citadel is server land:
- * the chunks of a server team, claimed with {@code /team createsystem} and
- * {@code /team forceclaim}, which this names - so it is protected from building,
+ * the claims of a server team, drawn with {@code /events claim}, which this
+ * names - so it is protected from building,
  * shown on {@code /team map} and announced at its border like any server land.
  *
  * @param eventId the capture event's id

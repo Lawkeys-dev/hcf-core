@@ -101,7 +101,7 @@ Staff set a team's points with `/team setpoints <team> <points>`, or add to them
 
 ## Server teams
 
-A *server team* holds server land — spawn, roads, event grounds. Staff create one with `/team createsystem <name> <safe|combat>`: a **safe** zone has no PvP, a **combat** zone does. Server teams are excluded from rankings, have no members, and cannot be changed by players. See [Territory](territory.md#server-land).
+A *server team* holds server land — spawn, roads, event grounds. Staff create one with `/team createsystem <name> <safe|combat>`: a **safe** zone has no PvP, a **combat** zone does, and the command hands over the claiming wand to draw its land. An event's territory is a server team too, made by `/events create` or `/events claim` ([Capture events](events.md#setting-up-an-event-in-game)). Server teams are excluded from rankings, have no members, and cannot be changed by players. See [Territory](territory.md#server-land).
 
 ## Staff commands
 

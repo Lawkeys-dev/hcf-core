@@ -204,6 +204,8 @@ public final class ClaimModule {
         for (TeamSubCommand subCommand : ClaimSubCommands.all(this)) {
             teams.registerSubCommand(subCommand);
         }
+        teams.setSystemLandTool((player, team) -> wandSessions.give(player,
+                new com.lawkeys.hcfcore.claim.wand.TeamClaimTask(this, team.getId(), true)));
     }
 
     /** Re-reads {@code claims.yml}; the running manager picks the new values up immediately. */

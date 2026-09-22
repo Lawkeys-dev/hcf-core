@@ -38,26 +38,6 @@ public final class CoreMessages {
     public static final String LAST_BREAK_LIST_ACTIVE = "events.last-break.list-active";
     public static final String LAST_BREAK_LIST_ACTIVE_NOBODY = "events.last-break.list-active-nobody";
 
-    // --- Setup commands (/events create|setzone|setcore|delete) ----------
-    public static final String SETUP_CREATED = "events.setup.created";
-    public static final String SETUP_ALREADY_EXISTS = "events.setup.already-exists";
-    public static final String SETUP_UNKNOWN_TYPE = "events.setup.unknown-type";
-    public static final String SETUP_UNKNOWN_ID = "events.setup.unknown-id";
-    public static final String SETUP_NO_WAND = "events.setup.no-wand";
-    public static final String SETUP_ZONE_PREVIEW = "events.setup.zone-preview";
-    public static final String SETUP_ZONE_DRAWN = "events.setup.zone-drawn";
-    public static final String SETUP_INVALID_ID = "events.setup.invalid-id";
-    public static final String SETUP_RUNNING = "events.setup.running";
-    public static final String SETUP_ZONE_SET = "events.setup.zone-set";
-    public static final String SETUP_CORE_SET = "events.setup.core-set";
-    public static final String SETUP_CORE_OUTSIDE_ZONE = "events.setup.core-outside-zone";
-    public static final String SETUP_CORE_NOT_APPLICABLE = "events.setup.core-not-applicable";
-    public static final String SETUP_NO_TARGET_BLOCK = "events.setup.no-target-block";
-    public static final String SETUP_DELETED = "events.setup.deleted";
-    public static final String SETUP_NOT_IN_CLAIM = "events.setup.not-in-claim";
-    public static final String SETUP_USAGE = "events.setup.usage";
-    public static final String SETUP_WRITE_FAILED = "events.setup.write-failed";
-
     // --- Scoreboard --------------------------------------------------------
     public static final String SCOREBOARD_DTC_LINE = "ui.scoreboard.dtc-line";
     public static final String SCOREBOARD_DTC_LINE_PER_TEAM = "ui.scoreboard.dtc-line-per-team";

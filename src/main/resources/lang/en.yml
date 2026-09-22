@@ -68,8 +68,8 @@ team:
   # --- Lifecycle ---------------------------------------------------------
   # --- Server (system) teams: safe zones and combat zones -------------------
   system:
-    created-safe: "{success}Server team {secondary}%team% {success}created as a {secondary}safe zone {success}(no PvP while pvp.yml's safe-zones is on). Give it land with {secondary}/team forceclaim %team%{success}."
-    created-combat: "{success}Server team {secondary}%team% {success}created as a {secondary}combat zone {success}(PvP on). Give it land with {secondary}/team forceclaim %team%{success}."
+    created-safe: "{success}Server team {secondary}%team% {success}created as a {secondary}safe zone {success}(no PvP while pvp.yml's safe-zones is on). Draw its land with the claiming wand {muted}(again later: {secondary}/team forceclaim %team%{muted}){success}."
+    created-combat: "{success}Server team {secondary}%team% {success}created as a {secondary}combat zone {success}(PvP on). Draw its land with the claiming wand {muted}(again later: {secondary}/team forceclaim %team%{muted}){success}."
     zone-safe: "{secondary}%team% {success}is now a {secondary}safe zone{success}: nobody can be attacked on its land while pvp.yml's safe-zones is on."
     zone-combat: "{secondary}%team% {success}is now a {secondary}combat zone{success}: players can fight on its land."
     invalid-zone: "{error}'%input%' is not a zone kind - use safe or combat."
@@ -255,7 +255,7 @@ claim:
     warzone: "{error}That reaches into the %warzone%{error}: no player team can claim there."
     reserved-region: "{error}That overlaps %region%{error} and cannot be claimed."
 
-  # The claiming wand (/team claim, /team forceclaim, /events setzone).
+  # The claiming wand (/team claim, /team forceclaim, /team createsystem, /events claim|setzone).
   wand:
     given: "{success}Claiming wand for {secondary}%task%{success}. {muted}Left-click a corner, right-click the other, sneak + left-click to confirm; drop it to give up."
     inventory-full: "{error}Make room in your inventory for the claiming wand."
@@ -642,34 +642,74 @@ events:
     hologram-progress: "{muted}%team% {dark}{bullet} {secondary}%broken%{muted}/{secondary}%height%"
     hologram-nobody: "{muted}Untouched {dark}(%height% blocks)"
 
-  # --- Setup commands (/events create|setzone|setcore|delete) - DTC, Last
-  # Break and Slide only. These are the only commands that rewrite events.yml.
+  # /events create|info|claim|unclaim|setzone|delzone|setblock|delete - the same
+  # verbs for every kind of event (docs/gameplay/events.md, "Setting up an event").
   setup:
-    created: "{success}Created {secondary}%event% {muted}({secondary}%radius% {muted}block radius) - draw its zone with {secondary}/events setzone %event%{muted}, move its core with {secondary}/events setcore %event%{muted}."
-    already-exists: "{error}An event called '%event%' already exists."
-    unknown-type: "{error}'%type%' is not dtc, lastbreak, slide, totem or minitotem."
-    unknown-id: "{error}There is no DTC, Last Break, Slide or Totem called '%event%'."
-    invalid-id: "{error}'%id%' is not a valid id {muted}- use only lowercase letters, digits, '_' and '-' ({secondary}%min%{muted}-{secondary}%max% {muted}characters)."
-    running: "{error}%event% is running - stop it first with /events stop %event%."
-    zone-set: "{success}Corner %corner% of {secondary}%event% {muted}set to your position."
-    # /events setzone <id> - the claiming wand. %from% and %to% are the zone's heights:
-    # from the lower corner to setup.zone-height blocks above the higher one.
-    zone-preview: "{muted}Zone of {secondary}%event% {dark}{bullet} {secondary}%size%{muted}, heights {secondary}%from% {muted}to {secondary}%to%"
-    zone-drawn: "{success}Zone of {secondary}%event% {success}drawn: {secondary}%size%{success}."
-    no-wand: "{error}Zones are drawn with the claiming wand, which needs the claim module running."
-    core-set: "{success}The core of {secondary}%event% {muted}is now the block you were looking at."
-    core-outside-zone: "{error}That block is outside %event%'s zone."
-    core-not-applicable: "{error}%event% is a Slide - it has no core."
-    no-target-block: "{error}You are not looking at a block close enough."
-    deleted: "{success}Deleted {secondary}%event%{success}."
-    # /events settotem <id> - the column now stands on the block looked at.
-    totem-set: "{success}The column of {secondary}%event% {muted}({secondary}%height% {muted}blocks) now stands on the block you were looking at."
-    not-a-totem: "{error}There is no Totem called '%event%'."
-    totem-no-target: "{error}You are not looking at a block close enough."
-    totem-outside-zone: "{error}The column would not fit inside %event%'s zone there."
-    not-in-claim: "{warning}%event% does not stand on a system team's claim {muted}- territory protection will not apply to it between runs. Claim around it with {secondary}/team createsystem <name> combat{muted}, then {secondary}/team forceclaim{muted}."
     usage: "{error}Usage: {secondary}%usage%"
-    write-failed: "{error}Could not write events.yml - see the console."
+    in-game-only: "{error}That needs a position - run it in game."
+    write-failed: "{error}Could not read or write events.yml - see the console."
+    invalid-id: "{error}'%id%' is not a valid id {muted}- use only lowercase letters, digits, '_' and '-' ({secondary}%min%{muted}-{secondary}%max% {muted}characters)."
+    unknown-id: "{error}There is no event called '%event%' in events.yml."
+    running: "{error}%event% is running - stop it first with {secondary}/events stop %event%{error}."
+    no-wand: "{error}Territories and zones are drawn with the claiming wand, which needs the claim module running."
+    # --- create / delete
+    unknown-type: "{error}'%type%' is not a kind of event {muted}- one of: {secondary}%types%"
+    already-exists: "{error}An event called '%event%' already exists."
+    no-template: "{error}The plugin jar has no example %type% to copy - see the console."
+    created: "{success}Created the %type% {secondary}%event% {success}where you stand."
+    auto-claimed: "{success}Its territory is claimed {muted}- {secondary}%size% {muted}for the server team {secondary}%team%{muted}. Redraw it with {secondary}/events claim %event%{muted}."
+    auto-claim-refused: "{warning}Its territory could not be claimed here: {muted}%reason% {warning}Draw it with {secondary}/events claim %event%{warning}."
+    deleted: "{success}Deleted {secondary}%event%{success}."
+    deleted-territory: "{success}Its territory is released {muted}(server team {secondary}%team% {muted}disbanded)."
+    # --- territory: /events claim|unclaim
+    territory-not-applicable: "{error}%event% is fought in the warzone - it has no territory to claim."
+    territory-team-created: "{muted}Server team {secondary}%team% {muted}created for the territory of {secondary}%event%{muted} (combat zone)."
+    territory-name-taken: "{error}A player team is called {secondary}%team%{error} - set another server team in the {secondary}claim{error} key of %event% in events.yml."
+    territory-team-failed: "{error}No server team could be made for %event%: {muted}%reason%"
+    territory-none: "{error}%event% has no territory yet {muted}- {secondary}/events claim %event%"
+    unclaimed: "{success}Released {secondary}%claim% {success}from the territory of {secondary}%event%{success}."
+    unclaimed-all: "{success}Released all {secondary}%count% {success}claims of {secondary}%event% {muted}(server team %team%)."
+    # --- zones: /events setzone|delzone
+    zone-not-applicable: "{error}%event% is fought in the warzone - it has no zone to draw."
+    zone-name-needed: "{error}%event% has several zones: {secondary}/events setzone %event% <zone> {muted}- a new name adds one. Zones: {secondary}%zones%"
+    zone-only-one: "{error}%event% has a single zone: {secondary}/events setzone %event%"
+    zone-invalid-name: "{error}'%zone%' is not a valid zone name {muted}- lowercase letters, digits, '_' and '-'."
+    zone-unknown: "{error}%event% has no zone '%zone%'. {muted}Zones: {secondary}%zones%"
+    zone-last: "{error}That is the last zone of %event% - draw another before deleting it."
+    # %from% and %to% are the zone's heights: from the lower corner to
+    # setup.zone-height blocks above the higher one.
+    zone-preview: "{muted}Zone of {secondary}%event% {dark}{bullet} {secondary}%size%{muted}, heights {secondary}%from% {muted}to {secondary}%to%"
+    zone-preview-outside: "{warning}Part of it is outside the territory of %event%."
+    zone-drawn: "{success}Zone of {secondary}%event% {success}drawn: {secondary}%size%{success}."
+    zone-outside-territory: "{warning}Part of that zone is outside the territory of %event% {muted}- widen it with {secondary}/events claim %event%{muted}."
+    zone-deleted: "{success}Zone {secondary}%zone% {success}of {secondary}%event% {success}deleted."
+    # --- /events setblock
+    block-not-applicable: "{error}%event% has no block to place {muted}- only a DTC, Last Break or Totem has one."
+    no-target: "{error}You are not looking at a block close enough."
+    block-outside-zone: "{error}That is outside the zone of %event% {muted}- move the zone first with {secondary}/events setzone %event%{muted}."
+    core-set: "{success}The core of {secondary}%event% {success}is now the block you were looking at."
+    column-set: "{success}The column of {secondary}%event% {muted}({secondary}%height% {muted}blocks) {success}now stands on the block you were looking at."
+    not-loaded: "{error}%event% did not load - see the console for what is wrong with it in events.yml."
+    # --- /events info <id>: the checklist
+    info:
+      header: "{muted}&m------&r %name% {muted}({secondary}%type%{muted}, id {secondary}%event%{muted}) &m------"
+      not-loaded: "{error}✘ {muted}Not loaded - see the console for what is wrong with it in events.yml."
+      territory: "{success}✔ {muted}Territory: {secondary}%team% {muted}- %claims% claim(s), %area% blocks {dark}{bullet} {secondary}/events claim %event%"
+      territory-empty: "{error}✘ {muted}Territory: the server team {secondary}%team% {muted}has no land {dark}{bullet} {secondary}/events claim %event%"
+      territory-none: "{error}✘ {muted}No territory {dark}{bullet} {secondary}/events claim %event%"
+      zone: "{success}✔ {muted}Zone: {secondary}%size% {muted}around {secondary}%at%{muted}, heights %from% to %to% {dark}{bullet} {secondary}/events setzone %event%"
+      zone-named: "{success}✔ {muted}Zone {secondary}%zone%{muted}: {secondary}%size% {muted}around {secondary}%at%{muted}, heights %from% to %to% {dark}{bullet} {secondary}/events setzone %event% %zone%"
+      zone-outside: "{warning}! {muted}Zone {secondary}%zone% {muted}is not all inside the territory {dark}{bullet} {secondary}/events claim %event%"
+      no-zone: "{error}✘ {muted}No zone {dark}{bullet} {secondary}/events setzone %event%"
+      warzone: "{success}✔ {muted}Fought in the warzone of {secondary}%world%"
+      no-warzone: "{error}✘ {muted}{secondary}%world% {muted}has no warzone - set one in claims.yml (warzone.worlds)"
+      core: "{success}✔ {muted}Core: {secondary}%material% {muted}at {secondary}%x% %y% %z% {dark}{bullet} {secondary}/events setblock %event%"
+      column: "{success}✔ {muted}Column: {secondary}%height% {muted}blocks on {secondary}%x% %y% %z% {dark}{bullet} {secondary}/events setblock %event%"
+      column-missing: "{warning}! {muted}Column not built at {secondary}%x% %y% %z% {dark}{bullet} {muted}look at its base: {secondary}/events setblock %event%"
+      schedule: "{success}✔ {muted}Opens by itself at {secondary}%times%"
+      schedule-none: "{muted}• No schedule - only {secondary}/events start %event% {muted}opens it (schedule: in events.yml)."
+      running: "{success}▶ Running now {dark}{bullet} {secondary}/events stop %event%"
+      idle: "{muted}• Not running {dark}{bullet} {secondary}/events start %event%"
 
 # ---------------------------------------------------------------------------
 # Resource nodes (Mountain / Glowstone Mountain / Ore Mountain)

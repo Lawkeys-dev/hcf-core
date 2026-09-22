@@ -57,11 +57,10 @@ A Citadel has **two zones**:
 --8<-- "src/main/resources/events.yml:citadel"
 ```
 
-Create the Citadel's land once, around the zone to hold:
+The Citadel's land is its [territory](#setting-up-an-event-in-game), drawn around the zone to hold with the claiming wand:
 
 ```text
-/team createsystem Citadel combat
-/team forceclaim Citadel 4        # as many times, and wherever, as needed
+/events claim citadel             # makes the server team Citadel if it does not exist, then hands over the wand
 ```
 
 A **combat** server team: players fight there, nobody builds, and `/team map` shows it. The console warns when a Citadel starts without its claim, or with its zone to hold outside it.
@@ -200,32 +199,39 @@ The Mini Totem is the same event with `height: 3`:
 
 The scoreboard shows `%totem_line%`: the team on its way and how many blocks it has broken.
 
-## Setting up DTC, Last Break, Slide and Totem in-game
+## Setting up an event in game
 
-Staff lay these three out without touching `events.yml` by hand:
+Every kind of event — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break, Slide, Totem, Mini Totem — is created, set up and deleted with the **same commands**, without touching `events.yml` by hand:
 
 ```text
-/events create <dtc|lastbreak|slide|totem|minitotem> <id>   # a new zone centred on you
-/events settotem <id>                       # a Totem's column stands on the block you look at, built of bedrock
-/events setzone <id>                        # the claiming wand: draw the zone
-/events setzone <id> <1|2>                  # or move one corner to your position
-/events setcore <id>                        # DTC/Last Break: move the core to the block you are looking at
-/events delete <id>
+/events create <type> <id>      # a new event where you stand: koth, citadel, ktk, conquest, dtc, lastbreak, slide, totem, minitotem
+/events info <id>               # what it has, what it lacks, and the command for each
+/events claim <id>              # its territory, drawn with the claiming wand
+/events unclaim <id> [all]      # release the claim of its territory you stand in, or all of it
+/events setzone <id> [zone]     # its zone, drawn with the wand - a Conquest names the zone (a new name adds one)
+/events delzone <id> <zone>     # delete one of a Conquest's zones
+/events setblock <id>           # DTC/Last Break: the core; Totem: the column - on the block you look at
+/events delete <id>             # the event, and its territory with it
 ```
 
-`create` centres a square zone on the player (`events.yml`, `setup.default-zone-radius`, `10` blocks each way by default) and, for a DTC or Last Break, places the core on the same spot. `setcore` targets the block the player is looking at, up to `setup.setcore-distance` blocks away (`10` by default), and refuses a block outside the event's zone. None of the three can be edited while running — stop it first with `/events stop <id>`.
+An event is set up in up to three parts, and `/events info` ticks off each:
 
-An `<id>` must be **2 to 32 characters of lowercase letters, digits, `_` and `-`** — a dot is refused, since `events.yml` is written through Bukkit's configuration API, which reads a dot in a key as a path separator; a bad id is reported rather than silently mangled. Typed in any case, it is lower-cased to match the shipped ids (`koth`, `last-break`...).
+- its **territory** — server land around it, the claims of a *server team* (a combat zone) named in the event's `claim` key. Nobody builds there, `/team map` shows it, and it is drawn with the **claiming wand** like any other claim: left-click a corner, right-click the other, sneak + left-click to claim. `/events claim` makes the server team when there is none yet — named after the event, `last-break` becoming `LastBreak`;
+- its **zone** — what is held, stood in or broken inside, with heights: drawn with the same wand, from the lower of the two clicked blocks to `setup.zone-height` blocks above the higher. A zone reaching outside the territory is pointed out;
+- its **block** — a DTC's or Last Break's core, a Totem's column (built at once, of bedrock), on the block you look at, up to `setup.target-distance` blocks away. It must be inside the zone.
+
+Kill the King has none of the three: it is fought in the warzone of its world, and `/events info` says whether that world has one.
+
+`/events create` does all of it at once, where you stand: the new event is a copy of the plugin's own example of its kind — the one shown on this page, with its capture time, its four Conquest zones... — moved so that its block (or the middle of its zone's floor) is on your position, with **no schedule**. Its server team is made, and its territory claimed: every zone and `setup.claim-margin` blocks around (`10`), unless `setup.auto-claim` is `false` or the land is taken — the command then says why. Then it shows `/events info`. From there, redraw what does not suit, give it its times (`schedule:` in `events.yml`), and try it with `/events start <id>`.
+
+`/events delete` removes the event from `events.yml`, a Totem's column from the world, and **releases its territory**: the server team named in its `claim` is disbanded — unless another event names it too. None of the setup commands touches a running event: stop it first with `/events stop <id>`.
+
+An `<id>` must be **2 to 32 characters of lowercase letters, digits, `_` and `-`** — a dot is refused, since `events.yml` is written through Bukkit's configuration API, which reads a dot in a key as a path separator; a bad id is reported rather than silently mangled. Typed in any case, it is lower-cased to match the shipped ids (`koth`, `last-break`...). Ids are shared by every kind: two events never have the same one.
 
 !!! warning "These commands write events.yml"
-    `/events create`, `setzone`, `setcore` and `delete` are the **only** commands in HCFCore that ever rewrite a configuration file — and only the one section of the one event they name, never the rest of the file. Comments are kept; the layout becomes the server's own (quotes, lists one item per line). A file that does not parse is left untouched, and the command says it could not write. See [Upgrading](../getting-started/upgrading.md).
+    The `/events` setup commands are the **only** commands in HCFCore that ever rewrite a configuration file — and only the one section of the one event they name, never the rest of the file. Comments are kept; the layout becomes the server's own (quotes, lists one item per line). A file that does not parse is left untouched, and the command says it could not write. See [Upgrading](../getting-started/upgrading.md).
 
-If a DTC or Last Break's core is not on a **system team's claim**, staff are warned — in the console when the event starts, and in chat right after `/events setcore` — since territory protection otherwise does not apply to it between runs:
-
-```text
-/team createsystem <name> combat
-/team forceclaim <name>          # then draw the land with the wand
-```
+If a DTC's core or a Totem's column is not on server land, the console warns when the event loads — territory protection otherwise does not apply to it between runs. `/events claim <id>` fixes it.
 
 ## Zone holograms
 

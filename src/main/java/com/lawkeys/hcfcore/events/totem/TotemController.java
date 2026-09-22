@@ -326,7 +326,7 @@ public final class TotemController implements Listener {
     private void checkClaim(TotemDefinition definition) {
         if (claims != null && claims.getManager() != null && !isOnSystemClaim(definition)) {
             plugin.getLogger().warning("Totem '" + definition.id() + "': its column is not on a server team's claim. "
-                    + "Draw one around it with /team createsystem <name> combat, then /team forceclaim.");
+                    + "Draw its territory with /events claim " + definition.id() + ".");
         }
     }
 }

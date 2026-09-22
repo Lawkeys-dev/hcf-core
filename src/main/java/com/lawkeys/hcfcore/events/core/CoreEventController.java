@@ -326,8 +326,8 @@ public final class CoreEventController implements Listener {
         }
         if (!isOnSystemClaim(definition)) {
             plugin.getLogger().warning("Core event '" + definition.id() + "': its core is not on a system team's "
-                    + "claim. Territory protection will not apply to it between runs - claim around it with "
-                    + "/team createsystem <name> combat, then /team forceclaim.");
+                    + "claim. Territory protection will not apply to it between runs - draw its territory with "
+                    + "/events claim " + definition.id() + ".");
         }
     }
 

@@ -56,16 +56,29 @@ zone-holograms:
 # --8<-- [end:zone-holograms]
 
 # --8<-- [start:setup]
-# Defaults used by the staff setup commands (/events create, /events setcore -
-# see docs/gameplay/events.md). They write into THIS file - the only commands in
-# the plugin that ever do (docs/getting-started/upgrading.md), and only the one
+# The staff setup commands - the same for every kind of event:
+#   /events create <type> <id>   a new event where you stand
+#   /events info <id>            what it has, what it lacks, the command for each
+#   /events claim <id>           its territory, with the claiming wand
+#   /events setzone <id> [zone]  its zone (a Conquest's named zone), with the wand
+#   /events setblock <id>        a DTC's core, a Totem's column: the block looked at
+#   /events delete <id>          the event, and its territory with it
+# (docs/gameplay/events.md). They write into THIS file - the only commands in the
+# plugin that ever do (docs/getting-started/upgrading.md), and only the one
 # section of the one event they touch.
+#
+# A new event is copied from this file's example of its kind, as the plugin
+# ships it (hard-coded: the jar's copy, never yours), moved to where you stand,
+# with no schedule. Its territory belongs to a server team named after it (its
+# "claim" key), a combat zone.
 setup:
-  # /events create centres the new zone on the player, this many blocks each way.
-  default-zone-radius: 10
-  # /events setcore looks this many blocks along where the player is looking.
-  setcore-distance: 10
-  # /events setzone <id> hands over the claiming wand: left-click one corner,
+  # /events create claims the new event's territory at once: its zones and
+  # claim-margin blocks around them. false leaves it to /events claim.
+  auto-claim: true
+  claim-margin: 10
+  # /events setblock looks this many blocks along where the player is looking.
+  target-distance: 10
+  # /events setzone hands over the claiming wand: left-click one corner,
   # right-click the other, sneak + left-click to write the zone. It runs from the
   # lower of the two clicked blocks to this many blocks above the higher one.
   zone-height: 10
@@ -147,10 +160,10 @@ events:
 #   - the zone to hold: the corners below, exactly as for a KOTH (capture time,
 #     contest policy, schedule, rewards - all read the same way);
 #   - the Citadel itself: server land, claimed around the zone for a server team
-#     whose name is "claim" below. Create it once, then claim it:
-#         /team createsystem Citadel combat
-#         /team forceclaim Citadel <radius>      (as many times as needed)
-#     Being server land, nobody builds there, and /team map shows it.
+#     whose name is "claim" below - its territory, drawn with the claiming wand:
+#         /events claim citadel
+#     which makes the server team if it does not exist yet. Being server land,
+#     nobody builds there, and /team map shows it.
 #
 # On the Citadel's land, AT ALL TIMES - whether the event runs or not - the
 # restrictions below refuse what is switched on. Class abilities are not partner
@@ -405,8 +418,8 @@ conquest:
 # lands the break that empties it wins - even with fewer breaks than another.
 #
 # Creative, spectator and teamless players never break the core (hardcoded).
-# Staff set the zone and the core with /events create|setzone|setcore|delete -
-# see docs/gameplay/events.md - which write into this file.
+# Staff set them up with /events create|claim|setzone|setblock|delete - see
+# docs/gameplay/events.md - which write into this file.
 # ---------------------------------------------------------------------------
 
 dtc:
@@ -486,9 +499,9 @@ slide:
 # every block whole again (rival-break: RESET); with RESET_AND_START that break
 # is then the other team's first. A Mini Totem is only a shorter column.
 #
-# Set one up in game: /events create totem <id> (or minitotem), draw its zone
-# with /events setzone <id>, then look at the block the column stands on and
-# type /events settotem <id> - the column is built there, of bedrock.
+# Set one up in game: /events create totem <id> (or minitotem), then look at the
+# block the column stands on and type /events setblock <id> - the column is
+# built there, of bedrock. /events setzone <id> moves its zone.
 #
 # Creative, spectator and teamless players never break it (hardcoded). The
 # column cannot be blown up or pushed by a piston, run or not. One Totem runs at

@@ -45,6 +45,12 @@ public final class TeamModule {
     private volatile TeamSettings settings = TeamSettings.defaults();
     /** How many strikes still count against a team: installed by the staff module; none until then. */
     private volatile java.util.function.ToIntFunction<java.util.UUID> strikeCount = teamId -> 0;
+    /**
+     * Hands a staff member the tool to draw a new server team's land: installed by the
+     * claim module, whose claiming wand it is; nothing until then.
+     */
+    private volatile java.util.function.BiConsumer<org.bukkit.entity.Player, Team> systemLandTool = (player, team) -> {
+    };
     private TeamManager manager;
     private TeamCommand teamCommand;
     private BukkitTask saveTask;
@@ -91,6 +97,16 @@ public final class TeamModule {
      */
     public void setStrikeCounter(java.util.function.ToIntFunction<java.util.UUID> counter) {
         this.strikeCount = java.util.Objects.requireNonNull(counter, "counter");
+    }
+
+    /** Installs what {@code /team createsystem} hands its sender. Called by the {@code claim/} module. */
+    public void setSystemLandTool(java.util.function.BiConsumer<org.bukkit.entity.Player, Team> tool) {
+        this.systemLandTool = java.util.Objects.requireNonNull(tool, "tool");
+    }
+
+    /** Hands {@code player} the tool to draw {@code team}'s land, if a module installed one. */
+    public void giveSystemLandTool(org.bukkit.entity.Player player, Team team) {
+        systemLandTool.accept(player, team);
     }
 
     /** @return how many strikes still count against this team, {@code 0} without the staff module */

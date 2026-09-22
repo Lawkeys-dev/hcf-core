@@ -87,12 +87,14 @@ The **role** column is the default minimum role in the player's team, set under 
 |---|---|---|---|
 | `/events` | `/event`, `/koth` | What runs and what is coming, refills and map phases included | everyone |
 | `/events start <id>` · `stop <id>` | | Open or end any event — KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide, Totem | `hcfcore.events.admin` |
-| `/events create <dtc\|lastbreak\|slide\|totem\|minitotem> <id>` | | A new DTC, Last Break, Slide, Totem (5 blocks) or Mini Totem (3), its zone centred on you | `hcfcore.events.admin` |
-| `/events settotem <id>` | | A Totem's column now stands on the block you look at, built there of bedrock | `hcfcore.events.admin` |
-| `/events setzone <id>` | | The claiming wand, drawing its zone: left- and right-click its corners, sneak + left-click to write it | `hcfcore.events.admin` |
-| `/events setzone <id> <1\|2>` | | Move one corner of its zone to your position | `hcfcore.events.admin` |
-| `/events setcore <id>` | | DTC/Last Break: move the core to the block you are looking at | `hcfcore.events.admin` |
-| `/events delete <id>` | | Delete a DTC, Last Break, Slide or Totem | `hcfcore.events.admin` |
+| `/events create <type> <id>` | | A new event where you stand — `koth`, `citadel`, `ktk`, `conquest`, `dtc`, `lastbreak`, `slide`, `totem`, `minitotem` — copied from the shipped example, its territory claimed | `hcfcore.events.admin` |
+| `/events info <id>` | | What the event has and lacks — territory, zone(s), block, schedule — with the command for each | `hcfcore.events.admin` |
+| `/events claim <id>` | | The claiming wand, drawing the event's territory (its server team is made if needed) | `hcfcore.events.admin` |
+| `/events unclaim <id> [all]` | | Release the claim of its territory you stand in, or all of it | `hcfcore.events.admin` |
+| `/events setzone <id> [zone]` | | The claiming wand, drawing its zone — a Conquest's named zone, a new name adding one | `hcfcore.events.admin` |
+| `/events delzone <id> <zone>` | | Delete one of a Conquest's zones | `hcfcore.events.admin` |
+| `/events setblock <id>` | | DTC/Last Break: the core; Totem: the column, built of bedrock — on the block you look at | `hcfcore.events.admin` |
+| `/events delete <id>` | | Delete any event, and release its territory | `hcfcore.events.admin` |
 | `/resourcenode` | `/node`, `/mountain` | When each Mountain refills | everyone |
 | `/resourcenode refill <id>` | | Refill one now | `hcfcore.resourcenode.admin` |
 | `/sotw` | | SOTW status | everyone |
@@ -104,7 +106,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/timer start <name> <duration> [label]` · `stop <name>` | | Start or stop a countdown shown on every scoreboard. The name `keyall` belongs to `/keyall` and is refused | `hcfcore.schedule.admin` |
 | `/keyall [countdown]` | | Run the key-all commands for everybody online, now or after a countdown (a duration) | `hcfcore.schedule.admin` |
 
-A new id for `/events create` (or an id typed to `setzone`/`setcore`/`delete`) must be **2 to 32 characters of lowercase letters, digits, `_` and `-`** — a dot is refused, since it is a path separator to the configuration file the command writes; the id is lower-cased for you. See [Capture events](../gameplay/events.md#setting-up-dtc-last-break-slide-and-totem-in-game).
+A new id for `/events create` (or an id typed to any setup command) must be **2 to 32 characters of lowercase letters, digits, `_` and `-`** — a dot is refused, since it is a path separator to the configuration file the command writes; the id is lower-cased for you. See [Capture events](../gameplay/events.md#setting-up-an-event-in-game).
 
 ## Kits and items
 

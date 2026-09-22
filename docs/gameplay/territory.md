@@ -132,8 +132,8 @@ A *server team* holds land that belongs to the server:
 | **combat** | yes | roads, event grounds |
 
 ```text
-/team createsystem Spawn safe
-/team forceclaim Spawn          # the claiming wand, drawing Spawn's land
+/team createsystem Spawn safe   # hands over the claiming wand, drawing Spawn's land
+/team forceclaim Spawn          # the wand again, later
 /team setzone Spawn combat      # switch an existing server team
 ```
 

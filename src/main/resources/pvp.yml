@@ -167,8 +167,10 @@ safe-zones:
   # Disable PvP on the land of server teams created as SAFE zones - spawn,
   # typically. Server teams created as COMBAT zones (warzone, roads, event
   # grounds) are fought on like anywhere else. Both are made the same way:
-  #   /team createsystem <name> <safe|combat>, then /team forceclaim <name> [radius]
-  # and /team setzone <name> <safe|combat> switches one later.
+  #   /team createsystem <name> <safe|combat>, which hands over the claiming
+  #   wand to draw its land (again later: /team forceclaim <name>),
+  # and /team setzone <name> <safe|combat> switches one later. An event's
+  # territory is a combat zone made by /events create or /events claim.
   # Turning this off makes every server team fightable, whatever its kind.
   enabled: true
 # --8<-- [end:safe-zones]

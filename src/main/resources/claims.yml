@@ -36,7 +36,8 @@ enabled: true
 # second, then sneak and left-click to claim the rectangle between them - both
 # corners included, the full height of the world. Drop the wand to give up. The
 # corners are shown as columns only the wand's holder sees. Staff draw server land
-# with /team forceclaim <team>, and event zones with /events setzone <id>.
+# with /team createsystem and /team forceclaim <team>, an event's territory with
+# /events claim <id> and its zone with /events setzone <id>.
 wand:
   material: GOLDEN_HOE
   name: "{primary}&lClaiming Wand"

@@ -127,8 +127,7 @@ hide:
     Claim spawn as a safe zone, set the warzone, move the example events onto your map, create your kits.
 
     ```text
-    /team createsystem Spawn safe
-    /team forceclaim Spawn 3
+    /team createsystem Spawn safe     # hands over the claiming wand: draw spawn
     ```
 
     [:octicons-arrow-right-24: Setting up a map](getting-started/setup-guide.md)

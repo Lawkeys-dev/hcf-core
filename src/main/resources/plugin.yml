@@ -34,7 +34,7 @@ commands:
   events:
     aliases: [event, koth]
     description: Shows running and upcoming events; staff can start and stop them, and set up DTC, Last Break, Slide and Totem.
-    usage: /<command> [start|stop <event>|create <dtc|lastbreak|slide|totem|minitotem> <id>|setzone <id> [1|2]|setcore <id>|settotem <id>|delete <id>]
+    usage: /<command> [start|stop <id>|create <type> <id>|info <id>|claim <id>|unclaim <id> [all]|setzone <id> [zone]|delzone <id> <zone>|setblock <id>|delete <id>]
   resourcenode:
     aliases: [node, mountain]
     description: Shows when resource nodes refill; staff can refill them by hand.
@@ -603,7 +603,7 @@ permissions:
     description: Give, take and set player balances with /eco.
     default: op
   hcfcore.events.admin:
-    description: Start and stop events by hand with /events start|stop, and set up DTC, Last Break, Slide and Totem with /events create|settotem|setzone|setcore|delete.
+    description: Start and stop events by hand with /events start|stop, and create, set up and delete every kind of event with /events create|info|claim|unclaim|setzone|delzone|setblock|delete.
     default: op
   hcfcore.phase.admin:
     description: Start and stop SOTW and EOTW with /sotw start|stop and /eotw start|stop.

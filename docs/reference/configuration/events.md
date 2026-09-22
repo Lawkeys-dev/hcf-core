@@ -4,10 +4,10 @@ Capture events: KOTHs, Citadels (a zone to hold inside a claimed Citadel with it
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/events.md)
 
-Every example on this page is **taken from the shipped `events.yml`**. Changes apply with `/hcf reload`. Event ids are shared by every kind — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break, Slide — and must be unique across the file.
+Every example on this page is **taken from the shipped `events.yml`**. Changes apply with `/hcf reload`. Event ids are shared by every kind — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break, Slide, Totem — and must be unique across the file. Any event with land may name its server team in a `claim` key: `/events delete` releases that team's land with the event.
 
-!!! info "DTC, Last Break and Slide are also set up in-game"
-    `/events create`, `setzone`, `setcore` and `delete` write into the `dtc:`, `last-break:` and `slide:` sections below for you — the only commands in the plugin that ever rewrite a configuration file. See the [guide](../../gameplay/events.md#setting-up-dtc-last-break-and-slide-in-game).
+!!! info "Every event can be set up in game"
+    `/events create`, `claim`, `setzone`, `delzone`, `setblock` and `delete` write into the sections below for you, whatever the kind of event — the only commands in the plugin that ever rewrite a configuration file. See the [guide](../../gameplay/events.md#setting-up-an-event-in-game).
 
 !!! warning "The shipped events are examples"
     Their zones sit at made-up coordinates and none has a schedule: they run only when staff start them (`/events start <id>`). Move them onto your map, then give them times.
@@ -39,7 +39,7 @@ Every example on this page is **taken from the shipped `events.yml`**. Changes a
 
 ## Setup commands
 
-Defaults for `/events create` and `/events setcore` — see the [guide](../../gameplay/events.md#setting-up-dtc-last-break-and-slide-in-game).
+What the setup commands do by default — see the [guide](../../gameplay/events.md#setting-up-an-event-in-game).
 
 ```yaml title="events.yml"
 --8<-- "src/main/resources/events.yml:setup"
@@ -47,8 +47,12 @@ Defaults for `/events create` and `/events setcore` — see the [guide](../../ga
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `default-zone-radius` | `10` | `/events create` centres the new zone on the player, this many blocks each way |
-| `setcore-distance` | `10` | How far `/events setcore` looks along where the player is looking |
+| `auto-claim` | `true` | `/events create` claims the new event's territory at once; `false` leaves it to `/events claim` |
+| `claim-margin` | `10` | Blocks of territory `/events create` claims around the new event's zones |
+| `target-distance` | `10` | How far `/events setblock` looks along where the player is looking |
+| `zone-height` | `10` | A zone drawn with the wand rises this many blocks above the higher clicked block |
+
+A new event is a copy of the plugin's own example of its kind — the jar's, never your file's: that stays hard-coded. Every event with land has a `claim` key naming its server team; `/events create` and `/events claim` write it.
 
 ## KOTH
 
@@ -85,7 +89,7 @@ The two keys only a Citadel has:
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `claim` | `Citadel` | The server team whose land is the Citadel — create it with `/team createsystem Citadel combat` and `/team forceclaim` |
+| `claim` | `Citadel` | The server team whose land is the Citadel — `/events claim citadel` makes it and hands over the wand |
 | `restrictions.ender-pearls` | `true` | No ender pearl thrown from inside |
 | `restrictions.partner-items` | `true` | No partner item ([`abilities.yml`](abilities.md)) used inside; class abilities still work |
 | `restrictions.chorus-fruit` | `true` | No chorus fruit, or any food that teleports, eaten inside |
@@ -215,7 +219,7 @@ Under `totem:`, one entry per Totem — a Mini Totem is only a shorter one. **Ho
 | Key | As shipped | What it does |
 |---|---|---|
 | `display-name`, `world`, `corner-1`, `corner-2` | an example | Its name and zone; the column must stand inside it |
-| `base` | an example | The column's lowest block — set in game with `/events settotem <id>` |
+| `base` | an example | The column's lowest block — set in game with `/events setblock <id>` |
 | `height` | `5` (`3` for the Mini Totem) | How many blocks the column is, 1 to 64 |
 | `material` | `QUARTZ_BLOCK` | The column during a run: what is broken |
 | `broken-material` | `BEDROCK` | A block once a team has broken it |

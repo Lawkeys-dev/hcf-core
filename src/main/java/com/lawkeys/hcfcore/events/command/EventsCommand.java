@@ -5,10 +5,10 @@ import com.lawkeys.hcfcore.events.CaptureEventDefinition;
 import com.lawkeys.hcfcore.events.EventManager;
 import com.lawkeys.hcfcore.events.EventMessages;
 import com.lawkeys.hcfcore.events.EventModule;
-import com.lawkeys.hcfcore.events.EventIds;
 import com.lawkeys.hcfcore.events.EventUpdate;
 import com.lawkeys.hcfcore.events.RunningEvent;
 import com.lawkeys.hcfcore.events.Standing;
+import com.lawkeys.hcfcore.events.setup.EventSetup;
 import com.lawkeys.hcfcore.events.conquest.ConquestController;
 import com.lawkeys.hcfcore.events.conquest.ConquestDefinition;
 import com.lawkeys.hcfcore.events.conquest.ConquestMessages;
@@ -37,16 +37,10 @@ import com.lawkeys.hcfcore.events.totem.TotemMessages;
 import com.lawkeys.hcfcore.events.totem.TotemRun;
 import com.lawkeys.hcfcore.events.totem.TotemUpdate;
 import com.lawkeys.hcfcore.team.Team;
-import com.lawkeys.hcfcore.util.Cuboid;
 import com.lawkeys.hcfcore.util.Durations;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -66,9 +60,11 @@ public final class EventsCommand implements TabExecutor {
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm");
 
     private final EventModule module;
+    private final EventSetup setup;
 
     public EventsCommand(EventModule module) {
         this.module = Objects.requireNonNull(module, "module");
+        this.setup = new EventSetup(module);
     }
 
     @Override
@@ -81,10 +77,10 @@ public final class EventsCommand implements TabExecutor {
         }
 
         String action = args[0].toLowerCase(Locale.ROOT);
-        // The setup commands only touch DTC, Last Break and Slide, and write
-        // events.yml themselves - they do not need the capture engine to be enabled.
-        if (List.of("create", "setzone", "setcore", "settotem", "delete").contains(action)) {
-            return setupAction(sender, action, args);
+        // The setup verbs write events.yml themselves, for every kind of event: they
+        // do not need the capture engine to be enabled.
+        if (EventSetup.VERBS.contains(action)) {
+            return setup.handle(sender, action, args);
         }
         if (manager == null || !module.getSettings().enabled()) {
             // Only the staff verbs need the capture engine. The listing does not: a
@@ -531,565 +527,22 @@ public final class EventsCommand implements TabExecutor {
         return true;
     }
 
-    // ------------------------------------------------------------------
-    // Setup commands: /events create|setzone|setcore|delete
-    //
-    // For DTC, Last Break and Slide only. These are the only commands in the
-    // plugin that rewrite a configuration file - see EventYamlStore's javadoc.
-    // ------------------------------------------------------------------
-
-    private boolean setupAction(CommandSender sender, String action, String[] args) {
-        if (!sender.hasPermission(EventModule.ADMIN_PERMISSION)) {
-            module.getLang().send(sender, "general.no-permission");
-            return true;
-        }
-        if (!(sender instanceof Player player)) {
-            module.getLang().send(sender, CoreMessages.SETUP_USAGE, "usage", "/events " + action + " ... (in game only)");
-            return true;
-        }
-        return switch (action) {
-            case "create" -> setupCreate(player, args);
-            case "setzone" -> setupSetZone(player, args);
-            case "setcore" -> setupSetCore(player, args);
-            case "settotem" -> setupSetTotem(player, args);
-            case "delete" -> setupDelete(player, args);
-            default -> false;
-        };
-    }
-
-    private boolean setupCreate(Player player, String[] args) {
-        if (args.length < 3) {
-            return false;
-        }
-        String type = args[1].toLowerCase(Locale.ROOT);
-        String id = EventIds.normalize(args[2]);
-        String section = switch (type) {
-            case "dtc" -> "dtc";
-            case "lastbreak" -> "last-break";
-            case "slide" -> "slide";
-            case "totem", "minitotem" -> "totem";
-            default -> null;
-        };
-        if (section == null) {
-            module.getLang().send(player, CoreMessages.SETUP_UNKNOWN_TYPE, "type", type);
-            return true;
-        }
-        if (!EventIds.isValid(args[2])) {
-            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", args[2],
-                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
-            return true;
-        }
-        if (idAlreadyTaken(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_ALREADY_EXISTS, "event", id);
-            return true;
-        }
-        Location at = player.getLocation();
-        int radius = module.getSetupZoneRadius();
-        int cx = at.getBlockX();
-        int cy = at.getBlockY();
-        int cz = at.getBlockZ();
-        String world = at.getWorld().getName();
-
-        boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
-            ConfigurationSection parent = root.getConfigurationSection(section);
-            if (parent == null) {
-                parent = root.createSection(section);
-            }
-            if (parent.contains(id)) {
-                return false;
-            }
-            ConfigurationSection entry = parent.createSection(id);
-            entry.set("display-name", "{primary}" + id);
-            entry.set("world", world);
-            set(entry, "corner-1", cx - radius, cy - radius, cz - radius);
-            set(entry, "corner-2", cx + radius, cy + radius, cz + radius);
-            if (section.equals("totem")) {
-                ConfigurationSection base = entry.createSection("base");
-                base.set("x", cx);
-                base.set("y", cy);
-                base.set("z", cz);
-                entry.set("height", type.equals("minitotem") ? 3 : 5);
-                entry.set("material", "QUARTZ_BLOCK");
-                entry.set("broken-material", "BEDROCK");
-                entry.set("idle-material", "BEDROCK");
-                entry.set("tools", com.lawkeys.hcfcore.events.totem.TotemSettingsLoader.SWORDS);
-                entry.set("instant-break", true);
-                entry.set("rival-break", "RESET");
-                entry.set("announce-breaks", true);
-            } else if (!section.equals("slide")) {
-                ConfigurationSection core = entry.createSection("core");
-                core.set("x", cx);
-                core.set("y", cy);
-                core.set("z", cz);
-                core.set("material", "OBSIDIAN");
-                if (section.equals("dtc")) {
-                    entry.set("counter", "SHARED");
-                }
-                entry.set("breaks", 150);
-                entry.set("break-cooldown-seconds", 1);
-            } else {
-                entry.set("points-per-player", 1);
-                entry.set("interval-seconds", 1);
-                entry.set("death-penalty", 10);
-                entry.set("announce-deaths", true);
-                entry.set("points-to-win", 500);
-            }
-            if (!section.equals("totem")) {
-                entry.set("announce-at", List.of());
-            }
-            entry.set("max-duration-seconds", 0);
-            entry.set("schedule", List.of());
-            entry.set("reward-commands", List.of());
-            return true;
-        });
-        if (!written) {
-            module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
-            return true;
-        }
-        module.reloadSettings();
-        module.getLang().send(player, CoreMessages.SETUP_CREATED, "event", id, "radius", String.valueOf(radius));
-        return true;
-    }
-
-    private static void set(ConfigurationSection entry, String key, int x, int y, int z) {
-        ConfigurationSection corner = entry.createSection(key);
-        corner.set("x", x);
-        corner.set("y", y);
-        corner.set("z", z);
-    }
-
-    private boolean setupSetZone(Player player, String[] args) {
-        if (args.length == 2) {
-            return setupZoneWand(player, args[1]);
-        }
-        if (args.length < 3) {
-            return false;
-        }
-        String id = args[1];
-        Integer corner = switch (args[2]) {
-            case "1" -> 1;
-            case "2" -> 2;
-            default -> null;
-        };
-        if (corner == null) {
-            return false;
-        }
-        if (!EventIds.isValid(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", id,
-                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
-            return true;
-        }
-        Optional<String> section = sectionOf(id);
-        if (section.isEmpty()) {
-            module.getLang().send(player, CoreMessages.SETUP_UNKNOWN_ID, "event", id);
-            return true;
-        }
-        if (isRunning(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_RUNNING, "event", id);
-            return true;
-        }
-        Location at = player.getLocation();
-        boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
-            ConfigurationSection entry = entryOf(root, section.get(), id);
-            if (entry == null) {
-                return false;
-            }
-            set(entry, "corner-" + corner, at.getBlockX(), at.getBlockY(), at.getBlockZ());
-            return true;
-        });
-        if (!written) {
-            module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
-            return true;
-        }
-        module.reloadSettings();
-        module.getLang().send(player, CoreMessages.SETUP_ZONE_SET, "event", id, "corner", String.valueOf(corner));
-        return true;
-    }
-
-    /**
-     * {@code /events setzone <id>} - the claiming wand, drawing the event's zone: left
-     * and right click its corners, sneak and left-click to write it.
-     */
-    private boolean setupZoneWand(Player player, String id) {
-        if (!EventIds.isValid(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", id,
-                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
-            return true;
-        }
-        if (sectionOf(id).isEmpty()) {
-            module.getLang().send(player, CoreMessages.SETUP_UNKNOWN_ID, "event", id);
-            return true;
-        }
-        if (module.getClaims() == null) {
-            module.getLang().send(player, CoreMessages.SETUP_NO_WAND);
-            return true;
-        }
-        module.getClaims().getWandSessions().give(player, new ZoneTask(id));
-        return true;
-    }
-
-    /** The wand drawing an event's zone. */
-    private final class ZoneTask implements com.lawkeys.hcfcore.claim.wand.WandTask {
-
-        private final String id;
-
-        ZoneTask(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public String label() {
-            return id;
-        }
-
-        @Override
-        public java.util.List<String> preview(Player player, com.lawkeys.hcfcore.claim.wand.Selection selection) {
-            return java.util.List.of(module.getLang().get(CoreMessages.SETUP_ZONE_PREVIEW, "event", id,
-                    "size", selection.width() + "x" + selection.length(),
-                    "from", String.valueOf(selection.minY()),
-                    "to", String.valueOf(selection.maxY() + module.getSetupZoneHeight())));
-        }
-
-        @Override
-        public boolean confirm(Player player, com.lawkeys.hcfcore.claim.wand.Selection selection) {
-            Optional<String> section = sectionOf(id);
-            if (section.isEmpty()) {
-                module.getLang().send(player, CoreMessages.SETUP_UNKNOWN_ID, "event", id);
-                return true;
-            }
-            if (isRunning(id)) {
-                module.getLang().send(player, CoreMessages.SETUP_RUNNING, "event", id);
-                return false;
-            }
-            int top = selection.maxY() + module.getSetupZoneHeight();
-            boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
-                ConfigurationSection entry = entryOf(root, section.get(), id);
-                if (entry == null) {
-                    return false;
-                }
-                entry.set("world", selection.world());
-                set(entry, "corner-1", selection.minX(), selection.minY(), selection.minZ());
-                set(entry, "corner-2", selection.maxX(), top, selection.maxZ());
-                return true;
-            });
-            if (!written) {
-                module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
-                return false;
-            }
-            module.reloadSettings();
-            module.getLang().send(player, CoreMessages.SETUP_ZONE_DRAWN, "event", id,
-                    "size", selection.width() + "x" + selection.length());
-            return true;
-        }
-    }
-
-    /**
-     * {@code /events settotem <id>} - the Totem's column stands on the block looked at,
-     * and is built there at once, of the block it stands as between runs.
-     */
-    private boolean setupSetTotem(Player player, String[] args) {
-        if (args.length < 2) {
-            return false;
-        }
-        String id = args[1];
-        if (!EventIds.isValid(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", id,
-                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
-            return true;
-        }
-        Optional<TotemDefinition> definition = module.getTotem() == null
-                ? Optional.empty() : module.getTotem().getSettings().find(id);
-        if (definition.isEmpty()) {
-            module.getLang().send(player, TotemMessages.SETUP_NOT_A_TOTEM, "event", id);
-            return true;
-        }
-        if (isRunning(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_RUNNING, "event", id);
-            return true;
-        }
-        Block target = player.getTargetBlockExact(module.getSetupCoreDistance());
-        if (target == null) {
-            module.getLang().send(player, TotemMessages.SETUP_NO_TARGET);
-            return true;
-        }
-        TotemDefinition old = definition.get();
-        Cuboid zone = old.zone();
-        if (!zone.containsBlock(target.getWorld().getName(), target.getX(), target.getY(), target.getZ())
-                || !zone.containsBlock(target.getWorld().getName(), target.getX(), target.getY() + old.height() - 1,
-                target.getZ())) {
-            module.getLang().send(player, TotemMessages.SETUP_OUTSIDE_ZONE, "event", id);
-            return true;
-        }
-        boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
-            ConfigurationSection entry = entryOf(root, "totem", id);
-            if (entry == null) {
-                return false;
-            }
-            ConfigurationSection base = entry.getConfigurationSection("base");
-            if (base == null) {
-                base = entry.createSection("base");
-            }
-            base.set("x", target.getX());
-            base.set("y", target.getY());
-            base.set("z", target.getZ());
-            return true;
-        });
-        if (!written) {
-            module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
-            return true;
-        }
-        // The old column goes; the new one is built where it now stands.
-        org.bukkit.World world = target.getWorld();
-        for (int level = 0; level < old.height(); level++) {
-            Block block = world.getBlockAt(old.baseX(), old.baseY() + level, old.baseZ());
-            if (block.getType().name().equals(old.idleMaterial())) {
-                block.setType(org.bukkit.Material.AIR, false);
-            }
-        }
-        module.reloadSettings();
-        module.getTotem().getSettings().find(id).ifPresent(now -> {
-            org.bukkit.Material idle = org.bukkit.Material.matchMaterial(now.idleMaterial());
-            for (int level = 0; level < now.height(); level++) {
-                world.getBlockAt(now.baseX(), now.baseY() + level, now.baseZ()).setType(idle, false);
-            }
-            module.getLang().send(player, TotemMessages.SETUP_SET, "event", id, "height", String.valueOf(now.height()));
-            if (!module.getTotem().isOnSystemClaim(now)) {
-                module.getLang().send(player, CoreMessages.SETUP_NOT_IN_CLAIM, "event", id);
-            }
-        });
-        return true;
-    }
-
-    private boolean setupSetCore(Player player, String[] args) {
-        if (args.length < 2) {
-            return false;
-        }
-        String id = args[1];
-        if (!EventIds.isValid(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", id,
-                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
-            return true;
-        }
-        Optional<CoreEventDefinition> definition = module.getCore() == null
-                ? Optional.empty() : module.getCore().getSettings().find(id);
-        if (definition.isEmpty()) {
-            boolean isSlide = module.getSlide() != null && module.getSlide().getSettings().find(id).isPresent();
-            module.getLang().send(player, isSlide ? CoreMessages.SETUP_CORE_NOT_APPLICABLE : CoreMessages.SETUP_UNKNOWN_ID,
-                    "event", id);
-            return true;
-        }
-        if (isRunning(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_RUNNING, "event", id);
-            return true;
-        }
-        Block target = player.getTargetBlockExact(module.getSetupCoreDistance());
-        if (target == null) {
-            module.getLang().send(player, CoreMessages.SETUP_NO_TARGET_BLOCK);
-            return true;
-        }
-        Cuboid zone = definition.get().zone();
-        if (!zone.containsBlock(target.getWorld().getName(), target.getX(), target.getY(), target.getZ())) {
-            module.getLang().send(player, CoreMessages.SETUP_CORE_OUTSIDE_ZONE, "event", id);
-            return true;
-        }
-        String section = definition.get().kind() == CoreEventKind.DTC ? "dtc" : "last-break";
-        boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
-            ConfigurationSection entry = entryOf(root, section, id);
-            if (entry == null) {
-                return false;
-            }
-            ConfigurationSection core = entry.getConfigurationSection("core");
-            if (core == null) {
-                core = entry.createSection("core");
-            }
-            core.set("x", target.getX());
-            core.set("y", target.getY());
-            core.set("z", target.getZ());
-            if (!core.contains("material")) {
-                core.set("material", "OBSIDIAN");
-            }
-            return true;
-        });
-        if (!written) {
-            module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
-            return true;
-        }
-        module.reloadSettings();
-        module.getLang().send(player, CoreMessages.SETUP_CORE_SET, "event", id);
-        module.getCore().getSettings().find(id).ifPresent(now -> {
-            if (!module.getCore().isOnSystemClaim(now)) {
-                module.getLang().send(player, CoreMessages.SETUP_NOT_IN_CLAIM, "event", id);
-            }
-        });
-        return true;
-    }
-
-    private boolean setupDelete(Player player, String[] args) {
-        if (args.length < 2) {
-            return false;
-        }
-        String id = args[1];
-        if (!EventIds.isValid(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", id,
-                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
-            return true;
-        }
-        Optional<String> section = sectionOf(id);
-        if (section.isEmpty()) {
-            module.getLang().send(player, CoreMessages.SETUP_UNKNOWN_ID, "event", id);
-            return true;
-        }
-        if (isRunning(id)) {
-            module.getLang().send(player, CoreMessages.SETUP_RUNNING, "event", id);
-            return true;
-        }
-        boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
-            ConfigurationSection parent = root.getConfigurationSection(section.get());
-            if (parent == null || !parent.contains(id)) {
-                return false;
-            }
-            parent.set(id, null);
-            return true;
-        });
-        if (!written) {
-            module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
-            return true;
-        }
-        module.reloadSettings();
-        module.getLang().send(player, CoreMessages.SETUP_DELETED, "event", id);
-        return true;
-    }
-
-    /** @return "dtc", "last-break" or "slide" - whichever of the three this id belongs to */
-    private Optional<String> sectionOf(String id) {
-        if (module.getCore() != null) {
-            Optional<CoreEventDefinition> definition = module.getCore().getSettings().find(id);
-            if (definition.isPresent()) {
-                return Optional.of(definition.get().kind() == CoreEventKind.DTC ? "dtc" : "last-break");
-            }
-        }
-        if (module.getSlide() != null && module.getSlide().getSettings().find(id).isPresent()) {
-            return Optional.of("slide");
-        }
-        if (module.getTotem() != null && module.getTotem().getSettings().find(id).isPresent()) {
-            return Optional.of("totem");
-        }
-        return Optional.empty();
-    }
-
-    private boolean isRunning(String id) {
-        if (module.getCore() != null && module.getCore().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
-            return true;
-        }
-        if (module.getTotem() != null && module.getTotem().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
-            return true;
-        }
-        return module.getSlide() != null && module.getSlide().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent();
-    }
-
-    private boolean idAlreadyTaken(String id) {
-        if (module.getSettings().find(id).isPresent()) {
-            return true;
-        }
-        if (module.getKing() != null && module.getKing().getSettings().find(id).isPresent()) {
-            return true;
-        }
-        if (module.getConquest() != null && module.getConquest().getSettings().find(id).isPresent()) {
-            return true;
-        }
-        if (module.getCore() != null && module.getCore().getSettings().find(id).isPresent()) {
-            return true;
-        }
-        if (module.getTotem() != null && module.getTotem().getSettings().find(id).isPresent()) {
-            return true;
-        }
-        return module.getSlide() != null && module.getSlide().getSettings().find(id).isPresent();
-    }
-
-    /** @return the {@code id}'s own section under {@code sectionName}, or {@code null} if it vanished */
-    private static ConfigurationSection entryOf(ConfigurationSection root, String sectionName, String id) {
-        ConfigurationSection parent = root.getConfigurationSection(sectionName);
-        if (parent == null) {
-            return null;
-        }
-        for (String key : parent.getKeys(false)) {
-            if (key.equalsIgnoreCase(id)) {
-                return parent.getConfigurationSection(key);
-            }
-        }
-        return null;
-    }
-
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission(EventModule.ADMIN_PERMISSION)) {
             return List.of();
         }
         if (args.length == 1) {
-            return prefixed(List.of("start", "stop", "create", "setzone", "setcore", "settotem", "delete"), args[0]);
+            List<String> verbs = new ArrayList<>(List.of("start", "stop"));
+            verbs.addAll(EventSetup.VERBS);
+            return prefixed(verbs, args[0]);
         }
         String action = args[0].toLowerCase(Locale.ROOT);
-        if (args.length == 2) {
-            if (action.equals("create")) {
-                return prefixed(List.of("dtc", "lastbreak", "slide", "totem", "minitotem"), args[1]);
-            }
-            List<String> ids = new ArrayList<>();
-            if (action.equals("settotem")) {
-                if (module.getTotem() != null) {
-                    module.getTotem().getSettings().definitions().forEach(d -> ids.add(d.id()));
-                }
-                return prefixed(ids, args[1]);
-            }
-            if (action.equals("setzone") || action.equals("setcore") || action.equals("delete")) {
-                if (module.getCore() != null) {
-                    module.getCore().getSettings().definitions().forEach(d -> ids.add(d.id()));
-                }
-                if (module.getTotem() != null && !action.equals("setcore")) {
-                    module.getTotem().getSettings().definitions().forEach(d -> ids.add(d.id()));
-                }
-                if (module.getSlide() != null && !action.equals("setcore")) {
-                    module.getSlide().getSettings().definitions().forEach(d -> ids.add(d.id()));
-                }
-                return prefixed(ids, args[1]);
-            }
-            for (CaptureEventDefinition definition : module.getSettings().definitions()) {
-                ids.add(definition.id());
-            }
-            if (module.getKing() != null) {
-                for (KingEventDefinition definition : module.getKing().getSettings().definitions()) {
-                    ids.add(definition.id());
-                }
-            }
-            if (module.getConquest() != null) {
-                for (ConquestDefinition definition : module.getConquest().getSettings().definitions()) {
-                    ids.add(definition.id());
-                }
-            }
-            if (module.getCore() != null) {
-                for (CoreEventDefinition definition : module.getCore().getSettings().definitions()) {
-                    ids.add(definition.id());
-                }
-            }
-            if (module.getSlide() != null) {
-                for (SlideDefinition definition : module.getSlide().getSettings().definitions()) {
-                    ids.add(definition.id());
-                }
-            }
-            if (module.getTotem() != null) {
-                for (TotemDefinition definition : module.getTotem().getSettings().definitions()) {
-                    ids.add(definition.id());
-                }
-            }
-            return prefixed(ids, args[1]);
+        if (EventSetup.VERBS.contains(action)) {
+            return prefixed(setup.complete(action, args), args[args.length - 1]);
         }
-        if (args.length == 3 && action.equals("create")) {
-            return List.of();
-        }
-        if (args.length == 3 && action.equals("setzone")) {
-            return prefixed(List.of("1", "2"), args[2]);
+        if (args.length == 2 && (action.equals("start") || action.equals("stop"))) {
+            return prefixed(setup.ids(), args[1]);
         }
         return List.of();
     }

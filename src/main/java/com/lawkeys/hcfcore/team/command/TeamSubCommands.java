@@ -1041,8 +1041,15 @@ final class TeamSubCommands {
         @Override
         public void execute(TeamModule module, CommandSender sender, String label, String[] args) {
             Optional<SystemZone> zone = parseZone(module, sender, args[1]);
-            if (zone.isPresent()) {
-                report(module, sender, module.getManager().createSystemTeam(args[0], zone.get()));
+            if (zone.isEmpty()) {
+                return;
+            }
+            TeamResult result = module.getManager().createSystemTeam(args[0], zone.get());
+            report(module, sender, result);
+            // Its land is drawn with the claiming wand, like any other claim: in hand at once.
+            if (result.isSuccess() && sender instanceof org.bukkit.entity.Player player) {
+                module.getManager().getTeamByName(args[0].trim())
+                        .ifPresent(team -> module.giveSystemLandTool(player, team));
             }
         }
 

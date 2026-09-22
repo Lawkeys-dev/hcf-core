@@ -23,8 +23,4 @@ public final class TotemMessages {
     public static final String HOLOGRAM_NOBODY = "events.totem.hologram-nobody";
     public static final String SCOREBOARD_LINE = "ui.scoreboard.totem-line";
     public static final String SCOREBOARD_LINE_NOBODY = "ui.scoreboard.totem-line-nobody";
-    public static final String SETUP_SET = "events.setup.totem-set";
-    public static final String SETUP_NOT_A_TOTEM = "events.setup.not-a-totem";
-    public static final String SETUP_NO_TARGET = "events.setup.totem-no-target";
-    public static final String SETUP_OUTSIDE_ZONE = "events.setup.totem-outside-zone";
 }
