@@ -2,7 +2,7 @@
 
 *Configured in [`events.yml`](../reference/configuration/events.md). Command: `/events`.*
 
-Events pull teams into the open. HCFCore ships four kinds — **KOTH**, **Citadel**, **Conquest** and **Kill the King** — all defined in `events.yml` as data: a new KOTH or Citadel is a block of YAML, never a recompile.
+Events pull teams into the open. HCFCore ships seven kinds — **KOTH**, **Citadel**, **Conquest**, **Kill the King**, **DTC**, **Last Break** and **Slide** — all defined in `events.yml` as data: a new KOTH or Citadel is a block of YAML, never a recompile.
 
 ```text
 /events                  # what runs and what is coming (aliases /event, /koth)
@@ -15,7 +15,7 @@ Starting and stopping needs `hcfcore.events.admin`. Ids are shared by every kind
 **Scheduling**: each event has an optional `schedule` — local times of day, read in the file's `time-zone` — at which it opens by itself. The shipped examples have none: they wait for staff until you move them onto your map and give them times.
 
 !!! note "A restart ends a running event"
-    Nothing about a running KOTH, Citadel, Conquest or Kill the King is kept across a restart — except the King's items, which are always given back.
+    Nothing about a running KOTH, Citadel, Conquest, Kill the King, DTC, Last Break or Slide is kept across a restart — except the King's items, which are always given back. A DTC or Last Break's core itself is not run state: it is a permanent block, placed and kept in the world, and simply stays where it is.
 
 ## KOTH
 
@@ -128,18 +128,92 @@ The scoreboard shows `%king_line%` — the King and the time left — and `%king
 !!! tip "Called off?"
     The announcement says why: not enough eligible players online, no warzone in the event's world, or no safe spot found in it.
 
+## DTC (Destroy The Core)
+
+A block **core** stands inside a zone. Teams break it, over and over — it **reappears one tick later**, every time, and stays in place after the run ends: it is permanent scenery for the next run, not a one-off objective.
+
+```yaml title="events.yml — the shipped DTC"
+--8<-- "src/main/resources/events.yml:dtc"
+```
+
+- **Each team waits `break-cooldown-seconds` between its OWN breaks** — never blocked by another team's. Set to `0` for no wait at all.
+- **`counter` decides how the core is won**:
+
+    | `counter` | How it is won |
+    |---|---|
+    | `SHARED` | the core has `breaks` **common** health. When it reaches zero, the team with the **most breaks of its own** wins. A tie goes to whichever of them reached that count first |
+    | `PER_TEAM` | each team has its own count to `breaks`; the **first to get there wins at once**, whatever the others have |
+
+- **Announcements** at remaining-count marks (`announce-at`) — remaining common health under `SHARED`, remaining-to-target for each team under `PER_TEAM`.
+- **Hard stop**: `max-duration-seconds` ends a DTC nobody wins (`0` runs until someone does).
+- **Creative, spectator and teamless players never break the core** — this is not configurable.
+- **DTC and Last Break share one run slot: only one of the two runs at a time** — starting a DTC while a Last Break runs (or the reverse) is refused, naming whichever of the two is actually running. A KOTH, a Conquest, a Slide and a DTC (or a Last Break) can all run together — the families are independent.
+
+The scoreboard shows `%dtc_line%` (common health, or the `PER_TEAM` leader) and `%dtc_team_line%` (your own team's breaks).
+
+## Last Break
+
+The same engine as DTC, always common health: whichever team lands the break that **empties the core wins** — even with fewer breaks of its own than another team that hit it more often.
+
+```yaml title="events.yml — the shipped Last Break"
+--8<-- "src/main/resources/events.yml:last-break"
+```
+
+Everything else — the per-team cooldown, announcements, hard stop, the hardcoded rule that creative, spectator and teamless players never score, and **sharing DTC's one run slot** — is exactly as for DTC. The scoreboard shows `%last_break_line%`.
+
+## Slide
+
+A zone where **every team member present scores for their team**.
+
+```yaml title="events.yml — the shipped Slide"
+--8<-- "src/main/resources/events.yml:slide"
+```
+
+- **Every `interval-seconds`, each team member standing in the zone brings their team `points-per-player`** — cumulative: three members in the zone score three times as fast as one.
+- **A member's death, ANYWHERE on the server, while the Slide runs, costs the team `death-penalty` points** (never below zero). `announce-deaths: false` mutes the broadcast — the points are always lost either way.
+- **The first team to `points-to-win` wins.** Several teams crossing it on the same tick hand it to whichever is highest; an exact tie changes nothing and the Slide keeps running.
+- **Creative, spectator and teamless players never score** — this is not configurable.
+- One Slide runs at a time.
+
+The scoreboard shows `%slide_line%` (the leader) and the **live top 3**, `%slide_top_1%` to `%slide_top_3%`.
+
+## Setting up DTC, Last Break and Slide in-game
+
+Staff lay these three out without touching `events.yml` by hand:
+
+```text
+/events create <dtc|lastbreak|slide> <id>   # a new zone centred on you
+/events setzone <id> <1|2>                  # move a corner to your position
+/events setcore <id>                        # DTC/Last Break: move the core to the block you are looking at
+/events delete <id>
+```
+
+`create` centres a square zone on the player (`events.yml`, `setup.default-zone-radius`, `10` blocks each way by default) and, for a DTC or Last Break, places the core on the same spot. `setcore` targets the block the player is looking at, up to `setup.setcore-distance` blocks away (`10` by default), and refuses a block outside the event's zone. None of the three can be edited while running — stop it first with `/events stop <id>`.
+
+An `<id>` must be **2 to 32 characters of lowercase letters, digits, `_` and `-`** — a dot is refused, since `events.yml` is written through Bukkit's configuration API, which reads a dot in a key as a path separator; a bad id is reported rather than silently mangled. Typed in any case, it is lower-cased to match the shipped ids (`koth`, `last-break`...).
+
+!!! warning "These commands write events.yml"
+    `/events create`, `setzone`, `setcore` and `delete` are the **only** commands in HCFCore that ever rewrite a configuration file — and only the one section of the one event they name, never the rest of the file. Comments are kept; the layout becomes the server's own (quotes, lists one item per line). A file that does not parse is left untouched, and the command says it could not write. See [Upgrading](../getting-started/upgrading.md).
+
+If a DTC or Last Break's core is not on a **system team's claim**, staff are warned — in the console when the event starts, and in chat right after `/events setcore` — since territory protection otherwise does not apply to it between runs:
+
+```text
+/team createsystem <name> combat
+/team forceclaim <name> <radius>
+```
+
 ## Zone holograms
 
-A hologram floats above every capture zone — KOTH, Citadel and each Conquest zone — for as long as it is configured (`zone-holograms`): while its event runs, the time left and who holds it (or "contested"); otherwise, when it runs next (or "not scheduled"). Its texts are under `events.hologram` in `lang/en.yml`. Kill the King has no zone of its own, so no hologram. The hologram module (`holograms.yml`) must be enabled.
+A hologram floats above every capture zone — KOTH, Citadel, each Conquest zone, a DTC or Last Break's core, and a Slide's zone — for as long as it is configured (`zone-holograms`): while its event runs, its status; otherwise, when it runs next (or "not scheduled"). A DTC or Last Break shows its health (or, under `PER_TEAM`, the leader's breaks); a Slide shows its live top 3. Its texts are under `events.hologram` in `lang/en.yml`. Kill the King has no zone of its own, so no hologram. The hologram module (`holograms.yml`) must be enabled.
 
 ## Friendly fire in events
 
-Allies can hurt each other inside the zone of a running KOTH, Citadel or Conquest, and on or by the King during Kill the King — where allied teams compete. See [Combat](combat.md#friendly-fire).
+Allies can hurt each other inside the zone of a running KOTH, Citadel, Conquest, DTC, Last Break or Slide, and on or by the King during Kill the King — where allied teams compete. See [Combat](combat.md#friendly-fire).
 
 ## Points
 
-Winning also earns [team points](teams.md#points-and-ranking), all `0` by default: `koth.points-per-capture` for KOTH and Citadel, `points.per-conquest-win`, `points.per-king-win`.
+Winning also earns [team points](teams.md#points-and-ranking), all `0` by default: `koth.points-per-capture` for KOTH and Citadel, `points.per-conquest-win`, `points.per-king-win`, `points.per-dtc-win`, `points.per-last-break-win`, `points.per-slide-win`.
 
 ## Lunar Client
 
-Lunar Client players see waypoints on KOTH, Citadel and Conquest zones, and on the King during Kill the King. See [Integrations](../server/integrations.md#lunar-client-apollo).
+Lunar Client players see waypoints on KOTH, Citadel and Conquest zones, on a running DTC or Last Break's core, on a running Slide's zone, and on the King during Kill the King. See [Integrations](../server/integrations.md#lunar-client-apollo).

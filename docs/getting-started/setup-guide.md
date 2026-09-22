@@ -105,7 +105,25 @@ Stand at each corner and read your coordinates with ++f3++. A **Citadel** (`cita
 
 Try each one with `/events start <id>` and stop it with `/events stop <id>`. `/events` lists what runs and what is coming.
 
-Reward commands run from the console. KOTH, Citadel and Conquest rewards know `%team%` and `%event%` (a capture belongs to a team, so there is no `%player%`); Kill the King's know `%player%` and `%event%`. See [Capture events](../gameplay/events.md).
+**DTC, Last Break and Slide** (`dtc:`, `last-break:` and `slide:` sections) don't need `events.yml` edited by hand — lay them out in-game instead:
+
+```text
+/events create dtc arena          # a zone centred on you, and (for DTC/Last Break) a core on the same spot
+/events setzone arena 1           # move a corner to where you stand
+/events setzone arena 2
+/events setcore arena             # move the core to the obsidian block you are looking at
+```
+
+Claim around a DTC or Last Break's core, the same way as a Citadel — the core is **permanent**, and staff are warned in the console and in chat if it is not on a system team's claim:
+
+```text
+/team createsystem Arena combat
+/team forceclaim Arena <radius>
+```
+
+See [Capture events](../gameplay/events.md#setting-up-dtc-last-break-and-slide-in-game) for the full walkthrough.
+
+Reward commands run from the console. KOTH, Citadel, Conquest, DTC, Last Break and Slide rewards know `%team%` and `%event%` (a win belongs to a team, so there is no `%player%`); Kill the King's know `%player%` and `%event%`. See [Capture events](../gameplay/events.md).
 
 ## 7. Mountains
 

@@ -28,7 +28,7 @@ Every example on this page is **taken from the shipped `apollo.yml`**. Changes a
 | `enabled` | `true` | Waypoints at all |
 | `hq`, `base`, `rally` | `true` | The team's HQ, base and rally point |
 | `focus` | `true` | A focused player, and a focused team's HQ |
-| `events` | `true` | KOTH, Citadel and Conquest zones, and the King |
+| `events` | `true` | KOTH, Citadel and Conquest zones, the King, a running DTC/Last Break's core, and a running Slide's zone |
 | `colors` | hex colours | One per kind |
 
 ## Team view

@@ -81,13 +81,17 @@ public record TeamSettings(
      * @param perRaidable    to a team whose DTR makes it raidable - negative to take points
      * @param perConquestWin to the team that wins a Conquest
      * @param perKingWin     to the team of the player who wins Kill the King
+     * @param perDtcWin      to the team that wins a DTC
+     * @param perLastBreakWin to the team that wins a Last Break
+     * @param perSlideWin    to the team that wins a Slide
      */
     public record PointsRules(long starting, long minimum, long perKill, long perDeath, long perRaidable,
-                              long perConquestWin, long perKingWin) {
+                              long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
+                              long perSlideWin) {
 
         /** A scale that awards nothing. */
         public PointsRules(long starting, long minimum) {
-            this(starting, minimum, 0L, 0L, 0L, 0L, 0L);
+            this(starting, minimum, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
         }
     }
 

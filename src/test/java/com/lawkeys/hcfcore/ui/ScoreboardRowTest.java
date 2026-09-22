@@ -54,4 +54,23 @@ class ScoreboardRowTest {
             }
         }
     }
+
+    /**
+     * {@code UiSettings.defaults()} is the fallback used when {@code ui.yml}
+     * cannot be read, and its javadoc says it mirrors the shipped file - so
+     * this pins that claim rather than letting it silently drift, as it did
+     * before (missing {@code %focus_line%}, {@code %rally_line%}, the class
+     * rows, {@code %king_location_line%}, the Conquest zones... found while
+     * adding DTC, Last Break and Slide, 21/09/2026).
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    void defaultsMirrorTheShippedScoreboardLinesExactly() throws IOException {
+        Map<String, Object> root;
+        try (Reader reader = Files.newBufferedReader(Path.of("src/main/resources/ui.yml"))) {
+            root = new Yaml().load(reader);
+        }
+        List<String> shipped = (List<String>) ((Map<String, Object>) root.get("scoreboard")).get("lines");
+        assertEquals(shipped, UiSettings.defaults().scoreboard().lines());
+    }
 }

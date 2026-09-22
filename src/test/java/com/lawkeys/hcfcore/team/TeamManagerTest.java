@@ -1078,7 +1078,7 @@ class TeamManagerTest {
 
         private void scale(long perKill, long perDeath, long perRaidable, long perConquestWin, long perKingWin) {
             reconfigure(withPoints(new TeamSettings.PointsRules(100L, 0L, perKill, perDeath, perRaidable,
-                    perConquestWin, perKingWin)));
+                    perConquestWin, perKingWin, 0L, 0L, 0L)));
         }
 
         @Test
@@ -1128,6 +1128,16 @@ class TeamManagerTest {
         }
 
         @Test
+        void dtcLastBreakAndSlideWinsAreScaledToo() {
+            reconfigure(withPoints(new TeamSettings.PointsRules(100L, 0L, 0L, 0L, 0L, 0L, 0L, 5L, 10L, 20L)));
+            Team wizards = createTeam(alice, "Wizards");
+            manager.recordDtcWin(wizards);
+            manager.recordLastBreakWin(wizards);
+            manager.recordSlideWin(wizards);
+            assertEquals(135L, wizards.getPoints());
+        }
+
+        @Test
         void theShippedScaleAwardsNothing() {
             Team wizards = createTeam(alice, "Wizards");
             Team knights = createTeam(bob, "Knights");
@@ -1135,6 +1145,9 @@ class TeamManagerTest {
             manager.recordDeath(alice, bob);
             manager.recordRaidable(knights);
             manager.recordConquestWin(wizards);
+            manager.recordDtcWin(wizards);
+            manager.recordLastBreakWin(wizards);
+            manager.recordSlideWin(wizards);
             assertEquals(before, wizards.getPoints());
             assertEquals(before, knights.getPoints());
         }

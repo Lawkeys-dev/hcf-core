@@ -76,6 +76,9 @@ Where points come from is entirely configurable, and **everything ships at 0** â
 | `points.per-raidable` | the team | its DTR has just made it raidable (a negative number) |
 | `points.per-conquest-win` | the winning team | winning a Conquest |
 | `points.per-king-win` | the winner's team | winning Kill the King |
+| `points.per-dtc-win` | the winning team | winning a DTC |
+| `points.per-last-break-win` | the winning team | winning a Last Break |
+| `points.per-slide-win` | the winning team | winning a Slide |
 | `koth.points-per-capture` | the capturing team | capturing a KOTH or a Citadel |
 
 Killing a teammate, or yourself, earns nothing.

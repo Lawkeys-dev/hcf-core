@@ -85,7 +85,11 @@ The **role** column is the default minimum role in the player's team, set under 
 | Command | Aliases | Does | Permission |
 |---|---|---|---|
 | `/events` | `/event`, `/koth` | What runs and what is coming, refills and map phases included | everyone |
-| `/events start <id>` · `stop <id>` | | Open or end a KOTH, Citadel, Conquest or Kill the King | `hcfcore.events.admin` |
+| `/events start <id>` · `stop <id>` | | Open or end any event — KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide | `hcfcore.events.admin` |
+| `/events create <dtc\|lastbreak\|slide> <id>` | | A new DTC, Last Break or Slide, its zone centred on you | `hcfcore.events.admin` |
+| `/events setzone <id> <1\|2>` | | Move a corner of its zone to your position | `hcfcore.events.admin` |
+| `/events setcore <id>` | | DTC/Last Break: move the core to the block you are looking at | `hcfcore.events.admin` |
+| `/events delete <id>` | | Delete a DTC, Last Break or Slide | `hcfcore.events.admin` |
 | `/resourcenode` | `/node`, `/mountain` | When each Mountain refills | everyone |
 | `/resourcenode refill <id>` | | Refill one now | `hcfcore.resourcenode.admin` |
 | `/sotw` | | SOTW status | everyone |
@@ -96,6 +100,8 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/timer` | `/timers`, `/customtimer` | The custom timers running | everyone |
 | `/timer start <name> <duration> [label]` · `stop <name>` | | Start or stop a countdown shown on every scoreboard. The name `keyall` belongs to `/keyall` and is refused | `hcfcore.schedule.admin` |
 | `/keyall [countdown]` | | Run the key-all commands for everybody online, now or after a countdown (a duration) | `hcfcore.schedule.admin` |
+
+A new id for `/events create` (or an id typed to `setzone`/`setcore`/`delete`) must be **2 to 32 characters of lowercase letters, digits, `_` and `-`** — a dot is refused, since it is a path separator to the configuration file the command writes; the id is lower-cased for you. See [Capture events](../gameplay/events.md#setting-up-dtc-last-break-and-slide-in-game).
 
 ## Kits and items
 

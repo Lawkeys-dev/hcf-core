@@ -58,7 +58,7 @@ hide:
 
     ---
 
-    KOTH, Citadel, Conquest and Kill the King, on daily schedules, with holograms above every zone. Mountains that refill on a clock. SOTW, EOTW and the Purge to open and close the map.
+    KOTH, Citadel, Conquest, Kill the King, DTC, Last Break and Slide, on daily schedules, with holograms above every zone. Mountains that refill on a clock. SOTW, EOTW and the Purge to open and close the map.
 
     [:octicons-arrow-right-24: Capture events](gameplay/events.md) · [Map phases](gameplay/map-phases.md)
 

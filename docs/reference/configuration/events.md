@@ -1,10 +1,13 @@
 # events.yml
 
-Capture events: KOTHs, Citadels (a zone to hold inside a claimed Citadel with its restrictions), Kill the King, Conquest, their schedules and rewards, and the zone holograms.
+Capture events: KOTHs, Citadels (a zone to hold inside a claimed Citadel with its restrictions), Kill the King, Conquest, DTC, Last Break, Slide, their schedules and rewards, and the zone holograms.
 
 **How it plays:** [:octicons-arrow-right-24: read the guide](../../gameplay/events.md)
 
-Every example on this page is **taken from the shipped `events.yml`**. Changes apply with `/hcf reload`. Event ids are shared by every kind — KOTH, Citadel, Kill the King, Conquest — and must be unique across the file.
+Every example on this page is **taken from the shipped `events.yml`**. Changes apply with `/hcf reload`. Event ids are shared by every kind — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break, Slide — and must be unique across the file.
+
+!!! info "DTC, Last Break and Slide are also set up in-game"
+    `/events create`, `setzone`, `setcore` and `delete` write into the `dtc:`, `last-break:` and `slide:` sections below for you — the only commands in the plugin that ever rewrite a configuration file. See the [guide](../../gameplay/events.md#setting-up-dtc-last-break-and-slide-in-game).
 
 !!! warning "The shipped events are examples"
     Their zones sit at made-up coordinates and none has a schedule: they run only when staff start them (`/events start <id>`). Move them onto your map, then give them times.
@@ -31,8 +34,21 @@ Every example on this page is **taken from the shipped `events.yml`**. Changes a
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `enabled` | `true` | A hologram above every KOTH, Citadel and Conquest zone. `holograms.yml` must be enabled too |
-| `height` | `3.0` | Blocks above the top of the zone |
+| `enabled` | `true` | A hologram above every KOTH, Citadel, Conquest, DTC, Last Break and Slide zone. `holograms.yml` must be enabled too |
+| `height` | `3.0` | Blocks above the top of the zone (or the core, for DTC and Last Break) |
+
+## Setup commands
+
+Defaults for `/events create` and `/events setcore` — see the [guide](../../gameplay/events.md#setting-up-dtc-last-break-and-slide-in-game).
+
+```yaml title="events.yml"
+--8<-- "src/main/resources/events.yml:setup"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `default-zone-radius` | `10` | `/events create` centres the new zone on the player, this many blocks each way |
+| `setcore-distance` | `10` | How far `/events setcore` looks along where the player is looking |
 
 ## KOTH
 
@@ -139,6 +155,54 @@ Under `conquest:`.
 ```yaml title="events.yml — its zones"
 --8<-- "src/main/resources/events.yml:conquest-zones"
 ```
+
+## DTC (Destroy The Core)
+
+Under `dtc:`, one entry per DTC. **DTC and Last Break share one run slot — only one of the two runs at a time**, whatever their ids: starting one while the other runs is refused.
+
+```yaml title="events.yml — the shipped DTC"
+--8<-- "src/main/resources/events.yml:dtc"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `display-name`, `world`, `corner-1`, `corner-2` | an example | Its name and zone, as for a KOTH |
+| `core.x`, `core.y`, `core.z` | `410, 65, 410` | The core's block — must be inside the zone |
+| `core.material` | `OBSIDIAN` | The block it is (and reappears as); must be a real, solid, non-air block with no gravity |
+| `counter` | `SHARED` | `SHARED` — the core has `breaks` common health, most breaks of its own wins a tie by whoever reached that count first. `PER_TEAM` — each team has its own count to `breaks`, first there wins at once |
+| `breaks` | `150` | The core's common health (`SHARED`), or each team's target (`PER_TEAM`) |
+| `break-cooldown-seconds` | `1` | Delay between two breaks of the SAME team; `0` for none. Another team is never blocked by it |
+| `announce-at` | `[125, 100, 75, 50, 25, 10]` | Remaining-count marks to broadcast — remaining common health (`SHARED`), or remaining-to-target per team (`PER_TEAM`) |
+| `max-duration-seconds`, `schedule`, `reward-commands` | `0`, `[]`, `[]` | As for a KOTH; rewards get `%team%` and `%event%` |
+
+## Last Break
+
+Under `last-break:` — the same engine as DTC, with no `counter`: it is always common health, and whichever team lands the break that empties it wins.
+
+```yaml title="events.yml — the shipped Last Break"
+--8<-- "src/main/resources/events.yml:last-break"
+```
+
+Every key is as for DTC, minus `counter` — and it shares DTC's one run slot (above).
+
+## Slide
+
+Under `slide:`, one entry per Slide.
+
+```yaml title="events.yml — the shipped Slide"
+--8<-- "src/main/resources/events.yml:slide"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `display-name`, `world`, `corner-1`, `corner-2` | an example | Its name and zone |
+| `points-per-player` | `1` | Points ONE team member standing in the zone brings their team, per interval — cumulative |
+| `interval-seconds` | `1` | How often points are awarded |
+| `death-penalty` | `10` | Points a team loses when a member dies, anywhere, while the Slide runs; never below zero |
+| `announce-deaths` | `true` | Whether a death's point loss is broadcast; the points are always lost either way |
+| `points-to-win` | `500` | The target |
+| `announce-at` | `[100, 250, 400, 450]` | Points marks to broadcast, once per team |
+| `max-duration-seconds`, `schedule`, `reward-commands` | `0`, `[]`, `[]` | As for a KOTH; rewards get `%team%` and `%event%` |
 
 ## The whole shipped file
 

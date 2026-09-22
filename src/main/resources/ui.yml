@@ -49,6 +49,11 @@ scoreboard:
   #   %king_location_line%  where the King is, during Kill the King
   #   %conquest_line% the running Conquest's leader and points
   #   %conquest_zone_1% to %conquest_zone_4%   each Conquest zone's countdown
+  #   %dtc_line%      the running DTC: common health, or PER_TEAM's leader
+  #   %dtc_team_line% your own team's breaks in the running DTC, empty otherwise
+  #   %last_break_line%  the running Last Break's common health
+  #   %slide_line%    the running Slide's leader and points
+  #   %slide_top_1% to %slide_top_3%   the Slide's live top 3 teams
   #   %timer_1% %timer_2% %timer_3%   the custom timers (/timer, /keyall), the
   #                   one ending soonest first - each a whole ready-made row
   #   %class_line%    your class, or the class warming up and its time left
@@ -90,6 +95,13 @@ scoreboard:
     - "[events]%conquest_zone_2%"
     - "[events]%conquest_zone_3%"
     - "[events]%conquest_zone_4%"
+    - "[events]%dtc_line%"
+    - "[events]%dtc_team_line%"
+    - "[events]%last_break_line%"
+    - "[events]%slide_line%"
+    - "[events]%slide_top_1%"
+    - "[events]%slide_top_2%"
+    - "[events]%slide_top_3%"
     - "[timers]%timer_1%"
     - "[timers]%timer_2%"
     - "[timers]%timer_3%"
@@ -207,6 +219,9 @@ tablist:
       - "%event_line%"
       - "%king_line%"
       - "%conquest_line%"
+      - "%dtc_line%"
+      - "%last_break_line%"
+      - "%slide_line%"
       - "%timer_1%"
       - "%timer_2%"
       - "%timer_3%"

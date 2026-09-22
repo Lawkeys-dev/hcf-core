@@ -1,9 +1,8 @@
 package com.lawkeys.hcfcore.events.conquest;
 
+import com.lawkeys.hcfcore.events.Standing;
 import com.lawkeys.hcfcore.util.Durations;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +50,6 @@ public final class ConquestRun {
         }
     }
 
-    /** One line of the standings. */
-    public record Standing(UUID teamId, int points) {
-    }
-
     private final ConquestDefinition definition;
     private final long startedAt;
     private long lastTickAt;
@@ -93,14 +88,7 @@ public final class ConquestRun {
 
     /** @return every team with points, the leader first; equal points by id, so the order is stable */
     public List<Standing> standings() {
-        List<Standing> all = new ArrayList<>();
-        points.forEach((team, score) -> {
-            if (score > 0) {
-                all.add(new Standing(team, score));
-            }
-        });
-        all.sort(Comparator.comparingInt(Standing::points).reversed().thenComparing(Standing::teamId));
-        return all;
+        return Standing.rank(points);
     }
 
     long lastTickAt() {

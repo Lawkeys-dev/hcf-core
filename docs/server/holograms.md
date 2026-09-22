@@ -46,7 +46,7 @@ Only holograms with a leaderboard are redrawn; the others never are.
 
 ## Zone holograms
 
-Every capture zone — KOTH, Citadel, each Conquest zone — gets a hologram of its own, drawn by the event module: the time left and who holds the zone while it runs, otherwise when it runs next. They are configured in `events.yml` (`zone-holograms`), not with `/hologram`. See [Capture events](../gameplay/events.md#zone-holograms).
+Every capture zone — KOTH, Citadel, each Conquest zone, a DTC or Last Break's core, and a Slide's zone — gets a hologram of its own, drawn by the event module: its status while its event runs, otherwise when it runs next. They are configured in `events.yml` (`zone-holograms`), not with `/hologram`. See [Capture events](../gameplay/events.md#zone-holograms).
 
 ## Nothing left floating
 

@@ -6,6 +6,16 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+### Added
+- **Three new capture events**, `events.yml`:
+    - **DTC (Destroy The Core)**: a permanent block core inside a zone, broken by teams — a per-team cooldown (`break-cooldown-seconds`), `counter: SHARED` (common health, most breaks of its own wins a tie by whoever reached that count first) or `PER_TEAM` (first to its own target wins at once).
+    - **Last Break**: the same engine, always common health — whoever lands the break that empties it wins, even with fewer breaks of its own.
+    - **Slide**: every team member standing in a zone scores for their team every `interval-seconds`, cumulative; a death anywhere costs the team `death-penalty` points; first to `points-to-win` wins, with a live top 3 on the scoreboard.
+    - Creative, spectator and teamless players never break a core or score in a Slide.
+    - Staff set up all three in-game: `/events create <dtc|lastbreak|slide> <id>`, `setzone <id> <1|2>`, `setcore <id>` (DTC/Last Break), `delete <id>` — the only commands in the plugin that ever rewrite a configuration file, and only the one section they name. The console — and staff, at `/events setcore` — warn when a core is not on a system team's claim.
+    - New scoreboard placeholders `%dtc_line%`, `%dtc_team_line%`, `%last_break_line%`, `%slide_line%`, `%slide_top_1..3%`; a hologram above every core and Slide zone; Lunar Client waypoints on a running core and Slide zone.
+    - New team points, all `0` by default: `teams.yml`'s `points.per-dtc-win`, `per-last-break-win`, `per-slide-win`. *Configuration files are never rewritten: copy the `dtc:`, `last-break:` and `slide:` sections (and the `setup:` section) from the jar's `events.yml`, the three new `points.per-*-win` lines of `teams.yml`, and the new `dtc_line`/`last_break_line`/`slide_line`/`slide_top_*` lines of `ui.yml` into your own files.*
+
 ## [0.7.0] - 2026-09-19
 
 A look for the whole plugin — one theme, gradients, and the Theme Builder to design it — and the tab list of an HCF server: the grid, with heads, or the classic list with LuckPerms ranks, and nothing to install. Strikes by offence, elevator signs.

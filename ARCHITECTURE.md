@@ -33,7 +33,7 @@ hcf-core/
 │   ├── pvpclass/                       # classes: Diamond, Bard, Archer, Rogue, Miner and those classes.yml defines
 │   ├── effectcommand/                  # /speed and the like: an effect until death (effect-commands.yml)
 │   ├── economy/                        # balances, /pay, /eco, /team deposit|withdraw
-│   ├── events/                         # family A: KOTH/Citadel; conquest/; king/ (Kill the King)
+│   ├── events/                         # family A: KOTH/Citadel; conquest/; king/ (Kill the King); core/ (DTC, Last Break); slide/ (Slide)
 │   ├── resourcenode/                   # family B: Mountains
 │   ├── phase/                          # SOTW, EOTW, the Purge
 │   ├── stats/                          # kills, deaths, killstreaks, playtime, leaderboards
@@ -112,6 +112,7 @@ Its player listeners have nothing to do: no player is online before the gate ope
 - One global `config.yml` plus one file per module (`teams.yml`, `dtr.yml`, `economy.yml`, `events.yml`, `limiters.yml`...), rather than one monolithic file — easier to maintain and to read.
 - Hot reload (`/hcf reload`) without restarting the server, with validation: an invalid value is logged clearly and falls back to its default, never a crash. `ConfigTypeCheck` compares each file with the copy embedded in the jar and reports every setting of the wrong type.
 - **Two exceptions, read at startup only**: `kitmap-mode` (it decides which modules exist) and the `storage` section of `config.yml` (the pool is opened once). `config.yml` holds only the language, the mode and the storage: each module has its own `enabled` switch in its own file.
+- **One exception to "configuration files are never rewritten by the plugin"**: `/events create|setzone|setcore|delete` (`hcfcore.events.admin`) write into `events.yml` for staff who set up a DTC, Last Break or Slide in-game rather than by hand. Only the one section of the one event they name is touched — `YamlConfiguration` with `options().parseComments(true)` (Paper's own default, kept explicit), so the rest of the file, its comments and the documentation's `--8<--` markers survive. The write happens on the main thread, like the command that triggers it: the file is a few kilobytes and these commands are typed rarely enough that an async round trip would not be worth the complexity.
 
 ## 7. Public API: custom events
 
@@ -141,6 +142,8 @@ What they share: a target, a win condition, a timer, announcements, a reward for
 - KOTH and Citadel are the same engine (`EventManager`, `CaptureEventDefinition`): hold a zone alone for a time. A Citadel is a KOTH with a much longer `capture-seconds`, plus a `CitadelDefinition` in its own `citadels:` section: the server team whose claim is the Citadel, and the `CitadelRules` that land refuses at all times (`events/listener/CitadelListener`). Its zone to hold joins the KOTHs in `EventSettings#definitions`, so the capture engine, the agenda, the holograms and the waypoints need nothing new.
 - **Conquest** (`events/conquest/`) is a second engine: several zones captured in parallel for points, first team to the target wins.
 - **Kill the King** (`events/king/`) is a third engine. It has no zone to hold, no holding team and no capture countdown: a player, their death or survival, and a border that punishes rather than counts. Forcing it into `CaptureEventDefinition` would drag a holder and a countdown through code that can have neither — and a common interface would bring nothing either, since the engines have **no method** in common.
+- **DTC and Last Break** (`events/core/`, `CoreEventManager`) are a fourth engine: a block core inside a zone, broken by teams; DTC's `counter` (`SHARED`/`PER_TEAM`) and Last Break's absence of it choose one of three win rules (`CoreWinRule`). The two share every mechanism — the per-team cooldown, the permanent, self-replacing block, the explosion and piston protection — so one engine, two `events.yml` sections (`dtc:`, `last-break:`), reads more truthfully than two engines that would differ only in a message key.
+- **Slide** (`events/slide/`, `SlideManager`) is a fifth engine: continuous per-tick scoring by whoever stands in a zone, with a death penalty that applies anywhere on the server. It shares the schedule, `/events` and the id space with the rest of family A, and nothing else — there is no zone to *hold*, only to *stand in*, which is a different rule from every other engine here.
 
 What the family does share is only what is really common:
 
@@ -267,13 +270,14 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `DeathbanWaiver` | `pvp/` | `NONE` (every banned player is refused at login) | `lives/` (a life spent; never for an EOTW ban) |
 | `DeathCostPolicy` | `dtr/` | `ALWAYS` (every death costs DTR) | `phase/` (SOTW) |
 | `BuildOverride` | `claim/` | `NONE` (no bypass) | `staff/` (`/staffbuild`) |
+| `BreakAllowance` | `claim/` | `NONE` (no bypass) | `events/` (a DTC/Last Break run's core, that one block, while it runs) |
 | `KillstreakObserver` | `stats/` | `NONE` (the streak is counted, nobody is told) | `killstreak/` |
 | `HologramSource` | `hologram/` | no source (only stored holograms) | `events/` (one hologram per capture zone) |
 | `SpawnGuard` | `general/` | `ALLOW` (nobody refused) | `events/` (the King of Kill the King never enters spawn, `/spawn` included) |
 | `LogoutGuard` | `general/` | `ALLOW` (nobody refused) | `pvp/` (a tagged player cannot leave through `/logout`: that would be a combat log) |
 | Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `ability/` (`abilities.yml`) |
 | Partner items | `pvp/` | none recognised (every pearl and listed item counted) | `ability/` (a Fake Pearl, a Golden Head: their own cooldowns) |
-| `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel or Conquest zone, and the King during Kill the King) |
+| `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel, Conquest, DTC, Last Break or Slide zone, and the King during Kill the King) |
 | `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW and the Purge make everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |
 | Scoreboard row filter | `ui/` | every tagged row shows | `settings/` (a section switched off in `/settings`) |

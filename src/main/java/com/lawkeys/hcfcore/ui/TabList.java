@@ -409,7 +409,8 @@ final class TabList {
                             "points", String.valueOf(top.get(i).getPoints()))
                     : "");
         }
-        boolean quiet = List.of("%phase_line%", "%event_line%", "%king_line%", "%conquest_line%", "%timer_1%")
+        boolean quiet = List.of("%phase_line%", "%event_line%", "%king_line%", "%conquest_line%",
+                        "%dtc_line%", "%last_break_line%", "%slide_line%", "%timer_1%")
                 .stream().allMatch(key -> out.value(key).isEmpty());
         out.with("%no_event_line%", quiet ? lang.get(UiMessages.TAB_NO_EVENT) : "");
         return members;

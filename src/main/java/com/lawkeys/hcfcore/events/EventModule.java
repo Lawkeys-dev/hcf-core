@@ -9,9 +9,23 @@ import com.lawkeys.hcfcore.events.conquest.ConquestRun;
 import com.lawkeys.hcfcore.events.conquest.ConquestSettings;
 import com.lawkeys.hcfcore.events.conquest.ConquestSettingsLoader;
 import com.lawkeys.hcfcore.events.conquest.ConquestZone;
+import com.lawkeys.hcfcore.events.core.CoreEventController;
+import com.lawkeys.hcfcore.events.core.CoreEventDefinition;
+import com.lawkeys.hcfcore.events.core.CoreEventKind;
+import com.lawkeys.hcfcore.events.core.CoreMessages;
+import com.lawkeys.hcfcore.events.core.CoreRun;
+import com.lawkeys.hcfcore.events.core.CoreSettings;
+import com.lawkeys.hcfcore.events.core.CoreSettingsLoader;
 import com.lawkeys.hcfcore.events.king.KingEventController;
 import com.lawkeys.hcfcore.events.king.KingSettingsLoader;
 import com.lawkeys.hcfcore.events.listener.CitadelListener;
+import com.lawkeys.hcfcore.events.slide.SlideController;
+import com.lawkeys.hcfcore.events.slide.SlideDefinition;
+import com.lawkeys.hcfcore.events.slide.SlideMessages;
+import com.lawkeys.hcfcore.events.slide.SlideRun;
+import com.lawkeys.hcfcore.events.slide.SlideSettings;
+import com.lawkeys.hcfcore.events.slide.SlideSettingsLoader;
+import com.lawkeys.hcfcore.events.core.CoreWinRule;
 import com.lawkeys.hcfcore.hologram.HologramSource;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.startup.StartupGate;
@@ -76,10 +90,15 @@ public final class EventModule {
     /** {@code zone-holograms} in events.yml. */
     private volatile boolean zoneHolograms = true;
     private volatile double zoneHologramHeight = 3.0;
+    /** {@code setup:} in events.yml - defaults used by {@code /events create} and {@code /events setcore}. */
+    private volatile int setupZoneRadius = 10;
+    private volatile int setupCoreDistance = 10;
     private static final DateTimeFormatter HOLOGRAM_TIME = DateTimeFormatter.ofPattern("HH:mm");
     private EventManager manager;
     private KingEventController king;
     private ConquestController conquest;
+    private CoreEventController core;
+    private SlideController slide;
     private BukkitTask tickTask;
 
     /**
@@ -126,6 +145,21 @@ public final class EventModule {
         return teams;
     }
 
+    /** @return the plugin instance, for the {@code /events} setup commands that write {@code events.yml} */
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    /** @return the radius, in blocks, of the zone {@code /events create} centres on the player */
+    public int getSetupZoneRadius() {
+        return setupZoneRadius;
+    }
+
+    /** @return how far {@code /events setcore} looks for the block a player targets */
+    public int getSetupCoreDistance() {
+        return setupCoreDistance;
+    }
+
     /**
      * Registers a module that has its own scheduled things to list in
      * {@code /events}. See {@link AgendaContributor}.
@@ -154,6 +188,16 @@ public final class EventModule {
         return conquest;
     }
 
+    /** @return DTC and Last Break, which share {@code /events} and {@code events.yml} with the captures */
+    public CoreEventController getCore() {
+        return core;
+    }
+
+    /** @return Slide, which shares {@code /events} and {@code events.yml} with the captures */
+    public SlideController getSlide() {
+        return slide;
+    }
+
     /**
      * Answers {@code pvp/}'s {@code AllyCombatZone}: the "event areas" where the
      * owner lets allies fight (13/09/2026) - the zone of a running KOTH or Citadel,
@@ -175,6 +219,9 @@ public final class EventModule {
                     }
                 }
             }
+        }
+        if (runningCoreZoneContains(world, x, y, z) || runningSlideZoneContains(world, x, y, z)) {
+            return true;
         }
         return king != null && king.getManager().isKing(playerId);
     }
@@ -204,17 +251,47 @@ public final class EventModule {
                 }
             }
         }
-        return false;
+        return runningCoreZoneContains(world, location.getX(), location.getY(), location.getZ())
+                || runningSlideZoneContains(world, location.getX(), location.getY(), location.getZ());
+    }
+
+    /** @return whether the running DTC or Last Break's zone (there is at most one) covers this point */
+    private boolean runningCoreZoneContains(String world, double x, double y, double z) {
+        if (core == null) {
+            return false;
+        }
+        return core.getManager().getCurrent()
+                .map(run -> run.getDefinition().zone().contains(world, x, y, z))
+                .orElse(false);
+    }
+
+    /** @return whether the running Slide's zone (there is at most one) covers this point */
+    private boolean runningSlideZoneContains(String world, double x, double y, double z) {
+        if (slide == null) {
+            return false;
+        }
+        return slide.getManager().getCurrent()
+                .map(run -> run.getDefinition().zone().contains(world, x, y, z))
+                .orElse(false);
     }
 
     /** @param dataSource pool Kill the King keeps its stashes in, or {@code null} to keep them in memory */
     public void enable(DataSource dataSource) {
         this.king = new KingEventController(plugin, teams, claims, lang, startup);
         this.conquest = new ConquestController(plugin, this, teams);
+        this.core = new CoreEventController(plugin, this, teams, claims);
+        this.slide = new SlideController(plugin, this, teams);
         reloadSettings();
         this.manager = new EventManager(() -> settings);
         king.enable(dataSource);
         conquest.enable(settings.tickSeconds());
+        core.enable(settings.tickSeconds());
+        slide.enable(settings.tickSeconds());
+        if (claims != null) {
+            // A DTC/Last Break run's core is broken through territory protection
+            // for that one block - see claim/BreakAllowance.
+            claims.setBreakAllowance((world, x, y, z) -> core.getManager().isCore(world, x, y, z));
+        }
 
         registerCommand("events", new EventsCommand(this));
         plugin.getServer().getPluginManager().registerEvents(new CitadelListener(this), plugin);
@@ -231,6 +308,19 @@ public final class EventModule {
         int conquests = conquest.getSettings().definitions().size();
         if (conquests > 0) {
             plugin.getLogger().info("Loaded " + conquests + " Conquest(s).");
+        }
+        long dtcCount = core.getSettings().definitions().stream()
+                .filter(definition -> definition.kind() == CoreEventKind.DTC).count();
+        long lastBreakCount = core.getSettings().definitions().size() - dtcCount;
+        if (dtcCount > 0) {
+            plugin.getLogger().info("Loaded " + dtcCount + " DTC event(s).");
+        }
+        if (lastBreakCount > 0) {
+            plugin.getLogger().info("Loaded " + lastBreakCount + " Last Break event(s).");
+        }
+        int slides = slide.getSettings().definitions().size();
+        if (slides > 0) {
+            plugin.getLogger().info("Loaded " + slides + " Slide event(s).");
         }
 
         scheduleTick();
@@ -427,12 +517,24 @@ public final class EventModule {
         ConfigurationSection holograms = file == null ? null : file.getConfigurationSection("zone-holograms");
         this.zoneHolograms = holograms == null || holograms.getBoolean("enabled", true);
         this.zoneHologramHeight = holograms == null ? 3.0 : holograms.getDouble("height", 3.0);
+        ConfigurationSection setup = file == null ? null : file.getConfigurationSection("setup");
+        this.setupZoneRadius = Math.max(1, setup == null ? 10 : setup.getInt("default-zone-radius", 10));
+        this.setupCoreDistance = Math.max(1, setup == null ? 10 : setup.getInt("setcore-distance", 10));
         if (king != null) {
             king.applySettings(KingSettingsLoader.load(file, settings, warn));
         }
         if (conquest != null && king != null) {
             conquest.applySettings(ConquestSettingsLoader.load(
                     file, settings, king.getSettings(), warn), settings.tickSeconds());
+        }
+        if (core != null && king != null && conquest != null) {
+            core.applySettings(CoreSettingsLoader.load(
+                    file, settings, king.getSettings(), conquest.getSettings(), warn), settings.tickSeconds());
+        }
+        if (slide != null && king != null && conquest != null && core != null) {
+            slide.applySettings(SlideSettingsLoader.load(
+                    file, settings, king.getSettings(), conquest.getSettings(), core.getSettings(), warn),
+                    settings.tickSeconds());
         }
         if (manager != null) {
             // A reload may have changed the schedule or the times themselves; forget
@@ -507,7 +609,73 @@ public final class EventModule {
                 }
             }
         }
+        if (core != null) {
+            CoreSettings coreSettings = core.getSettings();
+            Optional<CoreRun> run = core.getManager().getCurrent();
+            for (CoreEventDefinition definition : coreSettings.enabled() ? coreSettings.definitions()
+                    : List.<CoreEventDefinition>of()) {
+                List<String> lines = new ArrayList<>();
+                lines.add(lang.get(CoreMessages.HOLOGRAM_CORE_TITLE, "event", definition.displayName()));
+                Optional<CoreRun> thisOne = run.filter(r -> r.getDefinition().id().equals(definition.id()));
+                if (thisOne.isPresent()) {
+                    coreStatus(lines, thisOne.get());
+                } else {
+                    next(lines, core.getManager().getNextOccurrence(definition));
+                }
+                placed.add(aboveBlock("core:" + definition.id(), definition.zone().world(),
+                        definition.coreX(), definition.coreY(), definition.coreZ(), lines));
+            }
+        }
+        if (slide != null) {
+            SlideSettings slideSettings = slide.getSettings();
+            Optional<SlideRun> run = slide.getManager().getCurrent();
+            for (SlideDefinition definition : slideSettings.enabled() ? slideSettings.definitions()
+                    : List.<SlideDefinition>of()) {
+                List<String> lines = new ArrayList<>();
+                lines.add(lang.get(SlideMessages.HOLOGRAM_TITLE, "event", definition.displayName()));
+                Optional<SlideRun> thisOne =
+                        run.filter(r -> r.getDefinition().id().equals(definition.id()));
+                if (thisOne.isPresent()) {
+                    slideStatus(lines, thisOne.get());
+                } else {
+                    next(lines, slide.getManager().getNextOccurrence(definition));
+                }
+                placed.add(above("slide:" + definition.id(), definition.zone(), lines));
+            }
+        }
         return placed;
+    }
+
+    private void coreStatus(List<String> lines, CoreRun run) {
+        CoreEventDefinition definition = run.getDefinition();
+        if (definition.winRule() == CoreWinRule.FIRST_TO_TARGET) {
+            List<Standing> standings = run.standings();
+            if (standings.isEmpty()) {
+                lines.add(lang.get(CoreMessages.HOLOGRAM_CORE_NOBODY));
+            } else {
+                String leader = teams.getManager() == null ? "?"
+                        : teams.getManager().getTeam(standings.get(0).teamId()).map(Team::getName).orElse("?");
+                lines.add(lang.get(CoreMessages.HOLOGRAM_CORE_LEADER, "team", leader,
+                        "breaks", String.valueOf(standings.get(0).points()), "target", String.valueOf(definition.breaks())));
+            }
+        } else {
+            lines.add(lang.get(CoreMessages.HOLOGRAM_CORE_HEALTH,
+                    "health", String.valueOf(run.health()), "max", String.valueOf(definition.breaks())));
+        }
+    }
+
+    private void slideStatus(List<String> lines, SlideRun run) {
+        List<Standing> top = run.top(3);
+        if (top.isEmpty()) {
+            lines.add(lang.get(SlideMessages.HOLOGRAM_NOBODY));
+            return;
+        }
+        for (int i = 0; i < top.size(); i++) {
+            String team = teams.getManager() == null ? "?"
+                    : teams.getManager().getTeam(top.get(i).teamId()).map(Team::getName).orElse("?");
+            lines.add(lang.get(SlideMessages.HOLOGRAM_TOP, "rank", String.valueOf(i + 1), "team", team,
+                    "points", String.valueOf(top.get(i).points())));
+        }
     }
 
     private void status(List<String> lines, long secondsLeft, UUID holder, boolean contested) {
@@ -536,6 +704,11 @@ public final class EventModule {
                 (zone.minZ() + zone.maxZ() + 1) / 2.0, lines);
     }
 
+    /** {@code height} blocks above one specific block - a DTC or Last Break's core. */
+    private HologramSource.Placed aboveBlock(String id, String world, int x, int y, int z, List<String> lines) {
+        return new HologramSource.Placed(id, world, x + 0.5, y + 1 + zoneHologramHeight, z + 0.5, lines);
+    }
+
     public void disable() {
         if (tickTask != null) {
             tickTask.cancel();
@@ -546,6 +719,12 @@ public final class EventModule {
         }
         if (conquest != null) {
             conquest.disable();
+        }
+        if (core != null) {
+            core.disable();
+        }
+        if (slide != null) {
+            slide.disable();
         }
         if (manager != null) {
             manager.stopAll();

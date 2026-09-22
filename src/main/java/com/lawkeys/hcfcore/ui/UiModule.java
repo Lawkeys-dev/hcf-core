@@ -6,10 +6,21 @@ import com.lawkeys.hcfcore.dtr.DtrModule;
 import com.lawkeys.hcfcore.economy.EconomyModule;
 import com.lawkeys.hcfcore.events.EventModule;
 import com.lawkeys.hcfcore.events.RunningEvent;
+import com.lawkeys.hcfcore.events.Standing;
 import com.lawkeys.hcfcore.events.conquest.ConquestController;
 import com.lawkeys.hcfcore.events.conquest.ConquestDefinition;
 import com.lawkeys.hcfcore.events.conquest.ConquestMessages;
 import com.lawkeys.hcfcore.events.conquest.ConquestRun;
+import com.lawkeys.hcfcore.events.core.CoreEventController;
+import com.lawkeys.hcfcore.events.core.CoreEventKind;
+import com.lawkeys.hcfcore.events.core.CoreEventDefinition;
+import com.lawkeys.hcfcore.events.core.CoreMessages;
+import com.lawkeys.hcfcore.events.core.CoreRun;
+import com.lawkeys.hcfcore.events.core.CoreWinRule;
+import com.lawkeys.hcfcore.events.slide.SlideController;
+import com.lawkeys.hcfcore.events.slide.SlideDefinition;
+import com.lawkeys.hcfcore.events.slide.SlideMessages;
+import com.lawkeys.hcfcore.events.slide.SlideRun;
 import com.lawkeys.hcfcore.events.king.KingEventController;
 import com.lawkeys.hcfcore.events.king.KingRun;
 import com.lawkeys.hcfcore.lang.LangManager;
@@ -244,7 +255,7 @@ public final class UiModule {
         renderEconomy(out, player);
         renderCombat(out, player, now);
         renderPhase(out);
-        renderEvents(out);
+        renderEvents(out, team);
         renderTerritory(out, player);
         renderTimers(out, now);
         for (var source : placeholderSources) {
@@ -258,7 +269,7 @@ public final class UiModule {
      * reigns. {@code %event_line%} was documented and placed on the default board
      * from the start, but nothing filled it, so the row never appeared.
      */
-    private void renderEvents(LineRenderer out) {
+    private void renderEvents(LineRenderer out, Optional<Team> viewerTeam) {
         String eventLine = "";
         String kingLine = "";
         String kingLocationLine = "";
@@ -292,6 +303,8 @@ public final class UiModule {
         out.with("%event_line%", eventLine).with("%king_line%", kingLine)
                 .with("%king_location_line%", kingLocationLine);
         renderConquest(out);
+        renderCore(out, viewerTeam);
+        renderSlide(out);
     }
 
     /** How many Conquest zones the board can show, as %conquest_zone_1% to %conquest_zone_4%. */
@@ -308,7 +321,7 @@ public final class UiModule {
         List<ConquestRun.ZoneState> zones = List.of();
         if (run.isPresent()) {
             ConquestDefinition definition = run.get().getDefinition();
-            List<ConquestRun.Standing> standings = run.get().standings();
+            List<Standing> standings = run.get().standings();
             String leader = standings.isEmpty() ? "-"
                     : teams == null || teams.getManager() == null ? "?"
                     : teams.getManager().getTeam(standings.get(0).teamId()).map(Team::getName).orElse("?");
@@ -329,6 +342,87 @@ public final class UiModule {
                         "zone", zone.zone().displayName());
             }
             out.with("%conquest_zone_" + (i + 1) + "%", row);
+        }
+    }
+
+    /**
+     * The running DTC and Last Break - {@code %dtc_line%} reads common health
+     * under SHARED, or the leader's own breaks under PER_TEAM;
+     * {@code %dtc_team_line%} is the viewer's own team's breaks, empty without a
+     * team or a run. Empty rows outside a run.
+     */
+    private void renderCore(LineRenderer out, Optional<Team> viewerTeam) {
+        CoreEventController core = events == null ? null : events.getCore();
+        Optional<CoreRun> dtcRun = core == null ? Optional.empty()
+                : core.getManager().getCurrent().filter(run -> run.getDefinition().kind() == CoreEventKind.DTC);
+        String dtcLine = "";
+        String dtcTeamLine = "";
+        if (dtcRun.isPresent()) {
+            CoreRun run = dtcRun.get();
+            CoreEventDefinition definition = run.getDefinition();
+            if (definition.winRule() == CoreWinRule.FIRST_TO_TARGET) {
+                List<Standing> standings = run.standings();
+                String leader = standings.isEmpty() ? "-"
+                        : teams == null || teams.getManager() == null ? "?"
+                        : teams.getManager().getTeam(standings.get(0).teamId()).map(Team::getName).orElse("?");
+                dtcLine = lang.get(CoreMessages.SCOREBOARD_DTC_LINE_PER_TEAM,
+                        "event", definition.displayName(), "team", leader,
+                        "breaks", String.valueOf(standings.isEmpty() ? 0 : standings.get(0).points()),
+                        "target", String.valueOf(definition.breaks()));
+            } else {
+                dtcLine = lang.get(CoreMessages.SCOREBOARD_DTC_LINE, "event", definition.displayName(),
+                        "health", String.valueOf(run.health()), "max", String.valueOf(definition.breaks()));
+            }
+            if (viewerTeam.isPresent()) {
+                dtcTeamLine = lang.get(CoreMessages.SCOREBOARD_DTC_TEAM_LINE,
+                        "breaks", String.valueOf(run.breaksOf(viewerTeam.get().getId())));
+            }
+        }
+        out.with("%dtc_line%", dtcLine).with("%dtc_team_line%", dtcTeamLine);
+
+        Optional<CoreRun> lastBreakRun = core == null ? Optional.empty()
+                : core.getManager().getCurrent().filter(run -> run.getDefinition().kind() == CoreEventKind.LAST_BREAK);
+        String lastBreakLine = "";
+        if (lastBreakRun.isPresent()) {
+            CoreRun run = lastBreakRun.get();
+            lastBreakLine = lang.get(CoreMessages.SCOREBOARD_LAST_BREAK_LINE, "event", run.getDefinition().displayName(),
+                    "health", String.valueOf(run.health()), "max", String.valueOf(run.getDefinition().breaks()));
+        }
+        out.with("%last_break_line%", lastBreakLine);
+    }
+
+    /** How many Slide rows the top 3 can show, as %slide_top_1% to %slide_top_3%. */
+    private static final int SLIDE_TOP_ROWS = 3;
+
+    /** The running Slide's leader, then the live top 3. Empty rows outside a run. */
+    private void renderSlide(LineRenderer out) {
+        SlideController slide = events == null ? null : events.getSlide();
+        Optional<SlideRun> run = slide == null ? Optional.empty() : slide.getManager().getCurrent();
+        String line = "";
+        List<Standing> top = List.of();
+        if (run.isPresent()) {
+            SlideDefinition definition = run.get().getDefinition();
+            List<Standing> standings = run.get().standings();
+            String leader = standings.isEmpty() ? "-"
+                    : teams == null || teams.getManager() == null ? "?"
+                    : teams.getManager().getTeam(standings.get(0).teamId()).map(Team::getName).orElse("?");
+            line = lang.get(SlideMessages.SCOREBOARD_LINE,
+                    "team", leader,
+                    "points", String.valueOf(standings.isEmpty() ? 0 : standings.get(0).points()),
+                    "target", String.valueOf(definition.pointsToWin()),
+                    "event", definition.displayName());
+            top = run.get().top(SLIDE_TOP_ROWS);
+        }
+        out.with("%slide_line%", line);
+        for (int i = 0; i < SLIDE_TOP_ROWS; i++) {
+            String row = "";
+            if (i < top.size()) {
+                row = lang.get(SlideMessages.SCOREBOARD_TOP, "rank", String.valueOf(i + 1),
+                        "team", teams == null || teams.getManager() == null ? "?"
+                                : teams.getManager().getTeam(top.get(i).teamId()).map(Team::getName).orElse("?"),
+                        "points", String.valueOf(top.get(i).points()));
+            }
+            out.with("%slide_top_" + (i + 1) + "%", row);
         }
     }
 

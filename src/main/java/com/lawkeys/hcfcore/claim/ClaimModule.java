@@ -46,6 +46,7 @@ public final class ClaimModule {
     private volatile ClaimSettings settings = ClaimSettings.defaults();
     private volatile TeleportGuard teleportGuard = TeleportGuard.ALLOW;
     private volatile BuildOverride buildOverride = BuildOverride.NONE;
+    private volatile BreakAllowance breakAllowance = BreakAllowance.NONE;
     private ClaimManager manager;
     private BukkitTask saveTask;
 
@@ -109,6 +110,19 @@ public final class ClaimModule {
 
     public BuildOverride getBuildOverride() {
         return buildOverride;
+    }
+
+    /**
+     * Installs the break allowance. Called by {@code events/} at startup, so a
+     * DTC or Last Break run under way can be broken through territory protection
+     * for its own core; until then {@link BreakAllowance#NONE} changes nothing.
+     */
+    public void setBreakAllowance(BreakAllowance breakAllowance) {
+        this.breakAllowance = Objects.requireNonNull(breakAllowance, "breakAllowance");
+    }
+
+    public BreakAllowance getBreakAllowance() {
+        return breakAllowance;
     }
 
     /**

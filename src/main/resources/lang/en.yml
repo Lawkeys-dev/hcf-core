@@ -468,6 +468,15 @@ events:
     free: "{muted}Nobody holds it"
     next: "{muted}Next: {secondary}%time%"
     unscheduled: "{muted}Not scheduled"
+    # Above a DTC or Last Break's core.
+    core-title: "{primary}&l%event%"
+    core-health: "{muted}Health: {secondary}%health%{muted}/{secondary}%max%"
+    core-leader: "{muted}Leads: {success}%team% {secondary}%breaks%{muted}/{secondary}%target%"
+    core-nobody: "{muted}Nobody has broken it yet"
+    # Above a Slide's zone.
+    slide-title: "{primary}&l%event%"
+    slide-top: "{muted}%rank%. {secondary}%team% {dark}{bullet} {primary}%points%"
+    slide-nobody: "{muted}Nobody has scored yet"
 
   broadcast:
     started: "{prefix}{warning}%event% {primary}has started! {muted}Hold it for {secondary}%time% {muted}to win. {dark}(%zone%)"
@@ -539,6 +548,73 @@ events:
     list:
       active: "{primary}♛ {secondary}%event% {muted}- {secondary}%king% {muted}reigns, {secondary}%time% {muted}left"
       crowning: "{primary}♛ {secondary}%event% {muted}- drawing the King..."
+
+  # --- DTC and Last Break share one run slot (one engine, CoreEventManager):
+  # only one of the two runs at a time. This message names whichever of the
+  # two is actually running - never "one DTC at a time" for a Last Break, or
+  # the reverse.
+  core:
+    already-running: "{error}A core event is already running: {secondary}%event% {error}({muted}DTC or Last Break - only one at a time{error})."
+
+  # --- DTC (Destroy The Core) ----------------------------------------------
+  # %event% the DTC's display name, %team% the team concerned.
+  dtc:
+    started: "{prefix}{primary}&l%event% {warning}has begun! {muted}Break the core - {secondary}%target% {muted}health, most breaks of its own wins."
+    started-per-team: "{prefix}{primary}&l%event% {warning}has begun! {muted}First team to {secondary}%target% {muted}breaks of its own wins."
+    milestone: "{prefix}{primary}%event% {dark}{bullet} {muted}the core has {secondary}%remaining%{muted}/{secondary}%total% {muted}health left."
+    milestone-per-team: "{prefix}{primary}%event% {dark}{bullet} {secondary}%team% {muted}has {secondary}%remaining% {muted}breaks left to win."
+    won: "{prefix}{primary}&l%event% {warning}was won by {secondary}%team% {warning}with {secondary}%breaks% {warning}breaks!"
+    expired: "{prefix}{primary}%event% {muted}ran out of time with no winner."
+    stopped: "{prefix}{primary}%event% {muted}was stopped by staff."
+    cooldown: "{error}Your team must wait {secondary}%time%s {error}before breaking the core again."
+    no-team: "{error}You cannot break the core right now."
+    list-active: "{primary}▶ {secondary}%event% {muted}- {secondary}%health%{muted}/{secondary}%max% {muted}health left"
+    list-active-per-team: "{primary}▶ {secondary}%event% {muted}- {secondary}%team% {muted}leads with {secondary}%breaks%{muted}/{secondary}%target% {muted}breaks"
+    list-active-nobody: "{primary}▶ {secondary}%event% {muted}- nobody has broken it yet {dark}(first to %target%)"
+
+  # --- Last Break ------------------------------------------------------------
+  last-break:
+    started: "{prefix}{error}&l%event% {warning}has begun! {muted}Whoever lands the last hit on the core - {secondary}%target% {muted}health - wins."
+    milestone: "{prefix}{error}%event% {dark}{bullet} {muted}the core has {secondary}%remaining%{muted}/{secondary}%total% {muted}health left."
+    won: "{prefix}{error}&l%event% {warning}was won by {secondary}%team%{warning}: the last break was theirs!"
+    expired: "{prefix}{error}%event% {muted}ran out of time with no winner."
+    stopped: "{prefix}{error}%event% {muted}was stopped by staff."
+    cooldown: "{error}Your team must wait {secondary}%time%s {error}before breaking the core again."
+    no-team: "{error}You cannot break the core right now."
+    list-active: "{primary}▶ {secondary}%event% {muted}- {secondary}%health%{muted}/{secondary}%max% {muted}health left"
+    list-active-nobody: "{primary}▶ {secondary}%event% {muted}- nobody has broken it yet {dark}(first to %target%)"
+
+  # --- Slide -----------------------------------------------------------------
+  # %event% the Slide's display name, %team% the team concerned.
+  slide:
+    started: "{prefix}{success}&l%event% {warning}has begun! {muted}Stand in the zone to score - the first team to {secondary}%target% {muted}points wins."
+    milestone: "{prefix}{success}%event% {dark}{bullet} {secondary}%team% {muted}reached {secondary}%points%{muted}/{secondary}%target% {muted}points."
+    points-lost: "{prefix}{success}%event% {dark}{bullet} {secondary}%team% {error}lost %lost% point(s) {muted}to a death {dark}- {secondary}%points%{muted}/{secondary}%target%"
+    won: "{prefix}{success}&l%event% {warning}was won by {secondary}%team% {warning}with {secondary}%points% {warning}points!"
+    expired: "{prefix}{success}%event% {muted}ran out of time with no winner."
+    stopped: "{prefix}{success}%event% {muted}was stopped by staff."
+    already-running: "{error}%event% is already running - one Slide at a time."
+    list-active: "{primary}▶ {secondary}%event% {muted}- {secondary}%team% {muted}leads with {secondary}%points%{muted}/{secondary}%target%"
+    list-active-nobody: "{primary}▶ {secondary}%event% {muted}- nobody has scored yet {dark}(first to %target%)"
+
+  # --- Setup commands (/events create|setzone|setcore|delete) - DTC, Last
+  # Break and Slide only. These are the only commands that rewrite events.yml.
+  setup:
+    created: "{success}Created {secondary}%event% {muted}({secondary}%radius% {muted}block radius) - use {secondary}/events setzone %event% <1|2> {muted}to move its corners, and {secondary}/events setcore %event% {muted}to move its core."
+    already-exists: "{error}An event called '%event%' already exists."
+    unknown-type: "{error}'%type%' is not dtc, lastbreak or slide."
+    unknown-id: "{error}There is no DTC, Last Break or Slide called '%event%'."
+    invalid-id: "{error}'%id%' is not a valid id {muted}- use only lowercase letters, digits, '_' and '-' ({secondary}%min%{muted}-{secondary}%max% {muted}characters)."
+    running: "{error}%event% is running - stop it first with /events stop %event%."
+    zone-set: "{success}Corner %corner% of {secondary}%event% {muted}set to your position."
+    core-set: "{success}The core of {secondary}%event% {muted}is now the block you were looking at."
+    core-outside-zone: "{error}That block is outside %event%'s zone."
+    core-not-applicable: "{error}%event% is a Slide - it has no core."
+    no-target-block: "{error}You are not looking at a block close enough."
+    deleted: "{success}Deleted {secondary}%event%{success}."
+    not-in-claim: "{warning}%event%'s core is not on a system team's claim {muted}- territory protection will not apply to it between runs. Claim around it with {secondary}/team createsystem <name> combat{muted}, then {secondary}/team forceclaim{muted}."
+    usage: "{error}Usage: {secondary}%usage%"
+    write-failed: "{error}Could not write events.yml - see the console."
 
 # ---------------------------------------------------------------------------
 # Resource nodes (Mountain / Glowstone Mountain / Ore Mountain)
@@ -834,6 +910,15 @@ ui:
     # The running Conquest: the leading team, then one row per zone.
     conquest-line: "%event% {dark}{bullet} {secondary}%team% %points%{muted}/{secondary}%target%"
     conquest-zone: "%zone% {dark}{bullet} {secondary}%time%"
+    # The running DTC - SHARED (common health) or PER_TEAM (the leader's own breaks).
+    dtc-line: "%event% {dark}{bullet} {secondary}%health%{muted}/{secondary}%max%"
+    dtc-line-per-team: "%event% {dark}{bullet} {secondary}%team% %breaks%{muted}/{secondary}%target%"
+    # Your own team's breaks in the running DTC, empty without a team or a run.
+    dtc-team-line: "{muted}Your breaks {dark}{bullet} {secondary}%breaks%"
+    last-break-line: "%event% {dark}{bullet} {secondary}%health%{muted}/{secondary}%max%"
+    # The running Slide's leader, then the live top 3 (%slide_top_1% to %slide_top_3%).
+    slide-line: "%event% {dark}{bullet} {secondary}%team% %points%{muted}/{secondary}%target%"
+    slide-top: "{muted}%rank%. {secondary}%team% {dark}{bullet} {primary}%points%"
     # One custom timer (/timer, /keyall); %label% is its label, colours included.
     timer-line: "%label% {dark}{bullet} {secondary}%time%"
   # The tab list (ui.yml, tablist).
@@ -1207,6 +1292,8 @@ apollo:
     focus-team: "%team% HQ"
     conquest-zone: "Conquest %zone%"
     king: "King %player%"
+    dtc-core: "%event% core"
+    slide: "%event%"
 
 # ---------------------------------------------------------------------------
 # Limiters (limiters.yml): blocks per claim.

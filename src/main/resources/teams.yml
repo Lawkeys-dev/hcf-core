@@ -123,6 +123,12 @@ points:
   per-conquest-win: 0
   # To the team of the player who wins Kill the King.
   per-king-win: 0
+  # To the team that wins a DTC.
+  per-dtc-win: 0
+  # To the team that wins a Last Break.
+  per-last-break-win: 0
+  # To the team that wins a Slide.
+  per-slide-win: 0
 # --8<-- [end:points]
 
 # --8<-- [start:koth]

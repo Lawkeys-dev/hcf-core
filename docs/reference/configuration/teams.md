@@ -88,6 +88,9 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | `per-raidable` | `0` | To a team its DTR just made raidable |
 | `per-conquest-win` | `0` | To the team that wins a Conquest |
 | `per-king-win` | `0` | To the team of the player who wins Kill the King |
+| `per-dtc-win` | `0` | To the team that wins a DTC |
+| `per-last-break-win` | `0` | To the team that wins a Last Break |
+| `per-slide-win` | `0` | To the team that wins a Slide |
 
 ## KOTH captures
 

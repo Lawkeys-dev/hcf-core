@@ -55,6 +55,18 @@ zone-holograms:
   height: 3.0
 # --8<-- [end:zone-holograms]
 
+# --8<-- [start:setup]
+# Defaults used by the staff setup commands (/events create, /events setcore -
+# see docs/gameplay/events.md). They write into THIS file - the only commands in
+# the plugin that ever do (docs/getting-started/upgrading.md), and only the one
+# section of the one event they touch.
+setup:
+  # /events create centres the new zone on the player, this many blocks each way.
+  default-zone-radius: 10
+  # /events setcore looks this many blocks along where the player is looking.
+  setcore-distance: 10
+# --8<-- [end:setup]
+
 events:
 
   # ------------------------------------------------------------------
@@ -369,3 +381,92 @@ conquest:
         corner-2: {x: 346, y: 70, z: 346}
     # --8<-- [end:conquest-zones]
   # --8<-- [end:conquest]
+
+# ---------------------------------------------------------------------------
+# DTC (Destroy The Core) and Last Break
+# ---------------------------------------------------------------------------
+# One engine, two sections. A block core stands inside a zone; teams break it
+# over and over - each team waits break-cooldown-seconds between its OWN breaks,
+# never blocked by another team's. The core is PERMANENT: it reappears one tick
+# after every break, stays after the run ends, and is protected from explosions
+# and pistons at all times, running or not.
+#
+# DTC ("counter"):
+#   SHARED   - the core has "breaks" common health. When it reaches zero, the
+#              team with the most breaks of its OWN wins; a tie goes to whoever
+#              reached that count first.
+#   PER_TEAM - each team has its own count to "breaks"; the first to get there
+#              wins at once, whatever the others have.
+# Last Break has no "counter": it is always common health, and whichever team
+# lands the break that empties it wins - even with fewer breaks than another.
+#
+# Creative, spectator and teamless players never break the core (hardcoded).
+# Staff set the zone and the core with /events create|setzone|setcore|delete -
+# see docs/gameplay/events.md - which write into this file.
+# ---------------------------------------------------------------------------
+
+dtc:
+  # --8<-- [start:dtc]
+  dtc:
+    display-name: "{primary}DTC"
+    world: world
+    corner-1: {x: 400, y: 60, z: 400}
+    corner-2: {x: 420, y: 80, z: 420}
+    core: {x: 410, y: 65, z: 410, material: OBSIDIAN}
+    counter: SHARED
+    breaks: 150
+    break-cooldown-seconds: 1
+    announce-at: [125, 100, 75, 50, 25, 10]
+    max-duration-seconds: 0
+    schedule: []
+    reward-commands: []
+  # --8<-- [end:dtc]
+
+last-break:
+  # --8<-- [start:last-break]
+  last-break:
+    display-name: "{error}Last Break"
+    world: world
+    corner-1: {x: 450, y: 60, z: 400}
+    corner-2: {x: 470, y: 80, z: 420}
+    core: {x: 460, y: 65, z: 410, material: OBSIDIAN}
+    breaks: 150
+    break-cooldown-seconds: 1
+    announce-at: [125, 100, 75, 50, 25, 10, 5, 3, 2, 1]
+    max-duration-seconds: 0
+    schedule: []
+    reward-commands: []
+  # --8<-- [end:last-break]
+
+# ---------------------------------------------------------------------------
+# Slide
+# ---------------------------------------------------------------------------
+# A zone where every team member present scores points-per-player for their
+# team, every interval-seconds - cumulative, so three members score three times
+# as fast. A death of any member, ANYWHERE on the server while the Slide runs,
+# costs the team death-penalty points (never below zero; announce-deaths only
+# mutes the broadcast, the points are always lost). The first team to
+# points-to-win wins; several teams crossing it on the same tick hand it to
+# whichever is highest, and an exact tie changes nothing. The top 3 teams are
+# shown live on the scoreboard.
+#
+# Creative, spectator and teamless players never score (hardcoded).
+# ---------------------------------------------------------------------------
+
+slide:
+  # --8<-- [start:slide]
+  slide:
+    display-name: "{success}Slide"
+    world: world
+    corner-1: {x: 500, y: 60, z: 500}
+    corner-2: {x: 515, y: 75, z: 515}
+    points-per-player: 1
+    interval-seconds: 1
+    death-penalty: 10
+    announce-deaths: true
+    points-to-win: 500
+    announce-at: [100, 250, 400, 450]
+    max-duration-seconds: 0
+    schedule: []
+    reward-commands: []
+  # --8<-- [end:slide]

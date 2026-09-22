@@ -2,6 +2,7 @@ package com.lawkeys.hcfcore.events.conquest;
 
 import com.lawkeys.hcfcore.events.ContestPolicy;
 import com.lawkeys.hcfcore.events.Occupant;
+import com.lawkeys.hcfcore.events.Standing;
 import com.lawkeys.hcfcore.util.Cuboid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -180,7 +181,7 @@ class ConquestManagerTest {
         Map<String, List<Occupant>> split = new HashMap<>(in("red", wizards));
         split.putAll(in("blue", warlocks));
         tickAfter(30, split);
-        List<ConquestRun.Standing> standings = conquest.getCurrent().orElseThrow().standings();
+        List<Standing> standings = conquest.getCurrent().orElseThrow().standings();
         assertEquals(wizards, standings.get(0).teamId());
         assertEquals(2, standings.get(0).points());
         assertFalse(standings.size() < 2);

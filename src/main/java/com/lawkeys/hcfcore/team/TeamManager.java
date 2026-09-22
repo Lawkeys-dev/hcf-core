@@ -1090,6 +1090,18 @@ public final class TeamManager {
         award(team, config().points().perKingWin());
     }
 
+    public void recordDtcWin(Team team) {
+        award(team, config().points().perDtcWin());
+    }
+
+    public void recordLastBreakWin(Team team) {
+        award(team, config().points().perLastBreakWin());
+    }
+
+    public void recordSlideWin(Team team) {
+        award(team, config().points().perSlideWin());
+    }
+
     private void award(Team team, long amount) {
         if (team != null && amount != 0 && !team.getType().isSystem()) {
             addPoints(team, amount);

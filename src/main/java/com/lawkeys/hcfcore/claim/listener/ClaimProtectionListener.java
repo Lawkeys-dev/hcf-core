@@ -105,7 +105,13 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (isBuildDenied(event.getPlayer(), event.getBlock())) {
+        Block block = event.getBlock();
+        // A DTC or Last Break core under way is broken through protection for
+        // that one block - see the BreakAllowance seam (claim/BreakAllowance).
+        if (module.getBreakAllowance().allows(block.getWorld().getName(), block.getX(), block.getY(), block.getZ())) {
+            return;
+        }
+        if (isBuildDenied(event.getPlayer(), block)) {
             event.setCancelled(true);
         }
     }

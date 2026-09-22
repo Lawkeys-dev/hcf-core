@@ -33,7 +33,8 @@ waypoints:
   base: true        # your team's second base
   rally: true       # your team's rally point, while it lasts
   focus: true       # a focused player, where they are; a focused team's HQ
-  events: true      # KOTH and Citadel zones, Conquest zones, the King in KTK
+  events: true      # KOTH and Citadel zones, Conquest zones, the King in KTK,
+                    # a running DTC/Last Break's core, and a running Slide's zone
   colors:
     hq: "#55FF55"
     base: "#00AA00"

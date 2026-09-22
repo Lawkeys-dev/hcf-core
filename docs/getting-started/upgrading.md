@@ -9,7 +9,9 @@
 
 3. Replace the jar and start the server.
 
-Read the [Changelog](../changelog.md) first: every release says what changed, and what to do when a setting changes. **Your configuration files are never rewritten** — a new default (a Bard's new item, a new command) reaches an existing file only if you add it; the changelog says when. Until `1.0.0`, a minor version (`0.x.0`) may rename a setting.
+Read the [Changelog](../changelog.md) first: every release says what changed, and what to do when a setting changes. **Your configuration files are never rewritten by an upgrade** — a new default (a Bard's new item, a new command) reaches an existing file only if you add it; the changelog says when. Until `1.0.0`, a minor version (`0.x.0`) may rename a setting.
+
+The **one exception**: staff typing `/events create`, `setzone`, `setcore` or `delete` — the DTC, Last Break and Slide setup commands — write into `events.yml` themselves, on purpose, and only the one section of the one event they name. Your comments are kept, but the file is saved the way the server writes YAML: `"double"` quotes may become `'single'`, a list like `[300, 120]` is written one item per line, and a comment ending a block may move to the start of its line. If `events.yml` does not parse, these commands change nothing and say so. See [Capture events](../gameplay/events.md#setting-up-dtc-last-break-and-slide-in-game).
 
 ## Database changes apply by themselves
 
@@ -17,7 +19,7 @@ Schema changes run at startup, module by module, and each one is logged. They on
 
 ## Your files are never overwritten
 
-A configuration file you already have stays as you left it; a setting it lacks takes its built-in default. To see what a new version added, compare your files with the ones in the new jar — or in [`src/main/resources/`](https://github.com/Lawkeys-dev/hcf-core/tree/main/src/main/resources) at that version of the repository.
+A configuration file you already have stays as you left it; a setting it lacks takes its built-in default. To see what a new version added, compare your files with the ones in the new jar — or in [`src/main/resources/`](https://github.com/Lawkeys-dev/hcf-core/tree/main/src/main/resources) at that version of the repository. The exception is `events.yml`'s `/events create|setzone|setcore|delete`, which staff ask for explicitly — see above.
 
 A message missing from your edited `lang/en.yml` falls back to the English bundled in the jar. A custom language (`lang/<code>.yml`) has no such fallback: add the new keys to it.
 

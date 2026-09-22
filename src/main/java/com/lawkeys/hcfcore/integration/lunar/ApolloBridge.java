@@ -284,6 +284,13 @@ final class ApolloBridge implements LunarBridge, Listener {
             sources.events().getConquest().getManager().getCurrent().ifPresent(run -> run.zones().forEach(zone ->
                     wanted.put(text("apollo.waypoint.conquest-zone", "zone", plain(zone.zone().displayName())),
                             spec(zone.zone().area(), rules.eventColor()))));
+            sources.events().getCore().getManager().getCurrent().ifPresent(run ->
+                    wanted.put(text("apollo.waypoint.dtc-core", "event", plain(run.getDefinition().displayName())),
+                            new WaypointSpec(run.getDefinition().zone().world(), run.getDefinition().coreX(),
+                                    run.getDefinition().coreY(), run.getDefinition().coreZ(), rules.eventColor())));
+            sources.events().getSlide().getManager().getCurrent().ifPresent(run ->
+                    wanted.put(text("apollo.waypoint.slide", "event", plain(run.getDefinition().displayName())),
+                            spec(run.getDefinition().zone(), rules.eventColor())));
             sources.events().getKing().getManager().getCurrent().filter(KingRun::isReigning).ifPresent(run -> {
                 Player king = Bukkit.getPlayer(run.getKingId());
                 if (king != null && viewer.canSee(king)) {

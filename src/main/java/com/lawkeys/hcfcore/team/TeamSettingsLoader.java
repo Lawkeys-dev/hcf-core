@@ -180,7 +180,10 @@ public final class TeamSettingsLoader {
                 section.getLong("per-death", defaults.perDeath()),
                 section.getLong("per-raidable", defaults.perRaidable()),
                 section.getLong("per-conquest-win", defaults.perConquestWin()),
-                section.getLong("per-king-win", defaults.perKingWin()));
+                section.getLong("per-king-win", defaults.perKingWin()),
+                section.getLong("per-dtc-win", defaults.perDtcWin()),
+                section.getLong("per-last-break-win", defaults.perLastBreakWin()),
+                section.getLong("per-slide-win", defaults.perSlideWin()));
     }
 
     private static TeamSettings.KothRules loadKoth(ConfigurationSection section,
