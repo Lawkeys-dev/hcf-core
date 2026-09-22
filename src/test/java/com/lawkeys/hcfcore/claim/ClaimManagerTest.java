@@ -52,7 +52,8 @@ class ClaimManagerTest {
 
     @BeforeEach
     void setUp() {
-        settings = ClaimSettings.defaults();
+        // Free and unbuffered by default, so each test sets only the rule it is about.
+        settings = withPrice(new ClaimSettings.PriceRules(0.0, 75.0), ClaimSettings.defaults());
         teamManager = new TeamManager(TeamSettings::defaults, TeamStore.NO_OP,
                 TeamEventDispatcher.NO_OP, now::get);
         claims = new ClaimManager(() -> settings, teamManager, ClaimStore.NO_OP, now::get);
@@ -68,10 +69,60 @@ class ClaimManagerTest {
         return new ChunkPosition("world", x, z);
     }
 
-    /** Claims one chunk with a staff override, bypassing role and placement friction. */
+    /** Claims each chunk as its own 16 x 16 claim, with a staff override. */
     private void give(Team team, ChunkPosition... positions) {
-        TeamResult result = claims.claim(team, null, List.of(positions));
-        assertTrue(result.isSuccess(), () -> "setup claim failed: " + result);
+        for (ChunkPosition position : positions) {
+            TeamResult result = claimChunks(team, null, position);
+            assertTrue(result.isSuccess(), () -> "setup claim failed: " + result);
+        }
+    }
+
+    /** Claims one rectangle covering exactly these chunks' bounding box. */
+    private TeamResult claimChunks(Team team, UUID actor, ChunkPosition... positions) {
+        int minX = Integer.MAX_VALUE;
+        int minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxZ = Integer.MIN_VALUE;
+        for (ChunkPosition position : positions) {
+            minX = Math.min(minX, position.minBlockX());
+            minZ = Math.min(minZ, position.minBlockZ());
+            maxX = Math.max(maxX, position.minBlockX() + 15);
+            maxZ = Math.max(maxZ, position.minBlockZ() + 15);
+        }
+        return claims.claim(team, actor, positions[0].world(), minX, minZ, maxX, maxZ);
+    }
+
+    private java.util.Optional<UUID> ownerIdAt(ChunkPosition chunk) {
+        return claims.getOwnerId(chunk.world(), chunk.minBlockX() + 8, chunk.minBlockZ() + 8);
+    }
+
+    private java.util.Optional<Team> ownerAt(ChunkPosition chunk) {
+        return claims.getOwner(chunk.world(), chunk.minBlockX() + 8, chunk.minBlockZ() + 8);
+    }
+
+    private ProtectionResult protectionAt(Team team, ChunkPosition chunk) {
+        return claims.checkProtection(team, chunk.world(), chunk.minBlockX() + 8, chunk.minBlockZ() + 8);
+    }
+
+    private ProtectionResult protectionAt(UUID actor, ChunkPosition chunk) {
+        return claims.checkProtection(actor, chunk.world(), chunk.minBlockX() + 8, chunk.minBlockZ() + 8);
+    }
+
+    private boolean warzoneAt(ChunkPosition chunk) {
+        return claims.isWarzone(chunk.world(), chunk.minBlockX() + 8, chunk.minBlockZ() + 8);
+    }
+
+    private TeamResult unclaimAt(Team team, UUID actor, ChunkPosition chunk) {
+        return claims.unclaim(team, actor, chunk.world(), chunk.minBlockX() + 8, chunk.minBlockZ() + 8);
+    }
+
+    private java.util.Optional<Team> lockedAt(ChunkPosition chunk, UUID player) {
+        return claims.lockedAgainst(chunk.world(), chunk.minBlockX() + 8, chunk.minBlockZ() + 8, player);
+    }
+
+    private boolean sameTerritory(ChunkPosition a, ChunkPosition b) {
+        return claims.isSameTerritory(a.world(), a.minBlockX() + 8, a.minBlockZ() + 8,
+                b.minBlockX() + 8, b.minBlockZ() + 8);
     }
 
     // ------------------------------------------------------------------
@@ -103,9 +154,9 @@ class ClaimManagerTest {
             sotw = true;
             assertTrue(claims.toggleLock(wizards, alice).isSuccess());
 
-            assertTrue(claims.lockedAgainst(chunk(0, 0), bob).isPresent(), "an outsider is kept out");
-            assertTrue(claims.lockedAgainst(chunk(0, 0), alice).isEmpty(), "a member walks in");
-            assertTrue(claims.lockedAgainst(chunk(5, 5), bob).isEmpty(), "and the wilderness is still open");
+            assertTrue(lockedAt(chunk(0, 0), bob).isPresent(), "an outsider is kept out");
+            assertTrue(lockedAt(chunk(0, 0), alice).isEmpty(), "a member walks in");
+            assertTrue(lockedAt(chunk(5, 5), bob).isEmpty(), "and the wilderness is still open");
         }
 
         /** "Everyone except team members": an alliance does not open a locked claim. */
@@ -116,7 +167,7 @@ class ClaimManagerTest {
             teamManager.ally(warlocks, bob, wizards);
             assertTrue(wizards.getAllies().contains(warlocks.getId()), "setup: the two teams are allied");
             claims.toggleLock(wizards, alice);
-            assertTrue(claims.lockedAgainst(chunk(0, 0), bob).isPresent());
+            assertTrue(lockedAt(chunk(0, 0), bob).isPresent());
         }
 
         @Test
@@ -133,7 +184,7 @@ class ClaimManagerTest {
             sotw = true;
             claims.toggleLock(wizards, alice);
             assertEquals(ClaimMessages.LOCK_OFF, claims.toggleLock(wizards, alice).getMessageKey());
-            assertTrue(claims.lockedAgainst(chunk(0, 0), bob).isEmpty());
+            assertTrue(lockedAt(chunk(0, 0), bob).isEmpty());
         }
 
         /** When SOTW ends every lock lapses, and the next SOTW starts with every claim open. */
@@ -142,7 +193,7 @@ class ClaimManagerTest {
             sotw = true;
             claims.toggleLock(wizards, alice);
             sotw = false;
-            assertTrue(claims.lockedAgainst(chunk(0, 0), bob).isEmpty());
+            assertTrue(lockedAt(chunk(0, 0), bob).isEmpty());
             sotw = true;
             assertFalse(claims.isLocked(wizards.getId()), "a lock does not come back with the next SOTW");
         }
@@ -158,7 +209,7 @@ class ClaimManagerTest {
             give(wizards, chunk(0, 0));
             raidableTeams.add(wizards.getId());
 
-            assertEquals(wizards.getId(), claims.getOwnerId(chunk(0, 0)).orElseThrow(),
+            assertEquals(wizards.getId(), ownerIdAt(chunk(0, 0)).orElseThrow(),
                     "raiding must never change who owns the chunk");
             assertEquals(1, claims.getClaimCount(wizards.getId()));
         }
@@ -168,26 +219,26 @@ class ClaimManagerTest {
             give(wizards, chunk(0, 0));
             raidableTeams.add(wizards.getId());
 
-            TeamResult result = claims.claim(warlocks, null, List.of(chunk(0, 0)));
+            TeamResult result = claimChunks(warlocks, null, chunk(0, 0));
 
             assertTrue(result.isFailure(), "over-claiming must be impossible, even during a raid");
             assertEquals(ClaimMessages.CLAIM_ALREADY_OWNED, result.getMessageKey());
-            assertEquals(wizards.getId(), claims.getOwnerId(chunk(0, 0)).orElseThrow());
+            assertEquals(wizards.getId(), ownerIdAt(chunk(0, 0)).orElseThrow());
         }
 
         @Test
         void protectionLiftsWhileRaidableAndComesBackOnItsOwn() {
             give(wizards, chunk(0, 0));
 
-            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.DENIED_CLAIMED, protectionAt(warlocks, chunk(0, 0)));
 
             raidableTeams.add(wizards.getId());
-            assertEquals(ProtectionResult.ALLOWED_RAID, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.ALLOWED_RAID, protectionAt(warlocks, chunk(0, 0)));
 
             // DTR regenerates above zero: nothing is re-claimed, protection just returns.
             raidableTeams.remove(wizards.getId());
-            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, chunk(0, 0)));
-            assertEquals(wizards.getId(), claims.getOwnerId(chunk(0, 0)).orElseThrow());
+            assertEquals(ProtectionResult.DENIED_CLAIMED, protectionAt(warlocks, chunk(0, 0)));
+            assertEquals(wizards.getId(), ownerIdAt(chunk(0, 0)).orElseThrow());
         }
 
         @Test
@@ -196,16 +247,16 @@ class ClaimManagerTest {
             give(wizards, chunk(0, 0));
             raidableTeams.add(wizards.getId());
 
-            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.DENIED_CLAIMED, protectionAt(warlocks, chunk(0, 0)));
         }
 
         @Test
         void withoutADtrModuleNothingIsEverRaidable() {
             ClaimManager fresh = new ClaimManager(() -> settings, teamManager, ClaimStore.NO_OP, now::get);
-            fresh.claim(wizards, null, List.of(chunk(5, 5)));
+            fresh.claim(wizards, null, "world", 80, 80, 95, 95);
 
             assertFalse(fresh.getRaidabilityPolicy().isRaidable(wizards.getId()));
-            assertEquals(ProtectionResult.DENIED_CLAIMED, fresh.checkProtection(warlocks, chunk(5, 5)));
+            assertEquals(ProtectionResult.DENIED_CLAIMED, fresh.checkProtection(warlocks, "world", 88, 88));
         }
     }
 
@@ -225,47 +276,39 @@ class ClaimManagerTest {
         }
 
         @Test
-        void serverLandHasNoAllowance() {
-            // A system team has no members, so the member-scaled allowance would hold
-            // it to the base - sixteen chunks for a whole warzone.
-            List<ChunkPosition> area = new ArrayList<>();
-            for (int x = 0; x < 5; x++) {
-                for (int z = 0; z < 5; z++) {
-                    area.add(chunk(x, z));
-                }
-            }
+        void serverLandHasNoSizeLimit() {
+            reconfigure(withSizes(new ClaimSettings.SizeRules(5, 128, 1, 100)));
 
-            assertTrue(claims.claim(spawn, null, area).isSuccess());
-            assertEquals(25, claims.getClaimCount(spawn.getId()));
-            assertEquals(0, claims.getMaxClaims(spawn), "0 means unlimited");
+            assertTrue(claims.claim(spawn, null, "world", -400, -400, 400, 400).isSuccess(), "a whole spawn");
+            assertEquals(801L * 801L, claims.getClaimedArea(spawn.getId()));
         }
 
         @Test
         void serverLandNeedNotBeConnected() {
             give(spawn, chunk(0, 0));
-            assertTrue(claims.claim(spawn, null, List.of(chunk(40, 40))).isSuccess(),
+            assertTrue(claimChunks(spawn, null, chunk(40, 40)).isSuccess(),
                     "a road is not connected to spawn by definition");
         }
 
         @Test
         void serverLandMayBorderAPlayerTeam() {
             give(wizards, chunk(10, 10));
-            assertTrue(claims.claim(spawn, null, List.of(chunk(11, 10))).isSuccess(),
+            assertTrue(claimChunks(spawn, null, chunk(11, 10)).isSuccess(),
                     "the buffer is how players keep apart, not a rule for the server");
         }
 
         @Test
         void serverLandStillCannotTakeAnybodysChunk() {
             give(wizards, chunk(10, 10));
-            TeamResult result = claims.claim(spawn, null, List.of(chunk(10, 10)));
+            TeamResult result = claimChunks(spawn, null, chunk(10, 10));
             assertEquals(ClaimMessages.CLAIM_ALREADY_OWNED, result.getMessageKey());
-            assertEquals(wizards.getId(), claims.getOwnerId(chunk(10, 10)).orElseThrow());
+            assertEquals(wizards.getId(), ownerIdAt(chunk(10, 10)).orElseThrow());
         }
 
         @Test
         void aPlayerTeamClaimedForByStaffKeepsItsPlacementRules() {
             give(wizards, chunk(0, 0));
-            TeamResult result = claims.claim(wizards, null, List.of(chunk(20, 20)));
+            TeamResult result = claimChunks(wizards, null, chunk(20, 20));
             assertEquals(ClaimMessages.CLAIM_NOT_CONNECTED, result.getMessageKey(),
                     "the exemption is for server land, not for anything staff types");
         }
@@ -280,8 +323,7 @@ class ClaimManagerTest {
     class Warzone {
 
         /**
-         * 100 blocks around 0,0 in "world": blocks -100..100, rounded outwards to
-         * chunks -7..6 (chunk 6 is blocks 96..111, chunk -7 is -112..-97).
+         * 100 blocks around 0,0 in "world": blocks -100..100, exactly.
          */
         private final ClaimSettings.WarzoneRules around0 = new ClaimSettings.WarzoneRules("&cWarzone", false,
                 Map.of("world", new ClaimSettings.WarzoneRules.Area(0, 0, 100)));
@@ -292,29 +334,28 @@ class ClaimManagerTest {
         }
 
         @Test
-        void theRadiusIsRoundedOutwardsToWholeChunks() {
-            assertTrue(around0.covers(chunk(6, 0)), "blocks 96..111 reach block 100");
-            assertFalse(around0.covers(chunk(7, 0)));
-            assertTrue(around0.covers(chunk(-7, -7)), "blocks -112..-97 reach block -100");
-            assertFalse(around0.covers(chunk(-8, 0)));
-            assertFalse(around0.covers(new ChunkPosition("world_nether", 0, 0)),
-                    "a world with no entry has no warzone");
+        void theRadiusIsExactToTheBlock() {
+            assertTrue(around0.covers("world", 100, 0));
+            assertFalse(around0.covers("world", 101, 0));
+            assertTrue(around0.covers("world", -100, -100));
+            assertFalse(around0.covers("world", -101, 0));
+            assertFalse(around0.covers("world_nether", 0, 0), "a world with no entry has no warzone");
         }
 
         @Test
         void noPlayerTeamCanClaimTheWarzoneEvenThroughStaff() {
             assertEquals(ClaimMessages.CLAIM_WARZONE,
-                    claims.claim(wizards, alice, List.of(chunk(3, 3))).getMessageKey());
+                    claimChunks(wizards, alice, chunk(3, 3)).getMessageKey());
             assertEquals(ClaimMessages.CLAIM_WARZONE,
-                    claims.claim(wizards, null, List.of(chunk(3, 3))).getMessageKey());
-            assertTrue(claims.claim(wizards, null, List.of(chunk(7, 0))).isSuccess(),
+                    claimChunks(wizards, null, chunk(3, 3)).getMessageKey());
+            assertTrue(claimChunks(wizards, null, chunk(7, 0)).isSuccess(),
                     "one chunk past the border, claiming works as usual");
         }
 
         @Test
         void aServerTeamMayClaimInsideIt() {
             Team spawn = teamManager.createSystemTeam("Spawn").getTeam().orElseThrow();
-            assertTrue(claims.claim(spawn, null, List.of(chunk(0, 0), chunk(0, 1))).isSuccess(),
+            assertTrue(claimChunks(spawn, null, chunk(0, 0), chunk(0, 1)).isSuccess(),
                     "spawn sits at the warzone's centre");
         }
 
@@ -337,7 +378,7 @@ class ClaimManagerTest {
         @Test
         void interactingIsNotBuilding() {
             // Doors, chests, buttons: the warzone is public land, not somebody's property.
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(warlocks, chunk(0, 0)));
         }
 
         @Test
@@ -353,8 +394,8 @@ class ClaimManagerTest {
             assertEquals(ProtectionResult.ALLOWED, claims.checkBuild(wizards, "world", 50, 64, 50),
                     "a team builds in its own territory, warzone or not");
             assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkBuild(warlocks, "world", 50, 64, 50));
-            assertFalse(claims.isWarzone(chunk(3, 3)), "owned land is not warzone");
-            assertTrue(claims.isWarzone(chunk(4, 4)));
+            assertFalse(warzoneAt(chunk(3, 3)), "owned land is not warzone");
+            assertTrue(warzoneAt(chunk(4, 4)));
         }
 
         @Test
@@ -369,7 +410,7 @@ class ClaimManagerTest {
             // not the warzone's "no building", or its resources could never be mined.
             claims.setReservedRegionPolicy(new ReservedRegionPolicy() {
                 @Override
-                public java.util.Optional<String> reservedRegionAt(ChunkPosition chunk) {
+                public java.util.Optional<String> reservedRegionIn(String world, int minX, int minZ, int maxX, int maxZ) {
                     return java.util.Optional.empty();
                 }
 
@@ -394,12 +435,12 @@ class ClaimManagerTest {
             Team road = teamManager.createSystemTeam("Warzone").getTeam().orElseThrow();
             give(road, chunk(0, 0));
 
-            assertFalse(claims.isSameTerritory(chunk(0, 0), chunk(0, 1)),
+            assertFalse(sameTerritory(chunk(0, 0), chunk(0, 1)),
                     "from the team's chunk to unclaimed warzone is a border, whatever the names");
-            assertTrue(claims.isSameTerritory(chunk(1, 1), chunk(2, 2)), "warzone to warzone");
-            assertFalse(claims.isSameTerritory(chunk(6, 0), chunk(7, 0)), "warzone to wilderness");
-            assertTrue(claims.isSameTerritory(chunk(20, 20), chunk(21, 21)), "wilderness to wilderness");
-            assertTrue(claims.isSameTerritory(chunk(0, 0), chunk(0, 0)));
+            assertTrue(sameTerritory(chunk(1, 1), chunk(2, 2)), "warzone to warzone");
+            assertFalse(sameTerritory(chunk(5, 0), chunk(7, 0)), "warzone to wilderness");
+            assertTrue(sameTerritory(chunk(20, 20), chunk(21, 21)), "wilderness to wilderness");
+            assertTrue(sameTerritory(chunk(0, 0), chunk(0, 0)));
         }
     }
 
@@ -410,9 +451,9 @@ class ClaimManagerTest {
         void wildernessIsOpenAndOwnTerritoryIsAlwaysAllowed() {
             give(wizards, chunk(0, 0));
 
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(warlocks, chunk(9, 9)));
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(wizards, chunk(0, 0)));
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(alice, chunk(0, 0)));
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(warlocks, chunk(9, 9)));
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(wizards, chunk(0, 0)));
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(alice, chunk(0, 0)));
         }
 
         @Test
@@ -420,7 +461,7 @@ class ClaimManagerTest {
             give(wizards, chunk(0, 0));
 
             assertEquals(ProtectionResult.DENIED_CLAIMED,
-                    claims.checkProtection(UUID.randomUUID(), chunk(0, 0)));
+                    protectionAt(UUID.randomUUID(), chunk(0, 0)));
         }
 
         @Test
@@ -429,7 +470,7 @@ class ClaimManagerTest {
             give(spawn, chunk(0, 0));
             raidableTeams.add(spawn.getId());
 
-            assertEquals(ProtectionResult.DENIED_SYSTEM, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.DENIED_SYSTEM, protectionAt(warlocks, chunk(0, 0)));
         }
 
         @Test
@@ -438,10 +479,10 @@ class ClaimManagerTest {
             teamManager.ally(wizards, alice, warlocks);
             teamManager.ally(warlocks, bob, wizards);
 
-            assertEquals(ProtectionResult.DENIED_ALLY, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.DENIED_ALLY, protectionAt(warlocks, chunk(0, 0)));
 
             reconfigure(withProtection(new ClaimSettings.ProtectionRules(true, true, true, true)));
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(warlocks, chunk(0, 0)));
         }
 
         @Test
@@ -479,8 +520,8 @@ class ClaimManagerTest {
 
             // The claim rows outlived the team; the land must open up rather than
             // stay locked forever behind an owner nobody can raid.
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(warlocks, chunk(0, 0)));
-            assertTrue(claims.getOwnerId(chunk(0, 0)).isEmpty());
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(warlocks, chunk(0, 0)));
+            assertTrue(ownerIdAt(chunk(0, 0)).isEmpty());
         }
     }
 
@@ -492,7 +533,7 @@ class ClaimManagerTest {
     @Nested
     class AcrossBorders {
 
-        /** 100 blocks around 0,0: chunks -7..6 are warzone, chunk 7 (blocks 112..127) is not. */
+        /** 100 blocks around 0,0: blocks -100..100 are warzone, block 101 is not. */
         private final ClaimSettings.WarzoneRules around0 = new ClaimSettings.WarzoneRules("&cWarzone", false,
                 Map.of("world", new ClaimSettings.WarzoneRules.Area(0, 0, 100)));
 
@@ -546,8 +587,8 @@ class ClaimManagerTest {
         void theWarzoneIsReachedOnlyFromWithin() {
             reconfigure(withWarzone(around0));
 
-            assertFalse(claims.mayReach("world", 112, 0, 111, 64, 0), "nobody may build on it from the wilderness");
-            assertTrue(claims.mayReach("world", 111, 0, 112, 64, 0), "anybody may build in the wilderness");
+            assertFalse(claims.mayReach("world", 101, 0, 100, 64, 0), "nobody may build on it from the wilderness");
+            assertTrue(claims.mayReach("world", 100, 0, 101, 64, 0), "anybody may build in the wilderness");
             assertTrue(claims.mayReach("world", 0, 0, 16, 64, 0), "warzone to warzone");
         }
 
@@ -575,18 +616,18 @@ class ClaimManagerTest {
             reconfigure(withWarzone(around0));
             claims.setReservedRegionPolicy(new ReservedRegionPolicy() {
                 @Override
-                public java.util.Optional<String> reservedRegionAt(ChunkPosition chunk) {
+                public java.util.Optional<String> reservedRegionIn(String world, int minX, int minZ, int maxX, int maxZ) {
                     return java.util.Optional.empty();
                 }
 
                 @Override
                 public boolean isInReservedRegion(String world, int x, int y, int z) {
-                    return x == 111 && y == 64 && z == 0;
+                    return x == 100 && y == 64 && z == 0;
                 }
             });
 
-            assertTrue(claims.mayReach("world", 112, 0, 111, 64, 0), "the Mountain's own rules decide its edge");
-            assertFalse(claims.mayReach("world", 112, 0, 111, 65, 0));
+            assertTrue(claims.mayReach("world", 101, 0, 100, 64, 0), "the Mountain's own rules decide its edge");
+            assertFalse(claims.mayReach("world", 101, 0, 100, 65, 0));
         }
 
         @Test
@@ -612,7 +653,7 @@ class ClaimManagerTest {
 
         @Test
         void aPlayerClaimIsRefusedWithThePolicysReason() {
-            TeamResult result = claims.claim(wizards, alice, List.of(chunk(10, 10)));
+            TeamResult result = claimChunks(wizards, alice, chunk(10, 10));
 
             assertTrue(result.isFailure());
             assertEquals("phase.eotw.no-claims", result.getMessageKey());
@@ -622,20 +663,20 @@ class ClaimManagerTest {
         @Test
         void staffStillClaimForServerTeams() {
             Team road = teamManager.createSystemTeam("Road").getTeam().orElseThrow();
-            assertTrue(claims.claim(road, null, List.of(chunk(10, 10))).isSuccess());
+            assertTrue(claimChunks(road, null, chunk(10, 10)).isSuccess());
         }
 
         @Test
         void landAlreadyHeldIsUntouched() {
             give(wizards, chunk(0, 0));
             claims.setClaimingPolicy(() -> java.util.Optional.of("phase.eotw.no-claims"));
-            assertEquals(wizards.getId(), claims.getOwnerId(chunk(0, 0)).orElseThrow());
+            assertEquals(wizards.getId(), ownerIdAt(chunk(0, 0)).orElseThrow());
         }
 
         @Test
         void reopeningLetsPlayersClaimAgain() {
             claims.setClaimingPolicy(ClaimingPolicy.OPEN);
-            assertTrue(claims.claim(wizards, alice, List.of(chunk(10, 10))).isSuccess());
+            assertTrue(claimChunks(wizards, alice, chunk(10, 10)).isSuccess());
         }
     }
 
@@ -663,16 +704,16 @@ class ClaimManagerTest {
         void nobodyClaimsNotEvenStaff() {
             assertFalse(claims.isEnforced());
             assertEquals(ClaimMessages.CLAIM_DISABLED,
-                    claims.claim(wizards, alice, List.of(chunk(21, 20))).getMessageKey());
+                    claimChunks(wizards, alice, chunk(21, 20)).getMessageKey());
             assertEquals(ClaimMessages.CLAIM_DISABLED,
-                    claims.claim(spawn, null, List.of(chunk(0, 1))).getMessageKey());
+                    claimChunks(spawn, null, chunk(0, 1)).getMessageKey());
         }
 
         @Test
         void noTerritoryIsProtectedPlayerOrServer() {
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(warlocks, chunk(20, 20)));
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(warlocks, chunk(20, 20)));
             assertEquals(ProtectionResult.ALLOWED, claims.checkBuild(warlocks, "world", 320, 64, 320));
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(warlocks, chunk(0, 0)),
+            assertEquals(ProtectionResult.ALLOWED, protectionAt(warlocks, chunk(0, 0)),
                     "spawn included: the switch covers all territory");
             assertEquals(ProtectionResult.ALLOWED, claims.checkBuild(null, "world", 0, 64, 0));
         }
@@ -690,22 +731,22 @@ class ClaimManagerTest {
 
             assertEquals(ProtectionResult.ALLOWED, claims.checkBuild(warlocks, "world", 50, 64, 50));
             assertFalse(claims.isExplosionProtected("world", 48, 64, 48));
-            assertFalse(claims.isWarzone(chunk(3, 3)), "no rule applies there, so it reads as wilderness");
+            assertFalse(warzoneAt(chunk(3, 3)), "no rule applies there, so it reads as wilderness");
 
             reconfigure(withEnabled(true));
             assertEquals(ProtectionResult.DENIED_WARZONE, claims.checkBuild(warlocks, "world", 50, 64, 50));
-            assertTrue(claims.isWarzone(chunk(3, 3)));
+            assertTrue(warzoneAt(chunk(3, 3)));
         }
 
         @Test
         void ownershipIsKeptAndEveryRuleComesBackWhenTurnedOn() {
-            assertEquals(wizards.getId(), claims.getOwnerId(chunk(20, 20)).orElseThrow());
-            assertEquals(spawn.getId(), claims.getOwnerId(chunk(0, 0)).orElseThrow());
+            assertEquals(wizards.getId(), ownerIdAt(chunk(20, 20)).orElseThrow());
+            assertEquals(spawn.getId(), ownerIdAt(chunk(0, 0)).orElseThrow());
 
             reconfigure(withEnabled(true));
 
-            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, chunk(20, 20)));
-            assertEquals(ProtectionResult.DENIED_SYSTEM, claims.checkProtection(warlocks, chunk(0, 0)));
+            assertEquals(ProtectionResult.DENIED_CLAIMED, protectionAt(warlocks, chunk(20, 20)));
+            assertEquals(ProtectionResult.DENIED_SYSTEM, protectionAt(warlocks, chunk(0, 0)));
             assertTrue(claims.isExplosionProtected("world", 320, 64, 320));
             assertTrue(claims.isExplosionProtected("world", 0, 64, 0));
         }
@@ -715,118 +756,225 @@ class ClaimManagerTest {
     class Claiming {
 
         @Test
-        void claimingIndexesBothWays() {
-            TeamResult result = claims.claim(wizards, alice, List.of(chunk(0, 0), chunk(1, 0)));
+        void aClaimIsARectangleBlockForBlock() {
+            TeamResult result = claims.claim(wizards, alice, "world", 10, 20, 14, 30);
 
-            assertTrue(result.isSuccess());
-            assertEquals(2, claims.getClaimCount(wizards.getId()));
-            assertEquals(Set.of(chunk(0, 0), chunk(1, 0)), claims.getClaims(wizards.getId()));
-            assertEquals(wizards.getId(), claims.getOwnerId(chunk(1, 0)).orElseThrow());
-            assertTrue(claims.isClaimed(chunk(0, 0)));
+            assertTrue(result.isSuccess(), result::toString);
+            assertEquals("5x11", result.getPlaceholders().get("size"));
+            assertEquals(1, claims.getClaimCount(wizards.getId()));
+            assertEquals(55, claims.getClaimedArea(wizards.getId()));
+            assertEquals(wizards.getId(), claims.getOwnerId("world", 10, 20).orElseThrow(), "a corner is inside");
+            assertEquals(wizards.getId(), claims.getOwnerId("world", 14, 30).orElseThrow(), "so is the other");
+            assertTrue(claims.getOwnerId("world", 15, 25).isEmpty(), "the next block east is not");
+            assertTrue(claims.getOwnerId("world", 12, 19).isEmpty(), "nor the block north");
         }
 
         @Test
-        void claimingIsAllOrNothing() {
-            give(warlocks, chunk(1, 0));
+        void theCornersMayBeGivenInAnyOrder() {
+            assertTrue(claims.claim(wizards, alice, "world", 14, 30, 10, 20).isSuccess());
+            assertEquals(wizards.getId(), claims.getOwnerId("world", 12, 25).orElseThrow());
+        }
 
-            TeamResult result = claims.claim(wizards, null, List.of(chunk(0, 0), chunk(1, 0)));
+        @Test
+        void negativeCoordinatesAreBlocksLikeAnyOther() {
+            assertTrue(claims.claim(wizards, alice, "world", -20, -20, -16, -16).isSuccess());
+            assertEquals(wizards.getId(), claims.getOwnerId("world", -16, -20).orElseThrow());
+            assertTrue(claims.getOwnerId("world", -15, -20).isEmpty());
+        }
 
-            assertTrue(result.isFailure());
+        @Test
+        void aClaimAcrossAChunkBorderIsFoundOnBothSides() {
+            assertTrue(claims.claim(wizards, alice, "world", 10, 10, 20, 20).isSuccess());
+            assertEquals(wizards.getId(), claims.getOwnerId("world", 10, 10).orElseThrow());
+            assertEquals(wizards.getId(), claims.getOwnerId("world", 20, 20).orElseThrow());
+        }
+
+        @Test
+        void aClaimOverAnotherTeamsLandIsRefusedWhole() {
+            assertTrue(claims.claim(warlocks, null, "world", 20, 0, 30, 10).isSuccess());
+
+            TeamResult result = claims.claim(wizards, null, "world", 0, 0, 20, 10);
+
+            assertEquals(ClaimMessages.CLAIM_ALREADY_OWNED, result.getMessageKey());
             assertEquals(0, claims.getClaimCount(wizards.getId()),
-                    "the valid chunk of a rejected batch must not be claimed either");
+                    "the free part of a refused claim is not claimed either");
         }
 
         @Test
-        void reclaimingYourOwnChunkIsReportedDistinctly() {
+        void overlappingYourOwnClaimIsReportedDistinctly() {
             give(wizards, chunk(0, 0));
 
             assertEquals(ClaimMessages.CLAIM_ALREADY_YOURS,
-                    claims.claim(wizards, null, List.of(chunk(0, 0))).getMessageKey());
-        }
-
-        @Test
-        void anEmptySelectionIsRejected() {
-            assertEquals(ClaimMessages.CLAIM_NOTHING_SELECTED,
-                    claims.claim(wizards, alice, List.of()).getMessageKey());
+                    claims.claim(wizards, null, "world", 10, 10, 20, 20).getMessageKey());
         }
 
         @Test
         void claimingCanBeDisabledServerWide() {
             reconfigure(withEnabled(false));
 
-            assertEquals(ClaimMessages.CLAIM_DISABLED,
-                    claims.claim(wizards, alice, List.of(chunk(0, 0))).getMessageKey());
+            assertEquals(ClaimMessages.CLAIM_DISABLED, claimChunks(wizards, alice, chunk(0, 0)).getMessageKey());
         }
 
         @Test
         void onlyWhitelistedWorldsAreClaimable() {
             reconfigure(withWorlds(Set.of("world")));
 
-            assertTrue(claims.claim(wizards, null, List.of(chunk(0, 0))).isSuccess());
+            assertTrue(claimChunks(wizards, null, chunk(0, 0)).isSuccess());
             assertEquals(ClaimMessages.CLAIM_WORLD_DISABLED,
-                    claims.claim(wizards, null, List.of(new ChunkPosition("world_nether", 0, 0)))
-                            .getMessageKey());
+                    claimChunks(wizards, null, new ChunkPosition("world_nether", 0, 0)).getMessageKey());
         }
 
         @Test
         void aPlayerCannotClaimForASystemTeamButStaffCan() {
             Team spawn = teamManager.createSystemTeam("Spawn").getTeam().orElseThrow();
 
-            assertEquals(ClaimMessages.CLAIM_SYSTEM_TEAM,
-                    claims.claim(spawn, alice, List.of(chunk(0, 0))).getMessageKey());
-            assertTrue(claims.claim(spawn, null, List.of(chunk(0, 0))).isSuccess());
+            assertEquals(ClaimMessages.CLAIM_SYSTEM_TEAM, claimChunks(spawn, alice, chunk(0, 0)).getMessageKey());
+            assertTrue(claimChunks(spawn, null, chunk(0, 0)).isSuccess());
+        }
+
+        @Test
+        void theRefusalIsKnownBeforeAnythingChanges() {
+            give(warlocks, chunk(1, 0));
+
+            assertEquals(ClaimMessages.CLAIM_ALREADY_OWNED,
+                    claims.refusal(wizards, alice, "world", 0, 0, 20, 10).orElseThrow().getMessageKey());
+            assertTrue(claims.refusal(wizards, alice, "world", 100, 100, 110, 110).isEmpty());
+            assertEquals(0, claims.getClaimCount(wizards.getId()), "asking claims nothing");
         }
     }
 
     @Nested
-    class Limits {
+    class Sizes {
 
         @Test
-        void theAllowanceScalesWithMemberCount() {
-            reconfigure(withLimits(new ClaimSettings.LimitRules(10, 5, 0, 64)));
+        void aSideShorterThanTheMinimumIsRefused() {
+            reconfigure(withSizes(new ClaimSettings.SizeRules(5, 0, 0, 0)));
 
-            assertEquals(15, claims.getMaxClaims(wizards));
-
-            teamManager.join(UUID.randomUUID(), wizards, true);
-            assertEquals(20, claims.getMaxClaims(wizards));
+            assertEquals(ClaimMessages.CLAIM_TOO_SMALL,
+                    claims.claim(wizards, alice, "world", 0, 0, 3, 20).getMessageKey(), "4 wide");
+            assertTrue(claims.claim(wizards, alice, "world", 0, 0, 4, 20).isSuccess(), "5 wide");
         }
 
         @Test
-        void theHardMaximumCapsTheScaling() {
-            reconfigure(withLimits(new ClaimSettings.LimitRules(10, 5, 12, 64)));
+        void aSideLongerThanTheMaximumIsRefused() {
+            reconfigure(withSizes(new ClaimSettings.SizeRules(1, 50, 0, 0)));
 
-            assertEquals(12, claims.getMaxClaims(wizards));
+            assertEquals(ClaimMessages.CLAIM_TOO_BIG,
+                    claims.claim(wizards, alice, "world", 0, 0, 50, 10).getMessageKey(), "51 long");
+            assertTrue(claims.claim(wizards, alice, "world", 0, 0, 49, 10).isSuccess());
         }
 
         @Test
-        void perMemberScalingCanBeTurnedOff() {
-            reconfigure(withLimits(new ClaimSettings.LimitRules(8, 0, 0, 64)));
-
-            assertEquals(8, claims.getMaxClaims(wizards));
-        }
-
-        @Test
-        void claimingStopsAtTheAllowance() {
-            reconfigure(withLimits(new ClaimSettings.LimitRules(2, 0, 0, 64)));
+        void aTeamHoldsAtMostSoManyClaims() {
+            reconfigure(withSizes(new ClaimSettings.SizeRules(1, 0, 2, 0)));
             reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 0, true)));
 
-            assertTrue(claims.claim(wizards, null, List.of(chunk(0, 0), chunk(1, 0))).isSuccess());
+            assertTrue(claims.claim(wizards, alice, "world", 0, 0, 9, 9).isSuccess());
+            assertTrue(claims.claim(wizards, alice, "world", 100, 0, 109, 9).isSuccess());
+            assertEquals(ClaimMessages.CLAIM_TOO_MANY_CLAIMS,
+                    claims.claim(wizards, alice, "world", 200, 0, 209, 9).getMessageKey());
+        }
+
+        @Test
+        void aTeamHoldsAtMostSoMuchLand() {
+            reconfigure(withSizes(new ClaimSettings.SizeRules(1, 0, 0, 150)));
+            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 0, true)));
+
+            assertTrue(claims.claim(wizards, alice, "world", 0, 0, 9, 9).isSuccess(), "100 blocks");
             assertEquals(ClaimMessages.CLAIM_LIMIT_REACHED,
-                    claims.claim(wizards, null, List.of(chunk(2, 0))).getMessageKey());
+                    claims.claim(wizards, alice, "world", 100, 0, 109, 9).getMessageKey(), "200 in all");
+            assertTrue(claims.claim(wizards, alice, "world", 100, 0, 109, 4).isSuccess(), "150 in all");
         }
 
         @Test
-        void aSingleCommandCannotSwallowTheMapButStaffAreExempt() {
-            reconfigure(withLimits(new ClaimSettings.LimitRules(0, 0, 0, 2)));
-            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 0, true)));
-            List<ChunkPosition> many = List.of(chunk(0, 0), chunk(1, 0), chunk(2, 0));
+        void staffAndServerLandFollowNoSizeRule() {
+            reconfigure(withSizes(new ClaimSettings.SizeRules(5, 10, 1, 20)));
+            Team roads = teamManager.createSystemTeam("Roads").getTeam().orElseThrow();
 
-            assertEquals(ClaimMessages.CLAIM_TOO_MANY_AT_ONCE,
-                    claims.claim(wizards, alice, many).getMessageKey());
-            assertTrue(claims.claim(wizards, null, many).isSuccess());
+            assertTrue(claims.claim(wizards, null, "world", 0, 0, 1, 40).isSuccess(), "staff draw a thin strip");
+            assertTrue(claims.claim(roads, null, "world", 500, 0, 502, 400).isSuccess(), "a road three wide");
         }
     }
 
+    @Nested
+    class Price {
+
+        @BeforeEach
+        void priced() {
+            reconfigure(withPrice(new ClaimSettings.PriceRules(0.5, 75.0)));
+            teamManager.depositToBank(wizards, alice, 100.0);
+        }
+
+        @Test
+        void aClaimIsPaidFromTheBankByItsSurface() {
+            TeamResult result = claims.claim(wizards, alice, "world", 0, 0, 9, 9);
+
+            assertTrue(result.isSuccess());
+            assertEquals(50.0, wizards.getBalance(), 1e-9, "100 blocks at 0.5");
+            assertEquals(50.0, claims.getClaims(wizards.getId()).get(0).pricePaid(), 1e-9);
+        }
+
+        @Test
+        void aClaimTheBankCannotPayIsRefusedAndCostsNothing() {
+            TeamResult result = claims.claim(wizards, alice, "world", 0, 0, 19, 19);
+
+            assertEquals(ClaimMessages.CLAIM_CANNOT_AFFORD, result.getMessageKey(), "400 blocks, 200");
+            assertEquals(100.0, wizards.getBalance(), 1e-9);
+            assertEquals(0, claims.getClaimCount(wizards.getId()));
+        }
+
+        @Test
+        void aRefusedClaimIsNeverCharged() {
+            give(warlocks, chunk(0, 0));
+
+            claims.claim(wizards, alice, "world", 10, 10, 19, 19);
+
+            assertEquals(100.0, wizards.getBalance(), 1e-9);
+        }
+
+        @Test
+        void staffClaimsAndServerLandAreFree() {
+            Team spawn = teamManager.createSystemTeam("Spawn").getTeam().orElseThrow();
+
+            assertTrue(claims.claim(wizards, null, "world", 0, 0, 9, 9).isSuccess());
+            assertTrue(claims.claim(spawn, null, "world", 1000, 1000, 1100, 1100).isSuccess());
+            assertEquals(100.0, wizards.getBalance(), 1e-9);
+            assertEquals(0.0, claims.priceOf(spawn, alice, 10_000), 1e-9);
+        }
+
+        @Test
+        void unclaimingRefundsItsShareOfWhatWasPaid() {
+            claims.claim(wizards, alice, "world", 0, 0, 9, 9);
+            reconfigure(withPrice(new ClaimSettings.PriceRules(10.0, 75.0)));
+
+            TeamResult result = claims.unclaim(wizards, alice, "world", 5, 5);
+
+            assertTrue(result.isSuccess());
+            assertEquals(50.0 + 37.5, wizards.getBalance(), 1e-9,
+                    "75 % of the 50 paid - not of today's price");
+        }
+
+        @Test
+        void aStaffUnclaimRefundsNothing() {
+            claims.claim(wizards, alice, "world", 0, 0, 9, 9);
+
+            claims.unclaim(wizards, null, "world", 5, 5);
+
+            assertEquals(50.0, wizards.getBalance(), 1e-9);
+        }
+
+        @Test
+        void unclaimAllRefundsEveryClaim() {
+            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 0, true)));
+            claims.claim(wizards, alice, "world", 0, 0, 9, 9);
+            claims.claim(wizards, alice, "world", 100, 0, 109, 9);
+
+            TeamResult result = claims.unclaimAll(wizards, alice);
+
+            assertEquals("2", result.getPlaceholders().get("count"));
+            assertEquals(75.0, wizards.getBalance(), 1e-9, "75 % of 50, twice");
+        }
+    }
     @Nested
     class Placement {
 
@@ -836,17 +984,17 @@ class ClaimManagerTest {
             give(wizards, chunk(0, 0));
 
             assertEquals(ClaimMessages.CLAIM_NOT_CONNECTED,
-                    claims.claim(wizards, null, List.of(chunk(5, 5))).getMessageKey());
-            assertTrue(claims.claim(wizards, null, List.of(chunk(1, 0))).isSuccess());
+                    claims.claim(wizards, null, "world", 17, 0, 30, 15).getMessageKey(), "a block of gap");
+            assertTrue(claims.claim(wizards, null, "world", 16, 0, 30, 15).isSuccess(), "edge to edge");
         }
 
         @Test
-        void aBatchConnectsThroughItsOwnChunks() {
+        void touchingAtACornerIsNotConnected() {
             reconfigure(withPlacement(new ClaimSettings.PlacementRules(true, 0, true)));
             give(wizards, chunk(0, 0));
 
-            // Only (1,0) touches the border; (2,0) reaches it through (1,0).
-            assertTrue(claims.claim(wizards, null, List.of(chunk(1, 0), chunk(2, 0))).isSuccess());
+            assertEquals(ClaimMessages.CLAIM_NOT_CONNECTED,
+                    claims.claim(wizards, null, "world", 16, 16, 30, 30).getMessageKey());
         }
 
         @Test
@@ -854,47 +1002,56 @@ class ClaimManagerTest {
             reconfigure(withPlacement(new ClaimSettings.PlacementRules(true, 0, true)));
             give(wizards, chunk(0, 0));
 
-            assertTrue(claims.claim(wizards, null,
-                    List.of(new ChunkPosition("world_nether", 40, 40))).isSuccess());
+            assertTrue(claimChunks(wizards, null, new ChunkPosition("world_nether", 40, 40)).isSuccess());
         }
 
         @Test
-        void theBufferKeepsTeamsApart() {
-            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 3, true)));
-            give(warlocks, chunk(0, 0));
+        void theBufferKeepsTeamsApartInBlocks() {
+            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 8, true)));
+            assertTrue(claims.claim(warlocks, null, "world", 0, 0, 9, 9).isSuccess());
 
             assertEquals(ClaimMessages.CLAIM_TOO_CLOSE,
-                    claims.claim(wizards, null, List.of(chunk(2, 0))).getMessageKey());
-            assertTrue(claims.claim(wizards, null, List.of(chunk(3, 0))).isSuccess());
+                    claims.claim(wizards, null, "world", 17, 0, 30, 9).getMessageKey(), "7 blocks between");
+            assertTrue(claims.claim(wizards, null, "world", 18, 0, 30, 9).isSuccess(), "8 blocks between");
         }
 
         @Test
-        void theBufferIgnoresYourOwnClaims() {
-            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 3, true)));
-            give(wizards, chunk(0, 0));
+        void theBufferIsMeasuredDiagonallyToo() {
+            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 8, true)));
+            assertTrue(claims.claim(warlocks, null, "world", 0, 0, 9, 9).isSuccess());
 
-            assertTrue(claims.claim(wizards, null, List.of(chunk(1, 0))).isSuccess());
+            assertEquals(ClaimMessages.CLAIM_TOO_CLOSE,
+                    claims.claim(wizards, null, "world", 15, 15, 25, 25).getMessageKey());
+        }
+
+        @Test
+        void theBufferIgnoresYourOwnClaimsAndServerLand() {
+            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 8, true)));
+            Team road = teamManager.createSystemTeam("Road").getTeam().orElseThrow();
+            give(wizards, chunk(0, 0));
+            assertTrue(claims.claim(road, null, "world", 0, 16, 200, 18).isSuccess());
+
+            assertTrue(claims.claim(wizards, null, "world", 16, 0, 30, 15).isSuccess(), "next to its own land");
+            assertTrue(claims.claim(wizards, null, "world", 40, 19, 60, 30).isSuccess(), "right beside a road");
         }
 
         @Test
         void theBufferDoesNotReachAcrossWorlds() {
-            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 5, true)));
+            reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 50, true)));
             give(warlocks, chunk(0, 0));
 
-            assertTrue(claims.claim(wizards, null,
-                    List.of(new ChunkPosition("world_nether", 0, 0))).isSuccess());
+            assertTrue(claimChunks(wizards, null, new ChunkPosition("world_nether", 0, 0)).isSuccess());
         }
     }
-
     @Nested
     class Unclaiming {
 
         @Test
-        void unclaimingReleasesTheChunk() {
-            give(wizards, chunk(0, 0));
+        void unclaimingReleasesTheWholeClaimYouStandIn() {
+            assertTrue(claims.claim(wizards, null, "world", 0, 0, 40, 40).isSuccess());
 
-            assertTrue(claims.unclaim(wizards, null, chunk(0, 0)).isSuccess());
-            assertTrue(claims.getOwnerId(chunk(0, 0)).isEmpty());
+            assertTrue(claims.unclaim(wizards, null, "world", 3, 3).isSuccess());
+            assertTrue(claims.getOwnerId("world", 40, 40).isEmpty(), "the far corner too");
             assertEquals(0, claims.getClaimCount(wizards.getId()));
         }
 
@@ -902,14 +1059,12 @@ class ClaimManagerTest {
         void youCannotUnclaimSomebodyElsesLand() {
             give(warlocks, chunk(0, 0));
 
-            assertEquals(ClaimMessages.UNCLAIM_NOT_YOURS,
-                    claims.unclaim(wizards, null, chunk(0, 0)).getMessageKey());
+            assertEquals(ClaimMessages.UNCLAIM_NOT_YOURS, unclaimAt(wizards, null, chunk(0, 0)).getMessageKey());
         }
 
         @Test
         void unclaimingWildernessFails() {
-            assertEquals(ClaimMessages.UNCLAIM_NOT_CLAIMED,
-                    claims.unclaim(wizards, null, chunk(0, 0)).getMessageKey());
+            assertEquals(ClaimMessages.UNCLAIM_NOT_CLAIMED, unclaimAt(wizards, null, chunk(0, 0)).getMessageKey());
         }
 
         @Test
@@ -917,10 +1072,9 @@ class ClaimManagerTest {
             reconfigure(withPlacement(new ClaimSettings.PlacementRules(false, 0, false)));
             give(wizards, chunk(0, 0), chunk(1, 0), chunk(2, 0));
 
-            assertEquals(ClaimMessages.UNCLAIM_WOULD_DISCONNECT,
-                    claims.unclaim(wizards, alice, chunk(1, 0)).getMessageKey());
-            assertTrue(claims.unclaim(wizards, alice, chunk(2, 0)).isSuccess(),
-                    "removing an edge chunk keeps the territory whole");
+            assertEquals(ClaimMessages.UNCLAIM_WOULD_DISCONNECT, unclaimAt(wizards, alice, chunk(1, 0)).getMessageKey());
+            assertTrue(unclaimAt(wizards, alice, chunk(2, 0)).isSuccess(),
+                    "removing a claim at the edge keeps the territory whole");
         }
 
         @Test
@@ -932,7 +1086,12 @@ class ClaimManagerTest {
             assertTrue(result.isSuccess());
             assertEquals("2", result.getPlaceholders().get("count"));
             assertEquals(0, claims.getClaimCount(wizards.getId()));
-            assertTrue(claims.getOwnerId(chunk(0, 0)).isEmpty());
+            assertTrue(ownerIdAt(chunk(0, 0)).isEmpty());
+        }
+
+        @Test
+        void unclaimAllWithNothingSaysSo() {
+            assertEquals(ClaimMessages.UNCLAIM_NOTHING, claims.unclaimAll(wizards, alice).getMessageKey());
         }
     }
 
@@ -999,16 +1158,16 @@ class ClaimManagerTest {
             teamManager.join(carol, wizards, true);
 
             assertEquals(ClaimMessages.INSUFFICIENT_ROLE,
-                    claims.claim(wizards, carol, List.of(chunk(0, 0))).getMessageKey());
+                    claimChunks(wizards, carol, chunk(0, 0)).getMessageKey());
 
             teamManager.promote(wizards, alice, carol);
-            assertTrue(claims.claim(wizards, carol, List.of(chunk(0, 0))).isSuccess());
+            assertTrue(claimChunks(wizards, carol, chunk(0, 0)).isSuccess());
         }
 
         @Test
         void aNonMemberCannotActOnTheTeam() {
             assertEquals(TeamMessages.NOT_A_MEMBER,
-                    claims.claim(wizards, bob, List.of(chunk(0, 0))).getMessageKey());
+                    claimChunks(wizards, bob, chunk(0, 0)).getMessageKey());
         }
 
         @Test
@@ -1019,7 +1178,7 @@ class ClaimManagerTest {
             UUID carol = UUID.randomUUID();
             teamManager.join(carol, wizards, true);
 
-            assertTrue(claims.claim(wizards, carol, List.of(chunk(0, 0))).isSuccess());
+            assertTrue(claimChunks(wizards, carol, chunk(0, 0)).isSuccess());
         }
     }
 
@@ -1031,7 +1190,7 @@ class ClaimManagerTest {
             RecordingStore store = new RecordingStore();
             ClaimManager persisting = new ClaimManager(() -> settings, teamManager, store, now::get);
 
-            persisting.claim(wizards, null, List.of(chunk(0, 0)));
+            persisting.claim(wizards, null, "world", 0, 0, 15, 15);
             assertEquals(1, persisting.flush());
             assertEquals(List.of(wizards.getId()), store.savedClaims);
 
@@ -1043,7 +1202,7 @@ class ClaimManagerTest {
         void releasingATeamQueuesADelete() throws Exception {
             RecordingStore store = new RecordingStore();
             ClaimManager persisting = new ClaimManager(() -> settings, teamManager, store, now::get);
-            persisting.claim(wizards, null, List.of(chunk(0, 0)));
+            persisting.claim(wizards, null, "world", 0, 0, 15, 15);
             persisting.flush();
 
             persisting.releaseAll(wizards.getId());
@@ -1057,7 +1216,7 @@ class ClaimManagerTest {
             RecordingStore store = new RecordingStore();
             store.failOnSave = true;
             ClaimManager persisting = new ClaimManager(() -> settings, teamManager, store, now::get);
-            persisting.claim(wizards, null, List.of(chunk(0, 0)));
+            persisting.claim(wizards, null, "world", 0, 0, 15, 15);
 
             assertThrows(IllegalStateException.class, persisting::flush);
 
@@ -1076,26 +1235,51 @@ class ClaimManagerTest {
         @Test
         void loadAllRebuildsBothIndexes() throws Exception {
             RecordingStore store = new RecordingStore();
-            store.preloadedClaims.add(new Claim(wizards.getId(), chunk(3, 4), 1L));
+            store.preloadedClaims.add(new ClaimArea(UUID.randomUUID(), wizards.getId(), "world", 48, 64, 60, 70, 12.5, 1L));
             store.preloadedHomes.add(new TeamHome(wizards.getId(), HomeType.HQ,
                     WorldPosition.of("world", 50, 64, 70), 1L));
             ClaimManager loading = new ClaimManager(() -> settings, teamManager, store, now::get);
 
-            loading.loadAll();
+            assertEquals(0, loading.loadAll(), "nothing to convert");
 
-            assertEquals(wizards.getId(), loading.getOwnerId(chunk(3, 4)).orElseThrow());
-            assertEquals(Set.of(chunk(3, 4)), loading.getClaims(wizards.getId()));
+            assertEquals(wizards.getId(), loading.getOwnerId("world", 55, 67).orElseThrow());
+            assertTrue(loading.getOwnerId("world", 61, 67).isEmpty(), "one block past the edge is wilderness");
+            assertEquals(1, loading.getClaims(wizards.getId()).size());
             assertTrue(loading.getHome(wizards.getId(), HomeType.HQ).isPresent());
         }
-    }
 
+        @Test
+        void chunkClaimsOfAnEarlierVersionAreConvertedOnce() throws Exception {
+            RecordingStore store = new RecordingStore();
+            // An L of three chunks: (0,0) (1,0) and (0,1).
+            store.legacyClaims.add(new Claim(wizards.getId(), chunk(0, 0), 5L));
+            store.legacyClaims.add(new Claim(wizards.getId(), chunk(1, 0), 7L));
+            store.legacyClaims.add(new Claim(wizards.getId(), chunk(0, 1), 6L));
+            ClaimManager loading = new ClaimManager(() -> settings, teamManager, store, now::get);
+
+            assertEquals(3, loading.loadAll());
+
+            for (int[] block : new int[][] {{0, 0}, {31, 15}, {15, 31}}) {
+                assertEquals(wizards.getId(), loading.getOwnerId("world", block[0], block[1]).orElseThrow());
+            }
+            assertTrue(loading.getOwnerId("world", 20, 20).isEmpty(), "the missing corner of the L stays free");
+            assertTrue(store.legacyCleared, "the chunk rows are forgotten once converted");
+            assertEquals(loading.getClaims(wizards.getId()), store.saved.get(wizards.getId()),
+                    "the converted claims are saved at once");
+            assertTrue(loading.getClaims(wizards.getId()).stream().allMatch(area -> area.pricePaid() == 0.0
+                    && area.claimedAt() == 5L), "paid nothing, and claimed when the team first claimed");
+
+            assertEquals(0, new ClaimManager(() -> settings, teamManager, store, now::get).loadAll(),
+                    "the next start finds nothing left to convert");
+        }
+    }
     @Test
     void disbandingATeamFreesItsTerritory() {
         give(wizards, chunk(0, 0), chunk(1, 0));
 
         assertEquals(2, claims.releaseAll(wizards.getId()));
 
-        assertTrue(claims.getOwnerId(chunk(0, 0)).isEmpty());
+        assertTrue(ownerIdAt(chunk(0, 0)).isEmpty());
         assertEquals(0, claims.getClaimCount(wizards.getId()));
         assertTrue(claims.getHomes(wizards.getId()).isEmpty());
     }
@@ -1103,10 +1287,10 @@ class ClaimManagerTest {
     @Test
     void configChangesApplyWithoutRecreatingTheManager() {
         reconfigure(withEnabled(false));
-        assertTrue(claims.claim(wizards, alice, List.of(chunk(0, 0))).isFailure());
+        assertTrue(claimChunks(wizards, alice, chunk(0, 0)).isFailure());
 
         reconfigure(withEnabled(true));
-        assertTrue(claims.claim(wizards, alice, List.of(chunk(0, 0))).isSuccess(),
+        assertTrue(claimChunks(wizards, alice, chunk(0, 0)).isSuccess(),
                 "/hcf reload must be enough");
     }
 
@@ -1114,7 +1298,7 @@ class ClaimManagerTest {
     void theManagerKeepsUsingTheSameTeamInstances() {
         give(wizards, chunk(0, 0));
 
-        assertSame(wizards, claims.getOwner(chunk(0, 0)).orElseThrow());
+        assertSame(wizards, ownerAt(chunk(0, 0)).orElseThrow());
     }
 
     // --- settings helpers -------------------------------------------------
@@ -1123,61 +1307,68 @@ class ClaimManagerTest {
         this.settings = replacement;
     }
 
-    private ClaimSettings withEnabled(boolean enabled) {
-        return new ClaimSettings(enabled, settings.limits(), settings.placement(), settings.protection(),
-                settings.homes(), settings.claimableWorlds(), settings.requiredRoles(), settings.warzone(),
-                settings.stuck());
+    /** Every component of a settings record, one of them replaced. */
+    private static ClaimSettings copy(ClaimSettings s, Boolean enabled, ClaimSettings.SizeRules sizes,
+                                      ClaimSettings.PriceRules price, ClaimSettings.PlacementRules placement,
+                                      ClaimSettings.ProtectionRules protection, ClaimSettings.HomeRules homes,
+                                      Set<String> worlds, Map<ClaimAction, TeamRole> roles,
+                                      ClaimSettings.WarzoneRules warzone) {
+        return new ClaimSettings(enabled == null ? s.enabled() : enabled,
+                sizes == null ? s.sizes() : sizes, price == null ? s.price() : price,
+                placement == null ? s.placement() : placement, protection == null ? s.protection() : protection,
+                homes == null ? s.homes() : homes, worlds == null ? s.claimableWorlds() : worlds,
+                roles == null ? s.requiredRoles() : roles, warzone == null ? s.warzone() : warzone,
+                s.stuck(), s.wand(), s.mapCellBlocks());
     }
 
-    private ClaimSettings withLimits(ClaimSettings.LimitRules limits) {
-        return new ClaimSettings(settings.enabled(), limits, settings.placement(), settings.protection(),
-                settings.homes(), settings.claimableWorlds(), settings.requiredRoles(), settings.warzone(),
-                settings.stuck());
+    private static ClaimSettings withPrice(ClaimSettings.PriceRules price, ClaimSettings base) {
+        return copy(base, null, null, price, null, null, null, null, null, null);
+    }
+
+    private ClaimSettings withPrice(ClaimSettings.PriceRules price) {
+        return withPrice(price, settings);
+    }
+
+    private ClaimSettings withEnabled(boolean enabled) {
+        return copy(settings, enabled, null, null, null, null, null, null, null, null);
+    }
+
+    private ClaimSettings withSizes(ClaimSettings.SizeRules sizes) {
+        return copy(settings, null, sizes, null, null, null, null, null, null, null);
     }
 
     private ClaimSettings withPlacement(ClaimSettings.PlacementRules placement) {
-        return new ClaimSettings(settings.enabled(), settings.limits(), placement, settings.protection(),
-                settings.homes(), settings.claimableWorlds(), settings.requiredRoles(), settings.warzone(),
-                settings.stuck());
+        return copy(settings, null, null, null, placement, null, null, null, null, null);
     }
 
     private ClaimSettings withProtection(ClaimSettings.ProtectionRules protection) {
-        return new ClaimSettings(settings.enabled(), settings.limits(), settings.placement(), protection,
-                settings.homes(), settings.claimableWorlds(), settings.requiredRoles(), settings.warzone(),
-                settings.stuck());
+        return copy(settings, null, null, null, null, protection, null, null, null, null);
     }
 
     private ClaimSettings withHomes(ClaimSettings.HomeRules homes) {
-        return new ClaimSettings(settings.enabled(), settings.limits(), settings.placement(),
-                settings.protection(), homes, settings.claimableWorlds(), settings.requiredRoles(), settings.warzone(),
-                settings.stuck());
+        return copy(settings, null, null, null, null, null, homes, null, null, null);
     }
 
     private ClaimSettings withWorlds(Set<String> worlds) {
-        return new ClaimSettings(settings.enabled(), settings.limits(), settings.placement(),
-                settings.protection(), settings.homes(), worlds, settings.requiredRoles(), settings.warzone(),
-                settings.stuck());
+        return copy(settings, null, null, null, null, null, null, worlds, null, null);
     }
 
     private ClaimSettings withWarzone(ClaimSettings.WarzoneRules warzone) {
-        return new ClaimSettings(settings.enabled(), settings.limits(), settings.placement(),
-                settings.protection(), settings.homes(), settings.claimableWorlds(), settings.requiredRoles(),
-                warzone, settings.stuck());
+        return copy(settings, null, null, null, null, null, null, null, null, warzone);
     }
 
     private ClaimSettings withRoles(Map<ClaimAction, TeamRole> roles) {
-        return new ClaimSettings(settings.enabled(), settings.limits(), settings.placement(),
-                settings.protection(), settings.homes(), settings.claimableWorlds(), roles, settings.warzone(),
-                settings.stuck());
+        return copy(settings, null, null, null, null, null, null, null, roles, null);
     }
 
-    // --- test double ------------------------------------------------------
-
     private static class RecordingStore implements ClaimStore {
-        final List<Claim> preloadedClaims = new ArrayList<>();
+        final List<ClaimArea> preloadedClaims = new ArrayList<>();
+        final List<Claim> legacyClaims = new ArrayList<>();
         final List<TeamHome> preloadedHomes = new ArrayList<>();
         final List<UUID> savedClaims = new ArrayList<>();
+        final Map<UUID, List<ClaimArea>> saved = new java.util.HashMap<>();
         final List<UUID> deletedTeams = new ArrayList<>();
+        boolean legacyCleared;
         boolean failOnSave;
 
         @Override
@@ -1185,8 +1376,18 @@ class ClaimManagerTest {
         }
 
         @Override
-        public Collection<Claim> loadClaims() {
+        public Collection<ClaimArea> loadClaims() {
             return List.copyOf(preloadedClaims);
+        }
+
+        @Override
+        public Collection<Claim> loadLegacyChunkClaims() {
+            return legacyCleared ? List.of() : List.copyOf(legacyClaims);
+        }
+
+        @Override
+        public void clearLegacyChunkClaims() {
+            legacyCleared = true;
         }
 
         @Override
@@ -1195,11 +1396,12 @@ class ClaimManagerTest {
         }
 
         @Override
-        public void saveClaims(UUID teamId, Collection<Claim> claims) {
+        public void saveClaims(UUID teamId, Collection<ClaimArea> claims) {
             if (failOnSave) {
                 throw new IllegalStateException("simulated write failure");
             }
             savedClaims.add(teamId);
+            saved.put(teamId, List.copyOf(claims));
         }
 
         @Override

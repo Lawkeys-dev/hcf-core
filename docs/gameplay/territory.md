@@ -2,27 +2,42 @@
 
 *Configured in [`claims.yml`](../reference/configuration/claims.md). Commands: [`/team`](../reference/commands.md#team).*
 
-Land is claimed **by chunk** (16 × 16 blocks, the full height of the world). Inside a team's land, nobody else builds, breaks or opens anything — until the team becomes [raidable](dtr-and-raids.md).
+Land is claimed **block by block**, the traditional HCF way: a claim is a rectangle drawn with the **claiming wand**, the full height of the world, paid from the team bank. Inside a team's land, nobody else builds, breaks or opens anything — until the team becomes [raidable](dtr-and-raids.md).
 
-## Claiming
+## Claiming with the wand
 
 ```text
-/team claim        # the chunk you stand in
-/team claim 2      # a 5 × 5 square of chunks around you
-/team unclaim      # release the chunk you stand in
+/team claim        # hands you the claiming wand (a golden hoe)
+/team unclaim      # release the claim you stand in - the whole claim
 /team unclaimall   # release everything
 ```
 
-- **How much**: 16 chunks plus 4 per member (`limits.base`, `limits.per-member`), with an optional hard cap (`limits.maximum`). One command claims at most 64 chunks (`max-per-command`), so a typo does not swallow the map; the radius goes up to 8.
-- **Connected**: new land must touch the team's existing land in that world (`require-connected`). A team may still open a first territory in a world where it holds nothing.
-- **Buffer**: at least 2 chunks from another team's land (`minimum-distance-to-others`, `0` to allow claiming right up against it).
+With the wand in hand:
+
+| Gesture | Does |
+|---|---|
+| **Left-click** a block | First corner |
+| **Right-click** a block | Second corner |
+| **Sneak + left-click** | Claim the rectangle between them |
+| **Drop** the wand | Give up — the wand vanishes |
+
+Both corners are part of the claim: from `0, 0` to `4, 4` is 5 × 5. Each corner shows as a column of glass **only you see**, then all four once both are picked, and the chat tells you the size, the **price** and — before you confirm — anything that would refuse it. A refused claim costs nothing and keeps the wand, to draw again. The wand cannot be put in a chest and is not dropped on death.
+
+- **Price**: `0.25` per block of surface (`price.per-block`) — a 20 × 20 claim is 400 blocks, 100 — taken from the **team bank** (`/team deposit <amount>`). Money is what limits a team's land.
+- **Refund**: `/team unclaim` gives back 75 % of what that claim cost (`price.refund-percent`) — of what was paid, never of today's price.
+- **Size**: at least 5 × 5 (`sizes.min-side`), at most 128 blocks a side (`sizes.max-side`); optionally a cap on the number of claims and on the total surface (`max-claims`, `max-total-area`, `0` = none).
+- **Connected**: a new claim must share an edge with the team's land in that world (`require-connected`) — touching at a corner is not enough. A team may still open a first territory in a world where it holds nothing.
+- **Buffer**: at least 8 blocks from another team's land (`buffer-blocks`, `0` to allow claiming right up against it). Server land — spawn, roads — is no neighbour.
 - **No splitting**: unclaiming may not cut the territory in two (`allow-disconnecting`).
-- **Where**: every world, unless `claimable-worlds` lists some. Never on server land or in the warzone.
+- **Where**: every world, unless `claimable-worlds` lists some. Never over anybody's land, a Mountain's region or the warzone.
 - **Who**: co-leaders claim, the leader unclaims (`required-roles`).
 
-`/team here` (alias `claiminfo`) tells who owns the chunk you stand in, whether it is protected or raidable, and your team's territory count. `/team map` draws the territory around you in chat, coloured by relation — yours, an ally's, an enemy's, server land, warzone, wilderness — readable on every client.
+`/team here` (alias `claiminfo`) tells who owns the land you stand on, the claim's size and corners, whether it is protected or raidable, and the team's territory. `/team map` draws the territory around you in chat — one character per 8 blocks (`map.cell-blocks`) — coloured by relation: yours, an ally's, an enemy's, server land, warzone, wilderness; readable on every client.
 
-!!! info "Who owns a chunk never changes by raiding"
+!!! note "Upgrading from 0.7"
+    Chunk claims of an earlier version are **converted automatically** on the first start: each team's chunks become rectangles covering exactly the same land, paid nothing (so they refund nothing). The console says how many.
+
+!!! info "Who owns land never changes by raiding"
     A raid only opens a pillage window. The land stays with its team, and its protection comes back the moment its DTR climbs back above zero. **No team can ever claim another team's land**, raidable or not.
 
 ## Protection
@@ -37,7 +52,7 @@ What a player **holds** still works there, whatever block they are looking at: e
 
 **Explosions** do not break blocks there either (`block-explosions`) — otherwise every refused block break would simply become a stick of TNT. The explosion is not cancelled: a charge on a border takes out the unprotected side and leaves the protected side standing.
 
-**Crossing a border** is announced (`announce-territory`), once per chunk change.
+**Crossing a border** is announced (`announce-territory`) the moment you step over it — borders run between blocks.
 
 ### Entities are protected like blocks
 
@@ -118,11 +133,11 @@ A *server team* holds land that belongs to the server:
 
 ```text
 /team createsystem Spawn safe
-/team forceclaim Spawn 3
+/team forceclaim Spawn          # the claiming wand, drawing Spawn's land
 /team setzone Spawn combat      # switch an existing server team
 ```
 
-Either way, only staff build or interact on server land — **kit refill signs excepted** — and no player team claims it. Keep what players must use off server land. `/team forceclaim <team> [radius]` claims up to 32 chunks' radius around you for any team; `/team forceunclaim <team> [all]` releases the chunk you stand in, or everything.
+Either way, only staff build or interact on server land — **kit refill signs excepted** — and no player team claims it. Keep what players must use off server land. `/team forceclaim <team>` hands staff the wand for any team — **free, and outside the size and placement rules**, since a road is three blocks wide and spawn may border the warzone; it still never draws over anybody's land. `/team forceunclaim <team> [all]` releases the claim you stand in, or everything, refunding nothing.
 
 ## Warzone
 
@@ -135,7 +150,7 @@ The square around each listed world's centre, set in `claims.yml`:
 - Fighting allowed, no player claims.
 - No building unless `warzone.allow-building` — explosions follow the same rule.
 - Doors and chests stay usable.
-- The radius is rounded outwards to whole chunks, so the warzone shares the territory border.
+- The radius is exact, block for block, like claims.
 - Off by default: a world not listed has no warzone.
 
 The warzone only governs land **nobody owns**: spawn at its centre stays safe, a road claimed across it keeps its own rules, and a team that held land there before keeps it.

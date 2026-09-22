@@ -6,13 +6,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * One chunk owned by one team.
- *
- * <p>Ownership is the persistent half of the model FEATURES.md section 3 calls
- * for: it is set when the chunk is claimed and only cleared by an explicit
- * unclaim or a disband. It is never affected by raiding - whether the owner can
- * currently be raided is a separate, dynamic question answered by
- * {@link RaidabilityPolicy}.
+ * One chunk owned by one team - a claim as versions up to 0.7 stored it, read
+ * once to be turned into {@link ClaimArea block claims} by
+ * {@link LegacyChunkClaims}, then no more.
  */
 public record Claim(UUID teamId, ChunkPosition chunk, long claimedAt) {
 

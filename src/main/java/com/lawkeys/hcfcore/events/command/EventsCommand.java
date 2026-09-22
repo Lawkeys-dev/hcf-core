@@ -576,6 +576,9 @@ public final class EventsCommand implements TabExecutor {
     }
 
     private boolean setupSetZone(Player player, String[] args) {
+        if (args.length == 2) {
+            return setupZoneWand(player, args[1]);
+        }
         if (args.length < 3) {
             return false;
         }
@@ -618,6 +621,83 @@ public final class EventsCommand implements TabExecutor {
         module.reloadSettings();
         module.getLang().send(player, CoreMessages.SETUP_ZONE_SET, "event", id, "corner", String.valueOf(corner));
         return true;
+    }
+
+    /**
+     * {@code /events setzone <id>} - the claiming wand, drawing the event's zone: left
+     * and right click its corners, sneak and left-click to write it.
+     */
+    private boolean setupZoneWand(Player player, String id) {
+        if (!EventIds.isValid(id)) {
+            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", id,
+                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
+            return true;
+        }
+        if (sectionOf(id).isEmpty()) {
+            module.getLang().send(player, CoreMessages.SETUP_UNKNOWN_ID, "event", id);
+            return true;
+        }
+        if (module.getClaims() == null) {
+            module.getLang().send(player, CoreMessages.SETUP_NO_WAND);
+            return true;
+        }
+        module.getClaims().getWandSessions().give(player, new ZoneTask(id));
+        return true;
+    }
+
+    /** The wand drawing an event's zone. */
+    private final class ZoneTask implements com.lawkeys.hcfcore.claim.wand.WandTask {
+
+        private final String id;
+
+        ZoneTask(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String label() {
+            return id;
+        }
+
+        @Override
+        public java.util.List<String> preview(Player player, com.lawkeys.hcfcore.claim.wand.Selection selection) {
+            return java.util.List.of(module.getLang().get(CoreMessages.SETUP_ZONE_PREVIEW, "event", id,
+                    "size", selection.width() + "x" + selection.length(),
+                    "from", String.valueOf(selection.minY()),
+                    "to", String.valueOf(selection.maxY() + module.getSetupZoneHeight())));
+        }
+
+        @Override
+        public boolean confirm(Player player, com.lawkeys.hcfcore.claim.wand.Selection selection) {
+            Optional<String> section = sectionOf(id);
+            if (section.isEmpty()) {
+                module.getLang().send(player, CoreMessages.SETUP_UNKNOWN_ID, "event", id);
+                return true;
+            }
+            if (isRunning(id)) {
+                module.getLang().send(player, CoreMessages.SETUP_RUNNING, "event", id);
+                return false;
+            }
+            int top = selection.maxY() + module.getSetupZoneHeight();
+            boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
+                ConfigurationSection entry = entryOf(root, section.get(), id);
+                if (entry == null) {
+                    return false;
+                }
+                entry.set("world", selection.world());
+                set(entry, "corner-1", selection.minX(), selection.minY(), selection.minZ());
+                set(entry, "corner-2", selection.maxX(), top, selection.maxZ());
+                return true;
+            });
+            if (!written) {
+                module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
+                return false;
+            }
+            module.reloadSettings();
+            module.getLang().send(player, CoreMessages.SETUP_ZONE_DRAWN, "event", id,
+                    "size", selection.width() + "x" + selection.length());
+            return true;
+        }
     }
 
     private boolean setupSetCore(Player player, String[] args) {

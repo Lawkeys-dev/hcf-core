@@ -130,8 +130,8 @@ public final class ClaimLockListener implements Listener {
         if (module.getManager() == null || player.hasPermission(ClaimProtectionListener.BYPASS_PERMISSION)) {
             return Optional.empty();
         }
-        ChunkPosition chunk = ClaimModule.toChunk(to);
-        return module.getManager().lockedAgainst(chunk, player.getUniqueId());
+        return module.getManager().lockedAgainst(to.getWorld().getName(), to.getBlockX(), to.getBlockZ(),
+                player.getUniqueId());
     }
 
     private void tell(Player player, Team team) {

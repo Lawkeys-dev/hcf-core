@@ -179,9 +179,19 @@ public final class ResourceNodeManager implements ReservedRegionPolicy {
         return nodeAtBlock(world, x, y, z).isPresent();
     }
 
-    @Override
+    /** @return the name of a node whose region the chunk touches and which refuses claims */
     public Optional<String> reservedRegionAt(ChunkPosition chunk) {
         return claimBlockingNodeAt(chunk).map(ResourceNodeDefinition::displayName);
+    }
+
+    @Override
+    public Optional<String> reservedRegionIn(String world, int minX, int minZ, int maxX, int maxZ) {
+        for (ResourceNodeDefinition node : enforcedNodes()) {
+            if (node.preventClaim() && node.region().overlapsColumns(world, minX, minZ, maxX, maxZ)) {
+                return Optional.of(node.displayName());
+            }
+        }
+        return Optional.empty();
     }
 
     /** @return the next time this node refills by itself, or empty when only staff can */

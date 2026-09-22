@@ -39,7 +39,8 @@ public final class ClaimSettingsLoader {
 
         return new ClaimSettings(
                 section.getBoolean("enabled", defaults.enabled()),
-                loadLimits(section.getConfigurationSection("limits"), defaults.limits(), warn),
+                loadSizes(section.getConfigurationSection("sizes"), defaults.sizes(), warn),
+                loadPrice(section.getConfigurationSection("price"), defaults.price(), warn),
                 loadPlacement(section.getConfigurationSection("placement"), defaults.placement()),
                 loadProtection(section.getConfigurationSection("protection"), defaults.protection()),
                 loadHomes(section.getConfigurationSection("homes"), defaults.homes(), warn),
@@ -47,7 +48,9 @@ public final class ClaimSettingsLoader {
                 loadRequiredRoles(section.getConfigurationSection("required-roles"),
                         defaults.requiredRoles(), warn),
                 loadWarzone(section.getConfigurationSection("warzone"), defaults.warzone(), warn),
-                loadStuck(section.getConfigurationSection("stuck"), defaults.stuck(), warn));
+                loadStuck(section.getConfigurationSection("stuck"), defaults.stuck(), warn),
+                loadWand(section.getConfigurationSection("wand"), defaults.wand(), warn),
+                Math.max(1, Math.min(64, section.getInt("map.cell-blocks", defaults.mapCellBlocks()))));
     }
 
     private static ClaimSettings.StuckRules loadStuck(ConfigurationSection section,
@@ -98,23 +101,63 @@ public final class ClaimSettingsLoader {
                 section.getBoolean("allow-building", defaults.allowBuilding()), areas);
     }
 
-    private static ClaimSettings.LimitRules loadLimits(ConfigurationSection section,
-                                                      ClaimSettings.LimitRules defaults,
-                                                      Consumer<String> warn) {
+    private static ClaimSettings.SizeRules loadSizes(ConfigurationSection section,
+                                                    ClaimSettings.SizeRules defaults, Consumer<String> warn) {
         if (section == null) {
             return defaults;
         }
-        int base = Math.max(0, section.getInt("base", defaults.base()));
-        int perMember = Math.max(0, section.getInt("per-member", defaults.perMember()));
-        int maximum = Math.max(0, section.getInt("maximum", defaults.maximum()));
-        int maxPerCommand = Math.max(0, section.getInt("max-per-command", defaults.maxPerCommand()));
-
-        if (maximum > 0 && maximum < base) {
-            warn.accept("limits.maximum (" + maximum + ") is below limits.base (" + base
-                    + "), so no team could ever reach its base allowance; using base as the maximum.");
-            maximum = base;
+        int minSide = Math.max(1, section.getInt("min-side", defaults.minSide()));
+        int maxSide = Math.max(0, section.getInt("max-side", defaults.maxSide()));
+        if (maxSide > 0 && maxSide < minSide) {
+            warn.accept("sizes.max-side (" + maxSide + ") is below sizes.min-side (" + minSide
+                    + "), so no claim could ever be made; using min-side as the maximum.");
+            maxSide = minSide;
         }
-        return new ClaimSettings.LimitRules(base, perMember, maximum, maxPerCommand);
+        return new ClaimSettings.SizeRules(minSide, maxSide,
+                Math.max(0, section.getInt("max-claims", defaults.maxClaims())),
+                Math.max(0L, section.getLong("max-total-area", defaults.maxTotalArea())));
+    }
+
+    private static ClaimSettings.PriceRules loadPrice(ConfigurationSection section,
+                                                     ClaimSettings.PriceRules defaults, Consumer<String> warn) {
+        if (section == null) {
+            return defaults;
+        }
+        double perBlock = section.getDouble("per-block", defaults.perBlock());
+        if (!(perBlock >= 0) || !Double.isFinite(perBlock)) {
+            warn.accept("price.per-block must be 0 or more; using " + defaults.perBlock() + ".");
+            perBlock = defaults.perBlock();
+        }
+        double refund = section.getDouble("refund-percent", defaults.refundPercent());
+        if (!(refund >= 0 && refund <= 100)) {
+            warn.accept("price.refund-percent must be between 0 and 100; using " + defaults.refundPercent() + ".");
+            refund = defaults.refundPercent();
+        }
+        return new ClaimSettings.PriceRules(perBlock, refund);
+    }
+
+    private static ClaimSettings.WandRules loadWand(ConfigurationSection section,
+                                                   ClaimSettings.WandRules defaults, Consumer<String> warn) {
+        if (section == null) {
+            return defaults;
+        }
+        String material = section.getString("material", defaults.material());
+        if (org.bukkit.Material.matchMaterial(String.valueOf(material)) == null
+                || !org.bukkit.Material.matchMaterial(material).isItem()) {
+            warn.accept("wand.material '" + material + "' is not an item; using " + defaults.material() + ".");
+            material = defaults.material();
+        }
+        String pillar = section.getString("pillar-material", defaults.pillarMaterial());
+        if (org.bukkit.Material.matchMaterial(String.valueOf(pillar)) == null
+                || !org.bukkit.Material.matchMaterial(pillar).isBlock()) {
+            warn.accept("wand.pillar-material '" + pillar + "' is not a block; using " + defaults.pillarMaterial() + ".");
+            pillar = defaults.pillarMaterial();
+        }
+        return new ClaimSettings.WandRules(material,
+                section.getString("name", defaults.name()),
+                section.isList("lore") ? section.getStringList("lore") : defaults.lore(),
+                pillar,
+                Math.max(1, Math.min(64, section.getInt("pillar-height", defaults.pillarHeight()))));
     }
 
     private static ClaimSettings.PlacementRules loadPlacement(ConfigurationSection section,
@@ -124,8 +167,7 @@ public final class ClaimSettingsLoader {
         }
         return new ClaimSettings.PlacementRules(
                 section.getBoolean("require-connected", defaults.requireConnected()),
-                Math.max(0, section.getInt("minimum-distance-to-others",
-                        defaults.minimumDistanceToOthers())),
+                Math.max(0, section.getInt("buffer-blocks", defaults.bufferBlocks())),
                 section.getBoolean("allow-disconnecting", defaults.allowDisconnecting()));
     }
 

@@ -260,8 +260,8 @@ public final class KingEventController {
             return;
         }
         int[] column = WarzoneSpots.randomColumn(area, random);
-        ChunkPosition chunk = ChunkPosition.fromBlock(world.getName(), column[0], column[1]);
-        if (claims.getManager() == null || claims.getManager().getOwner(chunk).isPresent()) {
+        if (claims.getManager() == null
+                || claims.getManager().getOwner(world.getName(), column[0], column[1]).isPresent()) {
             // Spawn, a road, a team's old claim: not the open warzone.
             findSpot(run, world, area, attemptsLeft - 1);
             return;
@@ -452,17 +452,13 @@ public final class KingEventController {
         if (location.getWorld() == null || !location.getWorld().getName().equals(definition.world())) {
             return false;
         }
-        ChunkPosition chunk = ClaimModule.toChunk(location);
-        return claims != null && claims.getSettings().warzone().covers(chunk) && !isSafeZone(chunk);
+        return claims != null && claims.getSettings().warzone().covers(location.getWorld().getName(),
+                location.getBlockX(), location.getBlockZ()) && !isSafeZone(location);
     }
 
     boolean isSafeZone(Location location) {
-        return location.getWorld() != null && isSafeZone(ClaimModule.toChunk(location));
-    }
-
-    private boolean isSafeZone(ChunkPosition chunk) {
-        return claims != null && claims.getManager() != null
-                && claims.getManager().getOwner(chunk).map(Team::isSafeZone).orElse(false);
+        return location.getWorld() != null && claims != null
+                && claims.ownerAt(location).map(Team::isSafeZone).orElse(false);
     }
 
     private Area warzoneOf(String world) {

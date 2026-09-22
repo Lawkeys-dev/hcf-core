@@ -16,12 +16,18 @@ public interface ClaimStore {
 
     void initSchema() throws Exception;
 
-    Collection<Claim> loadClaims() throws Exception;
+    Collection<ClaimArea> loadClaims() throws Exception;
+
+    /** @return the chunk claims an earlier version left, to be converted once */
+    Collection<Claim> loadLegacyChunkClaims() throws Exception;
+
+    /** Forgets the chunk claims once they have been converted and saved as areas. */
+    void clearLegacyChunkClaims() throws Exception;
 
     Collection<TeamHome> loadHomes() throws Exception;
 
     /** Replaces the stored claims of {@code teamId} with exactly {@code claims}. */
-    void saveClaims(UUID teamId, Collection<Claim> claims) throws Exception;
+    void saveClaims(UUID teamId, Collection<ClaimArea> claims) throws Exception;
 
     void saveHome(TeamHome home) throws Exception;
 
@@ -36,8 +42,17 @@ public interface ClaimStore {
         }
 
         @Override
-        public Collection<Claim> loadClaims() {
+        public Collection<ClaimArea> loadClaims() {
             return java.util.List.of();
+        }
+
+        @Override
+        public Collection<Claim> loadLegacyChunkClaims() {
+            return java.util.List.of();
+        }
+
+        @Override
+        public void clearLegacyChunkClaims() {
         }
 
         @Override
@@ -46,7 +61,7 @@ public interface ClaimStore {
         }
 
         @Override
-        public void saveClaims(UUID teamId, Collection<Claim> claims) {
+        public void saveClaims(UUID teamId, Collection<ClaimArea> claims) {
         }
 
         @Override

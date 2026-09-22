@@ -1,9 +1,9 @@
 package com.lawkeys.hcfcore.claim;
 
 import com.lawkeys.hcfcore.team.TeamRole;
-import com.lawkeys.hcfcore.util.ChunkPosition;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -19,22 +19,28 @@ import java.util.Set;
  * @param claimableWorlds worlds where claiming is allowed; empty means all
  * @param warzone         the server land around each world's centre that no player
  *                        team may claim
+ * @param mapCellBlocks   how many blocks one cell of {@code /team map} stands for
  */
 public record ClaimSettings(
         boolean enabled,
-        LimitRules limits,
+        SizeRules sizes,
+        PriceRules price,
         PlacementRules placement,
         ProtectionRules protection,
         HomeRules homes,
         Set<String> claimableWorlds,
         Map<ClaimAction, TeamRole> requiredRoles,
         WarzoneRules warzone,
-        StuckRules stuck) {
+        StuckRules stuck,
+        WandRules wand,
+        int mapCellBlocks) {
 
     public ClaimSettings {
         Objects.requireNonNull(warzone, "warzone");
         Objects.requireNonNull(stuck, "stuck");
-        Objects.requireNonNull(limits, "limits");
+        Objects.requireNonNull(sizes, "sizes");
+        Objects.requireNonNull(price, "price");
+        Objects.requireNonNull(wand, "wand");
         Objects.requireNonNull(placement, "placement");
         Objects.requireNonNull(protection, "protection");
         Objects.requireNonNull(homes, "homes");
@@ -43,25 +49,69 @@ public record ClaimSettings(
     }
 
     /**
-     * How many chunks a team may own.
+     * How big a claim may be. Since claims are drawn block by block (22/09/2026),
+     * money is what limits a team's land - the project owner's choice - and these
+     * only keep each claim sensible. {@code 0} means no limit.
      *
-     * @param base           chunks every team may claim regardless of size
-     * @param perMember      extra chunks granted per member; {@code 0} disables scaling
-     * @param maximum        hard cap whatever the member count; {@code 0} means uncapped
-     * @param maxPerCommand  chunks a single command may claim at once, to stop a
-     *                       stray radius from swallowing the map in one keystroke
+     * @param minSide      the shortest a side may be, in blocks: a 1-block-wide strip
+     *                     around an enemy base is not territory
+     * @param maxSide      the longest a side may be, in blocks
+     * @param maxClaims    how many separate claims one team may hold
+     * @param maxTotalArea how many blocks of surface one team may hold in all
      */
-    public record LimitRules(int base, int perMember, int maximum, int maxPerCommand) {
+    public record SizeRules(int minSide, int maxSide, int maxClaims, long maxTotalArea) {
+    }
+
+    /**
+     * What a claim costs, paid from the team bank when it is made.
+     *
+     * @param perBlock      the price of one block of surface; {@code 0} makes claiming free
+     * @param refundPercent the share of what was paid that an unclaim gives back, 0 to 100
+     */
+    public record PriceRules(double perBlock, double refundPercent) {
+
+        /** @return the price of a claim of that many blocks */
+        public double priceOf(long area) {
+            return perBlock * area;
+        }
+
+        /** @return what giving back a claim that cost {@code paid} returns */
+        public double refundOf(double paid) {
+            return paid * refundPercent / 100.0;
+        }
+    }
+
+    /**
+     * The claiming wand - the traditional HCF way of drawing a claim: left-click one
+     * corner, right-click the other, sneak and left-click to confirm, drop it to give up.
+     *
+     * @param material       the item
+     * @param name           its name
+     * @param lore           its description
+     * @param pillarMaterial the column shown - to its holder only - on each chosen corner
+     * @param pillarHeight   how many blocks high those columns rise above the corner
+     */
+    public record WandRules(String material, String name, List<String> lore, String pillarMaterial,
+                            int pillarHeight) {
+
+        public WandRules {
+            Objects.requireNonNull(material, "material");
+            Objects.requireNonNull(name, "name");
+            lore = List.copyOf(Objects.requireNonNull(lore, "lore"));
+            Objects.requireNonNull(pillarMaterial, "pillarMaterial");
+        }
     }
 
     /**
      * Where a claim may be placed.
      *
-     * @param requireConnected      new chunks must touch the team's existing territory in that world
-     * @param minimumDistanceToOthers minimum chunk distance to another team's claims; {@code 0} disables
+     * @param requireConnected      a new claim must share an edge with the team's existing
+     *                              territory in that world
+     * @param bufferBlocks          blocks of land to keep between a claim and another team's;
+     *                              {@code 0} lets teams claim right up against each other
      * @param allowDisconnecting    whether unclaiming may split a team's territory in two
      */
-    public record PlacementRules(boolean requireConnected, int minimumDistanceToOthers,
+    public record PlacementRules(boolean requireConnected, int bufferBlocks,
                                  boolean allowDisconnecting) {
     }
 
@@ -102,11 +152,9 @@ public record ClaimSettings(
      * may claim, and that nobody builds on unless the operator allows it. PvP is on
      * there, as anywhere that is not a safe zone.
      *
-     * <p><strong>Applied per chunk.</strong> The radius is written in blocks, as
-     * HCF operators think of it, and the square is rounded outwards to whole
-     * chunks. Territory is chunk-based everywhere else - claims, {@code /team map},
-     * border announcements - so a chunk-aligned warzone has one border, the same
-     * whether a claim is refused, a block is protected or a map is drawn.
+     * <p><strong>Block-precise</strong>, like claims since 22/09/2026: the square runs
+     * exactly {@code radius} blocks from the centre to each edge. It used to be
+     * rounded outwards to whole chunks, when territory was drawn by chunk.
      *
      * <p><strong>Claimed land wins.</strong> The warzone only governs land nobody
      * owns. A server team claimed inside it - spawn at its centre, a road across it
@@ -130,19 +178,22 @@ public record ClaimSettings(
         }
 
         /**
-         * @return whether any block of {@code chunk} lies within its world's warzone.
+         * @return whether that block column lies within its world's warzone.
          *         Allocation-free: asked for unclaimed land on block events
          */
-        public boolean covers(ChunkPosition chunk) {
-            Area area = areas.get(chunk.world());
-            if (area == null) {
-                return false;
-            }
-            int minX = chunk.minBlockX();
-            int minZ = chunk.minBlockZ();
-            // A chunk is 16 blocks: [min, min + 15] on each axis.
-            return minX + 15 >= area.centerX() - area.radius() && minX <= area.centerX() + area.radius()
-                    && minZ + 15 >= area.centerZ() - area.radius() && minZ <= area.centerZ() + area.radius();
+        public boolean covers(String world, int x, int z) {
+            Area area = areas.get(world);
+            return area != null
+                    && Math.abs((long) x - area.centerX()) <= area.radius()
+                    && Math.abs((long) z - area.centerZ()) <= area.radius();
+        }
+
+        /** @return whether any block of that rectangle lies within its world's warzone */
+        public boolean overlaps(ClaimArea claim) {
+            Area area = areas.get(claim.world());
+            return area != null
+                    && claim.maxX() >= area.centerX() - area.radius() && claim.minX() <= area.centerX() + area.radius()
+                    && claim.maxZ() >= area.centerZ() - area.radius() && claim.minZ() <= area.centerZ() + area.radius();
         }
 
         /**
@@ -167,22 +218,6 @@ public record ClaimSettings(
         return claimableWorlds.isEmpty() || claimableWorlds.contains(world);
     }
 
-    /**
-     * Resolves a team's claim allowance from its member count.
-     *
-     * @return the maximum number of chunks, or {@code 0} for unlimited
-     */
-    public int maxClaimsFor(int memberCount) {
-        if (limits.perMember() <= 0) {
-            return limits.maximum() > 0 ? Math.min(limits.base(), limits.maximum()) : limits.base();
-        }
-        long allowance = (long) limits.base() + (long) limits.perMember() * memberCount;
-        if (limits.maximum() > 0) {
-            allowance = Math.min(allowance, limits.maximum());
-        }
-        return (int) Math.min(allowance, Integer.MAX_VALUE);
-    }
-
     /** Built-in fallback, mirroring the defaults shipped in {@code resources/claims.yml}. */
     public static ClaimSettings defaults() {
         Map<ClaimAction, TeamRole> roles = new EnumMap<>(ClaimAction.class);
@@ -193,13 +228,20 @@ public record ClaimSettings(
 
         return new ClaimSettings(
                 true,
-                new LimitRules(16, 4, 0, 64),
-                new PlacementRules(true, 2, false),
+                new SizeRules(5, 128, 0, 0L),
+                new PriceRules(0.25, 75.0),
+                new PlacementRules(true, 8, false),
                 new ProtectionRules(false, true, true, true),
                 new HomeRules(true, true, 10L),
                 Set.of(),
                 roles,
                 WarzoneRules.none(),
-                new StuckRules(60L));
+                new StuckRules(60L),
+                new WandRules("GOLDEN_HOE", "{primary}&lClaiming Wand", List.of(
+                        "{muted}Left-click {dark}{bullet} {secondary}first corner",
+                        "{muted}Right-click {dark}{bullet} {secondary}second corner",
+                        "{muted}Sneak + left-click {dark}{bullet} {success}claim it",
+                        "{muted}Drop it {dark}{bullet} {error}give up"), "GLASS", 12),
+                8);
     }
 }

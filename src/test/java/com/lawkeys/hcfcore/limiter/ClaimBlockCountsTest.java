@@ -16,8 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Block limits per claim: the counts, and the rule, without a server. */
 class ClaimBlockCountsTest {
 
-    private static final ChunkPosition A = new ChunkPosition("world", 0, 0);
-    private static final ChunkPosition B = new ChunkPosition("world", 1, 0);
+    private static final java.util.UUID TEAM = java.util.UUID.randomUUID();
+    private static final java.util.UUID OTHER = java.util.UUID.randomUUID();
+    private static final ClaimCell A = new ClaimCell(new ChunkPosition("world", 0, 0), TEAM);
+    private static final ClaimCell B = new ClaimCell(new ChunkPosition("world", 1, 0), TEAM);
 
     @Test
     void aTerritoryIsTheSumOfItsChunks() {
@@ -46,8 +48,8 @@ class ClaimBlockCountsTest {
         ClaimBlockCounts counts = new ClaimBlockCounts(ClaimBlockCountStore.NO_OP);
         counts.adjust(A, "HOPPER", 1);
         counts.adjust(A, "REDSTONE_WIRE", 1);
-        assertTrue(counts.beginRecount(A));
-        counts.finishRecount(A, Map.of("HOPPER", 5));
+        assertTrue(counts.beginRecount(A.chunk()));
+        counts.finishRecount(A.chunk(), Map.of(TEAM, Map.of("HOPPER", 5)));
         assertEquals(5, counts.count(A, "HOPPER"));
         assertEquals(0, counts.count(A, "REDSTONE_WIRE"), "washed away, and the recount saw it");
     }
@@ -59,19 +61,19 @@ class ClaimBlockCountsTest {
     @Test
     void whatChangesDuringARecountIsKept() {
         ClaimBlockCounts counts = new ClaimBlockCounts(ClaimBlockCountStore.NO_OP);
-        assertTrue(counts.beginRecount(A));
-        assertFalse(counts.beginRecount(A), "one recount of a chunk at a time");
+        assertTrue(counts.beginRecount(A.chunk()));
+        assertFalse(counts.beginRecount(A.chunk()), "one recount of a chunk at a time");
         counts.adjust(A, "HOPPER", 1);
         counts.adjust(A, "HOPPER", 1);
         counts.adjust(A, "SPAWNER", -1);
-        counts.finishRecount(A, Map.of("HOPPER", 10, "SPAWNER", 3));
+        counts.finishRecount(A.chunk(), Map.of(TEAM, Map.of("HOPPER", 10, "SPAWNER", 3)));
         assertEquals(12, counts.count(A, "HOPPER"));
         assertEquals(2, counts.count(A, "SPAWNER"));
-        assertFalse(counts.isRecounting(A));
+        assertFalse(counts.isRecounting(A.chunk()));
 
         counts.adjust(A, "HOPPER", 1);
-        counts.beginRecount(A);
-        counts.finishRecount(A, Map.of("HOPPER", 13));
+        counts.beginRecount(A.chunk());
+        counts.finishRecount(A.chunk(), Map.of(TEAM, Map.of("HOPPER", 13)));
         assertEquals(13, counts.count(A, "HOPPER"), "a change made before the recount began is already in its snapshot");
     }
 
@@ -82,7 +84,7 @@ class ClaimBlockCountsTest {
         counts.adjust(A, "HOPPER", 1);
         counts.adjust(B, "HOPPER", 1);
         counts.flush();
-        assertEquals(Set.of(B), counts.prune(chunk -> chunk.equals(A)),
+        assertEquals(Set.of(B.chunk()), counts.prune(cell -> cell.equals(A)),
                 "the caller is told which, to count them again if they are claimed again");
         assertEquals(0, counts.count(B, "HOPPER"));
         counts.flush();
@@ -120,6 +122,24 @@ class ClaimBlockCountsTest {
         assertEquals(Map.of("HOPPER", 2), store.rows.get(A));
     }
 
+    /** Two teams in one chunk - claims are block-precise - are never charged each other's blocks. */
+    @Test
+    void twoTeamsSharingAChunkAreCountedApart() {
+        ClaimBlockCounts counts = new ClaimBlockCounts(ClaimBlockCountStore.NO_OP);
+        ClaimCell theirs = new ClaimCell(A.chunk(), OTHER);
+        counts.adjust(A, "HOPPER", 1);
+        counts.adjust(theirs, "HOPPER", 1);
+        counts.adjust(theirs, "HOPPER", 1);
+        assertEquals(1, counts.total(List.of(A), "HOPPER"));
+        assertEquals(2, counts.total(List.of(theirs), "HOPPER"));
+
+        counts.beginRecount(A.chunk());
+        counts.finishRecount(A.chunk(), Map.of(TEAM, Map.of("HOPPER", 4)));
+        assertEquals(4, counts.count(A, "HOPPER"));
+        assertEquals(0, counts.count(theirs, "HOPPER"),
+                "a team the recount no longer found in the chunk is forgotten there");
+    }
+
     @Test
     void theLimitRule() {
         ClaimBlockLimits limits = new ClaimBlockLimits(true, Map.of("hopper", 64, "spawner", 0));
@@ -136,7 +156,7 @@ class ClaimBlockCountsTest {
     }
 
     private static final class Recording implements ClaimBlockCountStore {
-        final Map<ChunkPosition, Map<String, Integer>> rows = new HashMap<>();
+        final Map<ClaimCell, Map<String, Integer>> rows = new HashMap<>();
         boolean fail;
         Runnable duringSave = () -> { };
 
@@ -145,19 +165,19 @@ class ClaimBlockCountsTest {
         }
 
         @Override
-        public Map<ChunkPosition, Map<String, Integer>> loadAll() {
+        public Map<ClaimCell, Map<String, Integer>> loadAll() {
             return Map.copyOf(rows);
         }
 
         @Override
-        public void save(ChunkPosition chunk, Map<String, Integer> counts) {
+        public void save(ClaimCell cell, Map<String, Integer> counts) {
             if (fail) {
                 throw new IllegalStateException("database down");
             }
             if (counts.isEmpty()) {
-                rows.remove(chunk);
+                rows.remove(cell);
             } else {
-                rows.put(chunk, Map.copyOf(counts));
+                rows.put(cell, Map.copyOf(counts));
             }
             duringSave.run();
         }

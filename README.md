@@ -22,7 +22,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 | Area | What it does |
 |---|---|
 | **Teams** | Roles, invitations, alliances, a bank, points and ranking, focus, rally, team and ally chat |
-| **Territory** | Chunk claims with buffers and connected land, full protection (blocks, entities, pistons, liquids, explosions), HQ and base, `/team stuck`, server land for spawn and roads, a warzone, a claim lock for SOTW, elevator signs |
+| **Territory** | Claims drawn block by block with the claiming wand, paid from the team bank, with buffers and connected land, full protection (blocks, entities, pistons, liquids, explosions), HQ and base, `/team stuck`, server land for spawn and roads, a warzone, a claim lock for SOTW, elevator signs |
 | **DTR and raids** | The classic scale, computed from time so it never drifts; raids open land to pillage and protection returns on its own — land never changes hands |
 | **Combat** | Deathbans with rank tiers, combat tag and combat logging, safe zones, friendly fire rules, loot protection, strength nerf, ender pearl and item cooldowns (Gapple, Crapple…) — and a **classic 1.7.10 combat** mode: no attack cooldown, sword blocking, 1.7 weapon damage, Sharpness and knockback, regeneration, golden apples and pots |
 | **Classes** | Diamond, Bard, Archer, Rogue and Miner, chosen by the armour worn: Bard buffs and energy, archer tag, backstab, effects by dye colour for the Archer — and your own classes, written from scratch in `classes.yml` |
@@ -63,7 +63,7 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1136 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1160 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).

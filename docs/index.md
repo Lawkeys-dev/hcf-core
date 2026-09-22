@@ -26,7 +26,7 @@ hide:
 
     ---
 
-    Factions with roles, invitations, alliances, a bank, points, focus and rally. Chunk claims with buffers and connected land, HQ and base, server land for spawn and roads, a warzone, and a claim lock for SOTW.
+    Factions with roles, invitations, alliances, a bank, points, focus and rally. Claims drawn block by block with the claiming wand, paid from the team bank, with buffers and connected land, HQ and base, server land for spawn and roads, a warzone, and a claim lock for SOTW.
 
     [:octicons-arrow-right-24: Teams](gameplay/teams.md) · [Territory](gameplay/territory.md)
 

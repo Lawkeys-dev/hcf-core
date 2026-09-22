@@ -373,7 +373,7 @@ final class TabList {
         out.with("%direction%", directions.length == 8
                 ? directions[Math.round(angle / 45f) % 8].trim() : "");
         Optional<Team> owner = claims == null || claims.getManager() == null
-                ? Optional.empty() : claims.getManager().getOwner(ClaimModule.toChunk(at));
+                ? Optional.empty() : claims.ownerAt(at);
         out.with("%location%", owner.map(t -> lang.get(UiMessages.TAB_CLAIM, "team", t.getName()))
                 .orElse(lang.get(UiMessages.TAB_WILDERNESS)));
 

@@ -92,7 +92,7 @@ The most of a block a team's whole territory may hold — against lag machines a
 
 - `/team limits` (alias `blocks`) shows your team's usage.
 - A limit of `0` forbids the block in claims. Only player teams' land counts.
-- Counts are kept per chunk as blocks are placed, broken, burnt and blown up, and each claimed chunk is **recounted exactly** in the background the first time it loads after a start — which puts right what no event reports (redstone washed away, blocks changed by another plugin).
+- Counts are kept per chunk **and per team** — claims being block-precise, two teams can share a chunk and are never charged each other's blocks — as blocks are placed, broken, burnt and blown up, and each claimed chunk is **recounted exactly** in the background the first time it loads after a start — which puts right what no event reports (redstone washed away, blocks changed by another plugin).
 - Staff get past the limits only while holding `hcfcore.limiter.bypass` **and** with `/staffbuild` on.
 
 ## Crowbar

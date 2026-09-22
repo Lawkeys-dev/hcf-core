@@ -45,7 +45,7 @@ It is **stepwise, not continuous**: a partial interval gives nothing, so what pl
 ## Seeing it
 
 - `/team dtr [team]` — the value, the maximum, the freeze left, and how long until protection returns.
-- `/team here` — whether the chunk you stand in is protected or raidable.
+- `/team here` — whether the land you stand on is protected or raidable.
 - The scoreboard — `%dtr%`, `%dtr_coloured%` (dark red with "(raidable)" when open) and `%dtr_max%`.
 - Lunar Client nametags show each player's team and DTR.
 

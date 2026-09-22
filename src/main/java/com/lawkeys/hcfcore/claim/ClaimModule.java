@@ -49,6 +49,7 @@ public final class ClaimModule {
     private volatile BreakAllowance breakAllowance = BreakAllowance.NONE;
     private ClaimManager manager;
     private BukkitTask saveTask;
+    private final com.lawkeys.hcfcore.claim.wand.WandSessions wandSessions;
 
     /**
      * @param warmups the countdowns behind {@code /team hq}, {@code /team base} and
@@ -61,6 +62,16 @@ public final class ClaimModule {
         this.lang = Objects.requireNonNull(lang, "lang");
         this.startup = Objects.requireNonNull(startup, "startup");
         this.warmups = Objects.requireNonNull(warmups, "warmups");
+        this.wandSessions = new com.lawkeys.hcfcore.claim.wand.WandSessions(
+                new com.lawkeys.hcfcore.claim.wand.ClaimWand(plugin), lang, () -> settings.wand());
+    }
+
+    /**
+     * @return the claiming wands in use - the traditional HCF claim, and what
+     *         {@code events/} draws its zones with
+     */
+    public com.lawkeys.hcfcore.claim.wand.WandSessions getWandSessions() {
+        return wandSessions;
     }
 
     public WarmupModule getWarmups() {
@@ -160,8 +171,12 @@ public final class ClaimModule {
         StartupBarrier.Load load = startup.expect("claims");
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
-                manager.loadAll();
-                plugin.getLogger().info("Loaded " + manager.getTotalClaimCount() + " claimed chunks.");
+                int converted = manager.loadAll();
+                if (converted > 0) {
+                    plugin.getLogger().info("Converted " + converted + " chunk claims from an earlier version into "
+                            + manager.getTotalClaimCount() + " block claims.");
+                }
+                plugin.getLogger().info("Loaded " + manager.getTotalClaimCount() + " claims.");
                 load.succeeded();
             } catch (Exception e) {
                 plugin.getLogger().log(Level.SEVERE, "Could not load claims.", e);
@@ -181,6 +196,8 @@ public final class ClaimModule {
                 .registerEvents(new CrossBorderListener(this), plugin);
         plugin.getServer().getPluginManager()
                 .registerEvents(new TeamDisbandClaimListener(this), plugin);
+        plugin.getServer().getPluginManager()
+                .registerEvents(new com.lawkeys.hcfcore.claim.wand.WandListener(wandSessions), plugin);
         plugin.getServer().getPluginManager()
                 .registerEvents(new com.lawkeys.hcfcore.claim.listener.ClaimLockListener(this), plugin);
 
@@ -232,17 +249,20 @@ public final class ClaimModule {
     public static final int FREE_LAND_RADIUS = 16;
 
     /**
-     * @return the nearest chunk this player may stand in - wilderness, or their own
-     *         team's land - searched in rings around {@code from}; empty when there is
-     *         none within {@link #FREE_LAND_RADIUS}. {@code from} itself when they may
-     *         already stand there.
+     * @return the nearest chunk whose middle this player may stand in - wilderness, or
+     *         their own team's land - searched in rings around {@code from}; empty when
+     *         there is none within {@link #FREE_LAND_RADIUS}. {@code from} itself when
+     *         they may already stand there. The middle is where {@link #moveTo} lands
+     *         them, so it is the block judged, claims being block-precise
      */
     public Optional<ChunkPosition> nearestFreeLand(ChunkPosition from, UUID playerTeamId) {
         ClaimManager claims = manager;
         return StuckSearch.nearest(from, FREE_LAND_RADIUS, chunk -> {
-            Optional<Team> owner = claims.getOwner(chunk);
+            int x = chunk.minBlockX() + 8;
+            int z = chunk.minBlockZ() + 8;
+            Optional<Team> owner = claims.getOwner(chunk.world(), x, z);
             return owner.isEmpty()
-                    ? !claims.isWarzone(chunk)
+                    ? !claims.isWarzone(chunk.world(), x, z)
                     : owner.get().getId().equals(playerTeamId);
         });
     }
@@ -283,6 +303,25 @@ public final class ClaimModule {
     // ------------------------------------------------------------------
     // Bukkit <-> pure-model conversions
     // ------------------------------------------------------------------
+
+    /**
+     * @return the team owning the block column at {@code location}, or empty for
+     *         unclaimed land or while claims are still loading
+     */
+    public Optional<Team> ownerAt(Location location) {
+        ClaimManager claims = manager;
+        if (claims == null || location == null || location.getWorld() == null) {
+            return Optional.empty();
+        }
+        return claims.getOwner(location.getWorld().getName(), location.getBlockX(), location.getBlockZ());
+    }
+
+    /** @return whether {@code location} is unclaimed warzone land */
+    public boolean isWarzoneAt(Location location) {
+        ClaimManager claims = manager;
+        return claims != null && location != null && location.getWorld() != null
+                && claims.isWarzone(location.getWorld().getName(), location.getBlockX(), location.getBlockZ());
+    }
 
     public static ChunkPosition toChunk(Location location) {
         return ChunkPosition.fromBlock(location.getWorld().getName(),

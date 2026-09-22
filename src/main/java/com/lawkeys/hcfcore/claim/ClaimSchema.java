@@ -51,7 +51,33 @@ public final class ClaimSchema {
                         PRIMARY KEY (team_id, home_type)
                     )"""));
 
+    /**
+     * Claims drawn block by block (22/09/2026): one row per rectangle. The chunk
+     * table stays, emptied once its rows have been converted ({@code LegacyChunkClaims}),
+     * so an older server reading this database finds no claims rather than stale ones.
+     *
+     * <p>No overlap can be refused by a key any more, as it was with one row per
+     * chunk: {@code ClaimManager} refuses a claim over another before it is ever
+     * stored, and nothing else writes this table.
+     */
+    private static final Migration V2 = Migration.of(MODULE, 2,
+            "block claims",
+            List.of(
+                    """
+                    CREATE TABLE IF NOT EXISTS hcf_claim_areas (
+                        id VARCHAR(36) NOT NULL,
+                        team_id VARCHAR(36) NOT NULL,
+                        world VARCHAR(64) NOT NULL,
+                        min_x INT NOT NULL,
+                        min_z INT NOT NULL,
+                        max_x INT NOT NULL,
+                        max_z INT NOT NULL,
+                        price_paid DOUBLE NOT NULL,
+                        claimed_at BIGINT NOT NULL,
+                        PRIMARY KEY (id)
+                    )"""));
+
     public static List<Migration> migrations() {
-        return List.of(V1);
+        return List.of(V1, V2);
     }
 }

@@ -570,11 +570,7 @@ public final class UiModule {
     private void renderTerritory(LineRenderer out, Player player) {
         out.with("%territory%", claims == null || claims.getManager() == null
                 ? ""
-                : claims.getManager()
-                        .getOwner(com.lawkeys.hcfcore.util.ChunkPosition.fromBlock(
-                                player.getWorld().getName(),
-                                player.getLocation().getBlockX(),
-                                player.getLocation().getBlockZ()))
+                : claims.ownerAt(player.getLocation())
                         .map(Team::getName)
                         .orElse(""));
     }

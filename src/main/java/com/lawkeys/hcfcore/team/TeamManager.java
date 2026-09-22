@@ -934,6 +934,37 @@ public final class TeamManager {
     }
 
     /**
+     * Takes the price of a claim out of a team's bank - all of it, or nothing when the
+     * bank holds less. No role check: the claim module has already checked who may
+     * claim, and a claim is paid by the team, not by the member drawing it.
+     *
+     * @return whether it was paid
+     */
+    public boolean payForClaim(Team team, double amount) {
+        Objects.requireNonNull(team, "team");
+        if (!(amount >= 0) || !Double.isFinite(amount)) {
+            return false;
+        }
+        synchronized (team) {
+            if (team.getBalance() < amount) {
+                return false;
+            }
+            if (amount > 0) {
+                team.addBalance(-amount);
+            }
+            return true;
+        }
+    }
+
+    /** Gives a team back part of what a claim cost, when it gives the land up. */
+    public void refundClaim(Team team, double amount) {
+        Objects.requireNonNull(team, "team");
+        if (amount > 0 && Double.isFinite(amount) && Double.isFinite(team.getBalance() + amount)) {
+            team.addBalance(amount);
+        }
+    }
+
+    /**
      * Puts money back into a bank after a half-completed movement, unconditionally.
      *
      * <p>The counterpart of {@code EconomyManager#restore}: when the second leg of a

@@ -65,6 +65,10 @@ setup:
   default-zone-radius: 10
   # /events setcore looks this many blocks along where the player is looking.
   setcore-distance: 10
+  # /events setzone <id> hands over the claiming wand: left-click one corner,
+  # right-click the other, sneak + left-click to write the zone. It runs from the
+  # lower of the two clicked blocks to this many blocks above the higher one.
+  zone-height: 10
 # --8<-- [end:setup]
 
 events:

@@ -463,11 +463,11 @@ public final class AbilityModule {
             return true;
         }
         if (rules.warzone() && claims != null && claims.getManager() != null
-                && claims.getManager().isWarzone(ClaimModule.toChunk(location))) {
+                && claims.isWarzoneAt(location)) {
             return true;
         }
         if (rules.safezone() && claims != null && claims.getManager() != null
-                && claims.getManager().getOwner(ClaimModule.toChunk(location)).map(Team::isSafeZone).orElse(false)) {
+                && claims.ownerAt(location).map(Team::isSafeZone).orElse(false)) {
             return true;
         }
         if (events != null && rules.citadel() && events.citadelAt(location).isPresent()) {

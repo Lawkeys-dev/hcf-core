@@ -33,10 +33,10 @@ The **role** column is the default minimum role in the player's team, set under 
 | `focus <player\|team>` / `unfocus <player\|team>` | | Mark or clear a target for your team | co-leader |
 | `rally` / `unrally` | | Set or clear a rally point where you stand | co-leader |
 | `dtr [team]` | | A team's DTR | — |
-| `claim [radius]` | | Claim the chunk you stand in, or a square of up to 8 chunks' radius | co-leader |
-| `unclaim` | | Release the chunk you stand in | leader |
+| `claim` | | Get the claiming wand: left-click a corner, right-click the other, sneak + left-click to claim, drop to give up | co-leader |
+| `unclaim` | | Release the claim you stand in — all of it — refunding part of its price | leader |
 | `unclaimall` | | Release all your land | leader |
-| `here` | `claiminfo` | Who owns the chunk you stand in | — |
+| `here` | `claiminfo` | Who owns the land you stand on, and the claim's size and corners | — |
 | `map` | | Territory around you | — |
 | `sethq` / `setbase` | | Set the HQ or the second base where you stand | co-leader |
 | `hq` / `base` | | Go there, after a countdown (10 s) | — |
@@ -52,8 +52,8 @@ The **role** column is the default minimum role in the player's team, set under 
 |---|---|---|
 | `createsystem <name> <safe\|combat>` | Create a server team — a safe zone like spawn, or a combat zone like a road | `hcfcore.team.admin` |
 | `setzone <team> <safe\|combat>` | Switch a server team between the two | `hcfcore.team.admin` |
-| `forceclaim <team> [radius]` | Claim for any team, server teams included, a square of up to 32 chunks' radius around you | `hcfcore.claim.admin` |
-| `forceunclaim <team> [all]` | Release that team's chunk you stand in, or all its land | `hcfcore.claim.admin` |
+| `forceclaim <team>` | The claiming wand for any team, server teams included: free, and outside the size and placement rules; never over anybody's land | `hcfcore.claim.admin` |
+| `forceunclaim <team> [all]` | Release that team's claim you stand in, or all its land; no refund | `hcfcore.claim.admin` |
 | `forcedisband <team>` | Disband any team | `hcfcore.team.admin` |
 | `forcejoin <player> <team>` | Put a player in a team without an invite (the member cap still applies) | `hcfcore.team.admin` |
 | `forcekick <player>` / `forcepromote <player>` / `forcedemote <player>` | Change a player's membership or role, online or not. A kicked leader is succeeded by a co-leader, otherwise by a member; kicking the last member disbands the team | `hcfcore.team.admin` |
@@ -87,7 +87,8 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/events` | `/event`, `/koth` | What runs and what is coming, refills and map phases included | everyone |
 | `/events start <id>` · `stop <id>` | | Open or end any event — KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide | `hcfcore.events.admin` |
 | `/events create <dtc\|lastbreak\|slide> <id>` | | A new DTC, Last Break or Slide, its zone centred on you | `hcfcore.events.admin` |
-| `/events setzone <id> <1\|2>` | | Move a corner of its zone to your position | `hcfcore.events.admin` |
+| `/events setzone <id>` | | The claiming wand, drawing its zone: left- and right-click its corners, sneak + left-click to write it | `hcfcore.events.admin` |
+| `/events setzone <id> <1\|2>` | | Move one corner of its zone to your position | `hcfcore.events.admin` |
 | `/events setcore <id>` | | DTC/Last Break: move the core to the block you are looking at | `hcfcore.events.admin` |
 | `/events delete <id>` | | Delete a DTC, Last Break or Slide | `hcfcore.events.admin` |
 | `/resourcenode` | `/node`, `/mountain` | When each Mountain refills | everyone |

@@ -1,6 +1,5 @@
 package com.lawkeys.hcfcore.limiter;
 
-import com.lawkeys.hcfcore.util.ChunkPosition;
 
 import java.util.Map;
 
@@ -13,11 +12,11 @@ public interface ClaimBlockCountStore {
 
     void initSchema() throws Exception;
 
-    /** @return every chunk's counts, material name to how many */
-    Map<ChunkPosition, Map<String, Integer>> loadAll() throws Exception;
+    /** @return every cell's counts, material name to how many */
+    Map<ClaimCell, Map<String, Integer>> loadAll() throws Exception;
 
-    /** Replaces one chunk's counts with exactly these; an empty map deletes them. */
-    void save(ChunkPosition chunk, Map<String, Integer> counts) throws Exception;
+    /** Replaces one cell's counts with exactly these; an empty map deletes them. */
+    void save(ClaimCell cell, Map<String, Integer> counts) throws Exception;
 
     ClaimBlockCountStore NO_OP = new ClaimBlockCountStore() {
         @Override
@@ -25,12 +24,12 @@ public interface ClaimBlockCountStore {
         }
 
         @Override
-        public Map<ChunkPosition, Map<String, Integer>> loadAll() {
+        public Map<ClaimCell, Map<String, Integer>> loadAll() {
             return Map.of();
         }
 
         @Override
-        public void save(ChunkPosition chunk, Map<String, Integer> counts) {
+        public void save(ClaimCell cell, Map<String, Integer> counts) {
         }
     };
 }

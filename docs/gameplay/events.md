@@ -183,7 +183,8 @@ Staff lay these three out without touching `events.yml` by hand:
 
 ```text
 /events create <dtc|lastbreak|slide> <id>   # a new zone centred on you
-/events setzone <id> <1|2>                  # move a corner to your position
+/events setzone <id>                        # the claiming wand: draw the zone
+/events setzone <id> <1|2>                  # or move one corner to your position
 /events setcore <id>                        # DTC/Last Break: move the core to the block you are looking at
 /events delete <id>
 ```

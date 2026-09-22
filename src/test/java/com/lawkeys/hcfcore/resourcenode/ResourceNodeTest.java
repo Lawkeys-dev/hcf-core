@@ -499,11 +499,11 @@ class ResourceNodeTest {
         /** @return a claim manager with a 200-block warzone around the overworld's centre */
         private ClaimManager claimsWithWarzone() {
             ClaimSettings base = ClaimSettings.defaults();
-            ClaimSettings withWarzone = new ClaimSettings(base.enabled(), base.limits(), base.placement(),
-                    base.protection(), base.homes(), base.claimableWorlds(), base.requiredRoles(),
+            ClaimSettings withWarzone = new ClaimSettings(base.enabled(), base.sizes(), base.price(),
+                    base.placement(), base.protection(), base.homes(), base.claimableWorlds(), base.requiredRoles(),
                     new ClaimSettings.WarzoneRules("&cWarzone", false,
                             java.util.Map.of("world", new ClaimSettings.WarzoneRules.Area(0, 0, 200))),
-                    base.stuck());
+                    base.stuck(), base.wand(), base.mapCellBlocks());
             return new ClaimManager(() -> withWarzone, teams, ClaimStore.NO_OP, () -> MONDAY_10H);
         }
 
@@ -553,7 +553,7 @@ class ResourceNodeTest {
         @Test
         void aTeamCannotClaimTheGroundAMountainStandsOn() {
             useNode(true);
-            TeamResult refused = claims.claim(wizards, null, List.of(new ChunkPosition("world", 0, 0)));
+            TeamResult refused = claims.claim(wizards, null, "world", 0, 0, 15, 15);
 
             assertFalse(refused.isSuccess());
             assertEquals(ClaimMessages.CLAIM_RESERVED_REGION, refused.getMessageKey());
@@ -565,14 +565,14 @@ class ResourceNodeTest {
         @Test
         void thelandNextToItIsStillFree() {
             useNode(true);
-            assertTrue(claims.claim(wizards, null, List.of(new ChunkPosition("world", 30, 30)))
+            assertTrue(claims.claim(wizards, null, "world", 480, 480, 495, 495)
                     .isSuccess());
         }
 
         @Test
         void aNodeThatDoesNotReserveItsRegionLeavesTheLandClaimable() {
             useNode(false);
-            assertTrue(claims.claim(wizards, null, List.of(new ChunkPosition("world", 0, 0)))
+            assertTrue(claims.claim(wizards, null, "world", 0, 0, 15, 15)
                     .isSuccess());
         }
 
@@ -583,7 +583,7 @@ class ResourceNodeTest {
             useNode(true);
             claims.setReservedRegionPolicy(
                     com.lawkeys.hcfcore.claim.ReservedRegionPolicy.NONE);
-            assertTrue(claims.claim(wizards, null, List.of(new ChunkPosition("world", 0, 0)))
+            assertTrue(claims.claim(wizards, null, "world", 0, 0, 15, 15)
                     .isSuccess());
         }
 
@@ -593,7 +593,7 @@ class ResourceNodeTest {
             settings = new ResourceNodeSettings(false, 1L, UTC, 4_000, false, true, settings.nodes());
 
             assertTrue(nodes.reservedRegionAt(new ChunkPosition("world", 0, 0)).isEmpty());
-            assertTrue(claims.claim(wizards, null, List.of(new ChunkPosition("world", 0, 0)))
+            assertTrue(claims.claim(wizards, null, "world", 0, 0, 15, 15)
                     .isSuccess());
         }
 

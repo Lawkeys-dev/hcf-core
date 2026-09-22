@@ -29,13 +29,17 @@ import java.util.function.Supplier;
  * territory rules are unit-testable without a running server (ARCHITECTURE.md
  * section 13).
  *
- * <p><strong>The central invariant</strong>, from FEATURES.md section 3: a
- * chunk's owner is persistent and is never changed by raiding. Whether that
+ * <p><strong>Territory is drawn block by block</strong> since 22/09/2026: a claim
+ * is a rectangle, full height ({@link ClaimArea}), made with the claiming wand and
+ * paid from the team bank.
+ *
+ * <p><strong>The central invariant</strong>, from FEATURES.md section 3: land's
+ * owner is persistent and is never changed by raiding. Whether that
  * owner is currently protected is a separate, dynamic question, answered per
  * check by {@link RaidabilityPolicy}. Two things follow, and both are enforced
  * here and covered by tests:
  * <ul>
- *   <li>{@link #claim} refuses any chunk that already has an owner - including a
+ *   <li>{@link #claim} refuses any land that already has an owner - including a
  *       raidable one. Over-claiming is impossible, so a raid can never transfer
  *       land, only open it to pillage.</li>
  *   <li>{@link #checkProtection} derives access from raidability, never from a
@@ -60,13 +64,18 @@ public final class ClaimManager {
     /** Teams whose claim is locked. Memory only: a lock lasts one SOTW. */
     private final Set<UUID> lockedTeams = ConcurrentHashMap.newKeySet();
 
-    /** The authoritative ownership index, and the hot-path lookup for protection checks. */
-    private final Map<ChunkPosition, UUID> ownerByChunk = new ConcurrentHashMap<>();
-    /** Reverse index, so per-team operations do not scan every chunk on the server. */
-    private final Map<UUID, Set<ChunkPosition>> chunksByTeam = new ConcurrentHashMap<>();
+    /** Every claim, by its id: the authoritative set. */
+    private final Map<UUID, ClaimArea> byId = new ConcurrentHashMap<>();
+    /**
+     * The hot-path lookup for protection checks: the claims covering each chunk, even
+     * in part. A block's owner is found by testing the few rectangles of its chunk,
+     * never by walking every claim on the server.
+     */
+    private final Map<ChunkPosition, List<ClaimArea>> byChunk = new ConcurrentHashMap<>();
+    /** Reverse index, so per-team operations do not scan every claim on the server. */
+    private final Map<UUID, List<ClaimArea>> byTeam = new ConcurrentHashMap<>();
     private final Map<UUID, Map<HomeType, TeamHome>> homesByTeam = new ConcurrentHashMap<>();
 
-    private final Map<UUID, Long> claimedAt = new ConcurrentHashMap<>();
     private final Set<UUID> dirtyTeams = ConcurrentHashMap.newKeySet();
     private final Set<UUID> deletedTeams = ConcurrentHashMap.newKeySet();
 
@@ -181,54 +190,95 @@ public final class ClaimManager {
     }
 
     /** @return the team whose locked claim this player may not stand in, if any */
-    public Optional<Team> lockedAgainst(ChunkPosition chunk, UUID player) {
-        return getOwner(chunk).filter(owner -> isLocked(owner.getId()) && !owner.isMember(player));
+    public Optional<Team> lockedAgainst(String world, int x, int z, UUID player) {
+        return getOwner(world, x, z).filter(owner -> isLocked(owner.getId()) && !owner.isMember(player));
     }
 
     // ------------------------------------------------------------------
     // Lookups
     // ------------------------------------------------------------------
 
-    /** @return the id of the team owning {@code chunk}, or empty for wilderness. */
-    public Optional<UUID> getOwnerId(ChunkPosition chunk) {
-        return chunk == null ? Optional.empty() : Optional.ofNullable(ownerByChunk.get(chunk));
+    /** @return the claim that block column belongs to, or empty for unclaimed land */
+    public Optional<ClaimArea> getClaimAt(String world, int x, int z) {
+        List<ClaimArea> here = byChunk.get(ChunkPosition.fromBlock(world, x, z));
+        if (here != null) {
+            for (ClaimArea area : here) {
+                if (area.contains(world, x, z)) {
+                    return Optional.of(area);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
-    /** @return the team owning {@code chunk}, or empty for wilderness. */
-    public Optional<Team> getOwner(ChunkPosition chunk) {
-        return getOwnerId(chunk).flatMap(teams::getTeam);
+    /** @return the id of the team owning that block column, or empty for unclaimed land */
+    public Optional<UUID> getOwnerId(String world, int x, int z) {
+        UUID owner = ownerAt(world, x, z);
+        return Optional.ofNullable(owner);
     }
 
-    public boolean isClaimed(ChunkPosition chunk) {
-        return ownerByChunk.containsKey(chunk);
+    /** Allocation-free owner lookup for the hot paths: {@code null} for unclaimed land. */
+    private UUID ownerAt(String world, int x, int z) {
+        if (world == null) {
+            return null;
+        }
+        List<ClaimArea> here = byChunk.get(ChunkPosition.fromBlock(world, x, z));
+        if (here == null) {
+            return null;
+        }
+        for (int i = 0; i < here.size(); i++) {
+            ClaimArea area = here.get(i);
+            if (area.contains(world, x, z)) {
+                return area.teamId();
+            }
+        }
+        return null;
     }
 
-    /** @return an immutable snapshot of the chunks owned by {@code teamId}. */
-    public Set<ChunkPosition> getClaims(UUID teamId) {
-        Set<ChunkPosition> chunks = chunksByTeam.get(teamId);
-        return chunks == null ? Set.of() : Set.copyOf(chunks);
+    /** @return the team owning that block column, or empty for unclaimed land */
+    public Optional<Team> getOwner(String world, int x, int z) {
+        return getOwnerId(world, x, z).flatMap(teams::getTeam);
     }
 
+    public boolean isClaimed(String world, int x, int z) {
+        return ownerAt(world, x, z) != null;
+    }
+
+    /** @return the claims of {@code teamId}, oldest first */
+    public List<ClaimArea> getClaims(UUID teamId) {
+        return byTeam.getOrDefault(teamId, List.of());
+    }
+
+    /** @return the claims covering that chunk, even in part */
+    public List<ClaimArea> getClaimsIn(ChunkPosition chunk) {
+        return byChunk.getOrDefault(chunk, List.of());
+    }
+
+    /** @return every chunk the claims of {@code teamId} cover, even in part */
+    public Set<ChunkPosition> getClaimChunks(UUID teamId) {
+        Set<ChunkPosition> chunks = new LinkedHashSet<>();
+        for (ClaimArea area : getClaims(teamId)) {
+            chunks.addAll(area.chunks());
+        }
+        return chunks;
+    }
+
+    /** @return how many separate claims {@code teamId} holds */
     public int getClaimCount(UUID teamId) {
-        Set<ChunkPosition> chunks = chunksByTeam.get(teamId);
-        return chunks == null ? 0 : chunks.size();
+        return getClaims(teamId).size();
+    }
+
+    /** @return how many blocks of surface {@code teamId} holds */
+    public long getClaimedArea(UUID teamId) {
+        long total = 0;
+        for (ClaimArea area : getClaims(teamId)) {
+            total += area.area();
+        }
+        return total;
     }
 
     public int getTotalClaimCount() {
-        return ownerByChunk.size();
-    }
-
-    /**
-     * @return how many chunks {@code team} may own in total; {@code 0} means
-     *         unlimited. Server land is unlimited: the allowance scales with members,
-     *         and a system team has none, so it would otherwise be held to the
-     *         base allowance - sixteen chunks for a whole warzone
-     */
-    public int getMaxClaims(Team team) {
-        if (team.getType().isSystem()) {
-            return 0;
-        }
-        return config().maxClaimsFor(team.getMemberCount());
+        return byId.size();
     }
 
     // ------------------------------------------------------------------
@@ -236,7 +286,7 @@ public final class ClaimManager {
     // ------------------------------------------------------------------
 
     /**
-     * Decides whether {@code actor} may modify blocks on {@code chunk}.
+     * Decides whether {@code actorTeam} may modify blocks in that block column.
      *
      * <p>This is the check FEATURES.md section 3 specifies: it reads current
      * raidability, never a notion of unowned land, so a team regains protection
@@ -244,18 +294,20 @@ public final class ClaimManager {
      *
      * @param actorTeam the actor's team, or {@code null} if they have none
      */
-    public ProtectionResult checkProtection(Team actorTeam, ChunkPosition chunk) {
+    public ProtectionResult checkProtection(Team actorTeam, String world, int x, int z) {
         if (!isEnforced()) {
             return ProtectionResult.ALLOWED;
         }
-        UUID ownerId = ownerByChunk.get(chunk);
+        return protectionOf(actorTeam, ownerAt(world, x, z));
+    }
+
+    private ProtectionResult protectionOf(Team actorTeam, UUID ownerId) {
         if (ownerId == null) {
             return ProtectionResult.ALLOWED;
         }
         if (actorTeam != null && ownerId.equals(actorTeam.getId())) {
             return ProtectionResult.ALLOWED;
         }
-
         Team owner = teams.getTeam(ownerId).orElse(null);
         if (owner == null) {
             // The owning team is gone but its rows outlived it. Treat the land as
@@ -278,22 +330,20 @@ public final class ClaimManager {
     }
 
     /** Convenience overload resolving the actor's team first. */
-    public ProtectionResult checkProtection(UUID actor, ChunkPosition chunk) {
-        return checkProtection(teams.getTeamOf(actor).orElse(null), chunk);
+    public ProtectionResult checkProtection(UUID actor, String world, int x, int z) {
+        return checkProtection(teams.getTeamOf(actor).orElse(null), world, x, z);
     }
 
     /**
      * Decides whether {@code actorTeam} may place or break one particular block.
      *
-     * <p>Claimed land follows its owner's rules through
-     * {@link #checkProtection(Team, ChunkPosition)}, warzone or not. Unclaimed land
-     * is where the warzone applies: inside it, building is refused unless the
-     * operator allows it - except for the blocks of a region another system
-     * governs, such as a Mountain, which must stay minable and enforces its own
-     * rules.
+     * <p>Claimed land follows its owner's rules, warzone or not. Unclaimed land is
+     * where the warzone applies: inside it, building is refused unless the operator
+     * allows it - except for the blocks of a region another system governs, such as
+     * a Mountain, which must stay minable and enforces its own rules.
      *
      * <p>Interactions - doors, chests, buttons - are not building and keep using
-     * the chunk-level check: the warzone is public land, not somebody's property.
+     * {@link #checkProtection}: the warzone is public land, not somebody's property.
      *
      * @param actorTeam the actor's team, or {@code null} if they have none
      */
@@ -301,17 +351,17 @@ public final class ClaimManager {
         if (!isEnforced()) {
             return ProtectionResult.ALLOWED;
         }
-        ChunkPosition chunk = ChunkPosition.fromBlock(world, x, z);
-        if (ownerByChunk.containsKey(chunk)) {
-            ProtectionResult owned = checkProtection(actorTeam, chunk);
-            // checkProtection drops an owner whose team no longer exists; what is left
+        UUID owner = ownerAt(world, x, z);
+        if (owner != null) {
+            ProtectionResult owned = protectionOf(actorTeam, owner);
+            // protectionOf drops an owner whose team no longer exists; what is left
             // is unclaimed land, which falls through to the warzone below.
-            if (ownerByChunk.containsKey(chunk)) {
+            if (ownerAt(world, x, z) != null) {
                 return owned;
             }
         }
         ClaimSettings.WarzoneRules warzone = config().warzone();
-        if (!warzone.allowBuilding() && warzone.covers(chunk)
+        if (!warzone.allowBuilding() && warzone.covers(world, x, z)
                 && !reservedRegions.isInReservedRegion(world, x, y, z)) {
             return ProtectionResult.DENIED_WARZONE;
         }
@@ -319,31 +369,31 @@ public final class ClaimManager {
     }
 
     /**
-     * @return whether {@code chunk} is unclaimed warzone land. The warzone owns
+     * @return whether that block column is unclaimed warzone land. The warzone owns
      *         nothing - it is only a set of rules - so while the module is off there
      *         is none, and the map and border messages show wilderness instead
      */
-    public boolean isWarzone(ChunkPosition chunk) {
+    public boolean isWarzone(String world, int x, int z) {
         ClaimSettings config = config();
-        return config.enabled() && !ownerByChunk.containsKey(chunk) && config.warzone().covers(chunk);
+        return config.enabled() && ownerAt(world, x, z) == null && config.warzone().covers(world, x, z);
     }
 
     /**
-     * @return whether two chunks are the same territory, which is when a border
-     *         announcement stays silent: the same owner, or both unclaimed and both
-     *         warzone or both wilderness
+     * @return whether two block columns of one world are the same territory, which is
+     *         when a border announcement stays silent: the same owner, or both
+     *         unclaimed and both warzone or both wilderness
      *
      * <p>Compared by identity, never by the names shown: the warzone's display name
      * is free text and may well be a team's name - a server team called Warzone,
      * typically - and crossing between the two would then read as no border at all.
      */
-    public boolean isSameTerritory(ChunkPosition a, ChunkPosition b) {
-        UUID ownerA = ownerByChunk.get(a);
-        UUID ownerB = ownerByChunk.get(b);
+    public boolean isSameTerritory(String world, int ax, int az, int bx, int bz) {
+        UUID ownerA = ownerAt(world, ax, az);
+        UUID ownerB = ownerAt(world, bx, bz);
         if (ownerA != null || ownerB != null) {
             return Objects.equals(ownerA, ownerB);
         }
-        return isWarzone(a) == isWarzone(b);
+        return isWarzone(world, ax, az) == isWarzone(world, bx, bz);
     }
 
     /**
@@ -356,12 +406,9 @@ public final class ClaimManager {
      * blows up (that is what the pillage window of FEATURES.md section 3 is for),
      * while a protected team's does not.
      *
-     * <p>Asked per block, like {@link #checkBuild}, and for the same reason: on
-     * unclaimed warzone, a charge must not do what a pickaxe is refused - on the
-     * same blocks. The blocks of a region another system governs, such as a
-     * Mountain, follow that system's rules for explosions as they do for mining; a
-     * chunk-wide answer here would strip them from the blast before that system is
-     * asked, whatever its own setting says.
+     * <p>On unclaimed warzone, a charge must not do what a pickaxe is refused - on the
+     * same blocks. The blocks of a region another system governs, such as a Mountain,
+     * follow that system's rules for explosions as they do for mining.
      *
      * <p>The rule sits here rather than in the listener so that "does TNT break
      * this?" is answerable in a unit test with no server.
@@ -370,13 +417,13 @@ public final class ClaimManager {
         if (!isEnforced() || !config().protection().blockExplosions()) {
             return false;
         }
-        ChunkPosition chunk = ChunkPosition.fromBlock(world, x, z);
-        if (!ownerByChunk.containsKey(chunk)) {
+        UUID owner = ownerAt(world, x, z);
+        if (owner == null) {
             ClaimSettings.WarzoneRules warzone = config().warzone();
-            return !warzone.allowBuilding() && warzone.covers(chunk)
+            return !warzone.allowBuilding() && warzone.covers(world, x, z)
                     && !reservedRegions.isInReservedRegion(world, x, y, z);
         }
-        return !checkProtection((Team) null, chunk).isAllowed();
+        return !protectionOf(null, owner).isAllowed();
     }
 
     /**
@@ -396,36 +443,33 @@ public final class ClaimManager {
      * and other server land - a fountain on the edge of spawn keeps running into the
      * warzone - while a player team's land is judged as it would be for anybody.
      *
-     * <p><strong>Hot path.</strong> Every flowing liquid asks this. Within one chunk
-     * the answer is always yes, territory being by chunk, and costs two shifts;
-     * across a border, two lookups and the build check.
+     * <p><strong>Hot path.</strong> Every flowing liquid asks this. Within one block
+     * column the answer is always yes; otherwise two lookups, and the build check
+     * only across a border.
      *
      * @param world the world both blocks are in
      */
     public boolean mayReach(String world, int fromX, int fromZ, int toX, int toY, int toZ) {
-        if (ChunkPosition.toChunk(fromX) == ChunkPosition.toChunk(toX)
-                && ChunkPosition.toChunk(fromZ) == ChunkPosition.toChunk(toZ)) {
+        if (fromX == toX && fromZ == toZ) {
             return true;
         }
         if (!isEnforced()) {
             return true;
         }
-        ChunkPosition from = ChunkPosition.fromBlock(world, fromX, fromZ);
-        ChunkPosition to = ChunkPosition.fromBlock(world, toX, toZ);
-        if (isSameTerritory(from, to)) {
+        if (isSameTerritory(world, fromX, fromZ, toX, toZ)) {
             return true;
         }
-        UUID sourceOwner = ownerByChunk.get(from);
+        UUID sourceOwner = ownerAt(world, fromX, fromZ);
         Team source = sourceOwner == null ? null : teams.getTeam(sourceOwner).orElse(null);
-        if (source != null && source.getType().isSystem() && !isPlayerLand(to)) {
+        if (source != null && source.getType().isSystem() && !isPlayerLand(world, toX, toZ)) {
             return true;
         }
         return checkBuild(source, world, toX, toY, toZ).isAllowed();
     }
 
-    /** @return whether a player team - not the server - owns that chunk */
-    private boolean isPlayerLand(ChunkPosition chunk) {
-        UUID ownerId = ownerByChunk.get(chunk);
+    /** @return whether a player team - not the server - owns that block column */
+    private boolean isPlayerLand(String world, int x, int z) {
+        UUID ownerId = ownerAt(world, x, z);
         return ownerId != null && teams.getTeam(ownerId).map(owner -> !owner.getType().isSystem()).orElse(false);
     }
 
@@ -434,307 +478,331 @@ public final class ClaimManager {
     // ------------------------------------------------------------------
 
     /**
-     * Claims a set of chunks for {@code team}, all or nothing.
-     *
-     * <p>All-or-nothing on purpose: a partially applied claim would leave the
-     * player with a territory they did not ask for and a bill they cannot undo in
-     * one command.
-     *
-     * @param actor {@code null} for a staff override, which skips the role check
-     *              and the per-command cap but still cannot over-claim
+     * @return what claiming that rectangle would cost {@code team}: nothing for server
+     *         land or a staff override ({@code actor} {@code null})
      */
-    public TeamResult claim(Team team, UUID actor, Collection<ChunkPosition> chunks) {
-        Objects.requireNonNull(team, "team");
-        Objects.requireNonNull(chunks, "chunks");
-        ClaimSettings config = config();
+    public double priceOf(Team team, UUID actor, long area) {
+        if (actor == null || team.getType().isSystem()) {
+            return 0.0;
+        }
+        return config().price().priceOf(area);
+    }
 
+    /**
+     * Claims a rectangle for {@code team}, between two corners given in any order,
+     * paid from its bank. Every rule is checked before anything changes, so a
+     * refused claim costs nothing and changes nothing.
+     *
+     * @param actor {@code null} for a staff override, which skips the role check,
+     *              the phase, the size rules and the price, but still cannot claim
+     *              over anybody's land
+     */
+    public TeamResult claim(Team team, UUID actor, String world, int x1, int z1, int x2, int z2) {
+        Objects.requireNonNull(team, "team");
+        Objects.requireNonNull(world, "world");
+        ClaimSettings config = config();
+        ClaimArea area = ClaimArea.between(team.getId(), world, x1, z1, x2, z2, 0.0, clock.getAsLong());
+
+        Optional<TeamResult> refused = refusal(team, actor, area, config);
+        if (refused.isPresent()) {
+            return refused.get();
+        }
+        double price = priceOf(team, actor, area.area());
+        if (price > 0 && !teams.payForClaim(team, price)) {
+            return TeamResult.fail(ClaimMessages.CLAIM_CANNOT_AFFORD,
+                    "cost", teams.formatAmount(price), "balance", teams.formatAmount(team.getBalance()));
+        }
+        ClaimArea paid = new ClaimArea(area.id(), area.teamId(), area.world(), area.minX(), area.minZ(),
+                area.maxX(), area.maxZ(), price, area.claimedAt());
+        add(paid);
+        markDirty(team.getId());
+        return TeamResult.ok(ClaimMessages.CLAIM_SUCCESS, team,
+                "size", area.width() + "x" + area.length(),
+                "area", String.valueOf(area.area()),
+                "cost", teams.formatAmount(price),
+                "claims", String.valueOf(getClaimCount(team.getId())));
+    }
+
+    /**
+     * @return why that rectangle may not be claimed for {@code team}, or empty when it
+     *         may - asked by the wand before it shows a price, and by {@link #claim}
+     */
+    public Optional<TeamResult> refusal(Team team, UUID actor, String world, int x1, int z1, int x2, int z2) {
+        return refusal(team, actor, ClaimArea.between(team.getId(), world, x1, z1, x2, z2, 0.0, 0L), config());
+    }
+
+    private Optional<TeamResult> refusal(Team team, UUID actor, ClaimArea area, ClaimSettings config) {
         if (!config.enabled()) {
-            return TeamResult.fail(ClaimMessages.CLAIM_DISABLED);
+            return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_DISABLED));
         }
         // Players only: staff claiming server land is never closed by a phase.
         if (actor != null) {
             Optional<String> closed = claiming.refusal();
             if (closed.isPresent()) {
-                return TeamResult.fail(closed.get());
+                return Optional.of(TeamResult.fail(closed.get()));
             }
         }
         if (team.getType().isSystem() && actor != null) {
-            return TeamResult.fail(ClaimMessages.CLAIM_SYSTEM_TEAM, "team", team.getName());
+            return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_SYSTEM_TEAM, "team", team.getName()));
         }
         Optional<TeamResult> denied = checkRole(team, actor, ClaimAction.CLAIM);
         if (denied.isPresent()) {
-            return denied.get();
+            return denied;
         }
-
-        Set<ChunkPosition> requested = new LinkedHashSet<>(chunks);
-        if (requested.isEmpty()) {
-            return TeamResult.fail(ClaimMessages.CLAIM_NOTHING_SELECTED);
+        if (!config.isClaimable(area.world())) {
+            return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_WORLD_DISABLED, "world", area.world()));
         }
-        if (actor != null && config.limits().maxPerCommand() > 0
-                && requested.size() > config.limits().maxPerCommand()) {
-            return TeamResult.fail(ClaimMessages.CLAIM_TOO_MANY_AT_ONCE,
-                    "max", String.valueOf(config.limits().maxPerCommand()),
-                    "count", String.valueOf(requested.size()));
-        }
-
-        for (ChunkPosition chunk : requested) {
-            if (!config.isClaimable(chunk.world())) {
-                return TeamResult.fail(ClaimMessages.CLAIM_WORLD_DISABLED, "world", chunk.world());
+        // Sizes are how players share the map; staff drawing server land - a road a
+        // few blocks wide, a whole spawn - follow none of them.
+        if (actor != null && !team.getType().isSystem()) {
+            ClaimSettings.SizeRules sizes = config.sizes();
+            if (area.width() < sizes.minSide() || area.length() < sizes.minSide()) {
+                return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_TOO_SMALL,
+                        "min", String.valueOf(sizes.minSide()), "size", area.width() + "x" + area.length()));
             }
-            // Asked before ownership, because a reserved chunk is not land anybody
-            // can hold: an event region is out of the claim system entirely, not a
-            // chunk that merely happens to be taken.
-            Optional<String> reserved = reservedRegions.reservedRegionAt(chunk);
-            if (reserved.isPresent()) {
-                return TeamResult.fail(ClaimMessages.CLAIM_RESERVED_REGION,
-                        "chunk", chunk.toString(), "region", reserved.get());
+            if (sizes.maxSide() > 0 && (area.width() > sizes.maxSide() || area.length() > sizes.maxSide())) {
+                return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_TOO_BIG,
+                        "max", String.valueOf(sizes.maxSide()), "size", area.width() + "x" + area.length()));
             }
-            // Over-claiming is refused here, before anything else about the target
-            // team is considered - being raidable never makes land available.
-            UUID owner = ownerByChunk.get(chunk);
-            if (owner != null) {
-                if (owner.equals(team.getId())) {
-                    return TeamResult.fail(ClaimMessages.CLAIM_ALREADY_YOURS, "chunk", chunk.toString());
-                }
-                String ownerName = teams.getTeam(owner).map(Team::getName).orElse(owner.toString());
-                return TeamResult.fail(ClaimMessages.CLAIM_ALREADY_OWNED,
-                        "chunk", chunk.toString(), "team", ownerName);
+            if (sizes.maxClaims() > 0 && getClaimCount(team.getId()) >= sizes.maxClaims()) {
+                return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_TOO_MANY_CLAIMS,
+                        "max", String.valueOf(sizes.maxClaims())));
             }
-            // The warzone is server land nobody claims - staff included, for a player
-            // team. A server team may: spawn sits at its centre, roads cross it.
-            if (!team.getType().isSystem() && config.warzone().covers(chunk)) {
-                return TeamResult.fail(ClaimMessages.CLAIM_WARZONE,
-                        "chunk", chunk.toString(), "warzone", config.warzone().displayName());
+            if (sizes.maxTotalArea() > 0 && getClaimedArea(team.getId()) + area.area() > sizes.maxTotalArea()) {
+                return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_LIMIT_REACHED,
+                        "max", String.valueOf(sizes.maxTotalArea()),
+                        "current", String.valueOf(getClaimedArea(team.getId()))));
             }
         }
-
-        int max = getMaxClaims(team);
-        if (max > 0 && getClaimCount(team.getId()) + requested.size() > max) {
-            return TeamResult.fail(ClaimMessages.CLAIM_LIMIT_REACHED,
-                    "max", String.valueOf(max), "current", String.valueOf(getClaimCount(team.getId())));
+        // Asked before ownership, because reserved land is not land anybody can hold:
+        // an event region is out of the claim system entirely.
+        Optional<String> reserved = reservedRegions.reservedRegionIn(
+                area.world(), area.minX(), area.minZ(), area.maxX(), area.maxZ());
+        if (reserved.isPresent()) {
+            return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_RESERVED_REGION,
+                    "claim", area.toString(), "region", reserved.get()));
         }
-
+        // Over-claiming is refused here, before anything else about the target team is
+        // considered - being raidable never makes land available.
+        for (ClaimArea other : overlapping(area)) {
+            if (other.teamId().equals(team.getId())) {
+                return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_ALREADY_YOURS, "claim", other.toString()));
+            }
+            String ownerName = teams.getTeam(other.teamId()).map(Team::getName).orElse(other.teamId().toString());
+            return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_ALREADY_OWNED,
+                    "claim", other.toString(), "team", ownerName));
+        }
+        // The warzone is server land nobody claims - staff included, for a player team.
+        // A server team may: spawn sits at its centre, roads cross it.
+        if (!team.getType().isSystem() && config.warzone().overlaps(area)) {
+            return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_WARZONE,
+                    "claim", area.toString(), "warzone", config.warzone().displayName()));
+        }
         // Placement rules - connected territory, a buffer to other teams - are how
-        // players share the map. Server land is drawn by staff and follows neither:
-        // a road is not connected to spawn by definition, and spawn must be allowed
-        // to border the warzone around it.
+        // players share the map. Server land is drawn by staff and follows neither.
         if (!team.getType().isSystem()) {
-            Optional<TeamResult> placement = checkPlacement(team, requested, config);
-            if (placement.isPresent()) {
-                return placement.get();
-            }
-        }
-
-        long now = clock.getAsLong();
-        Set<ChunkPosition> owned = chunksByTeam.computeIfAbsent(team.getId(),
-                ignored -> ConcurrentHashMap.newKeySet());
-        for (ChunkPosition chunk : requested) {
-            ownerByChunk.put(chunk, team.getId());
-            owned.add(chunk);
-        }
-        claimedAt.putIfAbsent(team.getId(), now);
-        markDirty(team.getId());
-
-        return TeamResult.ok(ClaimMessages.CLAIM_SUCCESS, team,
-                "count", String.valueOf(requested.size()),
-                "total", String.valueOf(owned.size()),
-                "max", max > 0 ? String.valueOf(max) : "∞");
-    }
-
-    /**
-     * Checks the placement rules for a batch: connectivity to the team's existing
-     * territory, and the buffer to other teams' claims.
-     */
-    private Optional<TeamResult> checkPlacement(Team team, Set<ChunkPosition> requested,
-                                                ClaimSettings config) {
-        Set<ChunkPosition> existing = chunksByTeam.getOrDefault(team.getId(), Set.of());
-
-        if (config.placement().requireConnected()) {
-            Optional<TeamResult> disconnected = checkConnectivity(requested, existing);
-            if (disconnected.isPresent()) {
-                return disconnected;
-            }
-        }
-
-        int buffer = config.placement().minimumDistanceToOthers();
-        if (buffer > 0) {
-            Optional<TeamResult> tooClose = checkBuffer(team, requested, buffer);
-            if (tooClose.isPresent()) {
-                return tooClose;
-            }
+            return checkPlacement(team, area, config);
         }
         return Optional.empty();
     }
 
-    /**
-     * Connectivity is judged per world: a team already holding land in a world must
-     * extend it there, but may open a new territory in a world it has never claimed
-     * in. Within the batch, chunks connect through each other, so a square claimed
-     * in one command is valid as long as the square as a whole touches the border.
-     */
-    private Optional<TeamResult> checkConnectivity(Set<ChunkPosition> requested,
-                                                   Set<ChunkPosition> existing) {
-        Set<String> worlds = new LinkedHashSet<>();
-        for (ChunkPosition chunk : requested) {
-            worlds.add(chunk.world());
-        }
-
-        for (String world : worlds) {
-            boolean hasTerritoryHere = existing.stream().anyMatch(c -> c.world().equals(world));
-            if (!hasTerritoryHere) {
-                continue;
-            }
-            boolean touches = false;
-            for (ChunkPosition chunk : requested) {
-                if (!chunk.world().equals(world)) {
-                    continue;
-                }
-                for (ChunkPosition neighbour : chunk.neighbours()) {
-                    if (existing.contains(neighbour)) {
-                        touches = true;
-                        break;
-                    }
-                }
-                if (touches) {
-                    break;
-                }
-            }
-            if (!touches) {
+    /** Connectivity to the team's existing territory, and the buffer to other teams' claims. */
+    private Optional<TeamResult> checkPlacement(Team team, ClaimArea area, ClaimSettings config) {
+        if (config.placement().requireConnected()) {
+            List<ClaimArea> sameWorld = getClaims(team.getId()).stream()
+                    .filter(own -> own.world().equals(area.world())).toList();
+            // A team may open a territory in a world it holds nothing in.
+            if (!sameWorld.isEmpty() && sameWorld.stream().noneMatch(area::touches)) {
                 return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_NOT_CONNECTED));
             }
         }
-        return Optional.empty();
-    }
-
-    /**
-     * Enforces the buffer between teams by scanning the square around each
-     * requested chunk, rather than walking every claim on the server: the cost is
-     * bounded by the buffer size, not by how much of the map is claimed.
-     */
-    private Optional<TeamResult> checkBuffer(Team team, Set<ChunkPosition> requested, int buffer) {
-        for (ChunkPosition chunk : requested) {
-            for (int dx = -buffer + 1; dx < buffer; dx++) {
-                for (int dz = -buffer + 1; dz < buffer; dz++) {
-                    UUID owner = ownerByChunk.get(
-                            new ChunkPosition(chunk.world(), chunk.x() + dx, chunk.z() + dz));
-                    if (owner == null || owner.equals(team.getId())) {
-                        continue;
-                    }
-                    String ownerName = teams.getTeam(owner).map(Team::getName).orElse(owner.toString());
-                    return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_TOO_CLOSE,
-                            "team", ownerName, "distance", String.valueOf(buffer)));
+        int buffer = config.placement().bufferBlocks();
+        if (buffer > 0) {
+            for (ClaimArea other : near(area, buffer)) {
+                if (other.teamId().equals(team.getId()) || area.gapTo(other) >= buffer) {
+                    continue;
                 }
+                Optional<Team> owner = teams.getTeam(other.teamId());
+                // Server land is not a neighbour to keep away from: a base may sit on
+                // the edge of a road.
+                if (owner.isPresent() && owner.get().getType().isSystem()) {
+                    continue;
+                }
+                return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_TOO_CLOSE,
+                        "team", owner.map(Team::getName).orElse(other.teamId().toString()),
+                        "distance", String.valueOf(buffer)));
             }
         }
         return Optional.empty();
     }
 
-    /** @param actor {@code null} for a staff override */
-    public TeamResult unclaim(Team team, UUID actor, ChunkPosition chunk) {
+    /** @return the claims sharing at least one block with {@code area} */
+    private List<ClaimArea> overlapping(ClaimArea area) {
+        return near(area, 0).stream().filter(area::overlaps).toList();
+    }
+
+    /**
+     * @return the claims found in the chunks within {@code margin} blocks of
+     *         {@code area} - a candidate list, bounded by the size of the area and
+     *         not by how much of the map is claimed
+     */
+    private List<ClaimArea> near(ClaimArea area, int margin) {
+        Set<ClaimArea> found = new LinkedHashSet<>();
+        for (int cx = ChunkPosition.toChunk(area.minX() - margin); cx <= ChunkPosition.toChunk(area.maxX() + margin); cx++) {
+            for (int cz = ChunkPosition.toChunk(area.minZ() - margin); cz <= ChunkPosition.toChunk(area.maxZ() + margin); cz++) {
+                List<ClaimArea> here = byChunk.get(new ChunkPosition(area.world(), cx, cz));
+                if (here != null) {
+                    found.addAll(here);
+                }
+            }
+        }
+        return List.copyOf(found);
+    }
+
+    /**
+     * Gives up the claim that block column belongs to - the whole claim - and refunds
+     * part of what it cost.
+     *
+     * @param actor {@code null} for a staff override, which refunds nothing
+     */
+    public TeamResult unclaim(Team team, UUID actor, String world, int x, int z) {
         Objects.requireNonNull(team, "team");
-        Objects.requireNonNull(chunk, "chunk");
         Optional<TeamResult> denied = checkRole(team, actor, ClaimAction.UNCLAIM);
         if (denied.isPresent()) {
             return denied.get();
         }
-
-        UUID owner = ownerByChunk.get(chunk);
-        if (owner == null) {
-            return TeamResult.fail(ClaimMessages.UNCLAIM_NOT_CLAIMED, "chunk", chunk.toString());
+        Optional<ClaimArea> found = getClaimAt(world, x, z);
+        if (found.isEmpty()) {
+            return TeamResult.fail(ClaimMessages.UNCLAIM_NOT_CLAIMED);
         }
-        if (!owner.equals(team.getId())) {
-            String ownerName = teams.getTeam(owner).map(Team::getName).orElse(owner.toString());
+        ClaimArea area = found.get();
+        if (!area.teamId().equals(team.getId())) {
+            String ownerName = teams.getTeam(area.teamId()).map(Team::getName).orElse(area.teamId().toString());
             return TeamResult.fail(ClaimMessages.UNCLAIM_NOT_YOURS, "team", ownerName);
         }
-
-        if (!config().placement().allowDisconnecting() && actor != null
-                && wouldDisconnect(team.getId(), chunk)) {
-            return TeamResult.fail(ClaimMessages.UNCLAIM_WOULD_DISCONNECT, "chunk", chunk.toString());
+        if (!config().placement().allowDisconnecting() && actor != null && wouldDisconnect(team.getId(), area)) {
+            return TeamResult.fail(ClaimMessages.UNCLAIM_WOULD_DISCONNECT, "claim", area.toString());
         }
-
-        removeClaim(team.getId(), chunk);
+        remove(area);
         markDirty(team.getId());
+        double refund = actor == null ? 0.0 : config().price().refundOf(area.pricePaid());
+        teams.refundClaim(team, refund);
         return TeamResult.ok(ClaimMessages.UNCLAIM_SUCCESS, team,
-                "chunk", chunk.toString(), "total", String.valueOf(getClaimCount(team.getId())));
+                "claim", area.toString(), "size", area.width() + "x" + area.length(),
+                "refund", teams.formatAmount(refund), "claims", String.valueOf(getClaimCount(team.getId())));
     }
 
     /**
-     * @return {@code true} if removing {@code chunk} would split the team's
-     *         territory in that world into disconnected pieces
+     * @return {@code true} if giving up {@code area} would split the team's territory
+     *         in that world into disconnected pieces
      */
-    private boolean wouldDisconnect(UUID teamId, ChunkPosition chunk) {
-        Set<ChunkPosition> owned = chunksByTeam.getOrDefault(teamId, Set.of());
-        Set<ChunkPosition> remaining = new LinkedHashSet<>();
-        for (ChunkPosition owns : owned) {
-            if (!owns.equals(chunk) && owns.world().equals(chunk.world())) {
-                remaining.add(owns);
+    private boolean wouldDisconnect(UUID teamId, ClaimArea area) {
+        List<ClaimArea> remaining = new ArrayList<>();
+        for (ClaimArea own : getClaims(teamId)) {
+            if (!own.id().equals(area.id()) && own.world().equals(area.world())) {
+                remaining.add(own);
             }
         }
         if (remaining.size() <= 1) {
             return false;
         }
-
-        // Flood fill from any remaining chunk; if it does not reach them all, the
+        // Flood fill from any remaining claim; if it does not reach them all, the
         // removal would have cut the territory in two.
-        ChunkPosition start = remaining.iterator().next();
-        Set<ChunkPosition> reached = new LinkedHashSet<>();
-        List<ChunkPosition> queue = new ArrayList<>();
-        queue.add(start);
-        reached.add(start);
+        Set<ClaimArea> reached = new LinkedHashSet<>();
+        List<ClaimArea> queue = new ArrayList<>();
+        queue.add(remaining.get(0));
+        reached.add(remaining.get(0));
         while (!queue.isEmpty()) {
-            ChunkPosition current = queue.remove(queue.size() - 1);
-            for (ChunkPosition neighbour : current.neighbours()) {
-                if (remaining.contains(neighbour) && reached.add(neighbour)) {
-                    queue.add(neighbour);
+            ClaimArea current = queue.remove(queue.size() - 1);
+            for (ClaimArea other : remaining) {
+                if (!reached.contains(other) && current.touches(other)) {
+                    reached.add(other);
+                    queue.add(other);
                 }
             }
         }
         return reached.size() != remaining.size();
     }
 
-    /** @param actor {@code null} for a staff override */
+    /**
+     * Gives up every claim, refunding part of what each cost.
+     *
+     * @param actor {@code null} for a staff override, which refunds nothing
+     */
     public TeamResult unclaimAll(Team team, UUID actor) {
         Objects.requireNonNull(team, "team");
         Optional<TeamResult> denied = checkRole(team, actor, ClaimAction.UNCLAIM);
         if (denied.isPresent()) {
             return denied.get();
         }
-        int removed = releaseAll(team.getId());
-        if (removed == 0) {
-            return TeamResult.fail(ClaimMessages.UNCLAIM_NOT_CLAIMED, "chunk", "-");
+        List<ClaimArea> owned = getClaims(team.getId());
+        if (owned.isEmpty()) {
+            return TeamResult.fail(ClaimMessages.UNCLAIM_NOTHING);
         }
-        return TeamResult.ok(ClaimMessages.UNCLAIM_ALL_SUCCESS, team, "count", String.valueOf(removed));
+        double refund = 0;
+        for (ClaimArea area : owned) {
+            remove(area);
+            if (actor != null) {
+                refund += config().price().refundOf(area.pricePaid());
+            }
+        }
+        markDirty(team.getId());
+        teams.refundClaim(team, refund);
+        return TeamResult.ok(ClaimMessages.UNCLAIM_ALL_SUCCESS, team,
+                "count", String.valueOf(owned.size()), "refund", teams.formatAmount(refund));
     }
 
     /**
-     * Drops every claim and home held by a team, with no permission check.
+     * Drops every claim and home held by a team, with no permission check and no
+     * refund.
      *
      * <p>Called when a team is disbanded, which is the one case where territory
      * disappears without anyone unclaiming it.
      *
-     * @return the number of chunks released
+     * @return the number of claims released
      */
     public int releaseAll(UUID teamId) {
-        Set<ChunkPosition> owned = chunksByTeam.remove(teamId);
-        int removed = 0;
-        if (owned != null) {
-            for (ChunkPosition chunk : owned) {
-                ownerByChunk.remove(chunk, teamId);
-                removed++;
-            }
+        List<ClaimArea> owned = byTeam.getOrDefault(teamId, List.of());
+        for (ClaimArea area : owned) {
+            remove(area);
         }
+        byTeam.remove(teamId);
         homesByTeam.remove(teamId);
-        claimedAt.remove(teamId);
         dirtyTeams.remove(teamId);
         deletedTeams.add(teamId);
-        return removed;
+        return owned.size();
     }
 
-    private void removeClaim(UUID teamId, ChunkPosition chunk) {
-        ownerByChunk.remove(chunk, teamId);
-        Set<ChunkPosition> owned = chunksByTeam.get(teamId);
-        if (owned != null) {
-            owned.remove(chunk);
+    /** Indexes a claim. Lists are replaced, never changed, so a lookup never sees one half-written. */
+    private synchronized void add(ClaimArea area) {
+        byId.put(area.id(), area);
+        List<ClaimArea> own = new ArrayList<>(byTeam.getOrDefault(area.teamId(), List.of()));
+        own.add(area);
+        byTeam.put(area.teamId(), List.copyOf(own));
+        for (ChunkPosition chunk : area.chunks()) {
+            List<ClaimArea> here = new ArrayList<>(byChunk.getOrDefault(chunk, List.of()));
+            here.add(area);
+            byChunk.put(chunk, List.copyOf(here));
+        }
+    }
+
+    private synchronized void remove(ClaimArea area) {
+        byId.remove(area.id());
+        List<ClaimArea> own = new ArrayList<>(byTeam.getOrDefault(area.teamId(), List.of()));
+        own.removeIf(other -> other.id().equals(area.id()));
+        if (own.isEmpty()) {
+            byTeam.remove(area.teamId());
+        } else {
+            byTeam.put(area.teamId(), List.copyOf(own));
+        }
+        for (ChunkPosition chunk : area.chunks()) {
+            List<ClaimArea> here = new ArrayList<>(byChunk.getOrDefault(chunk, List.of()));
+            here.removeIf(other -> other.id().equals(area.id()));
+            if (here.isEmpty()) {
+                byChunk.remove(chunk);
+            } else {
+                byChunk.put(chunk, List.copyOf(here));
+            }
         }
     }
 
@@ -757,9 +825,8 @@ public final class ClaimManager {
             return denied.get();
         }
         if (config.homes().requireInsideTerritory()) {
-            ChunkPosition chunk = ChunkPosition.fromBlock(position.world(),
-                    (int) Math.floor(position.x()), (int) Math.floor(position.z()));
-            if (!team.getId().equals(ownerByChunk.get(chunk))) {
+            if (!team.getId().equals(ownerAt(position.world(),
+                    (int) Math.floor(position.x()), (int) Math.floor(position.z())))) {
                 return TeamResult.fail(ClaimMessages.HOME_NOT_IN_TERRITORY, "type", type.name());
             }
         }
@@ -806,25 +873,51 @@ public final class ClaimManager {
     // Persistence
     // ------------------------------------------------------------------
 
-    /** Loads claims and homes into the cache. Blocking - async task only. */
-    public void loadAll() throws Exception {
+    /**
+     * Loads claims and homes into the cache. Blocking - async task only.
+     *
+     * <p>A database an earlier version wrote holds chunk claims: they are turned into
+     * block claims here, once, saved, and the chunk rows forgotten
+     * ({@link LegacyChunkClaims}).
+     *
+     * @return how many chunk claims were converted, {@code 0} on every later start
+     */
+    public int loadAll() throws Exception {
         store.initSchema();
-        ownerByChunk.clear();
-        chunksByTeam.clear();
+        byId.clear();
+        byChunk.clear();
+        byTeam.clear();
         homesByTeam.clear();
         dirtyTeams.clear();
         deletedTeams.clear();
 
-        for (Claim claim : store.loadClaims()) {
-            ownerByChunk.put(claim.chunk(), claim.teamId());
-            chunksByTeam.computeIfAbsent(claim.teamId(), ignored -> ConcurrentHashMap.newKeySet())
-                    .add(claim.chunk());
-            claimedAt.putIfAbsent(claim.teamId(), claim.claimedAt());
+        for (ClaimArea area : store.loadClaims()) {
+            add(area);
+        }
+        int converted = 0;
+        Collection<Claim> legacy = store.loadLegacyChunkClaims();
+        if (!legacy.isEmpty()) {
+            Map<UUID, List<ChunkPosition>> chunksByTeam = new LinkedHashMap<>();
+            Map<UUID, Long> since = new LinkedHashMap<>();
+            for (Claim claim : legacy) {
+                chunksByTeam.computeIfAbsent(claim.teamId(), ignored -> new ArrayList<>()).add(claim.chunk());
+                since.merge(claim.teamId(), claim.claimedAt(), Math::min);
+            }
+            for (Map.Entry<UUID, List<ChunkPosition>> entry : chunksByTeam.entrySet()) {
+                for (ClaimArea area : LegacyChunkClaims.toAreas(entry.getKey(), entry.getValue(),
+                        since.get(entry.getKey()))) {
+                    add(area);
+                }
+                store.saveClaims(entry.getKey(), getClaims(entry.getKey()));
+            }
+            store.clearLegacyChunkClaims();
+            converted = legacy.size();
         }
         for (TeamHome home : store.loadHomes()) {
             homesByTeam.computeIfAbsent(home.teamId(), ignored -> new ConcurrentHashMap<>())
                     .put(home.type(), home);
         }
+        return converted;
     }
 
     /**
@@ -845,12 +938,7 @@ public final class ClaimManager {
             // again for the next flush rather than being lost.
             dirtyTeams.remove(teamId);
             try {
-                long since = claimedAt.getOrDefault(teamId, clock.getAsLong());
-                List<Claim> claims = new ArrayList<>();
-                for (ChunkPosition chunk : chunksByTeam.getOrDefault(teamId, Set.of())) {
-                    claims.add(new Claim(teamId, chunk, since));
-                }
-                store.saveClaims(teamId, claims);
+                store.saveClaims(teamId, getClaims(teamId));
 
                 Map<HomeType, TeamHome> homes = homesByTeam.getOrDefault(teamId, Map.of());
                 for (HomeType type : HomeType.values()) {
@@ -877,19 +965,19 @@ public final class ClaimManager {
 
     /** Marks every team with territory dirty, forcing a full write on the next flush. */
     public void markAllDirty() {
-        dirtyTeams.addAll(chunksByTeam.keySet());
+        dirtyTeams.addAll(byTeam.keySet());
         dirtyTeams.addAll(homesByTeam.keySet());
     }
 
-    /** @return an immutable snapshot of every claim, for the map renderer and tests. */
-    public Map<ChunkPosition, UUID> getAllClaims() {
-        return Map.copyOf(ownerByChunk);
+    /** @return every claim, for the map, Lunar Client and tests */
+    public List<ClaimArea> getAllClaims() {
+        return List.copyOf(byId.values());
     }
 
-    /** @return how many chunks each team owns, for leaderboards and the info command. */
+    /** @return how many claims each team holds */
     public Map<UUID, Integer> getClaimCounts() {
         Map<UUID, Integer> counts = new LinkedHashMap<>();
-        chunksByTeam.forEach((teamId, chunks) -> counts.put(teamId, chunks.size()));
+        byTeam.forEach((teamId, areas) -> counts.put(teamId, areas.size()));
         return Map.copyOf(counts);
     }
 }

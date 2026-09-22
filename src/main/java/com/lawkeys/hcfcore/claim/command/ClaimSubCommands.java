@@ -5,6 +5,7 @@ import com.lawkeys.hcfcore.claim.ClaimMessages;
 import com.lawkeys.hcfcore.claim.ClaimModule;
 import com.lawkeys.hcfcore.claim.HomeType;
 import com.lawkeys.hcfcore.claim.TeamHome;
+import com.lawkeys.hcfcore.claim.wand.TeamClaimTask;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamMessages;
 import com.lawkeys.hcfcore.team.TeamModule;
@@ -24,6 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The territory subcommands grafted onto {@code /team}.
@@ -58,31 +60,6 @@ public final class ClaimSubCommands {
                 new ForceUnclaim(claims),
                 new Stuck(claims),
                 new LockClaim(claims));
-    }
-
-    /** @return the square of chunks {@code radius} chunks around {@code centre}, in each direction */
-    private static Set<ChunkPosition> square(ChunkPosition centre, int radius) {
-        Set<ChunkPosition> selection = new LinkedHashSet<>();
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dz = -radius; dz <= radius; dz++) {
-                selection.add(new ChunkPosition(centre.world(), centre.x() + dx, centre.z() + dz));
-            }
-        }
-        return selection;
-    }
-
-    /** @return the radius typed, or empty after saying it is not one between 0 and {@code max} */
-    private static OptionalInt parseRadius(TeamModule module, CommandSender sender, String input, int max) {
-        try {
-            int radius = Integer.parseInt(input);
-            if (radius >= 0 && radius <= max) {
-                return OptionalInt.of(radius);
-            }
-        } catch (NumberFormatException ignored) {
-            // reported below, like an out-of-range number
-        }
-        module.getLang().send(sender, ClaimMessages.INVALID_RADIUS, "input", input);
-        return OptionalInt.empty();
     }
 
     /**
@@ -164,15 +141,20 @@ public final class ClaimSubCommands {
         /** @return the nearest land they may stand on, or empty after saying why there is none */
         private Optional<ChunkPosition> destinationFor(TeamModule module, Player player) {
             ChunkPosition from = ClaimModule.toChunk(player.getLocation());
-            // Free land, or their own team's: both are places they may stand.
-            Optional<ChunkPosition> destination = claims.nearestFreeLand(from,
-                    module.getManager().getTeamOf(player.getUniqueId()).map(Team::getId).orElse(null));
-            if (destination.isEmpty()) {
-                module.getLang().send(player, ClaimMessages.STUCK_NOWHERE);
+            UUID teamId = module.getManager().getTeamOf(player.getUniqueId()).map(Team::getId).orElse(null);
+            // Where they stand first: claims are block-precise, so the middle of their
+            // chunk is not the block under their feet.
+            org.bukkit.Location at = player.getLocation();
+            Optional<Team> ownerHere = claims.ownerAt(at);
+            boolean freeHere = ownerHere.isEmpty() ? !claims.isWarzoneAt(at) : ownerHere.get().getId().equals(teamId);
+            if (freeHere) {
+                module.getLang().send(player, ClaimMessages.STUCK_NOT_STUCK);
                 return Optional.empty();
             }
-            if (destination.get().equals(from)) {
-                module.getLang().send(player, ClaimMessages.STUCK_NOT_STUCK);
+            // Free land, or their own team's: both are places they may stand.
+            Optional<ChunkPosition> destination = claims.nearestFreeLand(from, teamId);
+            if (destination.isEmpty()) {
+                module.getLang().send(player, ClaimMessages.STUCK_NOWHERE);
                 return Optional.empty();
             }
             return destination;
@@ -208,8 +190,10 @@ public final class ClaimSubCommands {
 
         private void expelIntruders(TeamModule module, Team team) {
             for (Player other : org.bukkit.Bukkit.getOnlinePlayers()) {
-                ChunkPosition at = ClaimModule.toChunk(other.getLocation());
-                if (claims.getManager().lockedAgainst(at, other.getUniqueId()).isEmpty()
+                org.bukkit.Location where = other.getLocation();
+                ChunkPosition at = ClaimModule.toChunk(where);
+                if (claims.getManager().lockedAgainst(where.getWorld().getName(), where.getBlockX(), where.getBlockZ(),
+                        other.getUniqueId()).isEmpty()
                         || other.hasPermission(com.lawkeys.hcfcore.claim.listener.ClaimProtectionListener.BYPASS_PERMISSION)) {
                     continue;
                 }
@@ -269,41 +253,37 @@ public final class ClaimSubCommands {
 
     // ------------------------------------------------------------------
 
+    /**
+     * {@code /team claim} - hands over the claiming wand: the traditional HCF claim,
+     * drawn block by block from two corners and paid from the team bank.
+     */
     private static final class Claim extends ClaimSubCommand {
 
-        /** Keeps a typo like {@code /team claim 200} from trying to build a huge square. */
-        private static final int MAX_RADIUS = 8;
-
         Claim(ClaimModule claims) {
-            super(claims, "claim", Set.of(), "[radius]",
-                    "Claim the chunk you are standing in", 0);
+            super(claims, "claim", Set.of(), "", "Get the claiming wand", 0);
         }
 
         @Override
         void run(TeamModule module, Player player, Team team, String[] args, String label) {
-            int radius = 0;
-            if (args.length > 0) {
-                OptionalInt parsed = parseRadius(module, player, args[0], MAX_RADIUS);
-                if (parsed.isEmpty()) {
-                    return;
-                }
-                radius = parsed.getAsInt();
+            if (!claims.getManager().isEnforced()) {
+                module.getLang().send(player, ClaimMessages.CLAIM_DISABLED);
+                return;
             }
-            Set<ChunkPosition> selection = square(ClaimModule.toChunk(player.getLocation()), radius);
-            report(module, player, claims.getManager().claim(team, player.getUniqueId(), selection));
+            claims.getWandSessions().give(player, new TeamClaimTask(claims, team.getId(), false));
         }
     }
 
     private static final class Unclaim extends ClaimSubCommand {
 
         Unclaim(ClaimModule claims) {
-            super(claims, "unclaim", Set.of(), "", "Release the chunk you are standing in", 0);
+            super(claims, "unclaim", Set.of(), "", "Release the claim you are standing in", 0);
         }
 
         @Override
         void run(TeamModule module, Player player, Team team, String[] args, String label) {
-            ChunkPosition chunk = ClaimModule.toChunk(player.getLocation());
-            report(module, player, claims.getManager().unclaim(team, player.getUniqueId(), chunk));
+            org.bukkit.Location at = player.getLocation();
+            report(module, player, claims.getManager().unclaim(team, player.getUniqueId(),
+                    at.getWorld().getName(), at.getBlockX(), at.getBlockZ()));
         }
     }
 
@@ -319,12 +299,12 @@ public final class ClaimSubCommands {
         }
     }
 
-    /** {@code /team here} - who owns the chunk under your feet, and is it currently raidable. */
+    /** {@code /team here} - who owns the land under your feet, and is it currently raidable. */
     private static final class Here extends ClaimSubCommand {
 
         Here(ClaimModule claims) {
             super(claims, "here", Set.of("claiminfo"), "",
-                    "Show who owns the chunk you are standing in", 0);
+                    "Show who owns the land you are standing on", 0);
         }
 
         @Override
@@ -334,13 +314,16 @@ public final class ClaimSubCommands {
 
         @Override
         void run(TeamModule module, Player player, Team team, String[] args, String label) {
-            ChunkPosition chunk = ClaimModule.toChunk(player.getLocation());
+            org.bukkit.Location at = player.getLocation();
+            String world = at.getWorld().getName();
             ClaimManager manager = claims.getManager();
 
-            module.getLang().send(player, ClaimMessages.INFO_HEADER, "chunk", chunk.toString());
-            Optional<Team> owner = manager.getOwner(chunk);
+            module.getLang().send(player, ClaimMessages.INFO_HEADER,
+                    "x", String.valueOf(at.getBlockX()), "z", String.valueOf(at.getBlockZ()));
+            Optional<com.lawkeys.hcfcore.claim.ClaimArea> claim = manager.getClaimAt(world, at.getBlockX(), at.getBlockZ());
+            Optional<Team> owner = claim.flatMap(area -> module.getManager().getTeam(area.teamId()));
             if (owner.isEmpty()) {
-                if (manager.isWarzone(chunk)) {
+                if (manager.isWarzone(world, at.getBlockX(), at.getBlockZ())) {
                     module.getLang().send(player, ClaimMessages.INFO_WARZONE,
                             "warzone", claims.getSettings().warzone().displayName());
                 } else {
@@ -350,6 +333,11 @@ public final class ClaimSubCommands {
             }
 
             module.getLang().send(player, ClaimMessages.INFO_OWNER, "team", owner.get().getName());
+            com.lawkeys.hcfcore.claim.ClaimArea area = claim.get();
+            module.getLang().send(player, ClaimMessages.INFO_CLAIM,
+                    "size", area.width() + "x" + area.length(), "area", String.valueOf(area.area()),
+                    "x1", String.valueOf(area.minX()), "z1", String.valueOf(area.minZ()),
+                    "x2", String.valueOf(area.maxX()), "z2", String.valueOf(area.maxZ()));
             if (owner.get().getType().isSystem()) {
                 // Server land is never raidable; what a player needs to know is
                 // whether they can be attacked standing here.
@@ -362,15 +350,15 @@ public final class ClaimSubCommands {
                 module.getLang().send(player,
                         raidable ? ClaimMessages.INFO_RAIDABLE : ClaimMessages.INFO_PROTECTED);
             }
-            int max = manager.getMaxClaims(owner.get());
             module.getLang().send(player, ClaimMessages.INFO_COUNT,
                     "count", String.valueOf(manager.getClaimCount(owner.get().getId())),
-                    "max", max > 0 ? String.valueOf(max) : "∞");
+                    "area", String.valueOf(manager.getClaimedArea(owner.get().getId())));
         }
     }
 
     /**
-     * {@code /team map} - an ASCII view of the chunks around the player.
+     * {@code /team map} - an ASCII view of the land around the player, one cell per
+     * {@code map.cell-blocks} blocks, each judged by the block in its middle.
      *
      * <p>Rendered as text rather than through a map item so it works for every
      * client, Lunar or vanilla.
@@ -391,16 +379,22 @@ public final class ClaimSubCommands {
 
         @Override
         void run(TeamModule module, Player player, Team team, String[] args, String label) {
-            ChunkPosition centre = ClaimModule.toChunk(player.getLocation());
+            org.bukkit.Location at = player.getLocation();
+            String world = at.getWorld().getName();
             ClaimManager manager = claims.getManager();
+            int cell = claims.getSettings().mapCellBlocks();
 
-            module.getLang().send(player, ClaimMessages.MAP_HEADER, "chunk", centre.toString());
+            module.getLang().send(player, ClaimMessages.MAP_HEADER,
+                    "x", String.valueOf(at.getBlockX()), "z", String.valueOf(at.getBlockZ()),
+                    "cell", String.valueOf(cell));
             for (int dz = -RADIUS_Z; dz <= RADIUS_Z; dz++) {
                 StringBuilder row = new StringBuilder();
                 for (int dx = -RADIUS_X; dx <= RADIUS_X; dx++) {
-                    ChunkPosition chunk = new ChunkPosition(
-                            centre.world(), centre.x() + dx, centre.z() + dz);
-                    row.append(cell(module, manager, team, chunk, dx == 0 && dz == 0));
+                    // Each cell is judged by the block in its middle; the player's own
+                    // cell is centred on them.
+                    int x = at.getBlockX() + dx * cell;
+                    int z = at.getBlockZ() + dz * cell;
+                    row.append(cell(module, manager, team, world, x, z, dx == 0 && dz == 0));
                 }
                 module.getLang().send(player, ClaimMessages.MAP_ROW, "row", row.toString());
             }
@@ -412,13 +406,13 @@ public final class ClaimSubCommands {
          *         how the owning team relates to the viewer
          */
         private String cell(TeamModule module, ClaimManager manager, Team viewer,
-                            ChunkPosition chunk, boolean here) {
+                            String world, int x, int z, boolean here) {
             if (here) {
                 return "&e+";
             }
-            Optional<Team> owner = manager.getOwner(chunk);
+            Optional<Team> owner = manager.getOwner(world, x, z);
             if (owner.isEmpty()) {
-                return manager.isWarzone(chunk) ? "&4#" : "&7-";
+                return manager.isWarzone(world, x, z) ? "&4#" : "&7-";
             }
             if (owner.get().getType().isSystem()) {
                 // Before the relation: to a player with no team every relation is
@@ -569,46 +563,23 @@ public final class ClaimSubCommands {
     }
 
     /**
-     * {@code /team forceclaim <team> [radius]} - how spawn, the warzone, roads and
-     * event grounds get their land, since a server team has nobody to type
-     * {@code /team claim}.
+     * {@code /team forceclaim <team>} - hands staff the claiming wand for any team:
+     * how spawn, the warzone's roads and event grounds get their land, since a server
+     * team has nobody to type {@code /team claim}.
      *
-     * <p>A staff claim is still refused over another team's land or a reserved
-     * region; for a server team it skips the allowance and placement rules, which
-     * exist for players (see {@code ClaimManager#claim}).
+     * <p>A staff claim is free and follows none of the size or placement rules, which
+     * exist for players; it is still refused over another team's land or a reserved
+     * region (see {@code ClaimManager#claim}).
      */
     private static final class ForceClaim extends StaffClaimSubCommand {
 
-        /**
-         * Larger than a player's: server land is drawn a big square at a time. Still
-         * bounded, so a typo cannot claim a region the size of the map in one go.
-         */
-        private static final int MAX_RADIUS = 32;
-
         ForceClaim(ClaimModule claims) {
-            super(claims, "forceclaim", "<team> [radius]", "Claim land for any team, server teams included");
+            super(claims, "forceclaim", "<team>", "Draw a claim for any team, server teams included");
         }
 
         @Override
         void run(TeamModule module, Player player, Team team, String[] args) {
-            int radius = 0;
-            if (args.length > 1) {
-                OptionalInt parsed = parseRadius(module, player, args[1], MAX_RADIUS);
-                if (parsed.isEmpty()) {
-                    return;
-                }
-                radius = parsed.getAsInt();
-            }
-            Set<ChunkPosition> selection = square(ClaimModule.toChunk(player.getLocation()), radius);
-            TeamResult result = claims.getManager().claim(team, null, selection);
-            if (!result.isSuccess()) {
-                report(module, player, result);
-                return;
-            }
-            module.getLang().send(player, ClaimMessages.ADMIN_CLAIMED,
-                    "team", team.getName(),
-                    "count", result.getPlaceholders().getOrDefault("count", "0"),
-                    "total", result.getPlaceholders().getOrDefault("total", "0"));
+            claims.getWandSessions().give(player, new TeamClaimTask(claims, team.getId(), true));
         }
     }
 
@@ -616,7 +587,7 @@ public final class ClaimSubCommands {
     private static final class ForceUnclaim extends StaffClaimSubCommand {
 
         ForceUnclaim(ClaimModule claims) {
-            super(claims, "forceunclaim", "<team> [all]", "Release a team's chunk here, or all its land");
+            super(claims, "forceunclaim", "<team> [all]", "Release a team's claim here, or all its land");
         }
 
         @Override
@@ -632,14 +603,14 @@ public final class ClaimSubCommands {
                         "team", team.getName(), "count", result.getPlaceholders().getOrDefault("count", "0"));
                 return;
             }
-            ChunkPosition chunk = ClaimModule.toChunk(player.getLocation());
-            TeamResult result = manager.unclaim(team, null, chunk);
+            org.bukkit.Location at = player.getLocation();
+            TeamResult result = manager.unclaim(team, null, at.getWorld().getName(), at.getBlockX(), at.getBlockZ());
             if (!result.isSuccess()) {
                 report(module, player, result);
                 return;
             }
             module.getLang().send(player, ClaimMessages.ADMIN_UNCLAIMED,
-                    "team", team.getName(), "chunk", chunk.toString());
+                    "team", team.getName(), "claim", result.getPlaceholders().getOrDefault("claim", ""));
         }
     }
 }

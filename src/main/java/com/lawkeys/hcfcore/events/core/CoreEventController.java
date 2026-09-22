@@ -315,7 +315,7 @@ public final class CoreEventController implements Listener {
             return false;
         }
         Location at = new Location(world, definition.coreX(), definition.coreY(), definition.coreZ());
-        return claims.getManager().getOwner(ClaimModule.toChunk(at))
+        return claims.ownerAt(at)
                 .map(team -> team.getType().isSystem())
                 .orElse(false);
     }

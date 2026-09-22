@@ -15,7 +15,7 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 | `%world%` | The world you are in |
 | `%ping%` | Your ping |
 | `%team%` | Your team, or "None" |
-| `%territory%` | The team owning the chunk you stand in; empty on land nobody owns |
+| `%territory%` | The team owning the land you stand on; empty on land nobody owns |
 | `%dtr%` | Your team's DTR, e.g. `1.10`; empty without a team |
 | `%dtr_coloured%` | The same, green, or dark red with "(raidable)" when your land is open — EOTW and the Purge included |
 | `%dtr_max%` | Your team's maximum DTR, which grows with its size |

@@ -43,6 +43,9 @@ public final class CoreMessages {
     public static final String SETUP_ALREADY_EXISTS = "events.setup.already-exists";
     public static final String SETUP_UNKNOWN_TYPE = "events.setup.unknown-type";
     public static final String SETUP_UNKNOWN_ID = "events.setup.unknown-id";
+    public static final String SETUP_NO_WAND = "events.setup.no-wand";
+    public static final String SETUP_ZONE_PREVIEW = "events.setup.zone-preview";
+    public static final String SETUP_ZONE_DRAWN = "events.setup.zone-drawn";
     public static final String SETUP_INVALID_ID = "events.setup.invalid-id";
     public static final String SETUP_RUNNING = "events.setup.running";
     public static final String SETUP_ZONE_SET = "events.setup.zone-set";

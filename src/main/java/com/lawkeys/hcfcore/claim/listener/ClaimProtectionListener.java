@@ -386,29 +386,29 @@ public final class ClaimProtectionListener implements Listener {
         }
         Location from = event.getFrom();
         Location to = event.getTo();
-        if (ChunkPosition.toChunk(from.getBlockX()) == ChunkPosition.toChunk(to.getBlockX())
-                && ChunkPosition.toChunk(from.getBlockZ()) == ChunkPosition.toChunk(to.getBlockZ())
+        // Borders run between blocks since claims are block-precise: only a move to
+        // another block column can cross one.
+        if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()
                 && Objects.equals(from.getWorld(), to.getWorld())) {
             return;
         }
 
         ClaimManager claims = module.getManager();
-        if (claims == null) {
+        if (claims == null || from.getWorld() == null || to.getWorld() == null) {
             return;
         }
-        ChunkPosition fromChunk = ClaimModule.toChunk(from);
-        ChunkPosition toChunk = ClaimModule.toChunk(to);
-        if (claims.isSameTerritory(fromChunk, toChunk)) {
+        if (from.getWorld().equals(to.getWorld()) && claims.isSameTerritory(to.getWorld().getName(),
+                from.getBlockX(), from.getBlockZ(), to.getBlockX(), to.getBlockZ())) {
             return;
         }
 
         Player player = event.getPlayer();
-        Optional<String> current = territoryName(claims, toChunk);
+        Optional<String> current = territoryName(claims, to);
         if (current.isPresent()) {
             module.getLang().send(player, ClaimMessages.ENTER_TERRITORY, "team", current.get());
         } else {
             module.getLang().send(player, ClaimMessages.LEAVE_TERRITORY,
-                    "team", territoryName(claims, fromChunk).orElse(""));
+                    "team", territoryName(claims, from).orElse(""));
         }
     }
 
@@ -416,12 +416,13 @@ public final class ClaimProtectionListener implements Listener {
      * @return what a player is standing in, as border announcements name it: the
      *         owning team, the warzone, or nothing for wilderness
      */
-    private Optional<String> territoryName(ClaimManager claims, ChunkPosition chunk) {
-        Optional<Team> owner = claims.getOwner(chunk);
+    private Optional<String> territoryName(ClaimManager claims, Location at) {
+        String world = at.getWorld().getName();
+        Optional<Team> owner = claims.getOwner(world, at.getBlockX(), at.getBlockZ());
         if (owner.isPresent()) {
             return Optional.of(owner.get().getName());
         }
-        return claims.isWarzone(chunk)
+        return claims.isWarzone(world, at.getBlockX(), at.getBlockZ())
                 ? Optional.of(module.getSettings().warzone().displayName())
                 : Optional.empty();
     }
@@ -468,13 +469,13 @@ public final class ClaimProtectionListener implements Listener {
         Team actorTeam = module.getTeams().getManager().getTeamOf(player.getUniqueId()).orElse(null);
         ProtectionResult result = building
                 ? claims.checkBuild(actorTeam, world, block.getX(), block.getY(), block.getZ())
-                : claims.checkProtection(actorTeam, ChunkPosition.fromBlock(world, block.getX(), block.getZ()));
+                : claims.checkProtection(actorTeam, world, block.getX(), block.getZ());
         return result.isAllowed() ? null : result;
     }
 
     private void explain(Player player, Block block, ProtectionResult refused) {
-        ChunkPosition chunk = ChunkPosition.fromBlock(block.getWorld().getName(), block.getX(), block.getZ());
-        String ownerName = module.getManager().getOwner(chunk).map(Team::getName).orElse("");
+        String ownerName = module.getManager().getOwner(block.getWorld().getName(), block.getX(), block.getZ())
+                .map(Team::getName).orElse("");
         module.getLang().send(player, refused.getMessageKey(),
                 "team", ownerName, "warzone", module.getSettings().warzone().displayName());
     }

@@ -1,11 +1,10 @@
 package com.lawkeys.hcfcore.claim;
 
-import com.lawkeys.hcfcore.util.ChunkPosition;
 
 import java.util.Optional;
 
 /**
- * Answers whether another system has reserved a chunk, putting it out of reach of
+ * Answers whether another system has reserved land, putting it out of reach of
  * team claims.
  *
  * <p>The third seam of the same family as {@link RaidabilityPolicy} and
@@ -25,11 +24,11 @@ import java.util.Optional;
 public interface ReservedRegionPolicy {
 
     /**
-     * @param chunk the chunk a team is trying to claim
-     * @return the display name of the region covering it, or empty when the chunk
-     *         is free
+     * @return the display name of a region any block of that rectangle - the claim a
+     *         team is trying to make, full height - belongs to, or empty when the
+     *         land is free
      */
-    Optional<String> reservedRegionAt(ChunkPosition chunk);
+    Optional<String> reservedRegionIn(String world, int minX, int minZ, int maxX, int maxZ);
 
     /**
      * Asked about one block of unclaimed land, before the warzone refuses to let it
@@ -50,5 +49,5 @@ public interface ReservedRegionPolicy {
     }
 
     /** Nothing is reserved. Active until a module that owns regions installs itself. */
-    ReservedRegionPolicy NONE = chunk -> Optional.empty();
+    ReservedRegionPolicy NONE = (world, minX, minZ, maxX, maxZ) -> Optional.empty();
 }

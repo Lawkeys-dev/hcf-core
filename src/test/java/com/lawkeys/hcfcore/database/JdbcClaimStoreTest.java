@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.database;
 
 import com.lawkeys.hcfcore.claim.Claim;
+import com.lawkeys.hcfcore.claim.ClaimArea;
 import com.lawkeys.hcfcore.claim.HomeType;
 import com.lawkeys.hcfcore.claim.TeamHome;
 import com.lawkeys.hcfcore.database.dao.JdbcClaimStore;
@@ -43,11 +44,13 @@ class JdbcClaimStoreTest {
         store.initSchema();
     }
 
-    private Claim claim(UUID team, int x, int z) {
-        return new Claim(team, new ChunkPosition("world", x, z), 1_700_000_000_000L);
+    /** A 16 x 16 claim at that chunk, with an id of its own derived from where it is. */
+    private ClaimArea claim(UUID team, int x, int z) {
+        return new ClaimArea(UUID.nameUUIDFromBytes((team + ":" + x + ":" + z).getBytes()), team, "world",
+                x * 16, z * 16, x * 16 + 15, z * 16 + 15, 12.5, 1_700_000_000_000L);
     }
 
-    private Set<Claim> claimsOf(UUID team) throws Exception {
+    private Set<ClaimArea> claimsOf(UUID team) throws Exception {
         return store.loadClaims().stream().filter(claim -> claim.teamId().equals(team)).collect(Collectors.toSet());
     }
 
@@ -101,5 +104,26 @@ class JdbcClaimStoreTest {
 
         assertEquals(List.of(), List.copyOf(store.loadHomes()));
         assertTrue(log.stream().anyMatch(line -> line.contains("Unknown team home type 'OUTPOST'")));
+    }
+
+    @Test
+    void chunkClaimsOfAnEarlierVersionAreReadOnceThenForgotten() throws Exception {
+        try (var connection = sqlite.getConnection();
+             var insert = connection.prepareStatement(
+                     "INSERT INTO hcf_team_claims (world, chunk_x, chunk_z, team_id, claimed_at) VALUES (?, ?, ?, ?, ?)")) {
+            insert.setString(1, "world");
+            insert.setInt(2, -2);
+            insert.setInt(3, 5);
+            insert.setString(4, wizards.toString());
+            insert.setLong(5, 42L);
+            insert.executeUpdate();
+        }
+
+        assertEquals(List.of(new Claim(wizards, new ChunkPosition("world", -2, 5), 42L)),
+                List.copyOf(store.loadLegacyChunkClaims()));
+        assertEquals(List.of(), List.copyOf(store.loadClaims()), "they are not block claims yet");
+
+        store.clearLegacyChunkClaims();
+        assertEquals(List.of(), List.copyOf(store.loadLegacyChunkClaims()));
     }
 }

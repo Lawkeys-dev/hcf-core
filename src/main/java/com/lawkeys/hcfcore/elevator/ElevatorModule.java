@@ -151,7 +151,7 @@ public final class ElevatorModule {
         if (claims == null || claims.getManager() == null) {
             return true;
         }
-        Optional<Team> owner = claims.getManager().getOwner(ClaimModule.toChunk(at));
+        Optional<Team> owner = claims.ownerAt(at);
         Optional<Team> theirs = claims.getTeams().getManager().getTeamOf(player.getUniqueId());
         return owner.isPresent() && theirs.isPresent() && owner.get().getId().equals(theirs.get().getId());
     }

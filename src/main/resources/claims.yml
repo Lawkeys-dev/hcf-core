@@ -7,7 +7,10 @@
 #
 # As in teams.yml, a limit of 0 means "no limit".
 #
-# ⚠️ Reading this file, remember how protection actually works: who OWNS a chunk is permanent, and is never changed by raiding.
+# Claims are drawn block by block with the claiming wand (see "wand" below): a
+# claim is a rectangle, the full height of the world.
+#
+# ⚠️ Reading this file, remember how protection actually works: who OWNS land is permanent, and is never changed by raiding.
 # Whether that owner is currently PROTECTED is a separate, live question
 # answered by their DTR. Nothing here can make a raid transfer land - a raid
 # only opens the pillage window described under "protection" below.
@@ -27,31 +30,72 @@
 enabled: true
 # --8<-- [end:enabled]
 
-# --8<-- [start:limits]
-limits:
-  # Chunks every team may claim regardless of its size.
-  base: 16
-  # Extra chunks granted per member. 0 disables scaling by team size.
-  per-member: 4
-  # Hard cap whatever the member count. 0 = uncapped.
-  maximum: 0
-  # Chunks a single command may claim at once. Keeps a mistyped
-  # "/team claim 8" from swallowing a chunk of the map in one keystroke.
-  # Staff overrides are exempt. 0 = no cap.
-  max-per-command: 64
-# --8<-- [end:limits]
+# --8<-- [start:wand]
+# Claims are drawn with the claiming wand, the traditional HCF way: /team claim
+# hands it over; left-click a block for the first corner, right-click one for the
+# second, then sneak and left-click to claim the rectangle between them - both
+# corners included, the full height of the world. Drop the wand to give up. The
+# corners are shown as columns only the wand's holder sees. Staff draw server land
+# with /team forceclaim <team>, and event zones with /events setzone <id>.
+wand:
+  material: GOLDEN_HOE
+  name: "{primary}&lClaiming Wand"
+  lore:
+    - "{muted}Left-click {dark}{bullet} {secondary}first corner"
+    - "{muted}Right-click {dark}{bullet} {secondary}second corner"
+    - "{muted}Sneak + left-click {dark}{bullet} {success}claim it"
+    - "{muted}Drop it {dark}{bullet} {error}give up"
+  # The block the corner columns are shown in, and how high they rise (1 to 64).
+  pillar-material: GLASS
+  pillar-height: 12
+# --8<-- [end:wand]
+
+# --8<-- [start:price]
+# What a claim costs, paid from the team bank when it is made (/team deposit).
+# Money is what limits a team's land. Staff claims (/team forceclaim) and server
+# land are free.
+price:
+  # Per block of surface: a 20 x 20 claim is 400 blocks.
+  per-block: 0.25
+  # The share of what a claim cost that /team unclaim gives back, 0 to 100.
+  # Worked out on what was paid, never on today's price. Land converted from an
+  # earlier version's chunk claims was paid nothing, and refunds nothing.
+  refund-percent: 75
+# --8<-- [end:price]
+
+# --8<-- [start:sizes]
+# The shape of one claim, and how much a team may hold. 0 = no limit.
+sizes:
+  # The shortest side, in blocks: a strip one block wide around an enemy base is
+  # not territory.
+  min-side: 5
+  # The longest side, in blocks.
+  max-side: 128
+  # How many separate claims one team may hold.
+  max-claims: 0
+  # How many blocks of surface one team may hold in all.
+  max-total-area: 0
+# --8<-- [end:sizes]
 
 # --8<-- [start:placement]
 placement:
-  # New chunks must touch the team's existing territory in that world. A team
-  # may still open a brand new territory in a world it holds nothing in.
+  # A new claim must share an edge with the team's existing territory in that
+  # world. A team may still open a brand new territory in a world it holds
+  # nothing in.
   require-connected: true
-  # Minimum distance, in chunks, to another team's claims. 0 disables the
-  # buffer entirely, letting teams claim right up against each other.
-  minimum-distance-to-others: 2
+  # Blocks of land to keep between a claim and another team's. 0 lets teams claim
+  # right up against each other. Server land (spawn, roads) is no neighbour.
+  buffer-blocks: 8
   # Whether unclaiming may split a team's territory into disconnected pieces.
   allow-disconnecting: false
 # --8<-- [end:placement]
+
+# --8<-- [start:map]
+map:
+  # How many blocks one cell of /team map stands for (1 to 64); each cell is
+  # judged by the block in its middle.
+  cell-blocks: 8
+# --8<-- [end:map]
 
 # --8<-- [start:protection]
 protection:
@@ -80,7 +124,7 @@ protection:
 homes:
   # HQ and the secondary base (/team sethq, /team hq, /team setbase, /team base).
   enabled: true
-  # A home must sit on a chunk the team owns.
+  # A home must sit on land the team owns.
   require-inside-territory: true
   # Countdown before /team hq or /team base teleports; taking damage or leaving
   # the block cancels it, and a combat tag refuses it at the start and again at
@@ -134,10 +178,8 @@ required-roles:
 # owns. Inside a Mountain's region, the Mountain's own rules apply instead, so
 # its resources stay minable (see resourcenodes.yml).
 #
-# The radius is in blocks from the centre to each edge of a square, ROUNDED
-# OUTWARDS TO WHOLE CHUNKS: territory is chunk-based everywhere else, so the
-# warzone has one border - the same on /team map, in "Now entering" messages,
-# for a refused claim and for a protected block.
+# The radius is in blocks from the centre to each edge of a square, exactly -
+# block-precise, like claims.
 #
 # Off by default: until you list a world below, nothing is reserved.
 warzone:

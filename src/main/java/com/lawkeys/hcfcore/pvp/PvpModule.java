@@ -350,7 +350,7 @@ public final class PvpModule {
         if (claims == null || claims.getManager() == null) {
             return false;
         }
-        Optional<Team> owner = claims.getManager().getOwner(ClaimModule.toChunk(player.getLocation()));
+        Optional<Team> owner = claims.ownerAt(player.getLocation());
         return owner.isPresent() && owner.get().isSafeZone();
     }
 

@@ -92,6 +92,7 @@ public final class EventModule {
     private volatile double zoneHologramHeight = 3.0;
     /** {@code setup:} in events.yml - defaults used by {@code /events create} and {@code /events setcore}. */
     private volatile int setupZoneRadius = 10;
+    private volatile int setupZoneHeight = 10;
     private volatile int setupCoreDistance = 10;
     private static final DateTimeFormatter HOLOGRAM_TIME = DateTimeFormatter.ofPattern("HH:mm");
     private EventManager manager;
@@ -148,6 +149,16 @@ public final class EventModule {
     /** @return the plugin instance, for the {@code /events} setup commands that write {@code events.yml} */
     public Plugin getPlugin() {
         return plugin;
+    }
+
+    /** @return how many blocks a zone drawn with the wand rises above the higher of its two corners */
+    public int getSetupZoneHeight() {
+        return setupZoneHeight;
+    }
+
+    /** @return the claim module, whose wand draws zones; {@code null} when it is not running */
+    public ClaimModule getClaims() {
+        return claims;
     }
 
     /** @return the radius, in blocks, of the zone {@code /events create} centres on the player */
@@ -405,7 +416,7 @@ public final class EventModule {
                 || claims == null || claims.getManager() == null) {
             return Optional.empty();
         }
-        return claims.getManager().getOwner(ClaimModule.toChunk(location))
+        return claims.ownerAt(location)
                 .filter(team -> team.getType().isSystem())
                 .flatMap(team -> current.citadelClaimedBy(team.getName()));
     }
@@ -519,6 +530,7 @@ public final class EventModule {
         this.zoneHologramHeight = holograms == null ? 3.0 : holograms.getDouble("height", 3.0);
         ConfigurationSection setup = file == null ? null : file.getConfigurationSection("setup");
         this.setupZoneRadius = Math.max(1, setup == null ? 10 : setup.getInt("default-zone-radius", 10));
+        this.setupZoneHeight = Math.max(0, setup == null ? 10 : setup.getInt("zone-height", 10));
         this.setupCoreDistance = Math.max(1, setup == null ? 10 : setup.getInt("setcore-distance", 10));
         if (king != null) {
             king.applySettings(KingSettingsLoader.load(file, settings, warn));

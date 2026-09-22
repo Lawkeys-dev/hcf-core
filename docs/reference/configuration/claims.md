@@ -14,18 +14,48 @@ Every example on this page is **taken from the shipped `claims.yml`**. Changes a
 
 `enabled: false` turns off every claim and every protection — player land, server land, the warzone — and keeps who owns what.
 
-## Limits
+## Claiming wand
+
+Claims are rectangles drawn block by block with the wand — left-click one corner, right-click the other, sneak + left-click to claim, drop it to give up. See [Territory](../../gameplay/territory.md#claiming-with-the-wand).
 
 ```yaml title="claims.yml"
---8<-- "src/main/resources/claims.yml:limits"
+--8<-- "src/main/resources/claims.yml:wand"
 ```
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `base` | `16` | Chunks every team may claim |
-| `per-member` | `4` | Extra chunks per member |
-| `maximum` | `0` | A hard cap whatever the size |
-| `max-per-command` | `64` | Chunks one command may claim; staff overrides are exempt |
+| `material` | `GOLDEN_HOE` | The item |
+| `name`, `lore` | see above | Its name and description |
+| `pillar-material` | `GLASS` | The columns shown, to the holder only, on the corners |
+| `pillar-height` | `12` | How high they rise, 1 to 64 |
+
+## Price
+
+```yaml title="claims.yml"
+--8<-- "src/main/resources/claims.yml:price"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `per-block` | `0.25` | Price of one block of surface, paid from the team bank; `0` is free |
+| `refund-percent` | `75` | Share of what a claim cost that unclaiming it gives back |
+
+Staff claims (`/team forceclaim`) and server land are free, and a staff unclaim refunds nothing.
+
+## Sizes
+
+```yaml title="claims.yml"
+--8<-- "src/main/resources/claims.yml:sizes"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `min-side` | `5` | Shortest side of a claim, in blocks |
+| `max-side` | `128` | Longest side; `0` = none |
+| `max-claims` | `0` | Separate claims one team may hold; `0` = no limit |
+| `max-total-area` | `0` | Blocks of surface one team may hold in all; `0` = no limit |
+
+Staff claims and server land follow none of these.
 
 ## Placement
 
@@ -35,9 +65,19 @@ Every example on this page is **taken from the shipped `claims.yml`**. Changes a
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `require-connected` | `true` | New chunks must touch the team's land in that world |
-| `minimum-distance-to-others` | `2` | Chunks between two teams' land; `0` lets them touch |
+| `require-connected` | `true` | A new claim must share an edge with the team's land in that world |
+| `buffer-blocks` | `8` | Blocks of land between two teams' claims; `0` lets them touch. Server land is no neighbour |
 | `allow-disconnecting` | `false` | Whether unclaiming may split a territory in two |
+
+## Map
+
+```yaml title="claims.yml"
+--8<-- "src/main/resources/claims.yml:map"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `cell-blocks` | `8` | Blocks one character of `/team map` stands for, 1 to 64; each is judged by the block in its middle |
 
 ## Protection
 
@@ -95,7 +135,7 @@ The minimum role for each territory action: `leader`, `co-leader` or `member`. `
 |---|---|---|
 | `display-name` | `&cWarzone` | Its name in messages and on `/team map` |
 | `allow-building` | `false` | Whether players may build on unclaimed warzone land |
-| `worlds.<world>.radius` | none | Blocks from the centre to each edge, rounded outwards to whole chunks |
+| `worlds.<world>.radius` | none | Blocks from the centre to each edge, exactly |
 | `worlds.<world>.center-x`, `center-z` | `0`, `0` | The centre |
 
 No world is listed as shipped: no warzone until you add one. Kill the King needs it.

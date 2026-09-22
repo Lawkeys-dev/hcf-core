@@ -67,6 +67,17 @@ public record Cuboid(String world,
     }
 
     /**
+     * @return whether any block column of that rectangle - full height - passes
+     *         through the box: how a claim drawn block by block is refused on a
+     *         region it touches
+     */
+    public boolean overlapsColumns(String world, int minX, int minZ, int maxX, int maxZ) {
+        return this.world.equalsIgnoreCase(world)
+                && minX <= this.maxX && maxX >= this.minX
+                && minZ <= this.maxZ && maxZ >= this.minZ;
+    }
+
+    /**
      * @return whether any block of that chunk belongs to the box
      *
      * <p>Used to refuse claiming land a region sits on: a chunk that merely

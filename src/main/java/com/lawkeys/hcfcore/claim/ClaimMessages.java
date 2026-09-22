@@ -30,12 +30,14 @@ public final class ClaimMessages {
     public static final String CLAIM_DISABLED = "claim.claim.disabled";
     public static final String CLAIM_SYSTEM_TEAM = "claim.claim.system-team";
     public static final String CLAIM_NOTHING_SELECTED = "claim.claim.nothing-selected";
-    public static final String CLAIM_TOO_MANY_AT_ONCE = "claim.claim.too-many-at-once";
+    public static final String CLAIM_TOO_SMALL = "claim.claim.too-small";
+    public static final String CLAIM_TOO_BIG = "claim.claim.too-big";
+    public static final String CLAIM_TOO_MANY_CLAIMS = "claim.claim.too-many-claims";
+    public static final String CLAIM_CANNOT_AFFORD = "claim.claim.cannot-afford";
     public static final String CLAIM_RESERVED_REGION = "claim.claim.reserved-region";
     public static final String CLAIM_WARZONE = "claim.claim.warzone";
 
     // Staff claiming for any team - server land, typically
-    public static final String ADMIN_CLAIMED = "claim.admin.claimed";
     public static final String ADMIN_UNCLAIMED = "claim.admin.unclaimed";
     public static final String ADMIN_UNCLAIMED_ALL = "claim.admin.unclaimed-all";
 
@@ -44,6 +46,7 @@ public final class ClaimMessages {
     public static final String UNCLAIM_NOT_YOURS = "claim.unclaim.not-yours";
     public static final String UNCLAIM_NOT_CLAIMED = "claim.unclaim.not-claimed";
     public static final String UNCLAIM_ALL_SUCCESS = "claim.unclaim.all-success";
+    public static final String UNCLAIM_NOTHING = "claim.unclaim.nothing";
     public static final String UNCLAIM_WOULD_DISCONNECT = "claim.unclaim.would-disconnect";
 
     // Homes (HQ / secondary base)
@@ -81,6 +84,21 @@ public final class ClaimMessages {
     public static final String INFO_PROTECTED = "claim.info.protected";
     public static final String INFO_UNENFORCED = "claim.info.unenforced";
     public static final String INFO_COUNT = "claim.info.count";
+    public static final String INFO_CLAIM = "claim.info.claim";
+
+    // Claiming wand
+    public static final String WAND_GIVEN = "claim.wand.given";
+    public static final String WAND_INVENTORY_FULL = "claim.wand.inventory-full";
+    public static final String WAND_FIRST = "claim.wand.first-corner";
+    public static final String WAND_SECOND = "claim.wand.second-corner";
+    public static final String WAND_SELECTION = "claim.wand.selection";
+    public static final String WAND_CONFIRM_HINT = "claim.wand.confirm-hint";
+    public static final String WAND_INCOMPLETE = "claim.wand.incomplete";
+    public static final String WAND_CANCELLED = "claim.wand.cancelled";
+    public static final String WAND_EXPIRED = "claim.wand.expired";
+    public static final String WAND_FREE = "claim.wand.free";
+    public static final String WAND_COST = "claim.wand.cost";
+    public static final String WAND_COST_SHORT = "claim.wand.cost-short";
 
     // Map
     public static final String MAP_HEADER = "claim.map.header";
@@ -90,5 +108,4 @@ public final class ClaimMessages {
     // Shared
     public static final String NOT_IN_TEAM = "claim.error.not-in-team";
     public static final String INSUFFICIENT_ROLE = "claim.error.insufficient-role";
-    public static final String INVALID_RADIUS = "claim.error.invalid-radius";
 }

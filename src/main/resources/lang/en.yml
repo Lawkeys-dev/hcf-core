@@ -236,31 +236,51 @@ claim:
   warmup-busy: "{error}You are already counting down to something."
 
   claim:
-    success: "{success}Claimed {secondary}%count% {success}chunk(s). Your team now holds {secondary}%total%{muted}/{secondary}%max%{success}."
-    already-yours: "{error}Your team already owns %chunk%."
-    already-owned: "{error}%chunk% belongs to {secondary}%team%{error}. Raiding a team never gives you its land."
-    limit-reached: "{error}Your team may hold at most %max% chunks (currently %current%)."
-    not-connected: "{error}Claims must touch your existing territory in this world."
-    too-close: "{error}Too close to {secondary}%team%{error}'s territory - keep at least %distance% chunk(s) away."
+    # %size% is width x length in blocks, %area% the blocks of surface, %cost% the price.
+    success: "{success}Claimed {secondary}%size% {muted}(%area% blocks) {success}for {secondary}%cost%{success}. Your team now holds {secondary}%claims% {success}claim(s)."
+    already-yours: "{error}That overlaps your own claim %claim%."
+    already-owned: "{error}That overlaps {secondary}%team%{error}'s land. Raiding a team never gives you its land."
+    # sizes.max-total-area
+    limit-reached: "{error}Your team may hold at most %max% blocks of land (currently %current%)."
+    too-small: "{error}A claim must be at least {secondary}%min%x%min%{error} - that is {secondary}%size%{error}."
+    too-big: "{error}A claim's sides may be at most {secondary}%max%{error} blocks - that is {secondary}%size%{error}."
+    too-many-claims: "{error}Your team may hold at most {secondary}%max% {error}separate claims."
+    cannot-afford: "{error}That costs {secondary}%cost%{error}; your team's bank holds {secondary}%balance%{error}. {muted}/team deposit <amount>"
+    not-connected: "{error}A claim must share an edge with your existing territory in this world."
+    too-close: "{error}Too close to {secondary}%team%{error}'s territory - keep at least %distance% blocks away."
     world-disabled: "{error}Claiming is disabled in %world%."
     disabled: "{error}Claiming is disabled on this server."
     system-team: "{error}%team% is a server team; only staff can claim for it."
-    nothing-selected: "{error}No chunk selected."
-    too-many-at-once: "{error}That would claim %count% chunks at once; the limit is %max% per command."
-    warzone: "{error}%chunk% is part of the %warzone%{error}: no player team can claim there."
-    reserved-region: "{error}%chunk% overlaps %region%{error} and cannot be claimed."
+    nothing-selected: "{error}Nothing selected."
+    warzone: "{error}That reaches into the %warzone%{error}: no player team can claim there."
+    reserved-region: "{error}That overlaps %region%{error} and cannot be claimed."
+
+  # The claiming wand (/team claim, /team forceclaim, /events setzone).
+  wand:
+    given: "{success}Claiming wand for {secondary}%task%{success}. {muted}Left-click a corner, right-click the other, sneak + left-click to confirm; drop it to give up."
+    inventory-full: "{error}Make room in your inventory for the claiming wand."
+    first-corner: "{muted}First corner {dark}{bullet} {secondary}%x%, %z%"
+    second-corner: "{muted}Second corner {dark}{bullet} {secondary}%x%, %z%"
+    selection: "{muted}Selected {secondary}%size% {muted}(%area% blocks)."
+    confirm-hint: "{muted}Sneak + left-click to confirm, or drop the wand to give up."
+    incomplete: "{error}Pick both corners first: left-click one, right-click the other."
+    cancelled: "{muted}Claim cancelled."
+    expired: "{muted}That wand was no longer in use and has been taken back."
+    free: "{success}This one is free."
+    cost: "{muted}Cost {dark}{bullet} {secondary}%cost% {muted}(team bank: {success}%balance%{muted})"
+    cost-short: "{muted}Cost {dark}{bullet} {error}%cost% {muted}(team bank: {error}%balance%{muted}) {muted}- /team deposit <amount>"
 
   admin:
-    claimed: "{success}Claimed {secondary}%count% {success}chunk(s) for {secondary}%team%{success} - {secondary}%total% {success}in total."
-    unclaimed: "{success}Released %chunk% from {secondary}%team%{success}."
-    unclaimed-all: "{success}Released all {secondary}%count% {success}chunk(s) of {secondary}%team%{success}."
+    unclaimed: "{success}Released %claim% from {secondary}%team%{success}."
+    unclaimed-all: "{success}Released all {secondary}%count% {success}claim(s) of {secondary}%team%{success}."
 
   unclaim:
-    success: "{success}Released %chunk%. Your team now holds {secondary}%total% {success}chunk(s)."
-    not-yours: "{error}That chunk belongs to {secondary}%team%{error}."
-    not-claimed: "{error}That chunk is unclaimed."
-    all-success: "{success}Released all {secondary}%count% {success}of your team's chunks."
-    would-disconnect: "{error}Releasing %chunk% would split your territory in two."
+    success: "{success}Released the {secondary}%size% {success}claim; {secondary}%refund% {success}back to your team's bank. {muted}%claims% claim(s) left."
+    not-yours: "{error}This land belongs to {secondary}%team%{error}."
+    not-claimed: "{error}Nobody owns this land."
+    nothing: "{error}Your team holds no land."
+    all-success: "{success}Released all {secondary}%count% {success}of your team's claims; {secondary}%refund% {success}back to the bank."
+    would-disconnect: "{error}Releasing %claim% would split your territory in two."
 
   home:
     set: "{success}Your team's %type% has been set here."
@@ -292,17 +312,20 @@ claim:
     leave: "{muted}Now leaving {secondary}%team%{muted}."
 
   info:
-    header: "{muted}&m--------&r {secondary}Chunk %chunk% {muted}&m--------"
+    header: "{muted}&m--------&r {secondary}%x%, %z% {muted}&m--------"
     owner: "{muted}Owner: {secondary}%team%"
-    wilderness: "{muted}This chunk is unclaimed wilderness."
-    warzone: "{muted}This chunk is part of the %warzone%{muted}: players fight here, and no player team can claim it."
+    wilderness: "{muted}This is unclaimed wilderness."
+    warzone: "{muted}This is part of the %warzone%{muted}: players fight here, and no player team can claim it."
+    # The claim here: %size%, %area% blocks, from %x1%, %z1% to %x2%, %z2%.
+    claim: "{muted}Claim: {secondary}%size% {muted}(%area% blocks) from {secondary}%x1%, %z1% {muted}to {secondary}%x2%, %z2%"
     raidable: "{error}Raidable {muted}- its protection is currently down."
     protected: "{success}Protected."
     unenforced: "{warning}Unprotected {muted}- territory protection is turned off on this server."
-    count: "{muted}Territory: {secondary}%count%{muted}/{secondary}%max% {muted}chunks"
+    count: "{muted}Territory: {secondary}%count% {muted}claim(s), {secondary}%area% {muted}blocks"
 
   map:
-    header: "{muted}&m--------&r {secondary}Territory around %chunk% {muted}&m--------"
+    # %cell% is how many blocks one character stands for (claims.yml, map.cell-blocks).
+    header: "{muted}&m--------&r {secondary}Territory around %x%, %z% {muted}(1 = %cell% blocks) &m--------"
     row: "%row%"
     legend: "{muted}Legend: {warning}+ {muted}you  {success}# {muted}your team  {primary}# {muted}ally  {error}# {muted}enemy  {secondary}# {muted}server  {error}# {muted}warzone  {muted}- {muted}wilderness"
 
@@ -316,7 +339,6 @@ claim:
   error:
     not-in-team: "{error}You need a team to hold territory."
     insufficient-role: "{error}You must be at least %required% to do that (you are %role%)."
-    invalid-radius: "{error}'%input%' is not a valid radius."
 
 # ---------------------------------------------------------------------------
 # DTR module
@@ -600,13 +622,18 @@ events:
   # --- Setup commands (/events create|setzone|setcore|delete) - DTC, Last
   # Break and Slide only. These are the only commands that rewrite events.yml.
   setup:
-    created: "{success}Created {secondary}%event% {muted}({secondary}%radius% {muted}block radius) - use {secondary}/events setzone %event% <1|2> {muted}to move its corners, and {secondary}/events setcore %event% {muted}to move its core."
+    created: "{success}Created {secondary}%event% {muted}({secondary}%radius% {muted}block radius) - draw its zone with {secondary}/events setzone %event%{muted}, move its core with {secondary}/events setcore %event%{muted}."
     already-exists: "{error}An event called '%event%' already exists."
     unknown-type: "{error}'%type%' is not dtc, lastbreak or slide."
     unknown-id: "{error}There is no DTC, Last Break or Slide called '%event%'."
     invalid-id: "{error}'%id%' is not a valid id {muted}- use only lowercase letters, digits, '_' and '-' ({secondary}%min%{muted}-{secondary}%max% {muted}characters)."
     running: "{error}%event% is running - stop it first with /events stop %event%."
     zone-set: "{success}Corner %corner% of {secondary}%event% {muted}set to your position."
+    # /events setzone <id> - the claiming wand. %from% and %to% are the zone's heights:
+    # from the lower corner to setup.zone-height blocks above the higher one.
+    zone-preview: "{muted}Zone of {secondary}%event% {dark}{bullet} {secondary}%size%{muted}, heights {secondary}%from% {muted}to {secondary}%to%"
+    zone-drawn: "{success}Zone of {secondary}%event% {success}drawn: {secondary}%size%{success}."
+    no-wand: "{error}Zones are drawn with the claiming wand, which needs the claim module running."
     core-set: "{success}The core of {secondary}%event% {muted}is now the block you were looking at."
     core-outside-zone: "{error}That block is outside %event%'s zone."
     core-not-applicable: "{error}%event% is a Slide - it has no core."

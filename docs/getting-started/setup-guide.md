@@ -46,17 +46,17 @@ Spawn is a *server team* marked as a safe zone: nobody fights on it, no player t
 
     Server team names follow the usual length and character rules of `teams.yml`, but not its blacklist, so "Spawn" is accepted.
 
-2. Claim the land — radius 3 is 7 × 7 chunks around you:
+2. Draw its land with the claiming wand:
 
     ```text
-    /team forceclaim Spawn 3
+    /team forceclaim Spawn
     ```
 
-    The radius goes up to 32; run it again elsewhere to extend. `/team forceunclaim Spawn` releases the chunk you stand in, `/team forceunclaim Spawn all` everything.
+    Left-click one corner, right-click the opposite one, then sneak and left-click: the rectangle between them, full height, is Spawn's — free, and as large as you like. Run it again to add another rectangle. `/team forceunclaim Spawn` releases the claim you stand in, `/team forceunclaim Spawn all` everything.
 
 3. Set the world's spawn point with the vanilla `/setworldspawn`: that is where `/spawn` sends players (`general.yml` can point it at another world).
 
-`/team here` shows who owns the chunk you stand in, `/team map` the territory around you.
+`/team here` shows who owns the land you stand on and its corners, `/team map` the territory around you.
 
 ## 3. Warzone
 
@@ -71,7 +71,7 @@ warzone:
       radius: 250
 ```
 
-The radius is in blocks from the centre (0, 0 unless you set `center-x` / `center-z`) and is rounded outwards to whole chunks. The warzone governs only land nobody owns: spawn at its centre stays safe, and anything claimed inside it keeps its owner's rules. `warzone.allow-building` lets players build there if your server wants that.
+The radius is in blocks from the centre (0, 0 unless you set `center-x` / `center-z`), exactly. The warzone governs only land nobody owns: spawn at its centre stays safe, and anything claimed inside it keeps its owner's rules. `warzone.allow-building` lets players build there if your server wants that.
 
 !!! info
     Kill the King needs a warzone: it is the event's arena.
@@ -82,14 +82,14 @@ A road, or an event area you want protected from building but open to fighting, 
 
 ```text
 /team createsystem North_Road combat
-/team forceclaim North_Road 1
+/team forceclaim North_Road
 ```
 
-Claim it in squares along its length. `/team setzone <team> <safe|combat>` switches an existing server team.
+Draw it with the wand, as long and narrow as it is — staff claims follow no size rule. `/team setzone <team> <safe|combat>` switches an existing server team.
 
 ## 5. Claim rules
 
-`claims.yml` sets what players may claim: 16 chunks plus 4 per member by default, at least 2 chunks from another team, touching the team's existing land, in every world unless `claimable-worlds` lists some. It also holds the countdowns of `/team hq` (10 s) and `/team stuck` (60 s). `dtr.yml` sets how many deaths a team takes before its land opens. See [Territory](../gameplay/territory.md) and [DTR and raids](../gameplay/dtr-and-raids.md).
+`claims.yml` sets what players may claim, with the wand: rectangles at least 5 × 5 and at most 128 a side, `0.25` per block paid from the team bank (75 % back on unclaiming), at least 8 blocks from another team, sharing an edge with the team's existing land, in every world unless `claimable-worlds` lists some. It also holds the countdowns of `/team hq` (10 s) and `/team stuck` (60 s). `dtr.yml` sets how many deaths a team takes before its land opens. See [Territory](../gameplay/territory.md) and [DTR and raids](../gameplay/dtr-and-raids.md).
 
 ## 6. Capture events
 

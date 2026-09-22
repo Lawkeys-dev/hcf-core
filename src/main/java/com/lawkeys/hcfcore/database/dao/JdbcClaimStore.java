@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.database.dao;
 
 import com.lawkeys.hcfcore.claim.Claim;
+import com.lawkeys.hcfcore.claim.ClaimArea;
 import com.lawkeys.hcfcore.claim.ClaimSchema;
 import com.lawkeys.hcfcore.claim.ClaimStore;
 import com.lawkeys.hcfcore.claim.HomeType;
@@ -26,8 +27,8 @@ import java.util.function.Consumer;
  *
  * <p>A team's claims are written as delete-then-insert inside one transaction.
  * That is the same trade-off as {@code JdbcTeamStore} makes for members: a team
- * owns tens of chunks, not thousands, and replacing the set wholesale removes
- * any chance of the table drifting from the in-memory cache.
+ * holds a handful of claims, and replacing the set wholesale removes any chance of
+ * the table drifting from the in-memory cache.
  *
  * <p><strong>Threading.</strong> Blocking; async task only (CONTRIBUTING.md section 5).
  */
@@ -47,7 +48,33 @@ public final class JdbcClaimStore implements ClaimStore {
     }
 
     @Override
-    public Collection<Claim> loadClaims() throws SQLException {
+    public Collection<ClaimArea> loadClaims() throws SQLException {
+        List<ClaimArea> claims = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT id, team_id, world, min_x, min_z, max_x, max_z, price_paid, claimed_at "
+                             + "FROM hcf_claim_areas");
+             ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                claims.add(new ClaimArea(UUID.fromString(rs.getString("id")),
+                        UUID.fromString(rs.getString("team_id")), rs.getString("world"),
+                        rs.getInt("min_x"), rs.getInt("min_z"), rs.getInt("max_x"), rs.getInt("max_z"),
+                        rs.getDouble("price_paid"), rs.getLong("claimed_at")));
+            }
+        }
+        return claims;
+    }
+
+    @Override
+    public void clearLegacyChunkClaims() throws SQLException {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement("DELETE FROM hcf_team_claims")) {
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public Collection<Claim> loadLegacyChunkClaims() throws SQLException {
         List<Claim> claims = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
@@ -92,23 +119,27 @@ public final class JdbcClaimStore implements ClaimStore {
     }
 
     @Override
-    public void saveClaims(UUID teamId, Collection<Claim> claims) throws SQLException {
+    public void saveClaims(UUID teamId, Collection<ClaimArea> claims) throws SQLException {
         Transactions.run(dataSource, connection -> {
             try (PreparedStatement delete = connection.prepareStatement(
-                    "DELETE FROM hcf_team_claims WHERE team_id = ?")) {
+                    "DELETE FROM hcf_claim_areas WHERE team_id = ?")) {
                 delete.setString(1, teamId.toString());
                 delete.executeUpdate();
             }
             if (!claims.isEmpty()) {
                 try (PreparedStatement insert = connection.prepareStatement(
-                        "INSERT INTO hcf_team_claims (world, chunk_x, chunk_z, team_id, claimed_at) "
-                                + "VALUES (?, ?, ?, ?, ?)")) {
-                    for (Claim claim : claims) {
-                        insert.setString(1, claim.chunk().world());
-                        insert.setInt(2, claim.chunk().x());
-                        insert.setInt(3, claim.chunk().z());
-                        insert.setString(4, claim.teamId().toString());
-                        insert.setLong(5, claim.claimedAt());
+                        "INSERT INTO hcf_claim_areas (id, team_id, world, min_x, min_z, max_x, max_z, "
+                                + "price_paid, claimed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    for (ClaimArea claim : claims) {
+                        insert.setString(1, claim.id().toString());
+                        insert.setString(2, claim.teamId().toString());
+                        insert.setString(3, claim.world());
+                        insert.setInt(4, claim.minX());
+                        insert.setInt(5, claim.minZ());
+                        insert.setInt(6, claim.maxX());
+                        insert.setInt(7, claim.maxZ());
+                        insert.setDouble(8, claim.pricePaid());
+                        insert.setLong(9, claim.claimedAt());
                         insert.addBatch();
                     }
                     insert.executeBatch();
@@ -174,6 +205,7 @@ public final class JdbcClaimStore implements ClaimStore {
     @Override
     public void deleteTeam(UUID teamId) throws SQLException {
         Transactions.run(dataSource, connection -> {
+            executeDelete(connection, "DELETE FROM hcf_claim_areas WHERE team_id = ?", teamId);
             executeDelete(connection, "DELETE FROM hcf_team_claims WHERE team_id = ?", teamId);
             executeDelete(connection, "DELETE FROM hcf_team_homes WHERE team_id = ?", teamId);
         });

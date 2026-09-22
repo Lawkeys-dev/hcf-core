@@ -415,32 +415,32 @@ class DtrManagerTest {
             claims.setRaidabilityPolicy(dtr);
 
             warlocks = teamManager.createTeam(UUID.randomUUID(), "Warlocks").getTeam().orElseThrow();
-            assertTrue(claims.claim(wizards, null, List.of(base)).isSuccess());
+            assertTrue(claims.claim(wizards, null, base.world(), base.minBlockX(), base.minBlockZ(), base.minBlockX() + 15, base.minBlockZ() + 15).isSuccess());
         }
 
         @Test
         void territoryOpensOnDeathAndClosesAgainOnItsOwn() {
-            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, base));
+            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, base.world(), base.minBlockX() + 8, base.minBlockZ() + 8));
 
             makeRaidable(wizards);
-            assertEquals(ProtectionResult.ALLOWED_RAID, claims.checkProtection(warlocks, base),
+            assertEquals(ProtectionResult.ALLOWED_RAID, claims.checkProtection(warlocks, base.world(), base.minBlockX() + 8, base.minBlockZ() + 8),
                     "DTR ran out, so the pillage window is open");
 
             advance(45 * MINUTE + 300 * MINUTE);
-            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, base),
+            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkProtection(warlocks, base.world(), base.minBlockX() + 8, base.minBlockZ() + 8),
                     "DTR regenerated above zero, so protection came back with nothing re-claimed");
         }
 
         @Test
         void ownershipSurvivesTheWholeCycleUntouched() {
             makeRaidable(wizards);
-            assertEquals(wizards.getId(), claims.getOwnerId(base).orElseThrow());
+            assertEquals(wizards.getId(), claims.getOwnerId(base.world(), base.minBlockX() + 8, base.minBlockZ() + 8).orElseThrow());
 
             // Even at the deepest point of the raid, the land cannot change hands.
-            assertTrue(claims.claim(warlocks, null, List.of(base)).isFailure());
+            assertTrue(claims.claim(warlocks, null, base.world(), base.minBlockX(), base.minBlockZ(), base.minBlockX() + 15, base.minBlockZ() + 15).isFailure());
 
             advance(1000 * MINUTE);
-            assertEquals(wizards.getId(), claims.getOwnerId(base).orElseThrow());
+            assertEquals(wizards.getId(), claims.getOwnerId(base.world(), base.minBlockX() + 8, base.minBlockZ() + 8).orElseThrow());
             assertEquals(1, claims.getClaimCount(wizards.getId()));
         }
 
@@ -448,7 +448,7 @@ class DtrManagerTest {
         void theOwningTeamKeepsBuildingThroughoutTheRaid() {
             makeRaidable(wizards);
 
-            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(wizards, base));
+            assertEquals(ProtectionResult.ALLOWED, claims.checkProtection(wizards, base.world(), base.minBlockX() + 8, base.minBlockZ() + 8));
         }
     }
 

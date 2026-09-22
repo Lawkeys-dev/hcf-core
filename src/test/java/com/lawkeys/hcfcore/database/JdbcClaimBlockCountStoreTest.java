@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.database;
 
 import com.lawkeys.hcfcore.database.dao.JdbcClaimBlockCountStore;
+import com.lawkeys.hcfcore.limiter.ClaimCell;
 import com.lawkeys.hcfcore.util.ChunkPosition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -30,13 +31,19 @@ class JdbcClaimBlockCountStoreTest {
         store.initSchema();
 
         ChunkPosition chunk = new ChunkPosition("world", -3, 7);
-        store.save(chunk, Map.of("HOPPER", 12, "SPAWNER", 2));
-        assertEquals(Map.of(chunk, Map.of("HOPPER", 12, "SPAWNER", 2)), store.loadAll());
+        ClaimCell wizards = new ClaimCell(chunk, java.util.UUID.randomUUID());
+        ClaimCell warlocks = new ClaimCell(chunk, java.util.UUID.randomUUID());
+        store.save(wizards, Map.of("HOPPER", 12, "SPAWNER", 2));
+        store.save(warlocks, Map.of("HOPPER", 3));
+        assertEquals(Map.of(wizards, Map.of("HOPPER", 12, "SPAWNER", 2), warlocks, Map.of("HOPPER", 3)),
+                store.loadAll(), "two teams sharing a chunk are counted apart");
 
-        store.save(chunk, Map.of("HOPPER", 11));
-        assertEquals(Map.of(chunk, Map.of("HOPPER", 11)), store.loadAll());
+        store.save(wizards, Map.of("HOPPER", 11));
+        assertEquals(Map.of(wizards, Map.of("HOPPER", 11), warlocks, Map.of("HOPPER", 3)), store.loadAll(),
+                "one team's part is replaced, the other's left alone");
 
-        store.save(chunk, Map.of());
-        assertEquals(Map.of(), store.loadAll(), "an empty chunk leaves no rows");
+        store.save(wizards, Map.of());
+        store.save(warlocks, Map.of());
+        assertEquals(Map.of(), store.loadAll(), "an empty cell leaves no rows");
     }
 }

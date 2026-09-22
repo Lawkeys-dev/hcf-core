@@ -7,6 +7,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **The claiming wand** — claims are drawn block by block, the traditional HCF way. `/team claim` hands over the wand (a golden hoe): left-click a block for the first corner, right-click one for the second, sneak + left-click to claim the rectangle between them, full height; drop it to give up. The corners show as glass columns only its holder sees, and the chat gives the size, the price and anything that would refuse the claim before it is confirmed. Staff draw server land with it (`/team forceclaim <team>`: free, no size or placement rule) and event zones (`/events setzone <id>`, `setup.zone-height` in `events.yml`). Configured in `claims.yml` (`wand`).
+- **Claims are paid from the team bank**: `price.per-block` (`0.25`), `75` % of what was paid back on `/team unclaim` (`price.refund-percent`). Money is the limit; `sizes` keeps each claim sensible — at least 5 × 5, at most 128 a side, optional caps on claims and surface. `/team here` shows the claim's size and corners; `/team map` is drawn in 8-block cells (`map.cell-blocks`).
 - **Three new capture events**, `events.yml`:
     - **DTC (Destroy The Core)**: a permanent block core inside a zone, broken by teams — a per-team cooldown (`break-cooldown-seconds`), `counter: SHARED` (common health, most breaks of its own wins a tie by whoever reached that count first) or `PER_TEAM` (first to its own target wins at once).
     - **Last Break**: the same engine, always common health — whoever lands the break that empties it wins, even with fewer breaks of its own.
@@ -15,6 +17,10 @@ A release gathers several changes: they collect under **Unreleased** as they rea
     - Staff set up all three in-game: `/events create <dtc|lastbreak|slide> <id>`, `setzone <id> <1|2>`, `setcore <id>` (DTC/Last Break), `delete <id>` — the only commands in the plugin that ever rewrite a configuration file, and only the one section they name. The console — and staff, at `/events setcore` — warn when a core is not on a system team's claim.
     - New scoreboard placeholders `%dtc_line%`, `%dtc_team_line%`, `%last_break_line%`, `%slide_line%`, `%slide_top_1..3%`; a hologram above every core and Slide zone; Lunar Client waypoints on a running core and Slide zone.
     - New team points, all `0` by default: `teams.yml`'s `points.per-dtc-win`, `per-last-break-win`, `per-slide-win`. *Configuration files are never rewritten: copy the `dtc:`, `last-break:` and `slide:` sections (and the `setup:` section) from the jar's `events.yml`, the three new `points.per-*-win` lines of `teams.yml`, and the new `dtc_line`/`last_break_line`/`slide_line`/`slide_top_*` lines of `ui.yml` into your own files.*
+
+### Changed
+- **Territory is block-precise**: a claim is a rectangle, not a set of chunks; the buffer between teams is in blocks (`placement.buffer-blocks`, 8), a new claim must share an **edge** with the team's land, and the warzone's radius is exact instead of rounded to chunks. *Existing chunk claims are **converted automatically** on the first start — same land, paid nothing, so refunding nothing; the console says how many. In `claims.yml`, `limits` (`base`, `per-member`, `maximum`, `max-per-command`) and `placement.minimum-distance-to-others` are no longer read: take the new `wand`, `price`, `sizes`, `placement` and `map` sections from the jar. `/team claim [radius]` and `/team forceclaim <team> [radius]` take no radius any more.*
+- Blocks per claim (`limiters.yml`, `claim-blocks`) are counted per team as well as per chunk, since two teams can now share a chunk. *The counts are rebuilt as claimed chunks load; until a chunk has loaded once, its blocks are not counted.*
 
 ## [0.7.0] - 2026-09-19
 

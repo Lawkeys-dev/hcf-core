@@ -226,12 +226,38 @@ public final class LimiterModule {
     // Blocks per claim
     // ------------------------------------------------------------------
 
-    /** @return the player team whose territory this chunk is - the only land that is counted */
-    public Optional<Team> countingTeam(ChunkPosition chunk) {
+    /** @return the player team whose territory that block is - the only land that is counted */
+    public Optional<Team> countingTeam(Block block) {
         if (claims == null || claims.getManager() == null) {
             return Optional.empty();
         }
-        return claims.getManager().getOwner(chunk).filter(team -> !team.getType().isSystem());
+        return claims.ownerAt(block.getLocation()).filter(team -> !team.getType().isSystem());
+    }
+
+    /** @return whether any player team's claim covers part of that chunk: a chunk worth counting */
+    private boolean isCounted(ChunkPosition chunk) {
+        if (claims == null || claims.getManager() == null) {
+            return false;
+        }
+        for (com.lawkeys.hcfcore.claim.ClaimArea area : claims.getManager().getClaimsIn(chunk)) {
+            if (isPlayerTeam(area.teamId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isPlayerTeam(java.util.UUID teamId) {
+        return claims.getTeams().getManager().getTeam(teamId).map(team -> !team.getType().isSystem()).orElse(false);
+    }
+
+    /** @return every cell a team's claims cover: what its total is summed over */
+    private Set<ClaimCell> cellsOf(Team team) {
+        Set<ClaimCell> cells = new java.util.LinkedHashSet<>();
+        for (ChunkPosition chunk : claims.getManager().getClaimChunks(team.getId())) {
+            cells.add(new ClaimCell(chunk, team.getId()));
+        }
+        return cells;
     }
 
     /** What stops a placement: the block, how many stand, and the limit. */
@@ -250,7 +276,7 @@ public final class LimiterModule {
         String material = block.getType().name();
         OptionalInt limit = limits.limitFor(material);
         ChunkPosition chunk = ClaimModule.toChunk(block.getLocation());
-        Optional<Team> team = limit.isPresent() ? countingTeam(chunk) : Optional.empty();
+        Optional<Team> team = limit.isPresent() ? countingTeam(block) : Optional.empty();
         if (team.isEmpty()) {
             return Optional.empty();
         }
@@ -258,7 +284,7 @@ public final class LimiterModule {
             // Claimed while loaded, so never counted since: counted now, off the main thread.
             recountQueue.add(chunk);
         }
-        int count = counts.total(claims.getManager().getClaims(team.get().getId()), material);
+        int count = counts.total(cellsOf(team.get()), material);
         return ClaimBlockLimits.mayPlace(count, limit.getAsInt())
                 ? Optional.empty()
                 : Optional.of(new Refusal(material, count, limit.getAsInt()));
@@ -282,7 +308,7 @@ public final class LimiterModule {
         if (claims == null || counts == null) {
             return usage;
         }
-        Set<ChunkPosition> territory = claims.getManager().getClaims(team.getId());
+        Set<ClaimCell> territory = cellsOf(team);
         claimBlocks.limits().keySet().forEach(material -> usage.put(material, counts.total(territory, material)));
         return usage;
     }
@@ -292,9 +318,10 @@ public final class LimiterModule {
         if (!countsLoaded || !claimBlocks.isLimited(type.name())) {
             return;
         }
-        ChunkPosition chunk = ClaimModule.toChunk(block.getLocation());
-        if (countingTeam(chunk).isPresent()) {
-            counts.adjust(chunk, type.name(), delta);
+        Optional<Team> team = countingTeam(block);
+        if (team.isPresent()) {
+            counts.adjust(new ClaimCell(ClaimModule.toChunk(block.getLocation()), team.get().getId()),
+                    type.name(), delta);
         }
     }
 
@@ -304,7 +331,7 @@ public final class LimiterModule {
 
     /** Counted again soon - after a piston has moved limited blocks, which the events cannot follow. */
     public void recountSoon(ChunkPosition chunk) {
-        if (countsLoaded && countingTeam(chunk).isPresent()) {
+        if (countsLoaded && isCounted(chunk)) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> recountQueue.add(chunk), 5L);
         }
     }
@@ -315,7 +342,7 @@ public final class LimiterModule {
             return;
         }
         ChunkPosition position = new ChunkPosition(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
-        if (!recounted.contains(position) && countingTeam(position).isPresent()) {
+        if (!recounted.contains(position) && isCounted(position)) {
             recountQueue.add(position);
         }
     }
@@ -358,8 +385,11 @@ public final class LimiterModule {
                 }
             });
             recounted.add(position);
+            // Who owns each column, read here on the main thread: the scan attributes
+            // every block to the team whose claim it stands in, a chunk being shareable.
+            java.util.UUID[] owners = columnOwners(position);
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                Map<String, Integer> found = scan(snapshot, minY, maxY, wanted);
+                Map<java.util.UUID, Map<String, Integer>> found = scan(snapshot, minY, maxY, wanted, owners);
                 try {
                     Bukkit.getScheduler().runTask(plugin, () -> counts.finishRecount(position, found));
                 } catch (IllegalPluginAccessException stopping) {
@@ -369,18 +399,40 @@ public final class LimiterModule {
         }
     }
 
-    /** @return how many of each wanted block the snapshot holds; {@code maxY} is exclusive (26.2 javadoc) */
-    private static Map<String, Integer> scan(ChunkSnapshot snapshot, int minY, int maxY, Set<Material> wanted) {
-        Map<String, Integer> found = new HashMap<>();
+    /** @return the player team owning each of the chunk's 256 columns, {@code x * 16 + z}; {@code null} for none */
+    private java.util.UUID[] columnOwners(ChunkPosition chunk) {
+        java.util.UUID[] owners = new java.util.UUID[256];
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                int bx = chunk.minBlockX() + x;
+                int bz = chunk.minBlockZ() + z;
+                owners[x * 16 + z] = claims.getManager().getOwnerId(chunk.world(), bx, bz)
+                        .filter(this::isPlayerTeam).orElse(null);
+            }
+        }
+        return owners;
+    }
+
+    /**
+     * @return how many of each wanted block the snapshot holds, by the team owning its
+     *         column; {@code maxY} is exclusive (26.2 javadoc)
+     */
+    private static Map<java.util.UUID, Map<String, Integer>> scan(ChunkSnapshot snapshot, int minY, int maxY,
+                                                                  Set<Material> wanted, java.util.UUID[] owners) {
+        Map<java.util.UUID, Map<String, Integer>> found = new HashMap<>();
         if (wanted.isEmpty()) {
             return found;
         }
-        for (int y = minY; y < maxY; y++) {
-            for (int x = 0; x < 16; x++) {
-                for (int z = 0; z < 16; z++) {
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                java.util.UUID owner = owners[x * 16 + z];
+                if (owner == null) {
+                    continue;
+                }
+                for (int y = minY; y < maxY; y++) {
                     Material type = snapshot.getBlockType(x, y, z);
                     if (wanted.contains(type)) {
-                        found.merge(type.name(), 1, Integer::sum);
+                        found.computeIfAbsent(owner, ignored -> new HashMap<>()).merge(type.name(), 1, Integer::sum);
                     }
                 }
             }
@@ -397,7 +449,9 @@ public final class LimiterModule {
             // still there, so a chunk claimed again must be counted again - were it
             // left marked as counted this start, it would read 0 until the next one,
             // and unclaiming then reclaiming across a save would reset a team's limit.
-            java.util.Set<ChunkPosition> forgotten = counts.prune(chunk -> countingTeam(chunk).isPresent());
+            java.util.Set<ChunkPosition> forgotten = counts.prune(cell -> isPlayerTeam(cell.teamId())
+                    && claims.getManager().getClaimsIn(cell.chunk()).stream()
+                    .anyMatch(area -> area.teamId().equals(cell.teamId())));
             if (!forgotten.isEmpty()) {
                 Bukkit.getScheduler().runTask(plugin, () -> recounted.removeAll(forgotten));
             }

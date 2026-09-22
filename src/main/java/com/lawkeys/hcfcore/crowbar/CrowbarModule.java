@@ -244,15 +244,14 @@ public final class CrowbarModule {
 
     private CrowbarRules.Verdict judge(Player player, Block frame) {
         ClaimManager manager = claims.getManager();
-        ChunkPosition chunk = ClaimModule.toChunk(frame.getLocation());
-        Optional<Team> owner = manager == null ? Optional.empty() : manager.getOwner(chunk);
+        Optional<Team> owner = claims.ownerAt(frame.getLocation());
         Optional<Team> own = teams.getManager() == null
                 ? Optional.empty()
                 : teams.getManager().getTeamOf(player.getUniqueId());
         return CrowbarRules.judge(
                 owner.map(Team::getId).orElse(null),
                 owner.map(team -> team.getType() == TeamType.SYSTEM).orElse(false),
-                manager != null && manager.isWarzone(chunk),
+                manager != null && claims.isWarzoneAt(frame.getLocation()),
                 own.map(Team::getId).orElse(null));
     }
 
