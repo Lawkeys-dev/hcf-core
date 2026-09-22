@@ -146,7 +146,10 @@ public record TeamSettings(
                 new FocusRules(true, 0),
                 new RallyRules(true, 300L),
                 new BankRules(true),
-                new PointsRules(0L, 0L),
-                new KothRules(0, 0L));
+                // A scale, rather than zeroes: every event is worth something out of
+                // the box (the project owner's choice, 22/09/2026). Kills, deaths and
+                // raids stay at 0 - those are a server's own balance.
+                new PointsRules(0L, 0L, 0L, 0L, 0L, 25L, 20L, 20L, 20L, 20L, 15L),
+                new KothRules(0, 10L));
     }
 }

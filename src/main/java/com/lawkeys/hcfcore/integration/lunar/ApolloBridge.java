@@ -277,26 +277,30 @@ final class ApolloBridge implements LunarBridge, Listener {
             }
         }
         if (rules.events()) {
+            // Every running event is marked, and raised by event-height: a waypoint
+            // on the floor of a zone is lost behind the landscape from any distance.
+            int height = rules.eventHeight();
             for (RunningEvent run : sources.events().getManager().getActiveEvents()) {
                 wanted.put(plain(run.getDefinition().displayName()),
-                        spec(run.getDefinition().zone(), rules.eventColor()));
+                        raise(spec(run.getDefinition().zone(), rules.eventColor()), height));
             }
             sources.events().getConquest().getManager().getCurrent().ifPresent(run -> run.zones().forEach(zone ->
                     wanted.put(text("apollo.waypoint.conquest-zone", "zone", plain(zone.zone().displayName())),
-                            spec(zone.zone().area(), rules.eventColor()))));
+                            raise(spec(zone.zone().area(), rules.eventColor()), height))));
             sources.events().getCore().getManager().getCurrent().ifPresent(run ->
                     wanted.put(text("apollo.waypoint.dtc-core", "event", plain(run.getDefinition().displayName())),
-                            new WaypointSpec(run.getDefinition().zone().world(), run.getDefinition().coreX(),
-                                    run.getDefinition().coreY(), run.getDefinition().coreZ(), rules.eventColor())));
+                            raise(new WaypointSpec(run.getDefinition().zone().world(), run.getDefinition().coreX(),
+                                    run.getDefinition().coreY(), run.getDefinition().coreZ(), rules.eventColor()),
+                                    height)));
             sources.events().getSlide().getManager().getCurrent().ifPresent(run ->
                     wanted.put(text("apollo.waypoint.slide", "event", plain(run.getDefinition().displayName())),
-                            spec(run.getDefinition().zone(), rules.eventColor())));
+                            raise(spec(run.getDefinition().zone(), rules.eventColor()), height)));
             if (sources.events().getTotem() != null) {
                 sources.events().getTotem().getManager().getCurrent().ifPresent(run ->
                         wanted.put(text("apollo.waypoint.totem", "event", plain(run.getDefinition().displayName())),
-                                new WaypointSpec(run.getDefinition().zone().world(), run.getDefinition().baseX(),
+                                raise(new WaypointSpec(run.getDefinition().zone().world(), run.getDefinition().baseX(),
                                         run.getDefinition().baseY() + run.getDefinition().height() - 1,
-                                        run.getDefinition().baseZ(), rules.eventColor())));
+                                        run.getDefinition().baseZ(), rules.eventColor()), height)));
             }
             sources.events().getKing().getManager().getCurrent().filter(KingRun::isReigning).ifPresent(run -> {
                 Player king = Bukkit.getPlayer(run.getKingId());
@@ -337,6 +341,12 @@ final class ApolloBridge implements LunarBridge, Listener {
 
     private static WaypointSpec spec(Location at, int rgb) {
         return new WaypointSpec(at.getWorld().getName(), at.getBlockX(), at.getBlockY(), at.getBlockZ(), rgb);
+    }
+
+    /** @return the same waypoint, {@code height} blocks higher: what is seen from far away */
+    private static WaypointSpec raise(WaypointSpec spec, int height) {
+        return height <= 0 ? spec
+                : new WaypointSpec(spec.world(), spec.x(), spec.y() + height, spec.z(), spec.rgb());
     }
 
     /** The middle of a zone, on its floor. */

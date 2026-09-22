@@ -206,7 +206,7 @@ Checked against Apollo's official documentation (github.com/LunarClient/Apollo, 
 
 **Modules used: Waypoint, Team, Cooldown and Nametag** (`integration/lunar/`, `apollo.yml`).
 
-- **Waypoints**: the team's HQ, base and rally; a focused player (where they stand) and a focused team's HQ; KOTH, Citadel and Conquest zones; a running DTC/Last Break's core; a running Slide's zone, a running Totem's column; the King during Kill the King.
+- **Waypoints**: the team's HQ, base and rally; a focused player (where they stand) and a focused team's HQ; every running event - KOTH, Citadel and Conquest zones, a DTC or Last Break core, a Slide zone, a Totem's column - each put `waypoints.event-height` (60) blocks above itself so the beam clears the landscape; the King during Kill the King, followed at his own height.
 - **Team**: teammates marked above their heads and on the minimap, position and name sent beyond tracking distance.
 - **Cooldowns**: every cooldown the plugin keeps - the combat tag, the ender pearl, the item cooldowns (Gapple, Crapple…), a running countdown (`/spawn`, `/logout`, `/team hq`, `/team stuck`…), the partner items (each, the shared one, the Pocket Bard's sets), a class's click items and backstab, the crowbar - each with its own item, and each kind switchable in `apollo.yml`.
 - **Nametags**: a team line (name, DTR) and a name line, coloured by relation (self, ally, enemy, focus, neutral) — focus wins except for one's own team.

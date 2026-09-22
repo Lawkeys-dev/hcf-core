@@ -43,6 +43,7 @@ public final class LunarSettingsLoader {
                 section.getBoolean("rally", d.rally()),
                 section.getBoolean("focus", d.focus()),
                 section.getBoolean("events", d.events()),
+                section.getInt("event-height", d.eventHeight()),
                 color(colors, "hq", d.hqColor(), warn),
                 color(colors, "base", d.baseColor(), warn),
                 color(colors, "rally", d.rallyColor(), warn),

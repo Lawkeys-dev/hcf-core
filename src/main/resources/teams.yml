@@ -109,9 +109,10 @@ points:
   # Floor the score can never drop below.
   minimum: 0
 
-  # The scale: what earns - or, with a negative number, costs - points. All 0 so
-  # nothing is decided for you; KOTH and Citadel captures
-  # are koth.points-per-capture below.
+  # The scale: what earns - or, with a negative number, costs - points. Every
+  # event is worth something as shipped; kills, deaths and raids are 0, those
+  # being a server's own balance. KOTH and Citadel captures are
+  # koth.points-per-capture below.
   # To the killer's team, for killing a player of any other team, or of none. A
   # player with no team can be an alt: with per-kill above 0, watch for farming.
   per-kill: 0
@@ -120,27 +121,26 @@ points:
   # To a team whose DTR has just made it raidable (write a negative number).
   per-raidable: 0
   # To the team that wins a Conquest.
-  per-conquest-win: 0
+  per-conquest-win: 25
   # To the team of the player who wins Kill the King.
-  per-king-win: 0
+  per-king-win: 20
   # To the team that wins a DTC.
-  per-dtc-win: 0
+  per-dtc-win: 20
   # To the team that wins a Last Break.
-  per-last-break-win: 0
+  per-last-break-win: 20
   # To the team that wins a Slide.
-  per-slide-win: 0
+  per-slide-win: 20
   # To the team that wins a Totem or a Mini Totem.
-  per-totem-win: 0
+  per-totem-win: 15
 # --8<-- [end:points]
 
 # --8<-- [start:koth]
 koth:
   # Cap on how many KOTH captures count toward a team's ranking. 0 = uncapped.
-  # How many points a capture is worth, and where the cap belongs, is a balance
-  # decision for your server. These defaults are deliberately neutral (uncapped,
-  # no points) so nothing is silently decided for you.
+  # A capture - a KOTH's or a Citadel's - is worth points-per-capture; where the
+  # cap belongs is a balance decision for your server, so it ships uncapped.
   max-counted-captures: 0
-  points-per-capture: 0
+  points-per-capture: 10
   # Counted captures are reset by staff with /team resetkoth - at the start of a
   # map, or of whatever ranking period the server runs.
 # --8<-- [end:koth]

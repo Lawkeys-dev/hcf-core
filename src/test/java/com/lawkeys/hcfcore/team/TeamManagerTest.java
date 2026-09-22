@@ -1138,20 +1138,29 @@ class TeamManagerTest {
             assertEquals(175L, wizards.getPoints());
         }
 
+        /**
+         * The shipped scale pays for winning an event and for nothing else: kills,
+         * deaths and raids are a server's own balance (the project owner's choice,
+         * 22/09/2026).
+         */
         @Test
-        void theShippedScaleAwardsNothing() {
+        void theShippedScalePaysForEventsOnly() {
             Team wizards = createTeam(alice, "Wizards");
             Team knights = createTeam(bob, "Knights");
             long before = wizards.getPoints();
             manager.recordDeath(alice, bob);
             manager.recordRaidable(knights);
+            assertEquals(before, wizards.getPoints(), "a kill pays nothing as shipped");
+            assertEquals(before, knights.getPoints(), "a death and a raid cost nothing as shipped");
+
+            manager.recordKothCapture(wizards);
             manager.recordConquestWin(wizards);
             manager.recordDtcWin(wizards);
             manager.recordLastBreakWin(wizards);
             manager.recordSlideWin(wizards);
             manager.recordTotemWin(wizards);
-            assertEquals(before, wizards.getPoints());
-            assertEquals(before, knights.getPoints());
+            // 10 + 25 + 20 + 20 + 20 + 15, and a King win goes to a player's team.
+            assertEquals(before + 110L, wizards.getPoints());
         }
 
         @Test

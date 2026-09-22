@@ -33,8 +33,12 @@ waypoints:
   base: true        # your team's second base
   rally: true       # your team's rally point, while it lasts
   focus: true       # a focused player, where they are; a focused team's HQ
-  events: true      # KOTH and Citadel zones, Conquest zones, the King in KTK,
-                    # a running DTC/Last Break's core, a running Slide's zone and a running Totem's column
+  events: true      # every running event: KOTH and Citadel zones, Conquest zones,
+                    # a DTC or Last Break core, a Slide zone, a Totem, the King
+  # How far above the event itself its waypoint is put, in blocks (0 to 320): a
+  # beam starting on the floor of a zone is lost behind the landscape. The King's
+  # follows the player and is never raised.
+  event-height: 60
   colors:
     hq: "#55FF55"
     base: "#00AA00"

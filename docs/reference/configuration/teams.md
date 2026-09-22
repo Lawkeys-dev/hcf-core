@@ -86,11 +86,12 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | `per-kill` | `0` | To the killer's team, for killing a player of another team or of none |
 | `per-death` | `0` | To the victim's team, for any death — write a negative number to take points |
 | `per-raidable` | `0` | To a team its DTR just made raidable |
-| `per-conquest-win` | `0` | To the team that wins a Conquest |
-| `per-king-win` | `0` | To the team of the player who wins Kill the King |
-| `per-dtc-win` | `0` | To the team that wins a DTC |
-| `per-last-break-win` | `0` | To the team that wins a Last Break |
-| `per-slide-win` | `0` | To the team that wins a Slide |
+| `per-conquest-win` | `25` | To the team that wins a Conquest |
+| `per-king-win` | `20` | To the team of the player who wins Kill the King |
+| `per-dtc-win` | `20` | To the team that wins a DTC |
+| `per-last-break-win` | `20` | To the team that wins a Last Break |
+| `per-slide-win` | `20` | To the team that wins a Slide |
+| `per-totem-win` | `15` | To the team that wins a Totem or a Mini Totem |
 
 ## KOTH captures
 
@@ -101,7 +102,7 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | Key | As shipped | What it does |
 |---|---|---|
 | `max-counted-captures` | `0` | How many KOTH and Citadel captures count for a team's ranking; `/team resetkoth` resets the counts |
-| `points-per-capture` | `0` | Points a capture is worth |
+| `points-per-capture` | `10` | Points a capture — a KOTH's or a Citadel's — is worth |
 
 ## The whole shipped file
 

@@ -22,10 +22,21 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
         updateTicks = Math.max(1, updateTicks);
     }
 
-    /** Colours are {@code 0xRRGGBB}. */
+    /**
+     * Colours are {@code 0xRRGGBB}.
+     *
+     * @param eventHeight how far above an event's own point its waypoint is put, in
+     *                    blocks: a beam that starts at the floor of a zone is lost
+     *                    behind the landscape (the project owner's report,
+     *                    22/09/2026). The King's follows the player, never raised
+     */
     public record Waypoints(boolean enabled, boolean hq, boolean base, boolean rally, boolean focus,
-                            boolean events, int hqColor, int baseColor, int rallyColor, int focusColor,
-                            int eventColor) {
+                            boolean events, int eventHeight, int hqColor, int baseColor, int rallyColor,
+                            int focusColor, int eventColor) {
+
+        public Waypoints {
+            eventHeight = Math.max(0, Math.min(320, eventHeight));
+        }
     }
 
     /** @param trackingRange beyond this, in blocks, a teammate's position is sent as well as their marker */
@@ -44,7 +55,7 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
     /** Built-in fallback, mirroring {@code resources/apollo.yml}. */
     public static LunarSettings defaults() {
         return new LunarSettings(true, 10,
-                new Waypoints(true, true, true, true, true, true,
+                new Waypoints(true, true, true, true, true, true, 60,
                         0x55FF55, 0x00AA00, 0xFFFF55, 0xFF55FF, 0xFFAA00),
                 new TeamView(true, 0x55FF55, 48.0),
                 new Cooldowns(true, true, "DIAMOND_SWORD", true, "CLOCK", true, "NETHER_STAR", true, "ENDER_PEARL", true,
