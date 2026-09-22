@@ -84,12 +84,12 @@ public final class MapPillars {
             BlockData data = block.createBlockData();
             drawn++;
             for (int[] corner : corners) {
-                int ground = world.getHighestBlockYAt(corner[0], corner[1]);
-                for (int level = 1; level <= rules.pillarHeight(); level++) {
-                    int y = ground + level;
-                    if (y >= world.getMaxHeight()) {
-                        break;
-                    }
+                int[] range = ColumnHeights.range(world.getHighestBlockYAt(corner[0], corner[1]),
+                        rules.topY(), rules.minimumHeight(), world.getMaxHeight());
+                if (range == null) {
+                    continue;
+                }
+                for (int y = range[0]; y <= range[1]; y++) {
                     Location column = new Location(world, corner[0], y, corner[1]);
                     if (column.getBlock().getType().isAir()) {
                         pillars.put(column, data);

@@ -80,10 +80,11 @@ Staff claims and server land follow none of these.
 | Key | As shipped | What it does |
 |---|---|---|
 | `style` | `pillars` | How `/team map` is drawn: `pillars` in the world, or `chat`. `/team map pillars` and `/team map chat` ask for one either way |
-| `pillars.radius-chunks` | `2` | How far the pillars look for claims, 1 to 16 |
-| `pillars.height` | `12` | How high a column rises above the ground, 1 to 64 |
+| `pillars.radius-chunks` | `4` | How far the pillars look for claims, 1 to 16 |
+| `pillars.top-y` | `128` | A column runs from the ground to this layer, so it is seen from far away and from above |
+| `pillars.minimum-height` | `3` | What a column gets instead where the ground is already above `top-y`, 1 to 64 |
 | `pillars.seconds` | `20` | How long the pillars stay, 1 to 600 |
-| `pillars.materials` | 12 concretes | The blocks the columns may be made of; each team drawn takes one at random. Anything without collision is left out with a warning |
+| `pillars.materials` | 25 ores and blocks of ore | The blocks the columns may be made of; each team drawn takes one at random. Anything without collision is left out with a warning |
 | `chat.cell-blocks` | `8` | Blocks one character of the chat map stands for, 1 to 64; each is judged by the block in its middle |
 | `chat.radius-x` · `radius-z` | `12` · `6` | How many cells the chat map draws each way, 1 to 32 |
 
@@ -99,7 +100,8 @@ The wall a locked claim shows the players it refuses — red glass on its border
 |---|---|---|
 | `wall.enabled` | `true` | Whether a locked claim shows the wall at all |
 | `wall.material` | `RED_STAINED_GLASS` | The block it is drawn in |
-| `wall.height` | `3` | How high it rises above the ground, 1 to 32 |
+| `wall.top-y` | `128` | The wall runs from the ground to this layer |
+| `wall.minimum-height` | `3` | What it gets instead where the ground is already above `top-y`, 1 to 64 |
 | `wall.radius-blocks` | `24` | How much of the border is drawn around the player, 4 to 128 |
 | `wall.refresh-seconds` | `1` | How often it is redrawn as players move, 1 to 60 |
 

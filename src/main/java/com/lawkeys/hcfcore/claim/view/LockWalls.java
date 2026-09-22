@@ -90,12 +90,12 @@ public final class LockWalls {
                 continue;
             }
             for (int[] column : BorderColumns.outline(claim, at.getBlockX(), at.getBlockZ(), radius)) {
-                int ground = world.getHighestBlockYAt(column[0], column[1]);
-                for (int level = 1; level <= rules.height(); level++) {
-                    int y = ground + level;
-                    if (y >= world.getMaxHeight()) {
-                        break;
-                    }
+                int[] range = ColumnHeights.range(world.getHighestBlockYAt(column[0], column[1]),
+                        rules.topY(), rules.minimumHeight(), world.getMaxHeight());
+                if (range == null) {
+                    continue;
+                }
+                for (int y = range[0]; y <= range[1]; y++) {
                     Location block = new Location(world, column[0], y, column[1]);
                     if (block.getBlock().getType().isAir()) {
                         wall.put(block, glass);

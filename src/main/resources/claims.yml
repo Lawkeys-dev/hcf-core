@@ -107,27 +107,43 @@ map:
   style: pillars
   pillars:
     # How far to look for claims, in chunks.
-    radius-chunks: 2
-    # How high a column rises above the ground (1 to 64), and how long it stays.
-    height: 12
+    radius-chunks: 4
+    # A column runs from the ground to this layer, so it is seen from far away and
+    # from above. Ground already higher than it gets minimum-height blocks instead.
+    top-y: 128
+    minimum-height: 3
+    # How long the columns stay, in seconds.
     seconds: 20
-    # The blocks the columns may be made of. SOLID blocks only - anything without
-    # collision (a torch, a flower, a sign) is left out with a warning. Prefer
-    # full cubes: a slab or a pane reads as decoration on a corner. Each team
-    # drawn takes one of these at random.
+    # The blocks the columns may be made of - ores and blocks of ore, raw ore
+    # blocks included, which read well from a distance. SOLID blocks only: anything without collision (a
+    # torch, a flower, a sign) is left out with a warning, and a slab or a pane
+    # reads as decoration on a corner. Each team drawn takes one at random.
     materials:
-      - LIME_CONCRETE
-      - RED_CONCRETE
-      - BLUE_CONCRETE
-      - YELLOW_CONCRETE
-      - PURPLE_CONCRETE
-      - ORANGE_CONCRETE
-      - PINK_CONCRETE
-      - CYAN_CONCRETE
-      - MAGENTA_CONCRETE
-      - BROWN_CONCRETE
-      - LIGHT_BLUE_CONCRETE
-      - GREEN_CONCRETE
+      - DIAMOND_BLOCK
+      - EMERALD_BLOCK
+      - GOLD_BLOCK
+      - IRON_BLOCK
+      - LAPIS_BLOCK
+      - REDSTONE_BLOCK
+      - COAL_BLOCK
+      - COPPER_BLOCK
+      - NETHERITE_BLOCK
+      - AMETHYST_BLOCK
+      - QUARTZ_BLOCK
+      - RAW_IRON_BLOCK
+      - RAW_COPPER_BLOCK
+      - RAW_GOLD_BLOCK
+      - DIAMOND_ORE
+      - EMERALD_ORE
+      - GOLD_ORE
+      - IRON_ORE
+      - LAPIS_ORE
+      - REDSTONE_ORE
+      - COAL_ORE
+      - COPPER_ORE
+      - NETHER_QUARTZ_ORE
+      - NETHER_GOLD_ORE
+      - ANCIENT_DEBRIS
   chat:
     # How many blocks one cell stands for (1 to 64); each cell is judged by the
     # block in its middle. Then how many cells are drawn each way.
@@ -145,9 +161,12 @@ lock:
     enabled: true
     # A block; glass of any colour reads best. Members never see it.
     material: RED_STAINED_GLASS
-    # How high it rises above the ground (1 to 32), and how much of the border is
-    # drawn around the player, in blocks - the rest is too far to be seen.
-    height: 3
+    # It runs from the ground to this layer, like the map's pillars; ground
+    # already higher than it gets minimum-height blocks instead.
+    top-y: 128
+    minimum-height: 3
+    # How much of the border is drawn around the player, in blocks - the rest is
+    # too far to be seen, and drawing it would cost for nothing.
     radius-blocks: 24
     # How often it is redrawn as players move, in seconds.
     refresh-seconds: 1

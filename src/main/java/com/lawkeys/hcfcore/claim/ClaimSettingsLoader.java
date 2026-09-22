@@ -187,7 +187,8 @@ public final class ClaimSettingsLoader {
         return new ClaimSettings.LockRules(
                 wall.getBoolean("enabled", defaults.wallEnabled()),
                 material,
-                wall.getInt("height", defaults.height()),
+                wall.getInt("top-y", defaults.topY()),
+                wall.getInt("minimum-height", defaults.minimumHeight()),
                 wall.getInt("radius-blocks", defaults.radiusBlocks()),
                 wall.getLong("refresh-seconds", defaults.refreshSeconds()));
     }
@@ -230,7 +231,8 @@ public final class ClaimSettingsLoader {
                 chat == null ? defaults.chatRadiusX() : chat.getInt("radius-x", defaults.chatRadiusX()),
                 chat == null ? defaults.chatRadiusZ() : chat.getInt("radius-z", defaults.chatRadiusZ()),
                 pillars == null ? defaults.radiusChunks() : pillars.getInt("radius-chunks", defaults.radiusChunks()),
-                pillars == null ? defaults.pillarHeight() : pillars.getInt("height", defaults.pillarHeight()),
+                pillars == null ? defaults.topY() : pillars.getInt("top-y", defaults.topY()),
+                pillars == null ? defaults.minimumHeight() : pillars.getInt("minimum-height", defaults.minimumHeight()),
                 pillars == null ? defaults.seconds() : pillars.getLong("seconds", defaults.seconds()),
                 materials);
     }

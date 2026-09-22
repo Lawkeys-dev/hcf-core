@@ -3,7 +3,6 @@ package com.lawkeys.hcfcore.claim.listener;
 import com.lawkeys.hcfcore.claim.ClaimMessages;
 import com.lawkeys.hcfcore.claim.ClaimModule;
 import com.lawkeys.hcfcore.team.Team;
-import com.lawkeys.hcfcore.util.ChunkPosition;
 import com.lawkeys.hcfcore.util.RefusalThrottle;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -50,12 +49,19 @@ public final class ClaimLockListener implements Listener {
         this.module = Objects.requireNonNull(module, "module");
     }
 
+    /**
+     * Every block stepped into is checked, not every chunk: claims have been
+     * block-precise since 22/09/2026, so a claim's border runs inside a chunk and a
+     * step across it within one chunk went through unchecked - walking into a locked
+     * claim from a metre away (the project owner's report, 22/09/2026). The lookup
+     * itself is a hash of the chunk, so checking each block costs no more than
+     * checking each chunk did.
+     */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent event) {
         Location from = event.getFrom();
         Location to = event.getTo();
-        if (ChunkPosition.toChunk(from.getBlockX()) == ChunkPosition.toChunk(to.getBlockX())
-                && ChunkPosition.toChunk(from.getBlockZ()) == ChunkPosition.toChunk(to.getBlockZ())
+        if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()
                 && Objects.equals(from.getWorld(), to.getWorld())) {
             return;
         }
@@ -116,6 +122,42 @@ public final class ClaimLockListener implements Listener {
                         module.getTeams().getManager().getTeamOf(player.getUniqueId()).map(Team::getId).orElse(null))
                 .ifPresent(destination -> module.moveTo(player, destination, () -> module.getLang()
                         .send(player, ClaimMessages.LOCK_EXPELLED, "team", team.getName()))));
+    }
+
+    /**
+     * Reaching into a locked claim from outside: a door, a chest, a button, a lever.
+     * The lock closes the claim to everybody but its members, and a claim whose doors
+     * open from the border is not closed.
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onInteract(org.bukkit.event.player.PlayerInteractEvent event) {
+        if (event.getClickedBlock() == null) {
+            return;
+        }
+        refused(event.getPlayer(), event.getClickedBlock().getLocation()).ifPresent(team -> {
+            event.setCancelled(true);
+            tell(event.getPlayer(), team);
+        });
+    }
+
+    /** A boat, a horse or a minecart carrying a player into a locked claim. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onVehicleMove(org.bukkit.event.vehicle.VehicleMoveEvent event) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ()) {
+            return;
+        }
+        for (org.bukkit.entity.Entity passenger : event.getVehicle().getPassengers()) {
+            if (!(passenger instanceof Player player)) {
+                continue;
+            }
+            refused(player, to).ifPresent(team -> {
+                event.getVehicle().setVelocity(new org.bukkit.util.Vector());
+                event.getVehicle().teleport(from);
+                tell(player, team);
+            });
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

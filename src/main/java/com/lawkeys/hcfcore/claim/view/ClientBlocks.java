@@ -29,15 +29,21 @@ public final class ClientBlocks {
      */
     public void show(Player player, Map<Location, BlockData> blocks) {
         Map<Location, BlockData> before = shown.getOrDefault(player.getUniqueId(), Map.of());
+        Map<io.papermc.paper.math.Position, BlockData> changes = new HashMap<>();
         for (Map.Entry<Location, BlockData> was : before.entrySet()) {
-            if (!blocks.containsKey(was.getKey())) {
-                revert(player, was.getKey());
+            if (!blocks.containsKey(was.getKey()) && sameWorld(player, was.getKey())) {
+                changes.put(io.papermc.paper.math.Position.block(was.getKey()), was.getKey().getBlock().getBlockData());
             }
         }
         for (Map.Entry<Location, BlockData> block : blocks.entrySet()) {
             if (!block.getValue().equals(before.get(block.getKey()))) {
-                player.sendBlockChange(block.getKey(), block.getValue());
+                changes.put(io.papermc.paper.math.Position.block(block.getKey()), block.getValue());
             }
+        }
+        // One packet per chunk section rather than one per block: a wall up to layer
+        // 128 is thousands of blocks, and they are sent again whenever it moves.
+        if (!changes.isEmpty()) {
+            player.sendMultiBlockChange(changes);
         }
         if (blocks.isEmpty()) {
             shown.remove(player.getUniqueId());
@@ -54,8 +60,17 @@ public final class ClientBlocks {
     /** Sends every block back as it really is. */
     public void clear(Player player) {
         Map<Location, BlockData> before = shown.remove(player.getUniqueId());
-        if (before != null) {
-            before.keySet().forEach(at -> revert(player, at));
+        if (before == null) {
+            return;
+        }
+        Map<io.papermc.paper.math.Position, BlockData> real = new HashMap<>();
+        for (Location at : before.keySet()) {
+            if (sameWorld(player, at)) {
+                real.put(io.papermc.paper.math.Position.block(at), at.getBlock().getBlockData());
+            }
+        }
+        if (!real.isEmpty()) {
+            player.sendMultiBlockChange(real);
         }
     }
 
@@ -73,8 +88,12 @@ public final class ClientBlocks {
     }
 
     private static void revert(Player player, Location at) {
-        if (at.getWorld() != null && at.getWorld().equals(player.getWorld())) {
+        if (sameWorld(player, at)) {
             player.sendBlockChange(at, at.getBlock().getBlockData());
         }
+    }
+
+    private static boolean sameWorld(Player player, Location at) {
+        return at.getWorld() != null && at.getWorld().equals(player.getWorld());
     }
 }
