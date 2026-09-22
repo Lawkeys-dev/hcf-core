@@ -26,6 +26,20 @@ Every example on this page is **taken from the shipped `events.yml`**. Changes a
 | `announce-contests` | `true` | Say when a zone becomes contested, once per change |
 | `teamless-players-contest` | `true` | Whether a player with no team freezes a capture |
 
+## Weekly schedule
+
+Which event starts at what time on which day, every week — see the [guide](../../gameplay/events.md#the-weekly-schedule). `/schedule add|remove` write the `days` for you.
+
+```yaml title="events.yml"
+--8<-- "src/main/resources/events.yml:weekly-schedule"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | Whether the plugin starts the weekly starts; `/schedule` lists them either way |
+| `announce-before-minutes` | `[15, 5, 1]` | Minutes before every start, weekly or daily, to announce it |
+| `days.<day>` | `[]` | `"HH:mm <event id>"` entries, read in `time-zone`. A day is `monday`...`sunday`, or its first three letters |
+
 ## Zone holograms
 
 ```yaml title="events.yml"

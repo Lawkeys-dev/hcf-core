@@ -109,6 +109,11 @@ public final class EventModule {
     private SlideController slide;
     private TotemController totem;
     private BukkitTask tickTask;
+    /** Starts and stops any event by id: {@code /events start|stop} and the weekly schedule. */
+    private final EventLauncher launcher = new EventLauncher(this);
+    /** The weekly schedule and {@code /schedule}. */
+    private final com.lawkeys.hcfcore.events.planning.PlanningController planning =
+            new com.lawkeys.hcfcore.events.planning.PlanningController(this);
 
     /**
      * Other modules with something scheduled to show in {@code /events}.
@@ -136,6 +141,37 @@ public final class EventModule {
     /** @return Kill the King, which shares {@code /events} and {@code events.yml} with the captures */
     public KingEventController getKing() {
         return king;
+    }
+
+    public EventLauncher getLauncher() {
+        return launcher;
+    }
+
+    /** @return the weekly schedule, which {@code /schedule} lists and edits */
+    public com.lawkeys.hcfcore.events.planning.PlanningController getPlanning() {
+        return planning;
+    }
+
+    /** @return the id of every loaded event, whatever its engine, for tab completion */
+    public List<String> getEventIds() {
+        List<String> ids = new ArrayList<>();
+        settings.definitions().forEach(definition -> ids.add(definition.id()));
+        if (king != null) {
+            king.getSettings().definitions().forEach(definition -> ids.add(definition.id()));
+        }
+        if (conquest != null) {
+            conquest.getSettings().definitions().forEach(definition -> ids.add(definition.id()));
+        }
+        if (core != null) {
+            core.getSettings().definitions().forEach(definition -> ids.add(definition.id()));
+        }
+        if (slide != null) {
+            slide.getSettings().definitions().forEach(definition -> ids.add(definition.id()));
+        }
+        if (totem != null) {
+            totem.getSettings().definitions().forEach(definition -> ids.add(definition.id()));
+        }
+        return ids;
     }
 
     public StartupGate getStartup() {
@@ -334,6 +370,7 @@ public final class EventModule {
         }
 
         registerCommand("events", new EventsCommand(this));
+        registerCommand("schedule", new com.lawkeys.hcfcore.events.planning.ScheduleCommand(this));
         plugin.getServer().getPluginManager().registerEvents(new CitadelListener(this), plugin);
 
         if (settings.definitions().isEmpty()) {
@@ -378,6 +415,11 @@ public final class EventModule {
     }
 
     private void tick() {
+        try {
+            planning.tick(System.currentTimeMillis());
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "The weekly schedule tick failed", e);
+        }
         try {
             List<EventUpdate> updates = manager.tick(collectOccupants());
             for (EventUpdate update : updates) {
@@ -591,6 +633,8 @@ public final class EventModule {
             slide.getSettings().definitions().forEach(definition -> taken.add(definition.id().toLowerCase(java.util.Locale.ROOT)));
             totem.applySettings(TotemSettingsLoader.load(file, settings, taken, warn), settings.tickSeconds());
         }
+        planning.applySettings(com.lawkeys.hcfcore.events.planning.PlanningController.load(
+                file == null ? null : file.getConfigurationSection("weekly-schedule"), warn));
         if (manager != null) {
             // A reload may have changed the schedule or the times themselves; forget
             // the window so an event whose hour just passed is not fired retroactively.

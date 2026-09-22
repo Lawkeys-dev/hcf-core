@@ -86,6 +86,8 @@ The **role** column is the default minimum role in the player's team, set under 
 | Command | Aliases | Does | Permission |
 |---|---|---|---|
 | `/events` | `/event`, `/koth` | What runs and what is coming, refills and map phases included | everyone |
+| `/schedule` | `/planning`, `/eventschedule` | Every event start of the next seven days, day by day | everyone |
+| `/schedule add <day> <HH:mm> <event>` · `remove <day> <HH:mm> [event]` | | Edit the weekly schedule: the event then starts by itself every such day | `hcfcore.events.admin` |
 | `/events start <id>` · `stop <id>` | | Open or end any event — KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide, Totem | `hcfcore.events.admin` |
 | `/events create <type> <id>` | | A new event where you stand — `koth`, `citadel`, `ktk`, `conquest`, `dtc`, `lastbreak`, `slide`, `totem`, `minitotem` — copied from the shipped example, its territory claimed | `hcfcore.events.admin` |
 | `/events info <id>` | | What the event has and lacks — territory, zone(s), block, schedule — with the command for each | `hcfcore.events.admin` |

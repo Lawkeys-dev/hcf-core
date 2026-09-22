@@ -711,6 +711,37 @@ events:
       running: "{success}▶ Running now {dark}{bullet} {secondary}/events stop %event%"
       idle: "{muted}• Not running {dark}{bullet} {secondary}/events start %event%"
 
+  # /schedule and the weekly schedule (events.yml, weekly-schedule).
+  planning:
+    header: "{muted}&m------&r {primary}Event schedule {muted}&m------"
+    # %day% is today, tomorrow or a day's name below; %date% is written with
+    # date-format (Java DateTimeFormatter letters: dd day, MM month).
+    day: "{secondary}%day% {dark}{bullet} {muted}%date%"
+    today: "Today"
+    tomorrow: "Tomorrow"
+    date-format: "dd/MM"
+    entry: "  {muted}%time% {dark}- %event%"
+    empty: "{muted}No event is planned in the next seven days."
+    disabled: "{warning}The weekly schedule is off {muted}(events.yml, weekly-schedule) - only the events' daily times run."
+    soon: "{prefix}%event% {muted}starts in {secondary}%time%{muted}."
+    usage: "{error}Usage: {secondary}/schedule {muted}| {secondary}/schedule add <day> <HH:mm> <event> {muted}| {secondary}/schedule remove <day> <HH:mm> [event]"
+    invalid-day: "{error}'%day%' is not a day of the week."
+    invalid-time: "{error}'%time%' is not a time {muted}- HH:mm, like 18:00."
+    unknown-event: "{error}There is no event called '%event%'."
+    added: "{success}%event% {success}now starts every {secondary}%day% {success}at {secondary}%time%{success}."
+    already-planned: "{error}%event% already starts on %day% at %time%."
+    removed: "{success}Removed {secondary}%count% {success}start(s) on {secondary}%day% {success}at {secondary}%time%{success}."
+    not-planned: "{error}Nothing is planned on %day% at %time%."
+    write-failed: "{error}Could not read or write events.yml - see the console."
+    days:
+      monday: "Monday"
+      tuesday: "Tuesday"
+      wednesday: "Wednesday"
+      thursday: "Thursday"
+      friday: "Friday"
+      saturday: "Saturday"
+      sunday: "Sunday"
+
 # ---------------------------------------------------------------------------
 # Resource nodes (Mountain / Glowstone Mountain / Ore Mountain)
 # ---------------------------------------------------------------------------

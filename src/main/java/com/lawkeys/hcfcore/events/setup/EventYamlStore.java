@@ -35,7 +35,7 @@ import java.util.logging.Level;
  * kilobytes, and staff type these commands rarely enough that the write is not
  * worth an async round trip.
  */
-final class EventYamlStore {
+public final class EventYamlStore {
 
     private static final String FILE = "events.yml";
 
@@ -43,7 +43,7 @@ final class EventYamlStore {
     }
 
     @FunctionalInterface
-    interface Edit {
+    public interface Edit {
         /** @return {@code true} to save the change, {@code false} to discard it */
         boolean apply(ConfigurationSection root);
     }
@@ -55,7 +55,7 @@ final class EventYamlStore {
      *         file with the one section being edited (found in the final audit,
      *         22/09/2026).
      */
-    static boolean edit(Plugin plugin, Edit edit) {
+    public static boolean edit(Plugin plugin, Edit edit) {
         File file = new File(plugin.getDataFolder(), FILE);
         Optional<YamlConfiguration> loaded = read(plugin);
         if (loaded.isEmpty()) {
@@ -78,7 +78,7 @@ final class EventYamlStore {
      * @return the server's {@code events.yml} as it is on disk, comments kept - empty,
      *         after a console warning, when it does not parse
      */
-    static Optional<YamlConfiguration> read(Plugin plugin) {
+    public static Optional<YamlConfiguration> read(Plugin plugin) {
         File file = new File(plugin.getDataFolder(), FILE);
         if (!file.exists() && plugin.getResource(FILE) != null) {
             plugin.saveResource(FILE, false);

@@ -199,6 +199,23 @@ The Mini Totem is the same event with `height: 3`:
 
 The scoreboard shows `%totem_line%`: the team on its way and how many blocks it has broken.
 
+## The weekly schedule
+
+`/schedule` (`/planning`) lists every event start of the next seven days, day by day — for everybody. It merges two sources:
+
+- each event's own **daily** times, its `schedule` key — the same every day;
+- the **weekly schedule**, `weekly-schedule` in `events.yml`: which event starts at what time on which day of the week. The plugin starts them itself, exactly as `/events start` would.
+
+Staff edit the weekly schedule in game (`hcfcore.events.admin`), and the change applies at once:
+
+```text
+/schedule add friday 20:00 koth          # every Friday at 20:00
+/schedule add sat 18:00 conquest         # a day's first three letters work too
+/schedule remove friday 20:00 [koth]     # everything at that time, or only that event
+```
+
+Every start — weekly or daily — is announced `announce-before-minutes` ahead (15, 5 and 1 minute as shipped). A start that is refused — the event already running, another of its kind running, too few players for Kill the King — is reported in the console and skipped. Nothing is caught up: a time that passes while the server is down is missed.
+
 ## Setting up an event in game
 
 Every kind of event — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break, Slide, Totem, Mini Totem — is created, set up and deleted with the **same commands**, without touching `events.yml` by hand:

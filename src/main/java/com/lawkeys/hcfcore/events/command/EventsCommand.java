@@ -2,10 +2,10 @@ package com.lawkeys.hcfcore.events.command;
 
 import com.lawkeys.hcfcore.events.AgendaEntry;
 import com.lawkeys.hcfcore.events.CaptureEventDefinition;
+import com.lawkeys.hcfcore.events.EventLauncher;
 import com.lawkeys.hcfcore.events.EventManager;
 import com.lawkeys.hcfcore.events.EventMessages;
 import com.lawkeys.hcfcore.events.EventModule;
-import com.lawkeys.hcfcore.events.EventUpdate;
 import com.lawkeys.hcfcore.events.RunningEvent;
 import com.lawkeys.hcfcore.events.Standing;
 import com.lawkeys.hcfcore.events.setup.EventSetup;
@@ -13,13 +13,11 @@ import com.lawkeys.hcfcore.events.conquest.ConquestController;
 import com.lawkeys.hcfcore.events.conquest.ConquestDefinition;
 import com.lawkeys.hcfcore.events.conquest.ConquestMessages;
 import com.lawkeys.hcfcore.events.conquest.ConquestRun;
-import com.lawkeys.hcfcore.events.conquest.ConquestUpdate;
 import com.lawkeys.hcfcore.events.core.CoreEventController;
 import com.lawkeys.hcfcore.events.core.CoreEventDefinition;
 import com.lawkeys.hcfcore.events.core.CoreEventKind;
 import com.lawkeys.hcfcore.events.core.CoreMessages;
 import com.lawkeys.hcfcore.events.core.CoreRun;
-import com.lawkeys.hcfcore.events.core.CoreUpdate;
 import com.lawkeys.hcfcore.events.core.CoreWinRule;
 import com.lawkeys.hcfcore.events.king.KingEventController;
 import com.lawkeys.hcfcore.events.king.KingEventDefinition;
@@ -30,12 +28,10 @@ import com.lawkeys.hcfcore.events.slide.SlideController;
 import com.lawkeys.hcfcore.events.slide.SlideDefinition;
 import com.lawkeys.hcfcore.events.slide.SlideMessages;
 import com.lawkeys.hcfcore.events.slide.SlideRun;
-import com.lawkeys.hcfcore.events.slide.SlideUpdate;
 import com.lawkeys.hcfcore.events.totem.TotemController;
 import com.lawkeys.hcfcore.events.totem.TotemDefinition;
 import com.lawkeys.hcfcore.events.totem.TotemMessages;
 import com.lawkeys.hcfcore.events.totem.TotemRun;
-import com.lawkeys.hcfcore.events.totem.TotemUpdate;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.util.Durations;
 import org.bukkit.command.Command;
@@ -341,189 +337,12 @@ public final class EventsCommand implements TabExecutor {
         if (module.getStartup().refuseCommand(sender)) {
             return true;
         }
-
-        String id = args[1];
-        Optional<CaptureEventDefinition> definition = module.getSettings().find(id);
-        if (definition.isEmpty()) {
-            Optional<KingEventDefinition> king = module.getKing() == null
-                    ? Optional.empty() : module.getKing().getSettings().find(id);
-            if (king.isPresent()) {
-                return kingAction(sender, king.get(), starting);
-            }
-            Optional<ConquestDefinition> conquest = module.getConquest() == null
-                    ? Optional.empty() : module.getConquest().getSettings().find(id);
-            if (conquest.isPresent()) {
-                return conquestAction(sender, conquest.get(), starting);
-            }
-            Optional<CoreEventDefinition> coreEvent = module.getCore() == null
-                    ? Optional.empty() : module.getCore().getSettings().find(id);
-            if (coreEvent.isPresent()) {
-                return coreAction(sender, coreEvent.get(), starting);
-            }
-            Optional<SlideDefinition> slideEvent = module.getSlide() == null
-                    ? Optional.empty() : module.getSlide().getSettings().find(id);
-            if (slideEvent.isPresent()) {
-                return slideAction(sender, slideEvent.get(), starting);
-            }
-            Optional<TotemDefinition> totemEvent = module.getTotem() == null
-                    ? Optional.empty() : module.getTotem().getSettings().find(id);
-            if (totemEvent.isPresent()) {
-                return totemAction(sender, totemEvent.get(), starting);
-            }
-            module.getLang().send(sender, EventMessages.UNKNOWN_EVENT, "event", id);
-            return true;
+        EventLauncher.Result result = starting
+                ? module.getLauncher().start(args[1])
+                : module.getLauncher().stop(args[1]);
+        if (result.messageKey() != null) {
+            module.getLang().send(sender, result.messageKey(), "event", result.event());
         }
-
-        Optional<EventUpdate> update = starting
-                ? manager.start(definition.get())
-                : manager.stop(definition.get().id());
-
-        if (update.isEmpty()) {
-            module.getLang().send(sender,
-                    starting ? EventMessages.ALREADY_ACTIVE : EventMessages.NOT_ACTIVE,
-                    "event", definition.get().displayName());
-            return true;
-        }
-
-        module.broadcast(update.get().messageKey(), update.get().placeholders());
-        module.getLang().send(sender,
-                starting ? EventMessages.ADMIN_STARTED : EventMessages.ADMIN_STOPPED,
-                "event", definition.get().displayName());
-        return true;
-    }
-
-    /**
-     * Start or stop a Kill the King. Starting only opens it: the King is drawn and
-     * announced a few ticks later, once a spot in the warzone is found.
-     */
-    private boolean kingAction(CommandSender sender, KingEventDefinition definition, boolean starting) {
-        KingEventController king = module.getKing();
-        Optional<KingRun> current = king.getManager().getCurrent();
-        if (starting) {
-            if (current.isPresent()) {
-                // Only one King at a time; say which event holds the slot.
-                boolean same = current.get().getDefinition().id().equalsIgnoreCase(definition.id());
-                module.getLang().send(sender, same ? EventMessages.ALREADY_ACTIVE : KingMessages.ALREADY_RUNNING,
-                        "event", current.get().getDefinition().displayName());
-                return true;
-            }
-            king.start(definition);
-            // Called off at once - no warzone, a ceiling, too few players: the reason
-            // has just been broadcast, and "Started" after it would contradict it.
-            if (king.getManager().getCurrent().isPresent()) {
-                module.getLang().send(sender, EventMessages.ADMIN_STARTED, "event", definition.displayName());
-            }
-            return true;
-        }
-        if (running(king.getManager(), definition).isEmpty() || !king.stop()) {
-            module.getLang().send(sender, EventMessages.NOT_ACTIVE, "event", definition.displayName());
-            return true;
-        }
-        module.getLang().send(sender, EventMessages.ADMIN_STOPPED, "event", definition.displayName());
-        return true;
-    }
-
-    /** Start or stop a Conquest: one runs at a time. */
-    private boolean conquestAction(CommandSender sender, ConquestDefinition definition, boolean starting) {
-        ConquestController conquest = module.getConquest();
-        Optional<ConquestRun> current = conquest.getManager().getCurrent();
-        if (starting) {
-            Optional<ConquestUpdate> started = conquest.getManager().start(definition);
-            if (started.isEmpty()) {
-                boolean same = current.isPresent() && current.get().getDefinition().id().equalsIgnoreCase(definition.id());
-                module.getLang().send(sender, same ? EventMessages.ALREADY_ACTIVE : ConquestMessages.ALREADY_RUNNING,
-                        "event", current.map(run -> run.getDefinition().displayName()).orElse(definition.displayName()));
-                return true;
-            }
-            conquest.announce(started.get());
-            module.getLang().send(sender, EventMessages.ADMIN_STARTED, "event", definition.displayName());
-            return true;
-        }
-        if (current.isEmpty() || !current.get().getDefinition().id().equalsIgnoreCase(definition.id())) {
-            module.getLang().send(sender, EventMessages.NOT_ACTIVE, "event", definition.displayName());
-            return true;
-        }
-        conquest.getManager().stop().ifPresent(conquest::announce);
-        module.getLang().send(sender, EventMessages.ADMIN_STOPPED, "event", definition.displayName());
-        return true;
-    }
-
-    /** Start or stop a DTC or Last Break: one runs at a time, like a Conquest. */
-    private boolean coreAction(CommandSender sender, CoreEventDefinition definition, boolean starting) {
-        CoreEventController core = module.getCore();
-        Optional<CoreRun> current = core.getManager().getCurrent();
-        if (starting) {
-            Optional<CoreUpdate> started = core.getManager().start(definition);
-            if (started.isEmpty()) {
-                // DTC and Last Break share one run slot: whichever of the two is
-                // actually running - not necessarily this definition's own kind,
-                // which is why the message names the RUNNING one, never assuming
-                // "one DTC at a time" for a Last Break that happens to be running.
-                boolean same = current.isPresent() && current.get().getDefinition().id().equalsIgnoreCase(definition.id());
-                module.getLang().send(sender, same ? EventMessages.ALREADY_ACTIVE : CoreMessages.CORE_ALREADY_RUNNING,
-                        "event", current.map(run -> run.getDefinition().displayName()).orElse(definition.displayName()));
-                return true;
-            }
-            core.announce(started.get());
-            module.getLang().send(sender, EventMessages.ADMIN_STARTED, "event", definition.displayName());
-            return true;
-        }
-        if (current.isEmpty() || !current.get().getDefinition().id().equalsIgnoreCase(definition.id())) {
-            module.getLang().send(sender, EventMessages.NOT_ACTIVE, "event", definition.displayName());
-            return true;
-        }
-        core.getManager().stop().ifPresent(core::announce);
-        module.getLang().send(sender, EventMessages.ADMIN_STOPPED, "event", definition.displayName());
-        return true;
-    }
-
-    /** Start or stop a Totem: one runs at a time. */
-    private boolean totemAction(CommandSender sender, TotemDefinition definition, boolean starting) {
-        TotemController totem = module.getTotem();
-        Optional<TotemRun> current = totem.getManager().getCurrent();
-        if (starting) {
-            Optional<TotemUpdate> started = totem.getManager().start(definition);
-            if (started.isEmpty()) {
-                boolean same = current.isPresent() && current.get().getDefinition().id().equalsIgnoreCase(definition.id());
-                module.getLang().send(sender, same ? EventMessages.ALREADY_ACTIVE : TotemMessages.ALREADY_RUNNING,
-                        "event", current.map(run -> run.getDefinition().displayName()).orElse(definition.displayName()));
-                return true;
-            }
-            totem.announce(started.get());
-            module.getLang().send(sender, EventMessages.ADMIN_STARTED, "event", definition.displayName());
-            return true;
-        }
-        if (current.isEmpty() || !current.get().getDefinition().id().equalsIgnoreCase(definition.id())) {
-            module.getLang().send(sender, EventMessages.NOT_ACTIVE, "event", definition.displayName());
-            return true;
-        }
-        totem.getManager().stop().ifPresent(totem::announce);
-        module.getLang().send(sender, EventMessages.ADMIN_STOPPED, "event", definition.displayName());
-        return true;
-    }
-
-    /** Start or stop a Slide: one runs at a time, like a Conquest. */
-    private boolean slideAction(CommandSender sender, SlideDefinition definition, boolean starting) {
-        SlideController slide = module.getSlide();
-        Optional<SlideRun> current = slide.getManager().getCurrent();
-        if (starting) {
-            Optional<SlideUpdate> started = slide.getManager().start(definition);
-            if (started.isEmpty()) {
-                boolean same = current.isPresent() && current.get().getDefinition().id().equalsIgnoreCase(definition.id());
-                module.getLang().send(sender, same ? EventMessages.ALREADY_ACTIVE : SlideMessages.ALREADY_RUNNING,
-                        "event", current.map(run -> run.getDefinition().displayName()).orElse(definition.displayName()));
-                return true;
-            }
-            slide.announce(started.get());
-            module.getLang().send(sender, EventMessages.ADMIN_STARTED, "event", definition.displayName());
-            return true;
-        }
-        if (current.isEmpty() || !current.get().getDefinition().id().equalsIgnoreCase(definition.id())) {
-            module.getLang().send(sender, EventMessages.NOT_ACTIVE, "event", definition.displayName());
-            return true;
-        }
-        slide.getManager().stop().ifPresent(slide::announce);
-        module.getLang().send(sender, EventMessages.ADMIN_STOPPED, "event", definition.displayName());
         return true;
     }
 

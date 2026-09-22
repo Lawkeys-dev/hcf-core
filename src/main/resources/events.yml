@@ -84,6 +84,36 @@ setup:
   zone-height: 10
 # --8<-- [end:setup]
 
+# --8<-- [start:weekly-schedule]
+# The weekly schedule: which event starts at what time on which day, every week -
+# listed for everybody with /schedule, and started by the plugin itself exactly
+# as /events start would. It sits alongside each event's own "schedule" (daily
+# times), which /schedule lists too.
+#
+# Each day holds "HH:mm <event id>" entries, read in time-zone above. Staff edit
+# it in game with /schedule add <day> <HH:mm> <event> and
+# /schedule remove <day> <HH:mm> [event], which write here.
+#
+# A start refused - the event already running, another one of its kind running,
+# too few players for Kill the King - is reported in the console and skipped.
+# Nothing is caught up: a time that passes while the server is down is missed.
+weekly-schedule:
+  enabled: true
+  # Minutes before every start - weekly or daily - to announce it. [] for none.
+  announce-before-minutes: [15, 5, 1]
+  # Shipped empty: the example events are not on your map yet. For instance:
+  #   friday: ["20:00 koth"]
+  #   saturday: ["18:00 conquest", "21:00 citadel"]
+  days:
+    monday: []
+    tuesday: []
+    wednesday: []
+    thursday: []
+    friday: []
+    saturday: []
+    sunday: []
+# --8<-- [end:weekly-schedule]
+
 events:
 
   # ------------------------------------------------------------------

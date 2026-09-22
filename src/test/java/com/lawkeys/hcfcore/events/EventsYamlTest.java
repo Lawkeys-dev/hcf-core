@@ -73,6 +73,17 @@ class EventsYamlTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void theWeeklyScheduleShipsOnButEmptyForEveryDay() throws IOException {
+        Map<String, Object> weekly = (Map<String, Object>) load().get("weekly-schedule");
+        assertNotNull(weekly);
+        assertEquals(Boolean.TRUE, weekly.get("enabled"));
+        Map<String, Object> days = (Map<String, Object>) weekly.get("days");
+        assertEquals(7, days.size());
+        days.values().forEach(entries -> assertEquals(List.of(), entries));
+    }
+
+    @Test
     void setupSectionShipsWithPositiveDefaults() throws IOException {
         Map<String, Object> root = load();
         @SuppressWarnings("unchecked")
