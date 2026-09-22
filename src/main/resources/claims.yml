@@ -49,6 +49,11 @@ wand:
   # The block the corner columns are shown in, and how high they rise (1 to 64).
   pillar-material: GLASS
   pillar-height: 12
+  # One block in every few is this instead, counting from the bottom: a column of
+  # glass alone is invisible to players using a clear-glass resource pack
+  # (0 = marker, 1 = pillar: 0111110111110 with pillar-marker-every: 6).
+  pillar-marker-material: GLOWSTONE
+  pillar-marker-every: 6
 # --8<-- [end:wand]
 
 # --8<-- [start:price]
@@ -93,10 +98,60 @@ placement:
 
 # --8<-- [start:map]
 map:
-  # How many blocks one cell of /team map stands for (1 to 64); each cell is
-  # judged by the block in its middle.
-  cell-blocks: 8
+  # How /team map is drawn:
+  #   pillars - columns on the corners of every claim around you, in the world,
+  #             sent to you alone (nothing is ever placed), one kind of block per
+  #             team, drawn at random each time and named in the chat under it
+  #   chat    - the grid of characters, one cell per few blocks
+  # /team map pillars and /team map chat ask for one or the other whatever this says.
+  style: pillars
+  pillars:
+    # How far to look for claims, in chunks.
+    radius-chunks: 2
+    # How high a column rises above the ground (1 to 64), and how long it stays.
+    height: 12
+    seconds: 20
+    # The blocks the columns may be made of. SOLID blocks only - anything without
+    # collision (a torch, a flower, a sign) is left out with a warning. Prefer
+    # full cubes: a slab or a pane reads as decoration on a corner. Each team
+    # drawn takes one of these at random.
+    materials:
+      - LIME_CONCRETE
+      - RED_CONCRETE
+      - BLUE_CONCRETE
+      - YELLOW_CONCRETE
+      - PURPLE_CONCRETE
+      - ORANGE_CONCRETE
+      - PINK_CONCRETE
+      - CYAN_CONCRETE
+      - MAGENTA_CONCRETE
+      - BROWN_CONCRETE
+      - LIGHT_BLUE_CONCRETE
+      - GREEN_CONCRETE
+  chat:
+    # How many blocks one cell stands for (1 to 64); each cell is judged by the
+    # block in its middle. Then how many cells are drawn each way.
+    cell-blocks: 8
+    radius-x: 12
+    radius-z: 6
 # --8<-- [end:map]
+
+# --8<-- [start:lock]
+# /team lockclaim, during SOTW: nobody but the team's members may enter the
+# claim. The players it refuses see a wall of red glass around it - sent to them
+# alone, like the claiming wand's columns, never placed in the world.
+lock:
+  wall:
+    enabled: true
+    # A block; glass of any colour reads best. Members never see it.
+    material: RED_STAINED_GLASS
+    # How high it rises above the ground (1 to 32), and how much of the border is
+    # drawn around the player, in blocks - the rest is too far to be seen.
+    height: 3
+    radius-blocks: 24
+    # How often it is redrawn as players move, in seconds.
+    refresh-seconds: 1
+# --8<-- [end:lock]
 
 # --8<-- [start:protection]
 protection:

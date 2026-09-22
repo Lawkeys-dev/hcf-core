@@ -4,6 +4,8 @@ import com.lawkeys.hcfcore.util.Durations;
 import com.lawkeys.hcfcore.team.TeamRole;
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -50,7 +52,8 @@ public final class ClaimSettingsLoader {
                 loadWarzone(section.getConfigurationSection("warzone"), defaults.warzone(), warn),
                 loadStuck(section.getConfigurationSection("stuck"), defaults.stuck(), warn),
                 loadWand(section.getConfigurationSection("wand"), defaults.wand(), warn),
-                Math.max(1, Math.min(64, section.getInt("map.cell-blocks", defaults.mapCellBlocks()))));
+                loadLock(section.getConfigurationSection("lock"), defaults.lock(), warn),
+                loadMap(section.getConfigurationSection("map"), defaults.map(), warn));
     }
 
     private static ClaimSettings.StuckRules loadStuck(ConfigurationSection section,
@@ -153,11 +156,95 @@ public final class ClaimSettingsLoader {
             warn.accept("wand.pillar-material '" + pillar + "' is not a block; using " + defaults.pillarMaterial() + ".");
             pillar = defaults.pillarMaterial();
         }
+        String marker = section.getString("pillar-marker-material", defaults.pillarMarkerMaterial());
+        if (!isFullBlock(marker)) {
+            warn.accept("wand.pillar-marker-material '" + marker + "' is not a block; using "
+                    + defaults.pillarMarkerMaterial() + ".");
+            marker = defaults.pillarMarkerMaterial();
+        }
         return new ClaimSettings.WandRules(material,
                 section.getString("name", defaults.name()),
                 section.isList("lore") ? section.getStringList("lore") : defaults.lore(),
                 pillar,
+                marker,
+                Math.max(1, Math.min(64, section.getInt("pillar-marker-every", defaults.pillarMarkerEvery()))),
                 Math.max(1, Math.min(64, section.getInt("pillar-height", defaults.pillarHeight()))));
+    }
+
+    /** Reads {@code lock.wall}: what a locked claim shows the players it refuses. */
+    private static ClaimSettings.LockRules loadLock(ConfigurationSection section,
+                                                    ClaimSettings.LockRules defaults, Consumer<String> warn) {
+        ConfigurationSection wall = section == null ? null : section.getConfigurationSection("wall");
+        if (wall == null) {
+            return defaults;
+        }
+        String material = wall.getString("material", defaults.material());
+        org.bukkit.Material block = material == null ? null : org.bukkit.Material.matchMaterial(material.trim());
+        if (block == null || !block.isBlock()) {
+            warn.accept("lock.wall.material '" + material + "' is not a block; using " + defaults.material() + ".");
+            material = defaults.material();
+        }
+        return new ClaimSettings.LockRules(
+                wall.getBoolean("enabled", defaults.wallEnabled()),
+                material,
+                wall.getInt("height", defaults.height()),
+                wall.getInt("radius-blocks", defaults.radiusBlocks()),
+                wall.getLong("refresh-seconds", defaults.refreshSeconds()));
+    }
+
+    /**
+     * Reads {@code map}. A pillar material that is not a full, solid block is left out
+     * with a warning: a slab or a torch on a corner reads as decoration, and glass
+     * panes and the like cost the client more to draw than a cube.
+     */
+    private static ClaimSettings.MapRules loadMap(ConfigurationSection section,
+                                                  ClaimSettings.MapRules defaults, Consumer<String> warn) {
+        if (section == null) {
+            return defaults;
+        }
+        String styleName = section.getString("style", defaults.style().name());
+        ClaimSettings.MapStyle style = ClaimSettings.MapStyle.of(styleName);
+        if (style == null) {
+            warn.accept("map.style '" + styleName + "' is not pillars or chat; using "
+                    + defaults.style().name().toLowerCase(java.util.Locale.ROOT) + ".");
+            style = defaults.style();
+        }
+        ConfigurationSection chat = section.getConfigurationSection("chat");
+        ConfigurationSection pillars = section.getConfigurationSection("pillars");
+        List<String> materials = new ArrayList<>();
+        for (String material : pillars == null ? List.<String>of() : pillars.getStringList("materials")) {
+            if (isFullBlock(material)) {
+                materials.add(material.trim().toUpperCase(java.util.Locale.ROOT));
+            } else {
+                warn.accept("map.pillars.materials: '" + material + "' is not a full block; left out.");
+            }
+        }
+        if (materials.isEmpty()) {
+            if (pillars != null && pillars.isList("materials")) {
+                warn.accept("map.pillars.materials holds no full block; the built-in list is used.");
+            }
+            materials = defaults.materials();
+        }
+        return new ClaimSettings.MapRules(style,
+                chat == null ? defaults.cellBlocks() : chat.getInt("cell-blocks", defaults.cellBlocks()),
+                chat == null ? defaults.chatRadiusX() : chat.getInt("radius-x", defaults.chatRadiusX()),
+                chat == null ? defaults.chatRadiusZ() : chat.getInt("radius-z", defaults.chatRadiusZ()),
+                pillars == null ? defaults.radiusChunks() : pillars.getInt("radius-chunks", defaults.radiusChunks()),
+                pillars == null ? defaults.pillarHeight() : pillars.getInt("height", defaults.pillarHeight()),
+                pillars == null ? defaults.seconds() : pillars.getLong("seconds", defaults.seconds()),
+                materials);
+    }
+
+    /**
+     * @return whether the name is a solid block - what a column may be made of. Solid
+     *         rather than occluding: glowstone and glass are the two the wand itself
+     *         uses, and neither is occluding (found when the marker block was first
+     *         configured, 22/09/2026). What this keeps out is what has no collision at
+     *         all - a torch, a flower, a sign - which reads as decoration on a corner.
+     */
+    private static boolean isFullBlock(String name) {
+        org.bukkit.Material material = name == null ? null : org.bukkit.Material.matchMaterial(name.trim());
+        return material != null && material.isBlock() && material.isSolid();
     }
 
     private static ClaimSettings.PlacementRules loadPlacement(ConfigurationSection section,

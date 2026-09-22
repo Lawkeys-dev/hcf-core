@@ -28,6 +28,8 @@ Claims are rectangles drawn block by block with the wand — left-click one corn
 | `name`, `lore` | see above | Its name and description |
 | `pillar-material` | `GLASS` | The columns shown, to the holder only, on the corners |
 | `pillar-height` | `12` | How high they rise, 1 to 64 |
+| `pillar-marker-material` | `GLOWSTONE` | One block in every few is this instead — a column of glass alone is invisible to a player using a clear-glass resource pack |
+| `pillar-marker-every` | `6` | Which block: `6` gives a marker, then five of `pillar-material`, and so on (`0111110111110`) |
 
 ## Price
 
@@ -77,7 +79,29 @@ Staff claims and server land follow none of these.
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `cell-blocks` | `8` | Blocks one character of `/team map` stands for, 1 to 64; each is judged by the block in its middle |
+| `style` | `pillars` | How `/team map` is drawn: `pillars` in the world, or `chat`. `/team map pillars` and `/team map chat` ask for one either way |
+| `pillars.radius-chunks` | `2` | How far the pillars look for claims, 1 to 16 |
+| `pillars.height` | `12` | How high a column rises above the ground, 1 to 64 |
+| `pillars.seconds` | `20` | How long the pillars stay, 1 to 600 |
+| `pillars.materials` | 12 concretes | The blocks the columns may be made of; each team drawn takes one at random. Anything without collision is left out with a warning |
+| `chat.cell-blocks` | `8` | Blocks one character of the chat map stands for, 1 to 64; each is judged by the block in its middle |
+| `chat.radius-x` · `radius-z` | `12` · `6` | How many cells the chat map draws each way, 1 to 32 |
+
+## Lock wall
+
+The wall a locked claim shows the players it refuses — red glass on its border, sent to that player alone, like the wand's columns. Members see nothing.
+
+```yaml title="claims.yml"
+--8<-- "src/main/resources/claims.yml:lock"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `wall.enabled` | `true` | Whether a locked claim shows the wall at all |
+| `wall.material` | `RED_STAINED_GLASS` | The block it is drawn in |
+| `wall.height` | `3` | How high it rises above the ground, 1 to 32 |
+| `wall.radius-blocks` | `24` | How much of the border is drawn around the player, 4 to 128 |
+| `wall.refresh-seconds` | `1` | How often it is redrawn as players move, 1 to 60 |
 
 ## Protection
 

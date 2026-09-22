@@ -50,6 +50,15 @@ public final class ClaimModule {
     private ClaimManager manager;
     private BukkitTask saveTask;
     private final com.lawkeys.hcfcore.claim.wand.WandSessions wandSessions;
+    /** Blocks shown to one player only: {@code /team map}'s pillars, a locked claim's wall. */
+    private final com.lawkeys.hcfcore.claim.view.ClientBlocks pillarView =
+            new com.lawkeys.hcfcore.claim.view.ClientBlocks();
+    private final com.lawkeys.hcfcore.claim.view.ClientBlocks wallView =
+            new com.lawkeys.hcfcore.claim.view.ClientBlocks();
+    private final com.lawkeys.hcfcore.claim.view.MapPillars mapPillars =
+            new com.lawkeys.hcfcore.claim.view.MapPillars(this, pillarView);
+    private final com.lawkeys.hcfcore.claim.view.LockWalls lockWalls =
+            new com.lawkeys.hcfcore.claim.view.LockWalls(this, wallView);
 
     /**
      * @param warmups the countdowns behind {@code /team hq}, {@code /team base} and
@@ -72,6 +81,11 @@ public final class ClaimModule {
      */
     public com.lawkeys.hcfcore.claim.wand.WandSessions getWandSessions() {
         return wandSessions;
+    }
+
+    /** @return {@code /team map} drawn in the world, on the corners of the claims around */
+    public com.lawkeys.hcfcore.claim.view.MapPillars getMapPillars() {
+        return mapPillars;
     }
 
     public WarmupModule getWarmups() {
@@ -201,6 +215,10 @@ public final class ClaimModule {
         plugin.getServer().getPluginManager()
                 .registerEvents(new com.lawkeys.hcfcore.claim.listener.ClaimLockListener(this), plugin);
 
+        plugin.getServer().getPluginManager()
+                .registerEvents(new com.lawkeys.hcfcore.claim.view.ViewListener(pillarView, wallView), plugin);
+        lockWalls.start();
+
         for (TeamSubCommand subCommand : ClaimSubCommands.all(this)) {
             teams.registerSubCommand(subCommand);
         }
@@ -213,10 +231,17 @@ public final class ClaimModule {
         this.settings = ClaimSettingsLoader.load(
                 ConfigManager.loadFile(plugin, "claims.yml"),
                 warning -> plugin.getLogger().warning("claims.yml: " + warning));
+        if (manager != null) {
+            // The wall may have been switched off, or its rate changed: redraw from
+            // nothing rather than leave a wall nobody can see the settings behind.
+            lockWalls.start();
+        }
     }
 
     /** Stops the periodic save and writes what is still pending, synchronously. */
     public void disable() {
+        lockWalls.stop();
+        mapPillars.stop();
         if (saveTask != null) {
             saveTask.cancel();
             saveTask = null;

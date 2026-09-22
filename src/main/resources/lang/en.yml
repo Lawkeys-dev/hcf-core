@@ -326,7 +326,13 @@ claim:
     count: "{muted}Territory: {secondary}%count% {muted}claim(s), {secondary}%area% {muted}blocks"
 
   map:
-    # %cell% is how many blocks one character stands for (claims.yml, map.cell-blocks).
+    # /team map with pillars (claims.yml, map.style): columns on the corners of the
+    # claims around you, shown to you alone for %seconds% seconds.
+    pillars-header: "{success}%claims% claim(s) {muted}around you, marked for {secondary}%seconds%s{muted}:"
+    pillars-team: "{muted}• {secondary}%team% {dark}{bullet} {muted}%block%"
+    pillars-empty: "{muted}No claim within %radius% chunk(s) of you."
+    style-unknown: "{error}'%style%' is not a map style {muted}- {secondary}pillars {muted}or {secondary}chat{muted}."
+    # %cell% is how many blocks one character stands for (claims.yml, map.chat.cell-blocks).
     header: "{muted}&m--------&r {secondary}Territory around %x%, %z% {muted}(1 = %cell% blocks) &m--------"
     row: "%row%"
     legend: "{muted}Legend: {warning}+ {muted}you  {success}# {muted}your team  {primary}# {muted}ally  {error}# {muted}enemy  {secondary}# {muted}server  {error}# {muted}warzone  {muted}- {muted}wilderness"

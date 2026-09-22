@@ -3,6 +3,7 @@ package com.lawkeys.hcfcore.claim.command;
 import com.lawkeys.hcfcore.claim.ClaimManager;
 import com.lawkeys.hcfcore.claim.ClaimMessages;
 import com.lawkeys.hcfcore.claim.ClaimModule;
+import com.lawkeys.hcfcore.claim.ClaimSettings;
 import com.lawkeys.hcfcore.claim.HomeType;
 import com.lawkeys.hcfcore.claim.TeamHome;
 import com.lawkeys.hcfcore.claim.wand.TeamClaimTask;
@@ -365,11 +366,8 @@ public final class ClaimSubCommands {
      */
     private static final class Map extends ClaimSubCommand {
 
-        private static final int RADIUS_X = 12;
-        private static final int RADIUS_Z = 6;
-
         Map(ClaimModule claims) {
-            super(claims, "map", Set.of(), "", "Show a map of nearby territory", 0);
+            super(claims, "map", Set.of(), "[pillars|chat]", "Show the territory around you", 0);
         }
 
         @Override
@@ -379,17 +377,63 @@ public final class ClaimSubCommands {
 
         @Override
         void run(TeamModule module, Player player, Team team, String[] args, String label) {
+            ClaimSettings.MapStyle style = args.length > 0 ? ClaimSettings.MapStyle.of(args[0]) : null;
+            if (style == null && args.length > 0) {
+                module.getLang().send(player, ClaimMessages.MAP_STYLE_UNKNOWN, "style", args[0]);
+                return;
+            }
+            if (style == null) {
+                style = claims.getSettings().map().style();
+            }
+            if (style == ClaimSettings.MapStyle.PILLARS) {
+                pillars(module, player);
+                return;
+            }
+            chat(module, player, team);
+        }
+
+        /** The pillars in the world: one block kind per team, on the corners of every claim around. */
+        private void pillars(TeamModule module, Player player) {
+            com.lawkeys.hcfcore.claim.view.MapPillars.Drawn drawn = claims.getMapPillars().show(player);
+            if (drawn.claims() == 0) {
+                module.getLang().send(player, ClaimMessages.MAP_PILLARS_EMPTY,
+                        "radius", String.valueOf(claims.getSettings().map().radiusChunks()));
+                return;
+            }
+            module.getLang().send(player, ClaimMessages.MAP_PILLARS_HEADER,
+                    "claims", String.valueOf(drawn.claims()),
+                    "seconds", String.valueOf(claims.getSettings().map().seconds()));
+            drawn.materials().forEach((teamId, material) -> module.getLang().send(player,
+                    ClaimMessages.MAP_PILLARS_TEAM,
+                    "team", claims.getMapPillars().teamName(teamId).orElse("?"),
+                    "block", readable(material)));
+        }
+
+        /** @return {@code RED_CONCRETE} as {@code Red Concrete}: a block named as players read it */
+        private static String readable(String material) {
+            StringBuilder name = new StringBuilder();
+            for (String word : material.toLowerCase(Locale.ROOT).split("_")) {
+                if (!word.isEmpty()) {
+                    name.append(name.isEmpty() ? "" : " ")
+                            .append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+                }
+            }
+            return name.toString();
+        }
+
+        private void chat(TeamModule module, Player player, Team team) {
             org.bukkit.Location at = player.getLocation();
             String world = at.getWorld().getName();
             ClaimManager manager = claims.getManager();
-            int cell = claims.getSettings().mapCellBlocks();
+            ClaimSettings.MapRules rules = claims.getSettings().map();
+            int cell = rules.cellBlocks();
 
             module.getLang().send(player, ClaimMessages.MAP_HEADER,
                     "x", String.valueOf(at.getBlockX()), "z", String.valueOf(at.getBlockZ()),
                     "cell", String.valueOf(cell));
-            for (int dz = -RADIUS_Z; dz <= RADIUS_Z; dz++) {
+            for (int dz = -rules.chatRadiusZ(); dz <= rules.chatRadiusZ(); dz++) {
                 StringBuilder row = new StringBuilder();
-                for (int dx = -RADIUS_X; dx <= RADIUS_X; dx++) {
+                for (int dx = -rules.chatRadiusX(); dx <= rules.chatRadiusX(); dx++) {
                     // Each cell is judged by the block in its middle; the player's own
                     // cell is centred on them.
                     int x = at.getBlockX() + dx * cell;

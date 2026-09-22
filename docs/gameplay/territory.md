@@ -32,7 +32,7 @@ Both corners are part of the claim: from `0, 0` to `4, 4` is 5 × 5. Each corner
 - **Where**: every world, unless `claimable-worlds` lists some. Never over anybody's land, a Mountain's region or the warzone.
 - **Who**: co-leaders claim, the leader unclaims (`required-roles`).
 
-`/team here` (alias `claiminfo`) tells who owns the land you stand on, the claim's size and corners, whether it is protected or raidable, and the team's territory. `/team map` draws the territory around you in chat — one character per 8 blocks (`map.cell-blocks`) — coloured by relation: yours, an ally's, an enemy's, server land, warzone, wilderness; readable on every client.
+`/team here` (alias `claiminfo`) tells who owns the land you stand on, the claim's size and corners, whether it is protected or raidable, and the team's territory. `/team map` marks the territory around you **in the world**: a column on each corner of every claim within `map.pillars.radius-chunks` (2) chunks, one kind of block per team, drawn at random each time and named in the chat under the map. The columns are sent to you alone — nothing is placed — and go after `map.pillars.seconds` (20). `/team map chat` draws the old grid instead: one character per `map.chat.cell-blocks` (8) blocks, coloured by relation — yours, an ally's, an enemy's, server land, warzone, wilderness — and `map.style` says which of the two `/team map` gives by default.
 
 !!! note "Upgrading from 0.7"
     Chunk claims of an earlier version are **converted automatically** on the first start: each team's chunks become rectangles covering exactly the same land, paid nothing (so they refund nothing). The console says how many.
@@ -118,7 +118,8 @@ The countdown matters: without it, `/team stuck` would be a free exit from any t
 During SOTW, `/team lockclaim` (alias `lock`) closes the team's land to every non-member, **allies included**:
 
 - nobody can walk in, pearl in, chorus in or come through a portal — someone a portal still lands inside is moved out on arrival;
-- anyone already inside is moved to the nearest free land.
+- anyone already inside is moved to the nearest free land;
+- the players it refuses see a **wall of red glass** around the claim, the part of it near them, sent to each of them alone as the wand's columns are — never placed in the world. Members see nothing. It is `lock.wall` in `claims.yml`: the block, its height, how much of the border is drawn, or `enabled: false` for no wall at all.
 
 Run it again to unlock. Every lock lapses when SOTW ends, and a restart releases them. Staff with `hcfcore.claim.bypass` walk in regardless. It exists so nobody camps inside a claim until PvP starts.
 

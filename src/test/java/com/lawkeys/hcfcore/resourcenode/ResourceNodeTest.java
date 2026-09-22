@@ -503,7 +503,7 @@ class ResourceNodeTest {
                     base.placement(), base.protection(), base.homes(), base.claimableWorlds(), base.requiredRoles(),
                     new ClaimSettings.WarzoneRules("&cWarzone", false,
                             java.util.Map.of("world", new ClaimSettings.WarzoneRules.Area(0, 0, 200))),
-                    base.stuck(), base.wand(), base.mapCellBlocks());
+                    base.stuck(), base.wand(), base.lock(), base.map());
             return new ClaimManager(() -> withWarzone, teams, ClaimStore.NO_OP, () -> MONDAY_10H);
         }
 

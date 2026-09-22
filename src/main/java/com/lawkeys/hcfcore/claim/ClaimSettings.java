@@ -19,7 +19,7 @@ import java.util.Set;
  * @param claimableWorlds worlds where claiming is allowed; empty means all
  * @param warzone         the server land around each world's centre that no player
  *                        team may claim
- * @param mapCellBlocks   how many blocks one cell of {@code /team map} stands for
+ * @param map             how {@code /team map} is drawn: pillars in the world, or cells in the chat
  */
 public record ClaimSettings(
         boolean enabled,
@@ -33,7 +33,8 @@ public record ClaimSettings(
         WarzoneRules warzone,
         StuckRules stuck,
         WandRules wand,
-        int mapCellBlocks) {
+        LockRules lock,
+        MapRules map) {
 
     public ClaimSettings {
         Objects.requireNonNull(warzone, "warzone");
@@ -41,6 +42,8 @@ public record ClaimSettings(
         Objects.requireNonNull(sizes, "sizes");
         Objects.requireNonNull(price, "price");
         Objects.requireNonNull(wand, "wand");
+        Objects.requireNonNull(lock, "lock");
+        Objects.requireNonNull(map, "map");
         Objects.requireNonNull(placement, "placement");
         Objects.requireNonNull(protection, "protection");
         Objects.requireNonNull(homes, "homes");
@@ -90,15 +93,79 @@ public record ClaimSettings(
      * @param lore           its description
      * @param pillarMaterial the column shown - to its holder only - on each chosen corner
      * @param pillarHeight   how many blocks high those columns rise above the corner
+     * @param pillarMarkerMaterial every {@code pillarMarkerEvery}-th block of a column is
+     *                             this instead, so the column is still seen through a
+     *                             resource pack that clears glass (the project owner's
+     *                             report, 22/09/2026)
      */
     public record WandRules(String material, String name, List<String> lore, String pillarMaterial,
-                            int pillarHeight) {
+                            String pillarMarkerMaterial, int pillarMarkerEvery, int pillarHeight) {
 
         public WandRules {
             Objects.requireNonNull(material, "material");
             Objects.requireNonNull(name, "name");
             lore = List.copyOf(Objects.requireNonNull(lore, "lore"));
             Objects.requireNonNull(pillarMaterial, "pillarMaterial");
+            Objects.requireNonNull(pillarMarkerMaterial, "pillarMarkerMaterial");
+            pillarMarkerEvery = Math.max(1, pillarMarkerEvery);
+        }
+    }
+
+    /**
+     * The wall around a locked claim ({@code /team lockclaim}).
+     *
+     * @param radiusBlocks how much of the border to draw around the player: the rest
+     *                     is too far to be seen, and drawing it would cost for nothing
+     */
+    public record LockRules(boolean wallEnabled, String material, int height, int radiusBlocks,
+                            long refreshSeconds) {
+
+        public LockRules {
+            Objects.requireNonNull(material, "material");
+            height = Math.max(1, Math.min(32, height));
+            radiusBlocks = Math.max(4, Math.min(128, radiusBlocks));
+            refreshSeconds = Math.max(1L, Math.min(60L, refreshSeconds));
+        }
+    }
+
+    /** How {@code /team map} is drawn. */
+    public enum MapStyle {
+        /** Columns on the corners of nearby claims, shown to that player only. */
+        PILLARS,
+        /** The grid of cells in the chat. */
+        CHAT;
+
+        public static MapStyle of(String raw) {
+            for (MapStyle style : values()) {
+                if (style.name().equalsIgnoreCase(raw == null ? "" : raw.trim())) {
+                    return style;
+                }
+            }
+            return null;
+        }
+    }
+
+    /**
+     * {@code /team map}.
+     *
+     * @param cellBlocks   how many blocks one cell of the chat map stands for
+     * @param chatRadiusX  how many cells the chat map draws each way
+     * @param radiusChunks how far the pillars look for claims, in chunks
+     * @param materials    the full blocks the pillars may be made of: one is drawn at
+     *                     random for each team, each time the map is asked for
+     */
+    public record MapRules(MapStyle style, int cellBlocks, int chatRadiusX, int chatRadiusZ,
+                           int radiusChunks, int pillarHeight, long seconds, List<String> materials) {
+
+        public MapRules {
+            Objects.requireNonNull(style, "style");
+            cellBlocks = Math.max(1, Math.min(64, cellBlocks));
+            chatRadiusX = Math.max(1, Math.min(32, chatRadiusX));
+            chatRadiusZ = Math.max(1, Math.min(32, chatRadiusZ));
+            radiusChunks = Math.max(1, Math.min(16, radiusChunks));
+            pillarHeight = Math.max(1, Math.min(64, pillarHeight));
+            seconds = Math.max(1L, Math.min(600L, seconds));
+            materials = List.copyOf(Objects.requireNonNull(materials, "materials"));
         }
     }
 
@@ -241,7 +308,11 @@ public record ClaimSettings(
                         "{muted}Left-click {dark}{bullet} {secondary}first corner",
                         "{muted}Right-click {dark}{bullet} {secondary}second corner",
                         "{muted}Sneak + left-click {dark}{bullet} {success}claim it",
-                        "{muted}Drop it {dark}{bullet} {error}give up"), "GLASS", 12),
-                8);
+                        "{muted}Drop it {dark}{bullet} {error}give up"), "GLASS", "GLOWSTONE", 6, 12),
+                new LockRules(true, "RED_STAINED_GLASS", 3, 24, 1L),
+                new MapRules(MapStyle.PILLARS, 8, 12, 6, 2, 12, 20L, List.of(
+                        "LIME_CONCRETE", "RED_CONCRETE", "BLUE_CONCRETE", "YELLOW_CONCRETE", "PURPLE_CONCRETE",
+                        "ORANGE_CONCRETE", "PINK_CONCRETE", "CYAN_CONCRETE", "MAGENTA_CONCRETE", "BROWN_CONCRETE",
+                        "LIGHT_BLUE_CONCRETE", "GREEN_CONCRETE")));
     }
 }

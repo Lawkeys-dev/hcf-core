@@ -41,6 +41,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `sethq` / `setbase` | | Set the HQ or the second base where you stand | co-leader |
 | `hq` / `base` | | Go there, after a countdown (10 s) | — |
 | `stuck` | | Get out of land you cannot leave, after a countdown (60 s) | — |
+| `map [pillars\|chat]` | | Mark the claims around you with columns in the world, or draw the grid in the chat | everyone |
 | `lockclaim` | `lock` | Close your land to non-members until SOTW ends (SOTW only) | co-leader |
 | `deposit <amount>` | | Money from you to the team bank | member |
 | `withdraw <amount>` | | Money from the team bank to you | leader |

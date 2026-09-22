@@ -187,6 +187,9 @@ public final class WandSessions {
         ClaimSettings.WandRules wandRules = rules.get();
         Material material = Material.matchMaterial(wandRules.pillarMaterial());
         BlockData pillar = (material == null || !material.isBlock() ? Material.GLASS : material).createBlockData();
+        Material markerMaterial = Material.matchMaterial(wandRules.pillarMarkerMaterial());
+        BlockData marker = (markerMaterial == null || !markerMaterial.isBlock()
+                ? Material.GLOWSTONE : markerMaterial).createBlockData();
         List<int[]> columns = new ArrayList<>();
         if (selection.isComplete()) {
             int y = selection.maxY();
@@ -206,7 +209,10 @@ public final class WandSessions {
                 }
                 Location at = new Location(world, column[0], y, column[2]);
                 if (at.getBlock().getType().isAir()) {
-                    player.sendBlockChange(at, pillar);
+                    // One block in every few is the marker: a pack that clears glass
+                    // would otherwise leave the column invisible.
+                    player.sendBlockChange(at, com.lawkeys.hcfcore.claim.view.BorderColumns
+                            .isMarker(dy - 1, wandRules.pillarMarkerEvery()) ? marker : pillar);
                     session.shown.add(at);
                 }
             }

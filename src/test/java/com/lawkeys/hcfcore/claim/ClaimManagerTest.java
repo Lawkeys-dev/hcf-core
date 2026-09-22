@@ -1318,7 +1318,7 @@ class ClaimManagerTest {
                 placement == null ? s.placement() : placement, protection == null ? s.protection() : protection,
                 homes == null ? s.homes() : homes, worlds == null ? s.claimableWorlds() : worlds,
                 roles == null ? s.requiredRoles() : roles, warzone == null ? s.warzone() : warzone,
-                s.stuck(), s.wand(), s.mapCellBlocks());
+                s.stuck(), s.wand(), s.lock(), s.map());
     }
 
     private static ClaimSettings withPrice(ClaimSettings.PriceRules price, ClaimSettings base) {
