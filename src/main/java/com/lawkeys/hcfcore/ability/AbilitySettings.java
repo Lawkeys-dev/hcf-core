@@ -19,10 +19,10 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
     /**
      * Where abilities are refused.
      *
-     * @param eventTerritory the land of any event - its server team's claims
-     *                       ({@code /events claim}) - at all times, running or not,
-     *                       as on a safe zone; an event may say otherwise with its
-     *                       own {@code disable-abilities} key in {@code events.yml}
+     * @param eventTerritory the land of an event - its server team's claims
+     *                       ({@code /events claim}) - while that event runs; an
+     *                       event may say otherwise with its own
+     *                       {@code disable-abilities} key in {@code events.yml}
      */
     public record DisabledIn(boolean safezone, boolean citadel, boolean events, boolean nether, boolean end,
                              boolean warzone, boolean eventTerritory) {

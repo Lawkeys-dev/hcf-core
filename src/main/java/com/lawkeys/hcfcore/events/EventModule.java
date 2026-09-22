@@ -485,8 +485,8 @@ public final class EventModule {
 
     /**
      * Answers {@code ability/}: abilities are refused on an event's territory - the
-     * land of the server team its {@code claim} names, or of one named after it - at
-     * all times, as on a safe zone.
+     * land of the server team its {@code claim} names, or of one named after it -
+     * while that event runs.
      *
      * @param byDefault {@code abilities.yml}'s {@code disabled-in.event-territory},
      *                  for an event that says nothing itself ({@code disable-abilities})
@@ -497,8 +497,33 @@ public final class EventModule {
         }
         return claims.ownerAt(location)
                 .filter(team -> team.getType().isSystem())
-                .map(team -> territories.abilitiesRefused(team.getName(), byDefault))
+                .map(team -> territories.abilitiesRefused(team.getName(), byDefault, this::isRunning))
                 .orElse(false);
+    }
+
+    /** @return whether an event by this id is running now, whatever its engine */
+    public boolean isRunning(String id) {
+        if (manager != null && manager.getActiveEvent(id).isPresent()) {
+            return true;
+        }
+        if (king != null && king.getManager().getCurrent()
+                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
+            return true;
+        }
+        if (conquest != null && conquest.getManager().getCurrent()
+                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
+            return true;
+        }
+        if (core != null && core.getManager().getCurrent()
+                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
+            return true;
+        }
+        if (totem != null && totem.getManager().getCurrent()
+                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
+            return true;
+        }
+        return slide != null && slide.getManager().getCurrent()
+                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent();
     }
 
     /** Reads every event's territory team and its {@code disable-abilities}, from events.yml itself. */

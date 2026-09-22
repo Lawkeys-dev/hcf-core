@@ -1,16 +1,18 @@
 package com.lawkeys.hcfcore.events.setup;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Which server teams are an event's territory, and what each event says of
  * abilities on it ({@code disable-abilities} in {@code events.yml}) - read by
- * {@code ability/} to refuse abilities on event land as on a safe zone (the
+ * {@code ability/} to refuse abilities on an event's land while it runs (the
  * owner's request of 22/09/2026).
  *
  * <p>Pure Java: unit-tested without a server.
@@ -31,10 +33,10 @@ public final class EventTerritories {
         }
     }
 
-    /** Lower-cased team name to what its events say: empty when none says anything. */
-    private final Map<String, Optional<Boolean>> byTeam;
+    /** Lower-cased team name to the events whose land it is. */
+    private final Map<String, List<Declared>> byTeam;
 
-    private EventTerritories(Map<String, Optional<Boolean>> byTeam) {
+    private EventTerritories(Map<String, List<Declared>> byTeam) {
         this.byTeam = Map.copyOf(byTeam);
     }
 
@@ -42,20 +44,12 @@ public final class EventTerritories {
         return new EventTerritories(Map.of());
     }
 
-    /**
-     * Several events may share one team - a Totem and its Mini Totem, say. Then an
-     * event refusing abilities wins over one allowing them: the land is one land.
-     */
     public static EventTerritories of(List<Declared> declared) {
-        Map<String, Optional<Boolean>> byTeam = new HashMap<>();
+        Map<String, List<Declared>> byTeam = new HashMap<>();
         for (Declared event : declared) {
-            String key = event.team().trim().toLowerCase(Locale.ROOT);
-            Optional<Boolean> before = byTeam.getOrDefault(key, Optional.empty());
-            Optional<Boolean> said = Optional.ofNullable(event.disableAbilities());
-            byTeam.put(key, before.isPresent() && said.isPresent()
-                    ? Optional.of(before.get() || said.get())
-                    : before.or(() -> said));
+            byTeam.computeIfAbsent(event.team().trim().toLowerCase(Locale.ROOT), key -> new ArrayList<>()).add(event);
         }
+        byTeam.replaceAll((team, events) -> List.copyOf(events));
         return new EventTerritories(byTeam);
     }
 
@@ -65,14 +59,25 @@ public final class EventTerritories {
     }
 
     /**
+     * Abilities are refused on an event's land only <b>while that event runs</b> (the
+     * owner's choice, 22/09/2026): between runs the land is ordinary server land.
+     * Several events may share one team - a Totem and its Mini Totem, say; then
+     * only the running ones count, and among them a refusal wins.
+     *
      * @param byDefault {@code abilities.yml}'s {@code disabled-in.event-territory}
-     * @return whether abilities are refused on this team's land: never off event
-     *         land, else the events' own say, else the default
+     * @param running   whether the event with this id runs now
+     * @return whether abilities are refused on this team's land now
      */
-    public boolean abilitiesRefused(String team, boolean byDefault) {
+    public boolean abilitiesRefused(String team, boolean byDefault, Predicate<String> running) {
         if (!isTerritory(team)) {
             return false;
         }
-        return byTeam.get(team.trim().toLowerCase(Locale.ROOT)).orElse(byDefault);
+        for (Declared event : byTeam.get(team.trim().toLowerCase(Locale.ROOT))) {
+            if (running.test(event.eventId())
+                    && Optional.ofNullable(event.disableAbilities()).orElse(byDefault)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

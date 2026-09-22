@@ -20,10 +20,10 @@ Every example on this page is **taken from the shipped `abilities.yml`**. Change
 | `global.menu-title` | `&dAbilities` | `/ability`'s menu |
 | `global.disabled-in.safezone` | `true` | No ability in a safe zone (spawn) |
 | `global.disabled-in.citadel` | `true` | No ability on a Citadel's claim |
-| `global.disabled-in.events` | `true` | No ability in the zone of a running KOTH, Citadel or Conquest |
+| `global.disabled-in.events` | `true` | No ability in the zone of a running event — the area held, stood in or broken inside: a KOTH's, a Conquest's, a DTC's, a Slide's, a Totem's |
 | `global.disabled-in.nether` · `end` | `true` | No ability in the Nether, the End |
 | `global.disabled-in.warzone` | `false` | No ability in the warzone |
-| `global.disabled-in.event-territory` | `true` | No ability on the territory of any event — the land of its server team, [`/events claim`](../../gameplay/events.md#setting-up-an-event-in-game) — at all times, running or not, as on a safe zone. An event decides for its own land with `disable-abilities: true` or `false` in `events.yml` |
+| `global.disabled-in.event-territory` | `true` | No ability on the territory of any event — the land of its server team, [`/events claim`](../../gameplay/events.md#setting-up-an-event-in-game) — for as long as that event runs; between runs it is ordinary server land. An event decides for its own land with `disable-abilities: true` or `false` in `events.yml` |
 
 ## An ability
 

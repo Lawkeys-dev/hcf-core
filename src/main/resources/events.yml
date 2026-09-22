@@ -73,8 +73,8 @@ zone-holograms:
 # "claim" key), a combat zone.
 #
 # Any event with land may also carry "disable-abilities: true" or "false":
-# whether partner items work on its territory, whatever abilities.yml says
-# (disabled-in.event-territory) for events that say nothing.
+# whether partner items work on its territory while it runs, whatever
+# abilities.yml says (disabled-in.event-territory) for events that say nothing.
 setup:
   # /events create claims the new event's territory at once: its zones and
   # claim-margin blocks around them. false leaves it to /events claim.

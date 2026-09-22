@@ -982,29 +982,8 @@ public final class EventSetup {
         return module.getSlide() != null && module.getSlide().getSettings().find(id).isPresent();
     }
 
-    /** @return whether an event by this id is running now, whatever its kind */
     private boolean isRunning(String id) {
-        if (module.getManager() != null && module.getManager().getActiveEvent(id).isPresent()) {
-            return true;
-        }
-        if (module.getKing() != null && module.getKing().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
-            return true;
-        }
-        if (module.getConquest() != null && module.getConquest().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
-            return true;
-        }
-        if (module.getCore() != null && module.getCore().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
-            return true;
-        }
-        if (module.getTotem() != null && module.getTotem().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
-            return true;
-        }
-        return module.getSlide() != null && module.getSlide().getManager().getCurrent()
-                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent();
+        return module.isRunning(id);
     }
 
     private boolean claimsRunning() {
