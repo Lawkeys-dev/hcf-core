@@ -31,13 +31,13 @@ class CoreEventManagerTest {
 
     private static CoreEventDefinition dtc(CounterMode counter, int breaks, long cooldown, List<Integer> announceAt,
                                            long maxSeconds) {
-        return new CoreEventDefinition("dtc", CoreEventKind.DTC, "DTC", zone(), 5, 5, 5, "OBSIDIAN",
+        return new CoreEventDefinition("dtc", CoreEventKind.DTC, "DTC", zone(), 5, 5, 5, "END_STONE", "BEDROCK",
                 counter, breaks, cooldown, announceAt, List.of(), maxSeconds, List.of());
     }
 
     private static CoreEventDefinition lastBreak(int breaks, long cooldown, long maxSeconds) {
         return new CoreEventDefinition("last-break", CoreEventKind.LAST_BREAK, "Last Break", zone(), 5, 5, 5,
-                "OBSIDIAN", CounterMode.SHARED, breaks, cooldown, List.of(), List.of(), maxSeconds, List.of());
+                "END_STONE", "BEDROCK", CounterMode.SHARED, breaks, cooldown, List.of(), List.of(), maxSeconds, List.of());
     }
 
     private void start(CoreEventDefinition definition) {
@@ -223,12 +223,12 @@ class CoreEventManagerTest {
     @Test
     void aDefinitionRefusesACoreOutsideItsZone() {
         assertThrows(IllegalArgumentException.class, () -> new CoreEventDefinition("bad", CoreEventKind.DTC, "Bad",
-                zone(), 50, 50, 50, "OBSIDIAN", CounterMode.SHARED, 5, 1L, List.of(), List.of(), 0, List.of()));
+                zone(), 50, 50, 50, "END_STONE", "BEDROCK", CounterMode.SHARED, 5, 1L, List.of(), List.of(), 0, List.of()));
     }
 
     @Test
     void aDefinitionRefusesNonPositiveBreaks() {
         assertThrows(IllegalArgumentException.class, () -> new CoreEventDefinition("bad", CoreEventKind.DTC, "Bad",
-                zone(), 5, 5, 5, "OBSIDIAN", CounterMode.SHARED, 0, 1L, List.of(), List.of(), 0, List.of()));
+                zone(), 5, 5, 5, "END_STONE", "BEDROCK", CounterMode.SHARED, 0, 1L, List.of(), List.of(), 0, List.of()));
     }
 }

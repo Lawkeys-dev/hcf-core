@@ -65,7 +65,8 @@ class EventTemplateTest {
         assertEquals(-10, at(placed, "corner-1", "x"));
         assertEquals(59, at(placed, "corner-1", "y"));
         assertEquals(10, at(placed, "corner-2", "z"));
-        assertEquals("OBSIDIAN", ((Map<?, ?>) placed.get("core")).get("material"));
+        assertEquals("END_STONE", ((Map<?, ?>) placed.get("core")).get("material"));
+        assertEquals("BEDROCK", ((Map<?, ?>) placed.get("core")).get("idle-material"));
     }
 
     @Test

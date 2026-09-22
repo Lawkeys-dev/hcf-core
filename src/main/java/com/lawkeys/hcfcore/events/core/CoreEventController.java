@@ -89,6 +89,8 @@ public final class CoreEventController implements Listener {
     public void enable(long tickSeconds) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         schedule(tickSeconds);
+        // A restart ends every run: the cores stand as their idle block again.
+        Bukkit.getScheduler().runTask(plugin, () -> settings.definitions().forEach(this::idleCore));
     }
 
     private void schedule(long tickSeconds) {
@@ -200,10 +202,33 @@ public final class CoreEventController implements Listener {
         Bukkit.getScheduler().runTask(plugin, () -> resetCore(definition, block));
     }
 
+    /**
+     * Puts the core back a tick after a break: as itself while the run goes on, as
+     * its idle block once it is over - the break that ended the run leaves bedrock
+     * behind, like a Totem's column between runs.
+     */
     private void resetCore(CoreEventDefinition definition, Block block) {
-        Material material = Material.matchMaterial(definition.coreMaterial());
+        boolean running = manager.getCurrent()
+                .filter(run -> run.getDefinition().id().equalsIgnoreCase(definition.id())).isPresent();
+        Material material = Material.matchMaterial(running ? definition.coreMaterial() : definition.coreIdleMaterial());
         if (material != null && block.getWorld() != null) {
             block.setBlockData(material.createBlockData(), false);
+        }
+    }
+
+    /** Between runs the core stands as its idle block, whatever it was left as. */
+    private void idleCore(CoreEventDefinition definition) {
+        World world = Bukkit.getWorld(definition.zone().world());
+        Material idle = Material.matchMaterial(definition.coreIdleMaterial());
+        if (world == null || idle == null) {
+            return;
+        }
+        Block block = world.getBlockAt(definition.coreX(), definition.coreY(), definition.coreZ());
+        Material active = Material.matchMaterial(definition.coreMaterial());
+        // Only what the event itself put there: a block an operator changed by hand
+        // between runs is left alone.
+        if (block.getType() == active || block.getType() == idle || block.getType().isAir()) {
+            block.setType(idle, false);
         }
     }
 
@@ -262,6 +287,10 @@ public final class CoreEventController implements Listener {
                 ensureCorePlaced(definition);
                 checkClaim(definition);
             });
+        }
+        if (update.type() == CoreUpdate.Type.WON || update.type() == CoreUpdate.Type.EXPIRED
+                || update.type() == CoreUpdate.Type.STOPPED) {
+            settings.find(placeholders.getOrDefault("id", "")).ifPresent(this::idleCore);
         }
         if (update.type() == CoreUpdate.Type.WON) {
             team.ifPresent(winner -> {

@@ -188,7 +188,8 @@ Under `dtc:`, one entry per DTC. **DTC and Last Break share one run slot — onl
 |---|---|---|
 | `display-name`, `world`, `corner-1`, `corner-2` | an example | Its name and zone, as for a KOTH |
 | `core.x`, `core.y`, `core.z` | `410, 65, 410` | The core's block — must be inside the zone |
-| `core.material` | `OBSIDIAN` | The block it is (and reappears as); must be a real, solid, non-air block with no gravity |
+| `core.material` | `END_STONE` | The block it is while the event runs, and reappears as after every break; must be a real, solid, non-air block with no gravity |
+| `core.idle-material` | `BEDROCK` | What it stands as between runs, the way a Totem's column does |
 | `counter` | `SHARED` | `SHARED` — the core has `breaks` common health, most breaks of its own wins a tie by whoever reached that count first. `PER_TEAM` — each team has its own count to `breaks`, first there wins at once |
 | `breaks` | `150` | The core's common health (`SHARED`), or each team's target (`PER_TEAM`) |
 | `break-cooldown-seconds` | `1` | Delay between two breaks of the SAME team; `0` for none. Another team is never blocked by it |

@@ -34,7 +34,8 @@ class EventsYamlTest {
         assertEquals("SHARED", dtc.get("counter"));
         assertTrue(((Number) dtc.get("breaks")).intValue() > 0);
         Map<String, Object> core = (Map<String, Object>) dtc.get("core");
-        assertEquals("OBSIDIAN", core.get("material"));
+        assertEquals("END_STONE", core.get("material"));
+        assertEquals("BEDROCK", core.get("idle-material"));
     }
 
     @Test
@@ -44,7 +45,8 @@ class EventsYamlTest {
         assertEquals(List.of(), lastBreak.get("schedule"));
         assertTrue(!lastBreak.containsKey("counter"), "Last Break has no counter key - it is always common health");
         Map<String, Object> core = (Map<String, Object>) lastBreak.get("core");
-        assertEquals("OBSIDIAN", core.get("material"));
+        assertEquals("END_STONE", core.get("material"));
+        assertEquals("BEDROCK", core.get("idle-material"));
     }
 
     @Test

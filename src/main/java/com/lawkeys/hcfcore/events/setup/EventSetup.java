@@ -562,7 +562,10 @@ public final class EventSetup {
             core.set("y", target.getY());
             core.set("z", target.getZ());
             if (!core.contains("material")) {
-                core.set("material", "OBSIDIAN");
+                core.set("material", "END_STONE");
+            }
+            if (!core.contains("idle-material")) {
+                core.set("idle-material", "BEDROCK");
             }
             return true;
         });

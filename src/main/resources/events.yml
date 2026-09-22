@@ -448,8 +448,9 @@ conquest:
 # One engine, two sections. A block core stands inside a zone; teams break it
 # over and over - each team waits break-cooldown-seconds between its OWN breaks,
 # never blocked by another team's. The core is PERMANENT: it reappears one tick
-# after every break, stays after the run ends, and is protected from explosions
-# and pistons at all times, running or not.
+# after every break, stays after the run ends - as its idle-material, bedrock,
+# the way a Totem's column does - and is protected from explosions and pistons at
+# all times, running or not.
 #
 # DTC ("counter"):
 #   SHARED   - the core has "breaks" common health. When it reaches zero, the
@@ -472,7 +473,9 @@ dtc:
     world: world
     corner-1: {x: 400, y: 60, z: 400}
     corner-2: {x: 420, y: 80, z: 420}
-    core: {x: 410, y: 65, z: 410, material: OBSIDIAN}
+    # "material" is what the core is while the event runs; "idle-material" what it
+    # stands as between runs - bedrock, as a Totem's column does.
+    core: {x: 410, y: 65, z: 410, material: END_STONE, idle-material: BEDROCK}
     counter: SHARED
     breaks: 150
     break-cooldown-seconds: 1
@@ -489,7 +492,7 @@ last-break:
     world: world
     corner-1: {x: 450, y: 60, z: 400}
     corner-2: {x: 470, y: 80, z: 420}
-    core: {x: 460, y: 65, z: 410, material: OBSIDIAN}
+    core: {x: 460, y: 65, z: 410, material: END_STONE, idle-material: BEDROCK}
     breaks: 150
     break-cooldown-seconds: 1
     announce-at: [125, 100, 75, 50, 25, 10, 5, 3, 2, 1]

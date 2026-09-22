@@ -15,7 +15,7 @@ Starting and stopping needs `hcfcore.events.admin`. Ids are shared by every kind
 **Scheduling**: each event has an optional `schedule` — local times of day, read in the file's `time-zone` — at which it opens by itself. The shipped examples have none: they wait for staff until you move them onto your map and give them times.
 
 !!! note "A restart ends a running event"
-    Nothing about a running KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide or Totem is kept across a restart — except the King's items, which are always given back. A DTC or Last Break's core itself is not run state: it is a permanent block, placed and kept in the world, and simply stays where it is.
+    Nothing about a running KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide or Totem is kept across a restart — except the King's items, which are always given back. A DTC or Last Break's core itself is not run state: it is a permanent block, placed and kept in the world, and a restart leaves it as its idle block (bedrock).
 
 ## KOTH
 
@@ -129,7 +129,7 @@ The scoreboard shows `%king_line%` — the King and the time left — and `%king
 
 ## DTC (Destroy The Core)
 
-A block **core** stands inside a zone. Teams break it, over and over — it **reappears one tick later**, every time, and stays in place after the run ends: it is permanent scenery for the next run, not a one-off objective.
+A block **core** stands inside a zone. Teams break it, over and over — it **reappears one tick later**, every time, and stays in place after the run ends: it is permanent scenery for the next run, not a one-off objective. It is `core.material` (end stone) **while the event runs** and `core.idle-material` (bedrock) **between runs**, the way a Totem's column is — so a core nobody may break does not look breakable.
 
 ```yaml title="events.yml — the shipped DTC"
 --8<-- "src/main/resources/events.yml:dtc"

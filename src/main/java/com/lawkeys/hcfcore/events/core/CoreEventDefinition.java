@@ -18,7 +18,12 @@ import java.util.Objects;
  * @param zone                 the zone the core stands in; a break outside a run
  *                             is not this engine's business
  * @param coreX/Y/Z            the core's block, which must be inside {@link #zone()}
- * @param coreMaterial         the block the core is made of, and reappears as
+ * @param coreMaterial         the block the core is made of while a run is on, and
+ *                             reappears as after every break
+ * @param coreIdleMaterial     what it stands as between runs - bedrock, as a Totem's
+ *                             column does (the project owner's choice, 22/09/2026):
+ *                             the core is scenery outside its event, and nothing but
+ *                             the event should mark it as breakable
  * @param counter              SHARED or PER_TEAM, for a DTC; ignored for Last
  *                             Break, which is always common-health
  * @param breaks               the core's health (SHARED / Last Break) or the
@@ -37,6 +42,7 @@ public record CoreEventDefinition(String id,
                                   int coreY,
                                   int coreZ,
                                   String coreMaterial,
+                                  String coreIdleMaterial,
                                   CounterMode counter,
                                   int breaks,
                                   long breakCooldownSeconds,
@@ -51,6 +57,7 @@ public record CoreEventDefinition(String id,
         Objects.requireNonNull(displayName, "displayName");
         Objects.requireNonNull(zone, "zone");
         Objects.requireNonNull(coreMaterial, "coreMaterial");
+        Objects.requireNonNull(coreIdleMaterial, "coreIdleMaterial");
         Objects.requireNonNull(counter, "counter");
         announceAt = List.copyOf(Objects.requireNonNull(announceAt, "announceAt"));
         schedule = List.copyOf(Objects.requireNonNull(schedule, "schedule"));

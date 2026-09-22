@@ -110,12 +110,19 @@ public final class CoreSettingsLoader {
             warn.accept("core event '" + id + "': its core is outside its own zone; skipped.");
             return null;
         }
-        String materialName = core.getString("material", "OBSIDIAN");
+        String materialName = core.getString("material", "END_STONE");
         Material material = materialName == null ? null : Material.matchMaterial(materialName);
         if (material == null || !material.isBlock() || material.isAir() || material.hasGravity()) {
             warn.accept("core event '" + id + "': core.material '" + materialName
                     + "' is not a usable solid block (not air, not affected by gravity); skipped.");
             return null;
+        }
+        String idleName = core.getString("idle-material", "BEDROCK");
+        Material idle = idleName == null ? null : Material.matchMaterial(idleName);
+        if (idle == null || !idle.isBlock() || idle.isAir() || idle.hasGravity()) {
+            warn.accept("core event '" + id + "': core.idle-material '" + idleName
+                    + "' is not a usable solid block; using BEDROCK.");
+            idle = Material.BEDROCK;
         }
 
         int breaks = entry.getInt("breaks", 0);
@@ -164,6 +171,7 @@ public final class CoreSettingsLoader {
 
         try {
             return new CoreEventDefinition(id, kind, displayName, zone, coreX, coreY, coreZ, material.name(),
+                    idle.name(),
                     counter, breaks, cooldown, announceAt,
                     EventSettingsLoader.loadSchedule(entry.getStringList("schedule"), id, warn),
                     maxDuration,
