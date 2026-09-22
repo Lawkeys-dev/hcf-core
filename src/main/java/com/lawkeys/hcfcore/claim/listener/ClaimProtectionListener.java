@@ -172,6 +172,16 @@ public final class ClaimProtectionListener implements Listener {
         if (block == null) {
             return;
         }
+        // A left click is the start of a break: a denied block is never mined, and
+        // BlockBreakEvent never fires - so a running DTC core or Totem column on
+        // server land could not be broken at all, and no health came off it (found
+        // in game by the project owner, 22/09/2026). The same seam that lets the
+        // break through lets the click through (claim/BreakAllowance).
+        if (event.getAction() == org.bukkit.event.block.Action.LEFT_CLICK_BLOCK
+                && module.getBreakAllowance().allows(block.getWorld().getName(),
+                        block.getX(), block.getY(), block.getZ())) {
+            return;
+        }
         Player player = event.getPlayer();
         ProtectionResult refused = refusal(player, block, false);
         if (refused == null) {

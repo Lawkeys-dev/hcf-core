@@ -32,6 +32,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
     - New team points, all `0` by default: `teams.yml`'s `points.per-dtc-win`, `per-last-break-win`, `per-slide-win`. *Configuration files are never rewritten: copy the `dtc:`, `last-break:` and `slide:` sections (and the `setup:` section) from the jar's `events.yml`, the three new `points.per-*-win` lines of `teams.yml`, and the new `dtc_line`/`last_break_line`/`slide_line`/`slide_top_*` lines of `ui.yml` into your own files.*
 
 ### Fixed
+- **A running DTC or Last Break core, and a Totem's column, could not be broken at all** when they stood on server land: the left click that starts a break was refused by territory protection before any break existed, so the core never lost health. The click now follows the same rule as the break.
 - **A locked claim could be walked into**: entry was refused a chunk at a time, from before claims were block-precise, so a step across a border inside one chunk went through. Every block stepped into is now checked, a vehicle carrying a player in is turned back, and reaching into a locked claim from outside — a door, a chest, a button — is refused too.
 
 ### Changed

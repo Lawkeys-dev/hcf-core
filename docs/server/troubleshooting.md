@@ -127,7 +127,7 @@ If an essentials plugin provides the utility commands, turn HCFCore's off with `
 ## Integrations
 
 **Lunar Client players see no waypoints or nametags.**
-Check, in order: the `Apollo-Bukkit` plugin is on the server (the console says `Lunar Client features enabled through Apollo.` at startup); Apollo's `/lunarclient <player>` sees the player on Lunar Client; the module is on in Apollo's own configuration and in `apollo.yml`.
+Check, in order: the `Apollo-Bukkit` plugin is on the server (the console says `Lunar Client features enabled through Apollo.` at startup); Apollo's `/lunarclient <player>` sees the player on Lunar Client; the module is on in Apollo's own configuration and in `apollo.yml`. For waypoints, Apollo's own `config.yml` must also have **`server-handles-waypoints: true`** under its `waypoint` module — it ships `false`, and with it off Apollo drops every waypoint the server sends, HQ, events and all (found in game, 22/09/2026).
 
 **Shops or other plugins do not see HCFCore balances.**
 Vault must be installed, and no other economy plugin should be registered with it ([Integrations](integrations.md#vault)).

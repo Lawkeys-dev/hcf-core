@@ -22,6 +22,9 @@ With [Vault](https://github.com/MilkBowl/Vault) installed, HCFCore registers its
 
 For players on Lunar Client, HCFCore can draw information on their screen through Lunar's [Apollo](https://lunarclient.dev/apollo). Players on any other client are sent nothing and see the plugin exactly as usual.
 
+!!! warning "Apollo ships with server waypoints off"
+    In Apollo's own `config.yml`, under its `waypoint` module, set **`server-handles-waypoints: true`**. It ships `false`, and with it off Apollo drops every waypoint HCFCore sends — the team's HQ, a running event, the King.
+
 **Install the Apollo plugin on the server** — `Apollo-Bukkit`, from Lunar's downloads page or the [LunarClient/Apollo releases](https://github.com/LunarClient/Apollo/releases). HCFCore does not bundle it. Tested with Apollo-Bukkit 1.2.9. At startup the console says `Lunar Client features enabled through Apollo.` — or that Apollo is not installed. Apollo's own `/lunarclient <player>` tells you whether it sees a player on Lunar Client.
 
 What is shown, each part switched in `apollo.yml`:
