@@ -46,6 +46,11 @@ waypoints:
   # which is where the beam should start. The King's follows the player and is
   # never raised.
   event-height: 0
+  # The pillar of light up from a waypoint, and the outline on the block it stands
+  # on. Apollo leaves both off unless asked: without the beam a waypoint is in the
+  # player's list and nowhere in the world.
+  show-beam: true
+  highlight-block: true
   colors:
     hq: "#55FF55"
     base: "#00AA00"

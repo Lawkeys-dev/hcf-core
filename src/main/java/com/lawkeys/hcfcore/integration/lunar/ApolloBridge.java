@@ -336,6 +336,10 @@ final class ApolloBridge implements LunarBridge, Listener {
                     .color(new Color(spec.rgb()))
                     .preventRemoval(false)
                     .hidden(false)
+                    // Apollo leaves both off unless asked: without them the waypoint
+                    // is in the player's list and nowhere in the world.
+                    .showBeam(rules.showBeam())
+                    .highlightBlock(rules.highlightBlock())
                     .build());
         }
     }

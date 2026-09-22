@@ -36,10 +36,15 @@ public record LunarSettings(boolean enabled, int updateTicks, long resendSeconds
      *                    itself, which is where the beam should start; raise it only
      *                    if your map hides the marker. The King's follows the player,
      *                    never raised
+     * @param showBeam       the pillar of light up from the waypoint. Apollo leaves it
+     *                       off unless asked, which is why a waypoint could be in a
+     *                       player's list and nowhere in the world (found in game,
+     *                       22/09/2026)
+     * @param highlightBlock outlines the block the waypoint stands on
      */
     public record Waypoints(boolean enabled, boolean hq, boolean base, boolean rally, boolean focus,
-                            boolean events, int eventHeight, int hqColor, int baseColor, int rallyColor,
-                            int focusColor, int eventColor) {
+                            boolean events, int eventHeight, boolean showBeam, boolean highlightBlock,
+                            int hqColor, int baseColor, int rallyColor, int focusColor, int eventColor) {
 
         public Waypoints {
             eventHeight = Math.max(0, Math.min(320, eventHeight));
@@ -63,7 +68,7 @@ public record LunarSettings(boolean enabled, int updateTicks, long resendSeconds
     public static LunarSettings defaults() {
         return new LunarSettings(true, 10,
                 30L,
-                new Waypoints(true, true, true, true, true, true, 0,
+                new Waypoints(true, true, true, true, true, true, 0, true, true,
                         0x55FF55, 0x00AA00, 0xFFFF55, 0xFF55FF, 0xFFAA00),
                 new TeamView(true, 0x55FF55, 48.0),
                 new Cooldowns(true, true, "DIAMOND_SWORD", true, "CLOCK", true, "NETHER_STAR", true, "ENDER_PEARL", true,
