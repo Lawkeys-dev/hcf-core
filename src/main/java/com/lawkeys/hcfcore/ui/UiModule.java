@@ -305,6 +305,7 @@ public final class UiModule {
         renderConquest(out);
         renderCore(out, viewerTeam);
         renderSlide(out);
+        renderTotem(out);
     }
 
     /** How many Conquest zones the board can show, as %conquest_zone_1% to %conquest_zone_4%. */
@@ -393,6 +394,28 @@ public final class UiModule {
 
     /** How many Slide rows the top 3 can show, as %slide_top_1% to %slide_top_3%. */
     private static final int SLIDE_TOP_ROWS = 3;
+
+    /** The running Totem: the team on its way and how far, or that nobody has started. Empty outside a run. */
+    private void renderTotem(LineRenderer out) {
+        com.lawkeys.hcfcore.events.totem.TotemController totem = events == null ? null : events.getTotem();
+        Optional<com.lawkeys.hcfcore.events.totem.TotemRun> run = totem == null ? Optional.empty()
+                : totem.getManager().getCurrent();
+        String line = "";
+        if (run.isPresent()) {
+            var definition = run.get().getDefinition();
+            UUID holder = run.get().holder();
+            line = holder == null
+                    ? lang.get(com.lawkeys.hcfcore.events.totem.TotemMessages.SCOREBOARD_LINE_NOBODY,
+                            "event", definition.displayName(), "height", String.valueOf(definition.height()))
+                    : lang.get(com.lawkeys.hcfcore.events.totem.TotemMessages.SCOREBOARD_LINE,
+                            "event", definition.displayName(),
+                            "team", teams == null || teams.getManager() == null ? "?"
+                                    : teams.getManager().getTeam(holder).map(Team::getName).orElse("?"),
+                            "broken", String.valueOf(run.get().brokenCount()),
+                            "height", String.valueOf(definition.height()));
+        }
+        out.with("%totem_line%", line);
+    }
 
     /** The running Slide's leader, then the live top 3. Empty rows outside a run. */
     private void renderSlide(LineRenderer out) {

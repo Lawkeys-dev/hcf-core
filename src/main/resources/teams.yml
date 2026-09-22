@@ -129,6 +129,8 @@ points:
   per-last-break-win: 0
   # To the team that wins a Slide.
   per-slide-win: 0
+  # To the team that wins a Totem or a Mini Totem.
+  per-totem-win: 0
 # --8<-- [end:points]
 
 # --8<-- [start:koth]

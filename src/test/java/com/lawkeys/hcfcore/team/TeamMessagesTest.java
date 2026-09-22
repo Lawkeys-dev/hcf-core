@@ -69,6 +69,7 @@ class TeamMessagesTest {
             ConquestMessages.class,
             com.lawkeys.hcfcore.events.core.CoreMessages.class,
             com.lawkeys.hcfcore.events.slide.SlideMessages.class,
+            com.lawkeys.hcfcore.events.totem.TotemMessages.class,
             CrowbarMessages.class,
             DtrMessages.class,
             EconomyMessages.class,

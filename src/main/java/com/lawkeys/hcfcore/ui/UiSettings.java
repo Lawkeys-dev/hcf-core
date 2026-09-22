@@ -135,6 +135,7 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
                         "[events]%slide_top_1%",
                         "[events]%slide_top_2%",
                         "[events]%slide_top_3%",
+                        "[events]%totem_line%",
                         "[timers]%timer_1%",
                         "[timers]%timer_2%",
                         "[timers]%timer_3%",
@@ -147,7 +148,7 @@ public record UiSettings(ScoreboardRules scoreboard, TablistRules tablist) {
                                 List.of(
                                         List.of("", "[head:self]{primary}&lPlayer Info", "{text}Kills {dark}{bullet} {secondary}%kills%", "{text}Deaths {dark}{bullet} {secondary}%deaths%", "{text}K/D {dark}{bullet} {secondary}%kdr%", "{text}Streak {dark}{bullet} {secondary}%killstreak%", "{text}Balance {dark}{bullet} {success}%balance%", "", "[head:MHF_ArrowRight]{primary}&lLocation", "%location%", "{secondary}%x%{muted}, {secondary}%z% {muted}(%direction%)", "", "%combat_line%", "%pearl_line%", "%class_line%", "%class_energy_line%"),
                                         List.of("", "[head:MHF_Chest]{primary}&lTeam", "%team_name_line%", "{text}DTR {dark}{bullet} %dtr_coloured%", "{text}Online {dark}{bullet} {secondary}%members_online%{muted}/{secondary}%members_total%", "{text}Balance {dark}{bullet} {success}%team_balance%", "{text}Points {dark}{bullet} {secondary}%team_points%", "", "[head:MHF_Villager]%members_title%", "[head:member:1]%member_1%", "[head:member:2]%member_2%", "[head:member:3]%member_3%", "[head:member:4]%member_4%", "[head:member:5]%member_5%", "[head:member:6]%member_6%", "[head:member:7]%member_7%", "[head:member:8]%member_8%", "[head:member:9]%member_9%", "[head:member:10]%member_10%", "[head:member:11]%member_11%"),
-                                        List.of("", "[head:MHF_Question]{primary}&lServer", "{text}Online {dark}{bullet} {secondary}%online%", "{text}Ping {dark}{bullet} {secondary}%ping%ms", "", "[head:MHF_Exclamation]{primary}&lEvents", "%no_event_line%", "%phase_line%", "%event_line%", "%king_line%", "%conquest_line%", "%dtc_line%", "%last_break_line%", "%slide_line%", "%timer_1%", "%timer_2%", "%timer_3%"),
+                                        List.of("", "[head:MHF_Question]{primary}&lServer", "{text}Online {dark}{bullet} {secondary}%online%", "{text}Ping {dark}{bullet} {secondary}%ping%ms", "", "[head:MHF_Exclamation]{primary}&lEvents", "%no_event_line%", "%phase_line%", "%event_line%", "%king_line%", "%conquest_line%", "%dtc_line%", "%last_break_line%", "%slide_line%", "%totem_line%", "%timer_1%", "%timer_2%", "%timer_3%"),
                                         List.of("", "[head:MHF_Present1]{primary}&lTop Teams", "%top_team_1%", "%top_team_2%", "%top_team_3%", "%top_team_4%", "%top_team_5%", "%top_team_6%", "%top_team_7%", "%top_team_8%", "%top_team_9%", "%top_team_10%")),
                                 0, GREY_HEAD_TEXTURE, GREY_HEAD_SIGNATURE),
                         new ClassicRules(

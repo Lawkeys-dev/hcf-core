@@ -26,6 +26,12 @@ import com.lawkeys.hcfcore.events.slide.SlideRun;
 import com.lawkeys.hcfcore.events.slide.SlideSettings;
 import com.lawkeys.hcfcore.events.slide.SlideSettingsLoader;
 import com.lawkeys.hcfcore.events.core.CoreWinRule;
+import com.lawkeys.hcfcore.events.totem.TotemController;
+import com.lawkeys.hcfcore.events.totem.TotemDefinition;
+import com.lawkeys.hcfcore.events.totem.TotemMessages;
+import com.lawkeys.hcfcore.events.totem.TotemRun;
+import com.lawkeys.hcfcore.events.totem.TotemSettings;
+import com.lawkeys.hcfcore.events.totem.TotemSettingsLoader;
 import com.lawkeys.hcfcore.hologram.HologramSource;
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.startup.StartupGate;
@@ -100,6 +106,7 @@ public final class EventModule {
     private ConquestController conquest;
     private CoreEventController core;
     private SlideController slide;
+    private TotemController totem;
     private BukkitTask tickTask;
 
     /**
@@ -205,6 +212,10 @@ public final class EventModule {
     }
 
     /** @return Slide, which shares {@code /events} and {@code events.yml} with the captures */
+    public TotemController getTotem() {
+        return totem;
+    }
+
     public SlideController getSlide() {
         return slide;
     }
@@ -231,7 +242,8 @@ public final class EventModule {
                 }
             }
         }
-        if (runningCoreZoneContains(world, x, y, z) || runningSlideZoneContains(world, x, y, z)) {
+        if (runningCoreZoneContains(world, x, y, z) || runningSlideZoneContains(world, x, y, z)
+                || runningTotemZoneContains(world, x, y, z)) {
             return true;
         }
         return king != null && king.getManager().isKing(playerId);
@@ -263,7 +275,8 @@ public final class EventModule {
             }
         }
         return runningCoreZoneContains(world, location.getX(), location.getY(), location.getZ())
-                || runningSlideZoneContains(world, location.getX(), location.getY(), location.getZ());
+                || runningSlideZoneContains(world, location.getX(), location.getY(), location.getZ())
+                || runningTotemZoneContains(world, location.getX(), location.getY(), location.getZ());
     }
 
     /** @return whether the running DTC or Last Break's zone (there is at most one) covers this point */
@@ -272,6 +285,13 @@ public final class EventModule {
             return false;
         }
         return core.getManager().getCurrent()
+                .map(run -> run.getDefinition().zone().contains(world, x, y, z))
+                .orElse(false);
+    }
+
+    /** @return whether the running Totem's zone (there is at most one) covers this point */
+    private boolean runningTotemZoneContains(String world, double x, double y, double z) {
+        return totem != null && totem.getManager().getCurrent()
                 .map(run -> run.getDefinition().zone().contains(world, x, y, z))
                 .orElse(false);
     }
@@ -292,16 +312,19 @@ public final class EventModule {
         this.conquest = new ConquestController(plugin, this, teams);
         this.core = new CoreEventController(plugin, this, teams, claims);
         this.slide = new SlideController(plugin, this, teams);
+        this.totem = new TotemController(plugin, this, teams, claims);
         reloadSettings();
         this.manager = new EventManager(() -> settings);
         king.enable(dataSource);
         conquest.enable(settings.tickSeconds());
         core.enable(settings.tickSeconds());
         slide.enable(settings.tickSeconds());
+        totem.enable(settings.tickSeconds());
         if (claims != null) {
-            // A DTC/Last Break run's core is broken through territory protection
-            // for that one block - see claim/BreakAllowance.
-            claims.setBreakAllowance((world, x, y, z) -> core.getManager().isCore(world, x, y, z));
+            // A DTC/Last Break run's core, and the running Totem's column, are broken
+            // through territory protection for those blocks only - see claim/BreakAllowance.
+            claims.setBreakAllowance((world, x, y, z) -> core.getManager().isCore(world, x, y, z)
+                    || totem.getManager().activeLevel(world, x, y, z) >= 0);
         }
 
         registerCommand("events", new EventsCommand(this));
@@ -332,6 +355,10 @@ public final class EventModule {
         int slides = slide.getSettings().definitions().size();
         if (slides > 0) {
             plugin.getLogger().info("Loaded " + slides + " Slide event(s).");
+        }
+        int totems = totem.getSettings().definitions().size();
+        if (totems > 0) {
+            plugin.getLogger().info("Loaded " + totems + " Totem(s).");
         }
 
         scheduleTick();
@@ -548,6 +575,15 @@ public final class EventModule {
                     file, settings, king.getSettings(), conquest.getSettings(), core.getSettings(), warn),
                     settings.tickSeconds());
         }
+        if (totem != null && slide != null && king != null && conquest != null && core != null) {
+            java.util.Set<String> taken = new java.util.HashSet<>();
+            settings.definitions().forEach(definition -> taken.add(definition.id().toLowerCase(java.util.Locale.ROOT)));
+            king.getSettings().definitions().forEach(definition -> taken.add(definition.id().toLowerCase(java.util.Locale.ROOT)));
+            conquest.getSettings().definitions().forEach(definition -> taken.add(definition.id().toLowerCase(java.util.Locale.ROOT)));
+            core.getSettings().definitions().forEach(definition -> taken.add(definition.id().toLowerCase(java.util.Locale.ROOT)));
+            slide.getSettings().definitions().forEach(definition -> taken.add(definition.id().toLowerCase(java.util.Locale.ROOT)));
+            totem.applySettings(TotemSettingsLoader.load(file, settings, taken, warn), settings.tickSeconds());
+        }
         if (manager != null) {
             // A reload may have changed the schedule or the times themselves; forget
             // the window so an event whose hour just passed is not fired retroactively.
@@ -655,6 +691,30 @@ public final class EventModule {
                 placed.add(above("slide:" + definition.id(), definition.zone(), lines));
             }
         }
+        if (totem != null) {
+            TotemSettings totemSettings = totem.getSettings();
+            Optional<TotemRun> run = totem.getManager().getCurrent();
+            for (TotemDefinition definition : totemSettings.enabled() ? totemSettings.definitions()
+                    : List.<TotemDefinition>of()) {
+                List<String> lines = new ArrayList<>();
+                lines.add(lang.get(TotemMessages.HOLOGRAM_TITLE, "event", definition.displayName()));
+                Optional<TotemRun> thisOne = run.filter(r -> r.getDefinition().id().equals(definition.id()));
+                if (thisOne.isPresent()) {
+                    UUID holder = thisOne.get().holder();
+                    lines.add(holder == null ? lang.get(TotemMessages.HOLOGRAM_NOBODY,
+                                    "height", String.valueOf(definition.height()))
+                            : lang.get(TotemMessages.HOLOGRAM_PROGRESS,
+                                    "team", teams.getManager() == null ? "?"
+                                            : teams.getManager().getTeam(holder).map(Team::getName).orElse("?"),
+                                    "broken", String.valueOf(thisOne.get().brokenCount()),
+                                    "height", String.valueOf(definition.height())));
+                } else {
+                    next(lines, totem.getManager().getNextOccurrence(definition));
+                }
+                placed.add(aboveBlock("totem:" + definition.id(), definition.zone().world(),
+                        definition.baseX(), definition.baseY() + definition.height() - 1, definition.baseZ(), lines));
+            }
+        }
         return placed;
     }
 
@@ -737,6 +797,9 @@ public final class EventModule {
         }
         if (slide != null) {
             slide.disable();
+        }
+        if (totem != null) {
+            totem.disable();
         }
         if (manager != null) {
             manager.stopAll();

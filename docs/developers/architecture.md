@@ -53,7 +53,7 @@ The dependency never points back (`claim/` never knows `dtr/`), every default is
 
 ## Two families of events
 
-KOTH, Citadel, Conquest, Kill the King, DTC, Last Break and Slide (things to capture or win) and Mountains (things that refill) share **no abstraction** — only a box type and a clock. Players still see one agenda: Mountains *contribute* their lines to `/events` through a seam, rather than the event module learning what a refill is.
+KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide and Totem (things to capture or win) and Mountains (things that refill) share **no abstraction** — only a box type and a clock. Players still see one agenda: Mountains *contribute* their lines to `/events` through a seam, rather than the event module learning what a refill is.
 
 ## Configuration everywhere
 

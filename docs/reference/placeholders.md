@@ -38,6 +38,7 @@ Placeholders are words between `%` signs that the plugin replaces when it shows 
 | `%last_break_line%` | The running Last Break's common health |
 | `%slide_line%` | The running Slide's leading team and its points |
 | `%slide_top_1%` … `%slide_top_3%` | The Slide's live top 3 teams |
+| `%totem_line%` | The running Totem: the team on its way and how many blocks it has broken |
 | `%class%` | Your class's name; empty in none |
 | `%class_line%` | Your class, or the class warming up with its time left |
 | `%class_energy_line%` | Your class's energy, for a class that has some (the Bard) |
@@ -62,7 +63,7 @@ The `*_line` placeholders, and the Conquest and timer rows, are whole rows whose
 | `%members_title%` | The members heading; empty without a team |
 | `%member_1%` … `%member_20%` | Your team's members, online first, then by rank, with the rank's marker |
 | `%top_team_1%` … `%top_team_10%` | The teams with most points |
-| `%no_event_line%` | A row saying no event runs, when none does — no phase, capture event, King, Conquest, DTC, Last Break, Slide or timer |
+| `%no_event_line%` | A row saying no event runs, when none does — no phase, capture event, King, Conquest, DTC, Last Break, Slide, Totem or timer |
 
 **In the classic list's `name`**, the placeholders are the listed player's own: `%prefix%` `%suffix%` `%player%` `%team%` `%team_tag%` `%kills%` `%ping%`.
 
@@ -109,7 +110,7 @@ These run from the console.
 | `events.yml` — KOTH and Citadel `reward-commands` | `%team%` (the winning team), `%event%` |
 | `events.yml` — Conquest `reward-commands` | `%team%`, `%event%` |
 | `events.yml` — Kill the King `reward-commands` | `%player%` (the King or the killer), `%event%` |
-| `events.yml` — DTC, Last Break and Slide `reward-commands` | `%team%` (the winning team), `%event%` |
+| `events.yml` — DTC, Last Break, Slide and Totem `reward-commands` | `%team%` (the winning team), `%event%` |
 | `killstreaks.yml` — `commands` and `broadcast` | `%player%`, `%streak%` |
 | `abilities.yml` — a `commands` ability | `%player%` |
 | `staff.yml` — toolbar `command` | `%player%` (the player clicked), `%staff%` (you). These run **as the staff member**, not the console |

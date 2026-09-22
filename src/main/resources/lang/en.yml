@@ -621,13 +621,34 @@ events:
     list-active: "{primary}▶ {secondary}%event% {muted}- {secondary}%team% {muted}leads with {secondary}%points%{muted}/{secondary}%target%"
     list-active-nobody: "{primary}▶ {secondary}%event% {muted}- nobody has scored yet {dark}(first to %target%)"
 
+  # --- Totem and Mini Totem ------------------------------------------------
+  # %height% is the column's height, %broken% how many of its blocks the team on
+  # its way has broken, %previous% the team whose progress a reset wiped out.
+  totem:
+    started: "{prefix}{warning}&l%event% {warning}has begun! {muted}Break all {secondary}%height% {muted}blocks of the column with a sword - another team's break starts it over."
+    broken: "{prefix}{warning}%event% {dark}{bullet} {secondary}%team% {muted}broke {secondary}%broken%{muted}/{secondary}%height%"
+    reset: "{prefix}{warning}%event% {dark}{bullet} {secondary}%team% {error}broke a block{muted}: {secondary}%previous%{muted}'s progress is gone, the totem starts over."
+    won: "{prefix}{warning}&l%event% {warning}was won by {secondary}%team%{warning}!"
+    expired: "{prefix}{warning}%event% {muted}ran out of time with no winner."
+    stopped: "{prefix}{warning}%event% {muted}was stopped by staff."
+    already-running: "{error}%event% is already running - one Totem at a time."
+    no-team: "{error}You need a team to break the totem."
+    wrong-tool: "{error}The totem is broken with a sword."
+    list-active: "{primary}▶ {secondary}%event% {muted}- {secondary}%team% {muted}has broken {secondary}%broken%{muted}/{secondary}%height%"
+    list-active-nobody: "{primary}▶ {secondary}%event% {muted}- untouched {dark}(%height% blocks)"
+    list-idle: "{muted}%event%"
+    # Above the column.
+    hologram-title: "{warning}&l%event%"
+    hologram-progress: "{muted}%team% {dark}{bullet} {secondary}%broken%{muted}/{secondary}%height%"
+    hologram-nobody: "{muted}Untouched {dark}(%height% blocks)"
+
   # --- Setup commands (/events create|setzone|setcore|delete) - DTC, Last
   # Break and Slide only. These are the only commands that rewrite events.yml.
   setup:
     created: "{success}Created {secondary}%event% {muted}({secondary}%radius% {muted}block radius) - draw its zone with {secondary}/events setzone %event%{muted}, move its core with {secondary}/events setcore %event%{muted}."
     already-exists: "{error}An event called '%event%' already exists."
-    unknown-type: "{error}'%type%' is not dtc, lastbreak or slide."
-    unknown-id: "{error}There is no DTC, Last Break or Slide called '%event%'."
+    unknown-type: "{error}'%type%' is not dtc, lastbreak, slide, totem or minitotem."
+    unknown-id: "{error}There is no DTC, Last Break, Slide or Totem called '%event%'."
     invalid-id: "{error}'%id%' is not a valid id {muted}- use only lowercase letters, digits, '_' and '-' ({secondary}%min%{muted}-{secondary}%max% {muted}characters)."
     running: "{error}%event% is running - stop it first with /events stop %event%."
     zone-set: "{success}Corner %corner% of {secondary}%event% {muted}set to your position."
@@ -641,7 +662,12 @@ events:
     core-not-applicable: "{error}%event% is a Slide - it has no core."
     no-target-block: "{error}You are not looking at a block close enough."
     deleted: "{success}Deleted {secondary}%event%{success}."
-    not-in-claim: "{warning}%event%'s core is not on a system team's claim {muted}- territory protection will not apply to it between runs. Claim around it with {secondary}/team createsystem <name> combat{muted}, then {secondary}/team forceclaim{muted}."
+    # /events settotem <id> - the column now stands on the block looked at.
+    totem-set: "{success}The column of {secondary}%event% {muted}({secondary}%height% {muted}blocks) now stands on the block you were looking at."
+    not-a-totem: "{error}There is no Totem called '%event%'."
+    totem-no-target: "{error}You are not looking at a block close enough."
+    totem-outside-zone: "{error}The column would not fit inside %event%'s zone there."
+    not-in-claim: "{warning}%event% does not stand on a system team's claim {muted}- territory protection will not apply to it between runs. Claim around it with {secondary}/team createsystem <name> combat{muted}, then {secondary}/team forceclaim{muted}."
     usage: "{error}Usage: {secondary}%usage%"
     write-failed: "{error}Could not write events.yml - see the console."
 
@@ -947,6 +973,8 @@ ui:
     last-break-line: "%event% {dark}{bullet} {secondary}%health%{muted}/{secondary}%max%"
     # The running Slide's leader, then the live top 3 (%slide_top_1% to %slide_top_3%).
     slide-line: "%event% {dark}{bullet} {secondary}%team% %points%{muted}/{secondary}%target%"
+    totem-line: "%event% {dark}{bullet} {secondary}%team% %broken%{muted}/{secondary}%height%"
+    totem-line-nobody: "%event% {dark}{bullet} {muted}0/%height%"
     slide-top: "{muted}%rank%. {secondary}%team% {dark}{bullet} {primary}%points%"
     # One custom timer (/timer, /keyall); %label% is its label, colours included.
     timer-line: "%label% {dark}{bullet} {secondary}%time%"
@@ -1322,6 +1350,7 @@ apollo:
     conquest-zone: "Conquest %zone%"
     king: "King %player%"
     dtc-core: "%event% core"
+    totem: "%event%"
     slide: "%event%"
 
 # ---------------------------------------------------------------------------

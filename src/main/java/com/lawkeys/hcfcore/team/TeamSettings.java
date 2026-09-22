@@ -84,14 +84,15 @@ public record TeamSettings(
      * @param perDtcWin      to the team that wins a DTC
      * @param perLastBreakWin to the team that wins a Last Break
      * @param perSlideWin    to the team that wins a Slide
+     * @param perTotemWin    to the team that wins a Totem or a Mini Totem
      */
     public record PointsRules(long starting, long minimum, long perKill, long perDeath, long perRaidable,
                               long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
-                              long perSlideWin) {
+                              long perSlideWin, long perTotemWin) {
 
         /** A scale that awards nothing. */
         public PointsRules(long starting, long minimum) {
-            this(starting, minimum, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+            this(starting, minimum, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
         }
     }
 

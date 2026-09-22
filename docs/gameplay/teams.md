@@ -79,6 +79,7 @@ Where points come from is entirely configurable, and **everything ships at 0** â
 | `points.per-dtc-win` | the winning team | winning a DTC |
 | `points.per-last-break-win` | the winning team | winning a Last Break |
 | `points.per-slide-win` | the winning team | winning a Slide |
+| `points.per-totem-win` | the winning team | winning a Totem or a Mini Totem |
 | `koth.points-per-capture` | the capturing team | capturing a KOTH or a Citadel |
 
 Killing a teammate, or yourself, earns nothing.

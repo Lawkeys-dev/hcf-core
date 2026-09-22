@@ -56,6 +56,23 @@ class EventsYamlTest {
     }
 
     @Test
+    void totemsShipAsAFiveBlockTotemAndAThreeBlockMiniTotemScheduledNowhere() throws IOException {
+        Map<String, Object> totem = section("totem", "totem");
+        Map<String, Object> mini = section("totem", "mini-totem");
+        assertEquals(5, ((Number) totem.get("height")).intValue());
+        assertEquals(3, ((Number) mini.get("height")).intValue());
+        for (Map<String, Object> entry : List.of(totem, mini)) {
+            assertEquals(List.of(), entry.get("schedule"));
+            assertEquals("QUARTZ_BLOCK", entry.get("material"));
+            assertEquals("BEDROCK", entry.get("broken-material"));
+            assertEquals("BEDROCK", entry.get("idle-material"));
+            assertEquals("RESET", entry.get("rival-break"));
+            assertEquals(com.lawkeys.hcfcore.events.totem.TotemSettingsLoader.SWORDS, entry.get("tools"),
+                    "every sword, as the loader's own default");
+        }
+    }
+
+    @Test
     void setupSectionShipsWithPositiveDefaults() throws IOException {
         Map<String, Object> root = load();
         @SuppressWarnings("unchecked")
@@ -75,7 +92,8 @@ class EventsYamlTest {
     void everyMarkerTheDocsQuoteIsInTheFile() throws IOException {
         String text = Files.readString(FILE);
         for (String marker : List.of("general", "zone-holograms", "setup", "koth", "citadel", "citadel-claim",
-                "ktk", "ktk-penalty", "ktk-kit", "conquest", "conquest-zones", "dtc", "last-break", "slide")) {
+                "ktk", "ktk-penalty", "ktk-kit", "conquest", "conquest-zones", "dtc", "last-break", "slide",
+                "totem", "mini-totem")) {
             assertTrue(text.contains("[start:" + marker + "]"), "missing [start:" + marker + "] in events.yml");
             assertTrue(text.contains("[end:" + marker + "]"), "missing [end:" + marker + "] in events.yml");
         }
@@ -87,7 +105,7 @@ class EventsYamlTest {
     void newIdsDoNotCollideWithAnyOtherFamily() throws IOException {
         Map<String, Object> root = load();
         java.util.Set<String> ids = new java.util.HashSet<>();
-        for (String family : List.of("events", "citadels", "kill-the-king", "conquest", "dtc", "last-break", "slide")) {
+        for (String family : List.of("events", "citadels", "kill-the-king", "conquest", "dtc", "last-break", "slide", "totem")) {
             Map<String, Object> section = (Map<String, Object>) root.get(family);
             if (section == null) {
                 continue;

@@ -31,6 +31,11 @@ import com.lawkeys.hcfcore.events.slide.SlideDefinition;
 import com.lawkeys.hcfcore.events.slide.SlideMessages;
 import com.lawkeys.hcfcore.events.slide.SlideRun;
 import com.lawkeys.hcfcore.events.slide.SlideUpdate;
+import com.lawkeys.hcfcore.events.totem.TotemController;
+import com.lawkeys.hcfcore.events.totem.TotemDefinition;
+import com.lawkeys.hcfcore.events.totem.TotemMessages;
+import com.lawkeys.hcfcore.events.totem.TotemRun;
+import com.lawkeys.hcfcore.events.totem.TotemUpdate;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.util.Cuboid;
 import com.lawkeys.hcfcore.util.Durations;
@@ -78,7 +83,7 @@ public final class EventsCommand implements TabExecutor {
         String action = args[0].toLowerCase(Locale.ROOT);
         // The setup commands only touch DTC, Last Break and Slide, and write
         // events.yml themselves - they do not need the capture engine to be enabled.
-        if (List.of("create", "setzone", "setcore", "delete").contains(action)) {
+        if (List.of("create", "setzone", "setcore", "settotem", "delete").contains(action)) {
             return setupAction(sender, action, args);
         }
         if (manager == null || !module.getSettings().enabled()) {
@@ -117,10 +122,13 @@ public final class EventsCommand implements TabExecutor {
         SlideController slide = module.getSlide();
         List<SlideDefinition> slides = captureEventsUsable && slide != null
                 ? slide.getSettings().definitions() : List.of();
+        TotemController totem = module.getTotem();
+        List<TotemDefinition> totems = captureEventsUsable && totem != null
+                ? totem.getSettings().definitions() : List.of();
         List<AgendaEntry> contributed = module.collectAgenda();
 
         if (definitions.isEmpty() && kingDefinitions.isEmpty() && conquests.isEmpty() && coreEvents.isEmpty()
-                && slides.isEmpty() && contributed.isEmpty()) {
+                && slides.isEmpty() && totems.isEmpty() && contributed.isEmpty()) {
             module.getLang().send(sender,
                     captureEventsUsable ? EventMessages.LIST_EMPTY : EventMessages.DISABLED);
             return;
@@ -166,6 +174,10 @@ public final class EventsCommand implements TabExecutor {
 
         for (SlideDefinition definition : slides) {
             listSlide(sender, slide, definition);
+        }
+
+        for (TotemDefinition definition : totems) {
+            listTotem(sender, totem, definition);
         }
 
         for (AgendaEntry entry : contributed) {
@@ -256,6 +268,30 @@ public final class EventsCommand implements TabExecutor {
         }
     }
 
+    private void listTotem(CommandSender sender, TotemController totem, TotemDefinition definition) {
+        Optional<TotemRun> run = totem.getManager().getCurrent()
+                .filter(current -> current.getDefinition().id().equalsIgnoreCase(definition.id()));
+        if (run.isPresent()) {
+            if (run.get().holder() == null) {
+                module.getLang().send(sender, TotemMessages.LIST_ACTIVE_NOBODY, "event", definition.displayName(),
+                        "height", String.valueOf(definition.height()));
+            } else {
+                module.getLang().send(sender, TotemMessages.LIST_ACTIVE, "event", definition.displayName(),
+                        "team", module.getTeams().getManager().getTeam(run.get().holder()).map(Team::getName).orElse("?"),
+                        "broken", String.valueOf(run.get().brokenCount()),
+                        "height", String.valueOf(definition.height()));
+            }
+            return;
+        }
+        Optional<ZonedDateTime> next = totem.getManager().getNextOccurrence(definition);
+        if (next.isPresent()) {
+            module.getLang().send(sender, EventMessages.LIST_SCHEDULED,
+                    "event", definition.displayName(), "time", TIME.format(next.get()));
+        } else {
+            module.getLang().send(sender, EventMessages.LIST_UNSCHEDULED, "event", definition.displayName());
+        }
+    }
+
     private void listSlide(CommandSender sender, SlideController slide, SlideDefinition definition) {
         Optional<SlideRun> run = slide.getManager().getCurrent()
                 .filter(current -> current.getDefinition().id().equalsIgnoreCase(definition.id()));
@@ -332,6 +368,11 @@ public final class EventsCommand implements TabExecutor {
                     ? Optional.empty() : module.getSlide().getSettings().find(id);
             if (slideEvent.isPresent()) {
                 return slideAction(sender, slideEvent.get(), starting);
+            }
+            Optional<TotemDefinition> totemEvent = module.getTotem() == null
+                    ? Optional.empty() : module.getTotem().getSettings().find(id);
+            if (totemEvent.isPresent()) {
+                return totemAction(sender, totemEvent.get(), starting);
             }
             module.getLang().send(sender, EventMessages.UNKNOWN_EVENT, "event", id);
             return true;
@@ -440,6 +481,31 @@ public final class EventsCommand implements TabExecutor {
         return true;
     }
 
+    /** Start or stop a Totem: one runs at a time. */
+    private boolean totemAction(CommandSender sender, TotemDefinition definition, boolean starting) {
+        TotemController totem = module.getTotem();
+        Optional<TotemRun> current = totem.getManager().getCurrent();
+        if (starting) {
+            Optional<TotemUpdate> started = totem.getManager().start(definition);
+            if (started.isEmpty()) {
+                boolean same = current.isPresent() && current.get().getDefinition().id().equalsIgnoreCase(definition.id());
+                module.getLang().send(sender, same ? EventMessages.ALREADY_ACTIVE : TotemMessages.ALREADY_RUNNING,
+                        "event", current.map(run -> run.getDefinition().displayName()).orElse(definition.displayName()));
+                return true;
+            }
+            totem.announce(started.get());
+            module.getLang().send(sender, EventMessages.ADMIN_STARTED, "event", definition.displayName());
+            return true;
+        }
+        if (current.isEmpty() || !current.get().getDefinition().id().equalsIgnoreCase(definition.id())) {
+            module.getLang().send(sender, EventMessages.NOT_ACTIVE, "event", definition.displayName());
+            return true;
+        }
+        totem.getManager().stop().ifPresent(totem::announce);
+        module.getLang().send(sender, EventMessages.ADMIN_STOPPED, "event", definition.displayName());
+        return true;
+    }
+
     /** Start or stop a Slide: one runs at a time, like a Conquest. */
     private boolean slideAction(CommandSender sender, SlideDefinition definition, boolean starting) {
         SlideController slide = module.getSlide();
@@ -485,6 +551,7 @@ public final class EventsCommand implements TabExecutor {
             case "create" -> setupCreate(player, args);
             case "setzone" -> setupSetZone(player, args);
             case "setcore" -> setupSetCore(player, args);
+            case "settotem" -> setupSetTotem(player, args);
             case "delete" -> setupDelete(player, args);
             default -> false;
         };
@@ -500,6 +567,7 @@ public final class EventsCommand implements TabExecutor {
             case "dtc" -> "dtc";
             case "lastbreak" -> "last-break";
             case "slide" -> "slide";
+            case "totem", "minitotem" -> "totem";
             default -> null;
         };
         if (section == null) {
@@ -535,7 +603,20 @@ public final class EventsCommand implements TabExecutor {
             entry.set("world", world);
             set(entry, "corner-1", cx - radius, cy - radius, cz - radius);
             set(entry, "corner-2", cx + radius, cy + radius, cz + radius);
-            if (!section.equals("slide")) {
+            if (section.equals("totem")) {
+                ConfigurationSection base = entry.createSection("base");
+                base.set("x", cx);
+                base.set("y", cy);
+                base.set("z", cz);
+                entry.set("height", type.equals("minitotem") ? 3 : 5);
+                entry.set("material", "QUARTZ_BLOCK");
+                entry.set("broken-material", "BEDROCK");
+                entry.set("idle-material", "BEDROCK");
+                entry.set("tools", com.lawkeys.hcfcore.events.totem.TotemSettingsLoader.SWORDS);
+                entry.set("instant-break", true);
+                entry.set("rival-break", "RESET");
+                entry.set("announce-breaks", true);
+            } else if (!section.equals("slide")) {
                 ConfigurationSection core = entry.createSection("core");
                 core.set("x", cx);
                 core.set("y", cy);
@@ -553,7 +634,9 @@ public final class EventsCommand implements TabExecutor {
                 entry.set("announce-deaths", true);
                 entry.set("points-to-win", 500);
             }
-            entry.set("announce-at", List.of());
+            if (!section.equals("totem")) {
+                entry.set("announce-at", List.of());
+            }
             entry.set("max-duration-seconds", 0);
             entry.set("schedule", List.of());
             entry.set("reward-commands", List.of());
@@ -700,6 +783,83 @@ public final class EventsCommand implements TabExecutor {
         }
     }
 
+    /**
+     * {@code /events settotem <id>} - the Totem's column stands on the block looked at,
+     * and is built there at once, of the block it stands as between runs.
+     */
+    private boolean setupSetTotem(Player player, String[] args) {
+        if (args.length < 2) {
+            return false;
+        }
+        String id = args[1];
+        if (!EventIds.isValid(id)) {
+            module.getLang().send(player, CoreMessages.SETUP_INVALID_ID, "id", id,
+                    "min", String.valueOf(EventIds.MIN_LENGTH), "max", String.valueOf(EventIds.MAX_LENGTH));
+            return true;
+        }
+        Optional<TotemDefinition> definition = module.getTotem() == null
+                ? Optional.empty() : module.getTotem().getSettings().find(id);
+        if (definition.isEmpty()) {
+            module.getLang().send(player, TotemMessages.SETUP_NOT_A_TOTEM, "event", id);
+            return true;
+        }
+        if (isRunning(id)) {
+            module.getLang().send(player, CoreMessages.SETUP_RUNNING, "event", id);
+            return true;
+        }
+        Block target = player.getTargetBlockExact(module.getSetupCoreDistance());
+        if (target == null) {
+            module.getLang().send(player, TotemMessages.SETUP_NO_TARGET);
+            return true;
+        }
+        TotemDefinition old = definition.get();
+        Cuboid zone = old.zone();
+        if (!zone.containsBlock(target.getWorld().getName(), target.getX(), target.getY(), target.getZ())
+                || !zone.containsBlock(target.getWorld().getName(), target.getX(), target.getY() + old.height() - 1,
+                target.getZ())) {
+            module.getLang().send(player, TotemMessages.SETUP_OUTSIDE_ZONE, "event", id);
+            return true;
+        }
+        boolean written = EventYamlStore.edit(module.getPlugin(), root -> {
+            ConfigurationSection entry = entryOf(root, "totem", id);
+            if (entry == null) {
+                return false;
+            }
+            ConfigurationSection base = entry.getConfigurationSection("base");
+            if (base == null) {
+                base = entry.createSection("base");
+            }
+            base.set("x", target.getX());
+            base.set("y", target.getY());
+            base.set("z", target.getZ());
+            return true;
+        });
+        if (!written) {
+            module.getLang().send(player, CoreMessages.SETUP_WRITE_FAILED, "event", id);
+            return true;
+        }
+        // The old column goes; the new one is built where it now stands.
+        org.bukkit.World world = target.getWorld();
+        for (int level = 0; level < old.height(); level++) {
+            Block block = world.getBlockAt(old.baseX(), old.baseY() + level, old.baseZ());
+            if (block.getType().name().equals(old.idleMaterial())) {
+                block.setType(org.bukkit.Material.AIR, false);
+            }
+        }
+        module.reloadSettings();
+        module.getTotem().getSettings().find(id).ifPresent(now -> {
+            org.bukkit.Material idle = org.bukkit.Material.matchMaterial(now.idleMaterial());
+            for (int level = 0; level < now.height(); level++) {
+                world.getBlockAt(now.baseX(), now.baseY() + level, now.baseZ()).setType(idle, false);
+            }
+            module.getLang().send(player, TotemMessages.SETUP_SET, "event", id, "height", String.valueOf(now.height()));
+            if (!module.getTotem().isOnSystemClaim(now)) {
+                module.getLang().send(player, CoreMessages.SETUP_NOT_IN_CLAIM, "event", id);
+            }
+        });
+        return true;
+    }
+
     private boolean setupSetCore(Player player, String[] args) {
         if (args.length < 2) {
             return false;
@@ -811,11 +971,18 @@ public final class EventsCommand implements TabExecutor {
         if (module.getSlide() != null && module.getSlide().getSettings().find(id).isPresent()) {
             return Optional.of("slide");
         }
+        if (module.getTotem() != null && module.getTotem().getSettings().find(id).isPresent()) {
+            return Optional.of("totem");
+        }
         return Optional.empty();
     }
 
     private boolean isRunning(String id) {
         if (module.getCore() != null && module.getCore().getManager().getCurrent()
+                .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
+            return true;
+        }
+        if (module.getTotem() != null && module.getTotem().getManager().getCurrent()
                 .filter(run -> run.getDefinition().id().equalsIgnoreCase(id)).isPresent()) {
             return true;
         }
@@ -834,6 +1001,9 @@ public final class EventsCommand implements TabExecutor {
             return true;
         }
         if (module.getCore() != null && module.getCore().getSettings().find(id).isPresent()) {
+            return true;
+        }
+        if (module.getTotem() != null && module.getTotem().getSettings().find(id).isPresent()) {
             return true;
         }
         return module.getSlide() != null && module.getSlide().getSettings().find(id).isPresent();
@@ -859,17 +1029,26 @@ public final class EventsCommand implements TabExecutor {
             return List.of();
         }
         if (args.length == 1) {
-            return prefixed(List.of("start", "stop", "create", "setzone", "setcore", "delete"), args[0]);
+            return prefixed(List.of("start", "stop", "create", "setzone", "setcore", "settotem", "delete"), args[0]);
         }
         String action = args[0].toLowerCase(Locale.ROOT);
         if (args.length == 2) {
             if (action.equals("create")) {
-                return prefixed(List.of("dtc", "lastbreak", "slide"), args[1]);
+                return prefixed(List.of("dtc", "lastbreak", "slide", "totem", "minitotem"), args[1]);
             }
             List<String> ids = new ArrayList<>();
+            if (action.equals("settotem")) {
+                if (module.getTotem() != null) {
+                    module.getTotem().getSettings().definitions().forEach(d -> ids.add(d.id()));
+                }
+                return prefixed(ids, args[1]);
+            }
             if (action.equals("setzone") || action.equals("setcore") || action.equals("delete")) {
                 if (module.getCore() != null) {
                     module.getCore().getSettings().definitions().forEach(d -> ids.add(d.id()));
+                }
+                if (module.getTotem() != null && !action.equals("setcore")) {
+                    module.getTotem().getSettings().definitions().forEach(d -> ids.add(d.id()));
                 }
                 if (module.getSlide() != null && !action.equals("setcore")) {
                     module.getSlide().getSettings().definitions().forEach(d -> ids.add(d.id()));
@@ -896,6 +1075,11 @@ public final class EventsCommand implements TabExecutor {
             }
             if (module.getSlide() != null) {
                 for (SlideDefinition definition : module.getSlide().getSettings().definitions()) {
+                    ids.add(definition.id());
+                }
+            }
+            if (module.getTotem() != null) {
+                for (TotemDefinition definition : module.getTotem().getSettings().definitions()) {
                     ids.add(definition.id());
                 }
             }

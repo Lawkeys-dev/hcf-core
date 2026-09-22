@@ -2,7 +2,7 @@
 
 *Configured in [`events.yml`](../reference/configuration/events.md). Command: `/events`.*
 
-Events pull teams into the open. HCFCore ships seven kinds — **KOTH**, **Citadel**, **Conquest**, **Kill the King**, **DTC**, **Last Break** and **Slide** — all defined in `events.yml` as data: a new KOTH or Citadel is a block of YAML, never a recompile.
+Events pull teams into the open. HCFCore ships nine kinds — **KOTH**, **Citadel**, **Conquest**, **Kill the King**, **DTC**, **Last Break**, **Slide**, **Totem** and **Mini Totem** — all defined in `events.yml` as data: a new KOTH or Citadel is a block of YAML, never a recompile.
 
 ```text
 /events                  # what runs and what is coming (aliases /event, /koth)
@@ -15,7 +15,7 @@ Starting and stopping needs `hcfcore.events.admin`. Ids are shared by every kind
 **Scheduling**: each event has an optional `schedule` — local times of day, read in the file's `time-zone` — at which it opens by itself. The shipped examples have none: they wait for staff until you move them onto your map and give them times.
 
 !!! note "A restart ends a running event"
-    Nothing about a running KOTH, Citadel, Conquest, Kill the King, DTC, Last Break or Slide is kept across a restart — except the King's items, which are always given back. A DTC or Last Break's core itself is not run state: it is a permanent block, placed and kept in the world, and simply stays where it is.
+    Nothing about a running KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide or Totem is kept across a restart — except the King's items, which are always given back. A DTC or Last Break's core itself is not run state: it is a permanent block, placed and kept in the world, and simply stays where it is.
 
 ## KOTH
 
@@ -177,12 +177,36 @@ A zone where **every team member present scores for their team**.
 
 The scoreboard shows `%slide_line%` (the leader) and the **live top 3**, `%slide_top_1%` to `%slide_top_3%`.
 
-## Setting up DTC, Last Break and Slide in-game
+## Totem and Mini Totem
+
+A column of blocks in the event zone — **5** for a Totem, **3** for a Mini Totem. Between runs it is **bedrock**; when the event starts it turns to **quartz**.
+
+```yaml title="events.yml — the shipped Totem"
+--8<-- "src/main/resources/events.yml:totem"
+```
+
+- **Break it with a sword** (`tools`, every sword by default) — at once, one hit per block (`instant-break`). Each block your team breaks turns to bedrock and stays so.
+- **The first team to break the whole column wins.**
+- **A block broken by any other team starts the totem over**: every block turns back to quartz, and that team's progress counts for nothing (`rival-break: RESET`). With `RESET_AND_START`, that break is then the other team's first.
+- Creative, spectator and teamless players never break it. The column cannot be blown up or pushed by a piston, and outside a run only a staff member in creative can take it apart.
+- When the event ends — won, out of time, stopped — the column is bedrock again.
+- One Totem runs at a time.
+
+The Mini Totem is the same event with `height: 3`:
+
+```yaml title="events.yml — the shipped Mini Totem"
+--8<-- "src/main/resources/events.yml:mini-totem"
+```
+
+The scoreboard shows `%totem_line%`: the team on its way and how many blocks it has broken.
+
+## Setting up DTC, Last Break, Slide and Totem in-game
 
 Staff lay these three out without touching `events.yml` by hand:
 
 ```text
-/events create <dtc|lastbreak|slide> <id>   # a new zone centred on you
+/events create <dtc|lastbreak|slide|totem|minitotem> <id>   # a new zone centred on you
+/events settotem <id>                       # a Totem's column stands on the block you look at, built of bedrock
 /events setzone <id>                        # the claiming wand: draw the zone
 /events setzone <id> <1|2>                  # or move one corner to your position
 /events setcore <id>                        # DTC/Last Break: move the core to the block you are looking at
@@ -205,16 +229,16 @@ If a DTC or Last Break's core is not on a **system team's claim**, staff are war
 
 ## Zone holograms
 
-A hologram floats above every capture zone — KOTH, Citadel, each Conquest zone, a DTC or Last Break's core, and a Slide's zone — for as long as it is configured (`zone-holograms`): while its event runs, its status; otherwise, when it runs next (or "not scheduled"). A DTC or Last Break shows its health (or, under `PER_TEAM`, the leader's breaks); a Slide shows its live top 3. Its texts are under `events.hologram` in `lang/en.yml`. Kill the King has no zone of its own, so no hologram. The hologram module (`holograms.yml`) must be enabled.
+A hologram floats above every capture zone — KOTH, Citadel, each Conquest zone, a DTC or Last Break's core, a Slide's zone, and a Totem's column — for as long as it is configured (`zone-holograms`): while its event runs, its status; otherwise, when it runs next (or "not scheduled"). A DTC or Last Break shows its health (or, under `PER_TEAM`, the leader's breaks); a Slide shows its live top 3. Its texts are under `events.hologram` in `lang/en.yml`. Kill the King has no zone of its own, so no hologram. The hologram module (`holograms.yml`) must be enabled.
 
 ## Friendly fire in events
 
-Allies can hurt each other inside the zone of a running KOTH, Citadel, Conquest, DTC, Last Break or Slide, and on or by the King during Kill the King — where allied teams compete. See [Combat](combat.md#friendly-fire).
+Allies can hurt each other inside the zone of a running KOTH, Citadel, Conquest, DTC, Last Break, Slide or Totem, and on or by the King during Kill the King — where allied teams compete. See [Combat](combat.md#friendly-fire).
 
 ## Points
 
-Winning also earns [team points](teams.md#points-and-ranking), all `0` by default: `koth.points-per-capture` for KOTH and Citadel, `points.per-conquest-win`, `points.per-king-win`, `points.per-dtc-win`, `points.per-last-break-win`, `points.per-slide-win`.
+Winning also earns [team points](teams.md#points-and-ranking), all `0` by default: `koth.points-per-capture` for KOTH and Citadel, `points.per-conquest-win`, `points.per-king-win`, `points.per-dtc-win`, `points.per-last-break-win`, `points.per-slide-win`, `points.per-totem-win`.
 
 ## Lunar Client
 
-Lunar Client players see waypoints on KOTH, Citadel and Conquest zones, on a running DTC or Last Break's core, on a running Slide's zone, and on the King during Kill the King. See [Integrations](../server/integrations.md#lunar-client-apollo).
+Lunar Client players see waypoints on KOTH, Citadel and Conquest zones, on a running DTC or Last Break's core, on a running Slide's zone, on a running Totem's column, and on the King during Kill the King. See [Integrations](../server/integrations.md#lunar-client-apollo).

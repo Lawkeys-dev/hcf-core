@@ -53,6 +53,7 @@ scoreboard:
   #   %dtc_team_line% your own team's breaks in the running DTC, empty otherwise
   #   %last_break_line%  the running Last Break's common health
   #   %slide_line%    the running Slide's leader and points
+  #   %totem_line%    the running Totem: the team on its way, and how many blocks
   #   %slide_top_1% to %slide_top_3%   the Slide's live top 3 teams
   #   %timer_1% %timer_2% %timer_3%   the custom timers (/timer, /keyall), the
   #                   one ending soonest first - each a whole ready-made row
@@ -102,6 +103,7 @@ scoreboard:
     - "[events]%slide_top_1%"
     - "[events]%slide_top_2%"
     - "[events]%slide_top_3%"
+    - "[events]%totem_line%"
     - "[timers]%timer_1%"
     - "[timers]%timer_2%"
     - "[timers]%timer_3%"
@@ -222,6 +224,7 @@ tablist:
       - "%dtc_line%"
       - "%last_break_line%"
       - "%slide_line%"
+      - "%totem_line%"
       - "%timer_1%"
       - "%timer_2%"
       - "%timer_3%"

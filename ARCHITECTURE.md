@@ -33,7 +33,7 @@ hcf-core/
 │   ├── pvpclass/                       # classes: Diamond, Bard, Archer, Rogue, Miner and those classes.yml defines
 │   ├── effectcommand/                  # /speed and the like: an effect until death (effect-commands.yml)
 │   ├── economy/                        # balances, /pay, /eco, /team deposit|withdraw
-│   ├── events/                         # family A: KOTH/Citadel; conquest/; king/ (Kill the King); core/ (DTC, Last Break); slide/ (Slide)
+│   ├── events/                         # family A: KOTH/Citadel; conquest/; king/ (Kill the King); core/ (DTC, Last Break); slide/ (Slide); totem/ (Totem, Mini Totem)
 │   ├── resourcenode/                   # family B: Mountains
 │   ├── phase/                          # SOTW, EOTW, the Purge
 │   ├── stats/                          # kills, deaths, killstreaks, playtime, leaderboards
@@ -144,6 +144,7 @@ What they share: a target, a win condition, a timer, announcements, a reward for
 - **Kill the King** (`events/king/`) is a third engine. It has no zone to hold, no holding team and no capture countdown: a player, their death or survival, and a border that punishes rather than counts. Forcing it into `CaptureEventDefinition` would drag a holder and a countdown through code that can have neither — and a common interface would bring nothing either, since the engines have **no method** in common.
 - **DTC and Last Break** (`events/core/`, `CoreEventManager`) are a fourth engine: a block core inside a zone, broken by teams; DTC's `counter` (`SHARED`/`PER_TEAM`) and Last Break's absence of it choose one of three win rules (`CoreWinRule`). The two share every mechanism — the per-team cooldown, the permanent, self-replacing block, the explosion and piston protection — so one engine, two `events.yml` sections (`dtc:`, `last-break:`), reads more truthfully than two engines that would differ only in a message key.
 - **Slide** (`events/slide/`, `SlideManager`) is a fifth engine: continuous per-tick scoring by whoever stands in a zone, with a death penalty that applies anywhere on the server. It shares the schedule, `/events` and the id space with the rest of family A, and nothing else — there is no zone to *hold*, only to *stand in*, which is a different rule from every other engine here.
+- **Totem** (`events/totem/`, `TotemManager`) is a sixth engine (the owner's event of 22/09/2026): a column of blocks broken one by one by one team, **started over whenever another team breaks one** (`RivalBreak`). The column is drawn from the run - active, broken, or idle between runs - never edited block by block, so a reset, a win or a stop all come back to the same picture; the break is recorded at `MONITOR` like the DTC's, and `BlockDamageEvent#setInstaBreak` makes an allowed sword hit break at once. `BreakAllowance` opens the running column's unbroken blocks through territory protection, alongside the running core.
 
 What the family does share is only what is really common:
 
@@ -277,7 +278,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `LogoutGuard` | `general/` | `ALLOW` (nobody refused) | `pvp/` (a tagged player cannot leave through `/logout`: that would be a combat log) |
 | Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `ability/` (`abilities.yml`) |
 | Partner items | `pvp/` | none recognised (every pearl and listed item counted) | `ability/` (a Fake Pearl, a Golden Head: their own cooldowns) |
-| `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel, Conquest, DTC, Last Break or Slide zone, and the King during Kill the King) |
+| `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel, Conquest, DTC, Last Break, Slide or Totem zone, and the King during Kill the King) |
 | `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW and the Purge make everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |
 | Scoreboard row filter | `ui/` | every tagged row shows | `settings/` (a section switched off in `/settings`) |

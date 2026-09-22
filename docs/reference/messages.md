@@ -33,7 +33,7 @@ Keys follow `<module>.<context>.<message>`, fully nested — a `team:` section h
 | `dtr` | DTR, raidable announcements |
 | `pvp` | combat tag, deathbans, friendly fire, loot |
 | `economy` | balances, `/pay`, `/eco` |
-| `events` | KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide, the setup commands, zone holograms |
+| `events` | KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide, Totem, the setup commands, zone holograms |
 | `resourcenode` | Mountains |
 | `phase` | SOTW, EOTW, the Purge |
 | `staff` | staff mode, vanish, freeze, invsee, tickets, strikes, staff chat |

@@ -204,6 +204,30 @@ Under `slide:`, one entry per Slide.
 | `announce-at` | `[100, 250, 400, 450]` | Points marks to broadcast, once per team |
 | `max-duration-seconds`, `schedule`, `reward-commands` | `0`, `[]`, `[]` | As for a KOTH; rewards get `%team%` and `%event%` |
 
+## Totem and Mini Totem
+
+Under `totem:`, one entry per Totem — a Mini Totem is only a shorter one. **How it plays:** [:octicons-arrow-right-24: Totem](../../gameplay/events.md#totem-and-mini-totem)
+
+```yaml title="events.yml — the shipped Totem"
+--8<-- "src/main/resources/events.yml:totem"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `display-name`, `world`, `corner-1`, `corner-2` | an example | Its name and zone; the column must stand inside it |
+| `base` | an example | The column's lowest block — set in game with `/events settotem <id>` |
+| `height` | `5` (`3` for the Mini Totem) | How many blocks the column is, 1 to 64 |
+| `material` | `QUARTZ_BLOCK` | The column during a run: what is broken |
+| `broken-material` | `BEDROCK` | A block once a team has broken it |
+| `idle-material` | `BEDROCK` | The column between runs |
+| `tools` | every sword | What a block may be broken with; an empty list allows anything |
+| `instant-break` | `true` | One hit breaks a block, rather than the time the game gives it to that tool |
+| `rival-break` | `RESET` | A block broken by another team: `RESET` starts the totem over and counts for nobody; `RESET_AND_START` also makes it the other team's first |
+| `announce-breaks` | `true` | Announce every block broken; the start, a reset and the win are always announced |
+| `max-duration-seconds`, `schedule`, `reward-commands` | `0`, `[]`, `[]` | As for a KOTH; rewards get `%team%` and `%event%` |
+
+What stays in code: one Totem runs at a time; creative, spectator and teamless players never break it; the column is always protected from explosions and pistons.
+
 ## The whole shipped file
 
 [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/events.yml).

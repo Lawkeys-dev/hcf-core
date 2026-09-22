@@ -291,6 +291,13 @@ final class ApolloBridge implements LunarBridge, Listener {
             sources.events().getSlide().getManager().getCurrent().ifPresent(run ->
                     wanted.put(text("apollo.waypoint.slide", "event", plain(run.getDefinition().displayName())),
                             spec(run.getDefinition().zone(), rules.eventColor())));
+            if (sources.events().getTotem() != null) {
+                sources.events().getTotem().getManager().getCurrent().ifPresent(run ->
+                        wanted.put(text("apollo.waypoint.totem", "event", plain(run.getDefinition().displayName())),
+                                new WaypointSpec(run.getDefinition().zone().world(), run.getDefinition().baseX(),
+                                        run.getDefinition().baseY() + run.getDefinition().height() - 1,
+                                        run.getDefinition().baseZ(), rules.eventColor())));
+            }
             sources.events().getKing().getManager().getCurrent().filter(KingRun::isReigning).ifPresent(run -> {
                 Player king = Bukkit.getPlayer(run.getKingId());
                 if (king != null && viewer.canSee(king)) {

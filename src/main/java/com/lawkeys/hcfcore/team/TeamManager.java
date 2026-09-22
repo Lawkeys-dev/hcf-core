@@ -1133,6 +1133,11 @@ public final class TeamManager {
         award(team, config().points().perSlideWin());
     }
 
+    /** Awards {@code per-totem-win} to the team that broke a whole Totem or Mini Totem. */
+    public void recordTotemWin(Team team) {
+        award(team, config().points().perTotemWin());
+    }
+
     private void award(Team team, long amount) {
         if (team != null && amount != 0 && !team.getType().isSystem()) {
             addPoints(team, amount);
