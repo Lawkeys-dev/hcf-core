@@ -15,6 +15,7 @@ Every example on this page is **taken from the shipped `apollo.yml`**. Changes a
 | Key | As shipped | What it does |
 |---|---|---|
 | `enabled` | `true` | Every Lunar Client feature |
+| `resend-seconds` | `30` | How often everything is sent again although nothing changed. Apollo forgets what a player holds when it is reloaded, and says nothing — this is how the waypoints and nametags come back |
 | `update-ticks` | `10` | How often everything is brought up to date; only what changed is sent |
 
 ## Waypoints

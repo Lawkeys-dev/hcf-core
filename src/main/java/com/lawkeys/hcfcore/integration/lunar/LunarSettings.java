@@ -10,9 +10,14 @@ import java.util.OptionalInt;
  *
  * @param updateTicks how often everything is brought up to date; only what changed
  *                    is sent
+ * @param resendSeconds how often everything is sent again even though nothing
+ *                    changed. Apollo forgets what a player holds whenever it is
+ *                    reloaded - {@code /apollo reload} clears every waypoint and
+ *                    nametag the server had sent - and nothing tells the plugin
+ *                    (found in game, 22/09/2026); this is how it comes back
  */
-public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoints, TeamView teamView,
-                            Cooldowns cooldowns, Nametags nametags) {
+public record LunarSettings(boolean enabled, int updateTicks, long resendSeconds, Waypoints waypoints,
+                            TeamView teamView, Cooldowns cooldowns, Nametags nametags) {
 
     public LunarSettings {
         Objects.requireNonNull(waypoints, "waypoints");
@@ -20,6 +25,7 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
         Objects.requireNonNull(cooldowns, "cooldowns");
         Objects.requireNonNull(nametags, "nametags");
         updateTicks = Math.max(1, updateTicks);
+        resendSeconds = Math.max(5L, Math.min(600L, resendSeconds));
     }
 
     /**
@@ -56,6 +62,7 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
     /** Built-in fallback, mirroring {@code resources/apollo.yml}. */
     public static LunarSettings defaults() {
         return new LunarSettings(true, 10,
+                30L,
                 new Waypoints(true, true, true, true, true, true, 0,
                         0x55FF55, 0x00AA00, 0xFFFF55, 0xFF55FF, 0xFFAA00),
                 new TeamView(true, 0x55FF55, 48.0),

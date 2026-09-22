@@ -24,6 +24,7 @@ public final class LunarSettingsLoader {
         return new LunarSettings(
                 section.getBoolean("enabled", defaults.enabled()),
                 section.getInt("update-ticks", defaults.updateTicks()),
+                section.getLong("resend-seconds", defaults.resendSeconds()),
                 waypoints(section.getConfigurationSection("waypoints"), defaults.waypoints(), warn),
                 teamView(section.getConfigurationSection("team-view"), defaults.teamView(), warn),
                 cooldowns(section.getConfigurationSection("cooldowns"), defaults.cooldowns()),

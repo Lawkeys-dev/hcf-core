@@ -90,6 +90,8 @@ final class ApolloBridge implements LunarBridge, Listener {
         final SentState<CooldownSpec> cooldowns = new SentState<>();
         final SentState<List<String>> nametags = new SentState<>();
         boolean teamView;
+        /** When everything was last sent again whether it had changed or not. */
+        long resentAt;
     }
 
     private final Plugin plugin;
@@ -171,6 +173,14 @@ final class ApolloBridge implements LunarBridge, Listener {
             }
             ApolloPlayer apollo = found.get();
             Viewer state = viewers.computeIfAbsent(viewer.getUniqueId(), id -> new Viewer());
+            // Apollo forgets what it holds when it is reloaded, and says nothing:
+            // every so often, forget what was sent so all of it goes again.
+            if (now - state.resentAt >= current.resendSeconds() * 1000L) {
+                state.resentAt = now;
+                state.waypoints.clear();
+                state.nametags.clear();
+                state.teamView = false;
+            }
             Team team = teams.getTeamOf(viewer.getUniqueId()).orElse(null);
             try {
                 if (current.teamView().enabled() && isOn(TeamModule.class)) {

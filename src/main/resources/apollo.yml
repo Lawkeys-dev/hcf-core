@@ -22,6 +22,12 @@ enabled: true
 # How often everything is brought up to date, in ticks (20 = one second). Only
 # what changed is sent, except teammates' positions, which move.
 update-ticks: 10
+
+# How often everything is sent again even though nothing changed, in seconds.
+# Apollo forgets what a player holds whenever it is reloaded - /apollo reload
+# clears every waypoint and nametag the server had sent - and nothing tells the
+# plugin; this is how they come back.
+resend-seconds: 30
 # --8<-- [end:general]
 
 # --8<-- [start:waypoints]
