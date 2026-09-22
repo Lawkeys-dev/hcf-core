@@ -178,8 +178,23 @@ safe-zones:
   # a mob, a cactus. Spawn is where players sort themselves out between fights.
   no-damage: true
   # Hunger never drops there, and is filled back up when a player walks, teleports
-  # or logs in on safe-zone land.
+  # or logs in on safe-zone land. "heal" does the same with health.
   keep-fed: true
+  heal: true
+  # A player in combat cannot enter a safe zone until their tag runs out - the
+  # classic HCF rule, so a fight is not ended by running home to spawn.
+  block-combat-tagged: true
+  # What they see of the border they may not cross: a wall, drawn like the
+  # claiming wand's columns - sent to that player alone, never placed. Only the
+  # part in front of them is drawn: width-blocks each way along the border.
+  wall:
+    enabled: true
+    material: RED_STAINED_GLASS
+    width-blocks: 15
+    # It runs from the ground to this layer; ground already higher than it gets
+    # minimum-height blocks instead.
+    top-y: 128
+    minimum-height: 3
 # --8<-- [end:safe-zones]
 
 # --8<-- [start:loot-protection]

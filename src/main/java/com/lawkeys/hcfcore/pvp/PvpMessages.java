@@ -38,6 +38,7 @@ public final class PvpMessages {
     public static final String DEATHBAN_MAP_END_STATUS = "pvp.deathban.map-end.status";
 
     // Safe zones
+    public static final String SAFE_ZONE_COMBAT = "pvp.safezone.combat";
     public static final String SAFE_ZONE_ATTACKER = "pvp.safezone.attacker";
     public static final String FRIENDLY_FIRE_TEAMMATE = "pvp.friendly-fire.teammate";
     public static final String FRIENDLY_FIRE_ALLY = "pvp.friendly-fire.ally";

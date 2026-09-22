@@ -13,12 +13,12 @@ public final class ViewListener implements Listener {
 
     private final ClientBlocks pillars;
     private final ClientBlocks walls;
-    private final LockWalls lockWalls;
+    private final ClaimWalls claimWalls;
 
-    public ViewListener(ClientBlocks pillars, ClientBlocks walls, LockWalls lockWalls) {
+    public ViewListener(ClientBlocks pillars, ClientBlocks walls, ClaimWalls claimWalls) {
         this.pillars = Objects.requireNonNull(pillars, "pillars");
         this.walls = Objects.requireNonNull(walls, "walls");
-        this.lockWalls = Objects.requireNonNull(lockWalls, "lockWalls");
+        this.claimWalls = Objects.requireNonNull(claimWalls, "claimWalls");
     }
 
     /**
@@ -30,7 +30,7 @@ public final class ViewListener implements Listener {
     public void onMove(org.bukkit.event.player.PlayerMoveEvent event) {
         if (event.getFrom().getBlockX() != event.getTo().getBlockX()
                 || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
-            lockWalls.redraw(event.getPlayer());
+            claimWalls.redraw(event.getPlayer());
         }
     }
 
@@ -38,7 +38,7 @@ public final class ViewListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         pillars.forget(event.getPlayer().getUniqueId());
         walls.forget(event.getPlayer().getUniqueId());
-        lockWalls.forget(event.getPlayer().getUniqueId());
+        claimWalls.forget(event.getPlayer().getUniqueId());
     }
 
     /**
@@ -49,6 +49,6 @@ public final class ViewListener implements Listener {
     public void onWorldChange(PlayerChangedWorldEvent event) {
         pillars.forget(event.getPlayer().getUniqueId());
         walls.forget(event.getPlayer().getUniqueId());
-        lockWalls.forget(event.getPlayer().getUniqueId());
+        claimWalls.forget(event.getPlayer().getUniqueId());
     }
 }

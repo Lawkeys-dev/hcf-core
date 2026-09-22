@@ -24,9 +24,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The wall around a locked claim: red glass on its border, shown to the players the
- * lock refuses and to nobody else - the project owner's choice, 22/09/2026, in place
- * of a claim that only pushed players back with a message.
+ * The walls a player sees around land they may not enter: a locked claim (red glass,
+ * to the players the lock refuses) and, while they are in combat, a safe zone - the
+ * project owner's choices of 22/09/2026, in place of claims that only pushed players
+ * back with a message.
  *
  * <p>Drawn like the claiming wand's columns: sent to that one player, never placed,
  * and only the part near them, so a lock on a large claim costs no more than a lock
@@ -42,13 +43,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * all. Which makes it cheap enough to redraw as they move, every few ticks, rather
  * than once a second.
  */
-public final class LockWalls {
+public final class ClaimWalls {
 
     /** How long a claim's wall is kept before the world is read again for it. */
     private static final long CACHE_MILLIS = 30_000L;
 
     /** One claim's wall, worked out once: every block of it, whatever the player. */
-    private record Wall(Map<Location, BlockData> blocks, long builtAt, String material) {
+    private record Wall(Map<Location, BlockData> blocks, long builtAt, String material, int topY) {
     }
 
     private final ClaimModule module;
@@ -58,7 +59,7 @@ public final class LockWalls {
     private final Map<UUID, Long> drawnAt = new ConcurrentHashMap<>();
     private BukkitTask task;
 
-    public LockWalls(ClaimModule module, ClientBlocks view) {
+    public ClaimWalls(ClaimModule module, ClientBlocks view) {
         this.module = Objects.requireNonNull(module, "module");
         this.view = Objects.requireNonNull(view, "view");
     }
@@ -67,9 +68,6 @@ public final class LockWalls {
     public void start() {
         stop();
         ClaimSettings.LockRules rules = module.getSettings().lock();
-        if (!rules.wallEnabled()) {
-            return;
-        }
         long ticks = Math.max(1L, rules.refreshSeconds() * 20L);
         // The timer is the fallback: it catches a lock taken or released, and a claim
         // that changed shape. Walking is answered by redraw(), as it happens.
@@ -113,7 +111,7 @@ public final class LockWalls {
     private void draw(Player player) {
         ClaimSettings.LockRules rules = module.getSettings().lock();
         ClaimManager manager = module.getManager();
-        if (manager == null || !rules.wallEnabled()) {
+        if (manager == null) {
             return;
         }
         Map<Location, BlockData> wall = wallFor(manager, rules, player);
@@ -122,21 +120,34 @@ public final class LockWalls {
         }
     }
 
-    /** @return the wall this player should see now: the border of every locked claim near them */
+    /**
+     * @return the walls this player should see now: the border of every locked claim
+     *         near them, and - while the PvP module says so - of the safe zones they
+     *         may not enter
+     */
     private Map<Location, BlockData> wallFor(ClaimManager manager, ClaimSettings.LockRules rules, Player player) {
         Map<Location, BlockData> wall = new HashMap<>();
         World world = player.getWorld();
         Location at = player.getLocation();
-        int radius = rules.radiusBlocks();
-        for (ClaimArea claim : nearbyClaims(manager, world.getName(), at.getBlockX(), at.getBlockZ(),
-                rules.showWithinBlocks())) {
-            if (BorderColumns.distanceTo(claim, at.getBlockX(), at.getBlockZ()) > rules.showWithinBlocks()) {
-                continue; // Too far to be about to walk in: the wall appears as they come near.
-            }
-            if (manager.lockedAgainst(world.getName(), claim.minX(), claim.minZ(), player.getUniqueId()).isEmpty()) {
+        java.util.Optional<SafeZoneWallPolicy.Wall> safeZone = module.getSafeZoneWallPolicy().wallFor(player);
+        int look = Math.max(rules.showWithinBlocks(), safeZone.map(SafeZoneWallPolicy.Wall::widthBlocks).orElse(0));
+        for (ClaimArea claim : nearbyClaims(manager, world.getName(), at.getBlockX(), at.getBlockZ(), look)) {
+            int distance = BorderColumns.distanceTo(claim, at.getBlockX(), at.getBlockZ());
+            boolean locked = rules.wallEnabled() && distance <= rules.showWithinBlocks()
+                    && manager.lockedAgainst(world.getName(), claim.minX(), claim.minZ(),
+                            player.getUniqueId()).isPresent();
+            boolean safe = safeZone.isPresent() && distance <= safeZone.get().widthBlocks()
+                    && module.getTeams().getManager().getTeam(claim.teamId())
+                            .map(team -> team.isSafeZone()).orElse(false);
+            if (!locked && !safe) {
                 continue;
             }
-            for (Map.Entry<Location, BlockData> block : wallOf(claim, world, rules).entrySet()) {
+            // A claim that is both keeps the lock's look: it is the stricter refusal.
+            String material = locked ? rules.material() : safeZone.get().material();
+            int topY = locked ? rules.topY() : safeZone.get().topY();
+            int minimum = locked ? rules.minimumHeight() : safeZone.get().minimumHeight();
+            int radius = locked ? rules.radiusBlocks() : safeZone.get().widthBlocks();
+            for (Map.Entry<Location, BlockData> block : wallOf(claim, world, material, topY, minimum).entrySet()) {
                 Location where = block.getKey();
                 if (Math.abs(where.getBlockX() - at.getBlockX()) <= radius
                         && Math.abs(where.getBlockZ() - at.getBlockZ()) <= radius) {
@@ -153,13 +164,14 @@ public final class LockWalls {
      *         wall until then, which is a wall standing a block too low, not a wall
      *         that lets anybody through - the lock itself is a movement rule
      */
-    private Map<Location, BlockData> wallOf(ClaimArea claim, World world, ClaimSettings.LockRules rules) {
+    private Map<Location, BlockData> wallOf(ClaimArea claim, World world, String materialName, int topY, int minimum) {
         Wall kept = walls.get(claim.id());
         long now = System.currentTimeMillis();
-        if (kept != null && now - kept.builtAt() < CACHE_MILLIS && kept.material().equals(rules.material())) {
+        if (kept != null && now - kept.builtAt() < CACHE_MILLIS && kept.material().equals(materialName)
+                && kept.topY() == topY) {
             return kept.blocks();
         }
-        Material material = Material.matchMaterial(rules.material());
+        Material material = Material.matchMaterial(materialName);
         BlockData glass = (material == null || !material.isBlock() ? Material.RED_STAINED_GLASS : material)
                 .createBlockData();
         Map<Location, BlockData> blocks = new HashMap<>();
@@ -167,7 +179,7 @@ public final class LockWalls {
         // every player walking around the claim.
         for (int[] column : BorderColumns.outline(claim, claim.centreX(), claim.centreZ(), Integer.MAX_VALUE / 4)) {
             int[] range = ColumnHeights.range(world.getHighestBlockYAt(column[0], column[1]),
-                    rules.topY(), rules.minimumHeight(), world.getMaxHeight());
+                    topY, minimum, world.getMaxHeight());
             if (range == null) {
                 continue;
             }
@@ -178,7 +190,7 @@ public final class LockWalls {
                 }
             }
         }
-        walls.put(claim.id(), new Wall(blocks, now, rules.material()));
+        walls.put(claim.id(), new Wall(blocks, now, materialName, topY));
         return blocks;
     }
 

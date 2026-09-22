@@ -218,9 +218,19 @@ public final class PvpSettingsLoader {
         if (section == null) {
             return defaults;
         }
+        ConfigurationSection wall = section.getConfigurationSection("wall");
+        PvpSettings.WallRules wallRules = wall == null ? defaults.wall() : new PvpSettings.WallRules(
+                wall.getBoolean("enabled", defaults.wall().enabled()),
+                wall.getString("material", defaults.wall().material()),
+                wall.getInt("width-blocks", defaults.wall().widthBlocks()),
+                wall.getInt("top-y", defaults.wall().topY()),
+                wall.getInt("minimum-height", defaults.wall().minimumHeight()));
         return new PvpSettings.SafeZoneRules(
                 section.getBoolean("enabled", defaults.enabled()),
                 section.getBoolean("no-damage", defaults.noDamage()),
-                section.getBoolean("keep-fed", defaults.keepFed()));
+                section.getBoolean("keep-fed", defaults.keepFed()),
+                section.getBoolean("heal", defaults.heal()),
+                section.getBoolean("block-combat-tagged", defaults.blockCombatTagged()),
+                wallRules);
     }
 }

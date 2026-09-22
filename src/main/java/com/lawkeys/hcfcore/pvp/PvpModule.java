@@ -339,6 +339,14 @@ public final class PvpModule {
         }
     }
 
+    /** @return whether that exact spot is a safe server team's land */
+    public boolean isSafeZoneAt(org.bukkit.Location at) {
+        if (claims == null || claims.getManager() == null || at == null || at.getWorld() == null) {
+            return false;
+        }
+        return claims.ownerAt(at).map(Team::isSafeZone).orElse(false);
+    }
+
     /**
      * @return whether this player stands on server land its team marks as safe -
      *         spawn, typically. Server land marked as a combat zone (warzone, roads,
@@ -404,6 +412,19 @@ public final class PvpModule {
         plugin.getServer().getPluginManager().registerEvents(new CombatListener(this), plugin);
         plugin.getServer().getPluginManager()
                 .registerEvents(new com.lawkeys.hcfcore.pvp.listener.SafeZoneListener(this), plugin);
+        if (claims != null) {
+            // Who sees spawn closed to them: the claim module draws it, combat decides.
+            claims.setSafeZoneWallPolicy(player -> {
+                PvpSettings current = settings;
+                PvpSettings.WallRules wall = current.safeZones().wall();
+                if (!current.enabled() || !current.safeZones().enabled() || !current.safeZones().blockCombatTagged()
+                        || !wall.enabled() || combatTags == null || !combatTags.isTagged(player.getUniqueId())) {
+                    return java.util.Optional.empty();
+                }
+                return java.util.Optional.of(new com.lawkeys.hcfcore.claim.view.SafeZoneWallPolicy.Wall(
+                        wall.material(), wall.widthBlocks(), wall.topY(), wall.minimumHeight()));
+            });
+        }
         plugin.getServer().getPluginManager().registerEvents(new DeathbanListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new AttackSpeedListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new LootProtectionListener(this), plugin);

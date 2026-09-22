@@ -57,8 +57,10 @@ public final class ClaimModule {
             new com.lawkeys.hcfcore.claim.view.ClientBlocks();
     private final com.lawkeys.hcfcore.claim.view.MapPillars mapPillars =
             new com.lawkeys.hcfcore.claim.view.MapPillars(this, pillarView);
-    private final com.lawkeys.hcfcore.claim.view.LockWalls lockWalls =
-            new com.lawkeys.hcfcore.claim.view.LockWalls(this, wallView);
+    private volatile com.lawkeys.hcfcore.claim.view.SafeZoneWallPolicy safeZoneWallPolicy =
+            com.lawkeys.hcfcore.claim.view.SafeZoneWallPolicy.NONE;
+    private final com.lawkeys.hcfcore.claim.view.ClaimWalls claimWalls =
+            new com.lawkeys.hcfcore.claim.view.ClaimWalls(this, wallView);
 
     /**
      * @param warmups the countdowns behind {@code /team hq}, {@code /team base} and
@@ -81,6 +83,16 @@ public final class ClaimModule {
      */
     public com.lawkeys.hcfcore.claim.wand.WandSessions getWandSessions() {
         return wandSessions;
+    }
+
+    /** Installs who sees a wall around a safe zone. Called by {@code pvp/}. */
+    public void setSafeZoneWallPolicy(com.lawkeys.hcfcore.claim.view.SafeZoneWallPolicy policy) {
+        this.safeZoneWallPolicy = Objects.requireNonNull(policy, "policy");
+    }
+
+    /** @return who sees a wall around a safe zone; nobody without the PvP module */
+    public com.lawkeys.hcfcore.claim.view.SafeZoneWallPolicy getSafeZoneWallPolicy() {
+        return safeZoneWallPolicy;
     }
 
     /** @return {@code /team map} drawn in the world, on the corners of the claims around */
@@ -216,8 +228,8 @@ public final class ClaimModule {
                 .registerEvents(new com.lawkeys.hcfcore.claim.listener.ClaimLockListener(this), plugin);
 
         plugin.getServer().getPluginManager()
-                .registerEvents(new com.lawkeys.hcfcore.claim.view.ViewListener(pillarView, wallView, lockWalls), plugin);
-        lockWalls.start();
+                .registerEvents(new com.lawkeys.hcfcore.claim.view.ViewListener(pillarView, wallView, claimWalls), plugin);
+        claimWalls.start();
 
         for (TeamSubCommand subCommand : ClaimSubCommands.all(this)) {
             teams.registerSubCommand(subCommand);
@@ -234,13 +246,13 @@ public final class ClaimModule {
         if (manager != null) {
             // The wall may have been switched off, or its rate changed: redraw from
             // nothing rather than leave a wall nobody can see the settings behind.
-            lockWalls.start();
+            claimWalls.start();
         }
     }
 
     /** Stops the periodic save and writes what is still pending, synchronously. */
     public void disable() {
-        lockWalls.stop();
+        claimWalls.stop();
         mapPillars.stop();
         if (saveTask != null) {
             saveTask.cancel();

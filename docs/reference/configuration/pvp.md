@@ -112,6 +112,12 @@ An item is used when it is eaten, or — a totem — when it saves its holder. T
 | `enabled` | `true` | No PvP on the land of a **safe** server team. `false` makes every server team fightable, whatever its kind — and takes the two below with it |
 | `no-damage` | `true` | No damage of any kind there: a fall, fire, drowning, suffocation, a mob, a cactus |
 | `keep-fed` | `true` | Hunger never drops there, and is filled back up when a player walks, teleports or logs in on safe-zone land |
+| `heal` | `true` | Health is filled back up there the same way |
+| `block-combat-tagged` | `true` | A player in combat cannot enter a safe zone until their tag runs out |
+| `wall.enabled` | `true` | Whether they see the border they may not cross, drawn like the claiming wand's columns — sent to that player alone, never placed |
+| `wall.material` | `RED_STAINED_GLASS` | The block it is drawn in |
+| `wall.width-blocks` | `15` | How far along the border it is drawn, each way from the player |
+| `wall.top-y` · `minimum-height` | `128` · `3` | It runs from the ground to that layer; ground already higher gets the minimum |
 
 ## Loot protection
 

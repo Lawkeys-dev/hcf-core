@@ -22,15 +22,24 @@ import java.util.Objects;
  * fountain, burning on a stray fire or starving while trading there is noise, not
  * difficulty, and every server ends up scripting it away.
  *
- * <p>Both are switches in {@code pvp.yml} ({@code safe-zones.no-damage},
- * {@code keep-fed}), and both follow {@code safe-zones.enabled}: a server that
- * fights on its safe zones keeps their damage too.
+ * <p>And what a safe zone is worth to somebody running to it: nothing, while they
+ * are in combat. A player with a combat tag cannot step into one until it runs out -
+ * the classic HCF rule, so a fight is not ended by reaching spawn - and sees the
+ * border they may not cross as a wall, drawn by the claim module ahead of them.
+ *
+ * <p>All of it is switches in {@code pvp.yml} ({@code safe-zones.no-damage},
+ * {@code keep-fed}, {@code heal}, {@code block-combat-tagged}, {@code wall}), and all
+ * of it follows {@code safe-zones.enabled}: a server that fights on its safe zones
+ * keeps their damage too.
  */
 public final class SafeZoneListener implements Listener {
 
     private static final int FULL = 20;
 
     private final PvpModule module;
+    /** A refused step repeats every tick while the player pushes: the reason is said at most this often. */
+    private final com.lawkeys.hcfcore.util.RefusalThrottle refusals =
+            new com.lawkeys.hcfcore.util.RefusalThrottle(2_000L);
 
     public SafeZoneListener(PvpModule module) {
         this.module = Objects.requireNonNull(module, "module");
@@ -80,7 +89,7 @@ public final class SafeZoneListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onTeleport(PlayerTeleportEvent event) {
+    public void onTeleported(PlayerTeleportEvent event) {
         feed(event.getPlayer());
     }
 
@@ -89,13 +98,66 @@ public final class SafeZoneListener implements Listener {
         feed(event.getPlayer());
     }
 
-    private void feed(Player player) {
-        if (!applies() || !rules().keepFed() || player.getFoodLevel() >= FULL) {
+    /**
+     * Refuses a player in combat the step into a safe zone. Checked block by block,
+     * like a locked claim: a safe zone's border runs inside a chunk.
+     */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEnter(PlayerMoveEvent event) {
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX()
+                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
             return;
         }
-        if (module.isInSafeZone(player)) {
+        if (refuseEntry(event.getPlayer(), event.getTo())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /** A pearl, a chorus fruit or any other jump into a safe zone, while in combat. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onJump(PlayerTeleportEvent event) {
+        if (refuseEntry(event.getPlayer(), event.getTo())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * @return whether this player may not be there: in combat, and that land is a
+     *         safe zone. Told at most every few seconds, as the refusal repeats for
+     *         as long as they push against it
+     */
+    private boolean refuseEntry(Player player, org.bukkit.Location to) {
+        if (!applies() || !rules().blockCombatTagged() || to == null || to.getWorld() == null) {
+            return false;
+        }
+        if (module.getCombatTags() == null || !module.getCombatTags().isTagged(player.getUniqueId())) {
+            return false;
+        }
+        if (!module.isSafeZoneAt(to)) {
+            return false;
+        }
+        if (refusals.tryTell(player.getUniqueId(), System.currentTimeMillis())) {
+            module.getLang().send(player, com.lawkeys.hcfcore.pvp.PvpMessages.SAFE_ZONE_COMBAT,
+                    "seconds", String.valueOf(module.getCombatTags().getRemainingSeconds(player.getUniqueId())));
+        }
+        return true;
+    }
+
+    /** Health and hunger back to full on safe-zone land. */
+    private void feed(Player player) {
+        if (!applies() || !module.isInSafeZone(player)) {
+            return;
+        }
+        if (rules().keepFed() && player.getFoodLevel() < FULL) {
             player.setFoodLevel(FULL);
             player.setSaturation(FULL);
+        }
+        if (rules().heal()) {
+            double max = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH) == null
+                    ? 20.0 : player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue();
+            if (player.getHealth() < max) {
+                player.setHealth(max);
+            }
         }
     }
 }

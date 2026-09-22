@@ -95,8 +95,32 @@ public record PvpSettings(
      * @param noDamage no damage of any kind on safe-zone land - fall, fire, drowning,
      *                 a mob - not only no PvP
      * @param keepFed  hunger never drops there, and is filled back up on arrival
+     * @param heal     health is filled back up there too
+     * @param blockCombatTagged a player in combat cannot enter until their tag runs
+     *                 out - the classic HCF rule, so a fight is not ended by running
+     *                 home to spawn
      */
-    public record SafeZoneRules(boolean enabled, boolean noDamage, boolean keepFed) {
+    public record SafeZoneRules(boolean enabled, boolean noDamage, boolean keepFed, boolean heal,
+                                boolean blockCombatTagged, WallRules wall) {
+
+        public SafeZoneRules {
+            Objects.requireNonNull(wall, "wall");
+        }
+    }
+
+    /**
+     * The wall a player in combat sees around a safe zone they may not enter.
+     *
+     * @param widthBlocks how far along the border it is drawn, each way from the
+     *                    player: the rest of spawn's border is not in front of them
+     */
+    public record WallRules(boolean enabled, String material, int widthBlocks, int topY, int minimumHeight) {
+
+        public WallRules {
+            Objects.requireNonNull(material, "material");
+            widthBlocks = Math.max(1, Math.min(128, widthBlocks));
+            minimumHeight = Math.max(1, Math.min(64, minimumHeight));
+        }
     }
 
     /**
@@ -188,7 +212,8 @@ public record PvpSettings(
                 new StrengthRules(true, 3.0, 1.5),
                 new KnockbackRules(false, 1.0, 1.0),
                 new AttackSpeedRules(false, 4.0),
-                new SafeZoneRules(true, true, true),
+                new SafeZoneRules(true, true, true, true, true,
+                        new WallRules(true, "RED_STAINED_GLASS", 15, 128, 3)),
                 new LootProtectionRules(true, 10L, true),
                 new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS),
                 new EnderPearlRules(true, 15L, true, true, true),

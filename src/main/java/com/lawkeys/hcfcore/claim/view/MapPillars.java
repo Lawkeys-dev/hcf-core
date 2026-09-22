@@ -63,7 +63,7 @@ public final class MapPillars {
         World world = player.getWorld();
         Location at = player.getLocation();
         int radius = rules.radiusChunks() * 16;
-        List<ClaimArea> claims = LockWalls.nearbyClaims(manager, world.getName(), at.getBlockX(), at.getBlockZ(), radius);
+        List<ClaimArea> claims = ClaimWalls.nearbyClaims(manager, world.getName(), at.getBlockX(), at.getBlockZ(), radius);
 
         List<String> palette = new ArrayList<>(rules.materials());
         java.util.Collections.shuffle(palette);

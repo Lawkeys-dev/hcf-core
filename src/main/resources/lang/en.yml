@@ -428,6 +428,8 @@ pvp:
 
   safezone:
     attacker: "{error}You cannot fight inside a safe zone."
+    # pvp.yml, safe-zones.block-combat-tagged: spawn is closed while you are in combat.
+    combat: "{error}You cannot enter a safe zone in combat {muted}- {secondary}%seconds%s {muted}left."
 
   # pvp.yml, friendly-fire
   friendly-fire:
