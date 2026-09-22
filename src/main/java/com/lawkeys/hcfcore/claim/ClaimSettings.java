@@ -157,11 +157,15 @@ public record ClaimSettings(
      * @param chatRadiusX  how many cells the chat map draws each way
      * @param radiusChunks how far the pillars look for claims, in chunks
      * @param topY         the level a pillar rises to from the ground
+     * @param includeSystemClaims whether server land - spawn, roads, event grounds -
+     *                     is marked too. Off: the map is about the teams around you
+     *                     (the project owner's choice, 22/09/2026)
      * @param materials    the full blocks the pillars may be made of: one is drawn at
      *                     random for each team, each time the map is asked for
      */
     public record MapRules(MapStyle style, int cellBlocks, int chatRadiusX, int chatRadiusZ,
-                           int radiusChunks, int topY, int minimumHeight, long seconds, List<String> materials) {
+                           int radiusChunks, int topY, int minimumHeight, long seconds,
+                           boolean includeSystemClaims, List<String> materials) {
 
         public MapRules {
             Objects.requireNonNull(style, "style");
@@ -315,8 +319,8 @@ public record ClaimSettings(
                         "{muted}Right-click {dark}{bullet} {secondary}second corner",
                         "{muted}Sneak + left-click {dark}{bullet} {success}claim it",
                         "{muted}Drop it {dark}{bullet} {error}give up"), "GLASS", "GLOWSTONE", 6, 12),
-                new LockRules(true, "RED_STAINED_GLASS", 128, 3, 24, 5, 1L),
-                new MapRules(MapStyle.PILLARS, 8, 12, 6, 4, 128, 3, 20L, List.of(
+                new LockRules(true, "RED_STAINED_GLASS", 128, 3, 24, 5, 2L),
+                new MapRules(MapStyle.PILLARS, 8, 12, 6, 4, 128, 3, 20L, false, List.of(
                         "DIAMOND_BLOCK", "EMERALD_BLOCK", "GOLD_BLOCK", "IRON_BLOCK",
                         "LAPIS_BLOCK", "REDSTONE_BLOCK", "COAL_BLOCK", "COPPER_BLOCK",
                         "NETHERITE_BLOCK", "AMETHYST_BLOCK", "QUARTZ_BLOCK", "RAW_IRON_BLOCK",

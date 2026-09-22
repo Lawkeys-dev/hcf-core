@@ -83,7 +83,8 @@ Staff claims and server land follow none of these.
 | `pillars.radius-chunks` | `4` | How far the pillars look for claims, 1 to 16 |
 | `pillars.top-y` | `128` | A column runs from the ground to this layer, so it is seen from far away and from above |
 | `pillars.minimum-height` | `3` | What a column gets instead where the ground is already above `top-y`, 1 to 64 |
-| `pillars.seconds` | `20` | How long the pillars stay, 1 to 600 |
+| `pillars.seconds` | `20` | How long the pillars stay, 1 to 600; `/team map` again takes them away at once |
+| `pillars.include-system-claims` | `false` | Whether server land — spawn, roads, event grounds — is marked too |
 | `pillars.materials` | 25 ores and blocks of ore | The blocks the columns may be made of; each team drawn takes one at random. Anything without collision is left out with a warning |
 | `chat.cell-blocks` | `8` | Blocks one character of the chat map stands for, 1 to 64; each is judged by the block in its middle |
 | `chat.radius-x` · `radius-z` | `12` · `6` | How many cells the chat map draws each way, 1 to 32 |
@@ -104,7 +105,7 @@ The wall a locked claim shows the players it refuses — red glass on its border
 | `wall.minimum-height` | `3` | What it gets instead where the ground is already above `top-y`, 1 to 64 |
 | `wall.show-within-blocks` | `5` | How close to the claim a player must be for the wall to appear at all, 0 to 128 |
 | `wall.radius-blocks` | `24` | How much of the border is then drawn around the player, 4 to 128 |
-| `wall.refresh-seconds` | `1` | How often it is redrawn as players move, 1 to 60 |
+| `wall.refresh-seconds` | `2` | The fallback timer, 1 to 60. The wall itself is redrawn as a player walks, block by block |
 
 ## Protection
 

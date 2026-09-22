@@ -235,6 +235,8 @@ public final class ClaimSettingsLoader {
                 pillars == null ? defaults.topY() : pillars.getInt("top-y", defaults.topY()),
                 pillars == null ? defaults.minimumHeight() : pillars.getInt("minimum-height", defaults.minimumHeight()),
                 pillars == null ? defaults.seconds() : pillars.getLong("seconds", defaults.seconds()),
+                pillars == null ? defaults.includeSystemClaims()
+                        : pillars.getBoolean("include-system-claims", defaults.includeSystemClaims()),
                 materials);
     }
 

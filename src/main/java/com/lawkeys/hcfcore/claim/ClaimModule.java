@@ -216,7 +216,7 @@ public final class ClaimModule {
                 .registerEvents(new com.lawkeys.hcfcore.claim.listener.ClaimLockListener(this), plugin);
 
         plugin.getServer().getPluginManager()
-                .registerEvents(new com.lawkeys.hcfcore.claim.view.ViewListener(pillarView, wallView), plugin);
+                .registerEvents(new com.lawkeys.hcfcore.claim.view.ViewListener(pillarView, wallView, lockWalls), plugin);
         lockWalls.start();
 
         for (TeamSubCommand subCommand : ClaimSubCommands.all(this)) {

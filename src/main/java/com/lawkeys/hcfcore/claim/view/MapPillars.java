@@ -71,6 +71,10 @@ public final class MapPillars {
         Map<Location, BlockData> pillars = new HashMap<>();
         int drawn = 0;
         for (ClaimArea claim : claims) {
+            if (!rules.includeSystemClaims() && module.getTeams().getManager().getTeam(claim.teamId())
+                    .map(team -> team.getType().isSystem()).orElse(false)) {
+                continue; // Server land - spawn, roads, event grounds - is not what the map is for.
+            }
             List<int[]> corners = BorderColumns.corners(claim, at.getBlockX(), at.getBlockZ(), radius);
             if (corners.isEmpty()) {
                 continue;

@@ -13,16 +13,32 @@ public final class ViewListener implements Listener {
 
     private final ClientBlocks pillars;
     private final ClientBlocks walls;
+    private final LockWalls lockWalls;
 
-    public ViewListener(ClientBlocks pillars, ClientBlocks walls) {
+    public ViewListener(ClientBlocks pillars, ClientBlocks walls, LockWalls lockWalls) {
         this.pillars = Objects.requireNonNull(pillars, "pillars");
         this.walls = Objects.requireNonNull(walls, "walls");
+        this.lockWalls = Objects.requireNonNull(lockWalls, "lockWalls");
+    }
+
+    /**
+     * A locked claim's wall is redrawn as the player walks, not on a timer: it is
+     * there before they reach it. Nothing is read from the world here - the wall was
+     * worked out once and kept - so this is a lookup and the difference sent.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onMove(org.bukkit.event.player.PlayerMoveEvent event) {
+        if (event.getFrom().getBlockX() != event.getTo().getBlockX()
+                || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
+            lockWalls.redraw(event.getPlayer());
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         pillars.forget(event.getPlayer().getUniqueId());
         walls.forget(event.getPlayer().getUniqueId());
+        lockWalls.forget(event.getPlayer().getUniqueId());
     }
 
     /**
@@ -33,5 +49,6 @@ public final class ViewListener implements Listener {
     public void onWorldChange(PlayerChangedWorldEvent event) {
         pillars.forget(event.getPlayer().getUniqueId());
         walls.forget(event.getPlayer().getUniqueId());
+        lockWalls.forget(event.getPlayer().getUniqueId());
     }
 }

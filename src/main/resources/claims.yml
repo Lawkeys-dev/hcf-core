@@ -112,8 +112,12 @@ map:
     # from above. Ground already higher than it gets minimum-height blocks instead.
     top-y: 128
     minimum-height: 3
-    # How long the columns stay, in seconds.
+    # How long the columns stay, in seconds. /team map again takes them away at
+    # once, and once more brings them back.
     seconds: 20
+    # Whether server land - spawn, roads, event grounds - is marked too. false
+    # keeps the map to the teams around you.
+    include-system-claims: false
     # The blocks the columns may be made of - ores and blocks of ore, raw ore
     # blocks included, which read well from a distance. SOLID blocks only: anything without collision (a
     # torch, a flower, a sign) is left out with a warning, and a slab or a pane
@@ -171,8 +175,10 @@ lock:
     # How much of the border is then drawn around the player, in blocks - the rest
     # is too far to be seen, and drawing it would cost for nothing.
     radius-blocks: 24
-    # How often it is redrawn as players move, in seconds.
-    refresh-seconds: 1
+    # The wall is redrawn as a player walks, block by block, so it is there before
+    # they reach it. This timer is only the fallback that catches a lock taken or
+    # released, and a claim that changed shape, in seconds.
+    refresh-seconds: 2
 # --8<-- [end:lock]
 
 # --8<-- [start:protection]
