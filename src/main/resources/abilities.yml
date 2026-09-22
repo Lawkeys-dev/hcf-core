@@ -54,10 +54,15 @@ global:
     end: true
     warzone: false
     # The territory of an event - the land of its server team, drawn with
-    # /events claim - for as long as that event runs. Between runs it is
-    # ordinary server land. One event can say otherwise with
-    # "disable-abilities: true|false" in events.yml.
-    event-territory: true
+    # /events claim, larger than its zone:
+    #   during-event - no ability there for as long as the event runs; between
+    #                  runs it is ordinary server land
+    #   always       - no ability there at any time, as on a safe zone
+    #   never        - abilities work there (the zone itself still follows
+    #                  "events" above)
+    # One event can say otherwise for its own land with
+    # "disable-abilities: never|during-event|always" in events.yml.
+    event-territory: during-event
 # --8<-- [end:global]
 
 abilities:

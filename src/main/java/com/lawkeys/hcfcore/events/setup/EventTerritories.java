@@ -25,7 +25,7 @@ public final class EventTerritories {
      * @param disableAbilities the event's own say, or {@code null} to follow
      *                         {@code abilities.yml}
      */
-    public record Declared(String eventId, String team, Boolean disableAbilities) {
+    public record Declared(String eventId, String team, TerritoryAbilityMode disableAbilities) {
 
         public Declared {
             Objects.requireNonNull(eventId, "eventId");
@@ -59,22 +59,21 @@ public final class EventTerritories {
     }
 
     /**
-     * Abilities are refused on an event's land only <b>while that event runs</b> (the
-     * owner's choice, 22/09/2026): between runs the land is ordinary server land.
-     * Several events may share one team - a Totem and its Mini Totem, say; then
-     * only the running ones count, and among them a refusal wins.
+     * Each event of the land says when abilities are refused on it - while it runs,
+     * always, or never ({@link TerritoryAbilityMode}); several events may share one
+     * team - a Totem and its Mini Totem, say - and then a refusal by any wins.
      *
-     * @param byDefault {@code abilities.yml}'s {@code disabled-in.event-territory}
+     * @param byDefault {@code abilities.yml}'s {@code disabled-in.event-territory}, for
+     *                  an event that says nothing
      * @param running   whether the event with this id runs now
      * @return whether abilities are refused on this team's land now
      */
-    public boolean abilitiesRefused(String team, boolean byDefault, Predicate<String> running) {
+    public boolean abilitiesRefused(String team, TerritoryAbilityMode byDefault, Predicate<String> running) {
         if (!isTerritory(team)) {
             return false;
         }
         for (Declared event : byTeam.get(team.trim().toLowerCase(Locale.ROOT))) {
-            if (running.test(event.eventId())
-                    && Optional.ofNullable(event.disableAbilities()).orElse(byDefault)) {
+            if (Optional.ofNullable(event.disableAbilities()).orElse(byDefault).refuses(running.test(event.eventId()))) {
                 return true;
             }
         }

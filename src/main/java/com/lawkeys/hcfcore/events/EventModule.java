@@ -486,12 +486,13 @@ public final class EventModule {
     /**
      * Answers {@code ability/}: abilities are refused on an event's territory - the
      * land of the server team its {@code claim} names, or of one named after it -
-     * while that event runs.
+     * while that event runs, always, or never, as it or {@code abilities.yml} says.
      *
      * @param byDefault {@code abilities.yml}'s {@code disabled-in.event-territory},
      *                  for an event that says nothing itself ({@code disable-abilities})
      */
-    public boolean abilitiesRefusedOnTerritory(Location location, boolean byDefault) {
+    public boolean abilitiesRefusedOnTerritory(Location location,
+                                               com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode byDefault) {
         if (location == null || location.getWorld() == null || claims == null || claims.getManager() == null) {
             return false;
         }
@@ -546,7 +547,13 @@ public final class EventModule {
                 String claim = entry.getString("claim", "");
                 String team = claim == null || claim.isBlank()
                         ? com.lawkeys.hcfcore.events.setup.TerritoryNames.forEvent(id, maxName) : claim.trim();
-                Boolean disable = entry.isBoolean("disable-abilities") ? entry.getBoolean("disable-abilities") : null;
+                Object raw = entry.get("disable-abilities");
+                com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode disable =
+                        com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode.parse(raw).orElse(null);
+                if (raw != null && disable == null) {
+                    plugin.getLogger().warning("events.yml: '" + id + "': disable-abilities '" + raw
+                            + "' is not never, during-event or always; abilities.yml decides.");
+                }
                 declared.add(new com.lawkeys.hcfcore.events.setup.EventTerritories.Declared(id, team, disable));
             }
         }

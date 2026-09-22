@@ -57,7 +57,7 @@ public final class AbilityConfig {
                 bool(disabled.get("nether"), d.nether(), "global.disabled-in.nether"),
                 bool(disabled.get("end"), d.end(), "global.disabled-in.end"),
                 bool(disabled.get("warzone"), d.warzone(), "global.disabled-in.warzone"),
-                bool(disabled.get("event-territory"), d.eventTerritory(), "global.disabled-in.event-territory"));
+                territoryMode(disabled.get("event-territory"), d.eventTerritory()));
 
         List<Ability> abilities = new ArrayList<>();
         map(root.get("abilities"), "abilities").forEach((key, value) -> {
@@ -272,6 +272,18 @@ public final class AbilityConfig {
         }
         warn.accept(where + ": a block of settings is expected; ignored.");
         return Map.of();
+    }
+
+    private com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode territoryMode(
+            Object raw, com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode fallback) {
+        if (raw == null) {
+            return fallback;
+        }
+        return com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode.parse(raw).orElseGet(() -> {
+            warn.accept("global.disabled-in.event-territory: '" + raw + "' is not never, during-event or always; "
+                    + fallback.id() + " is used.");
+            return fallback;
+        });
     }
 
     private boolean bool(Object raw, boolean fallback, String where) {

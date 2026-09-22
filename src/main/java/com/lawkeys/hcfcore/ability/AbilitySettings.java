@@ -19,13 +19,14 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
     /**
      * Where abilities are refused.
      *
-     * @param eventTerritory the land of an event - its server team's claims
-     *                       ({@code /events claim}) - while that event runs; an
-     *                       event may say otherwise with its own
-     *                       {@code disable-abilities} key in {@code events.yml}
+     * @param eventTerritory when abilities are refused on the land of an event - its
+     *                       server team's claims ({@code /events claim}): while it
+     *                       runs, always, or never; an event may say otherwise with
+     *                       its own {@code disable-abilities} key in {@code events.yml}
      */
     public record DisabledIn(boolean safezone, boolean citadel, boolean events, boolean nether, boolean end,
-                             boolean warzone, boolean eventTerritory) {
+                             boolean warzone,
+                             com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode eventTerritory) {
     }
 
     public AbilitySettings {
@@ -37,7 +38,8 @@ public record AbilitySettings(boolean enabled, long globalCooldownSeconds, long 
     }
 
     public static AbilitySettings defaults() {
-        return new AbilitySettings(true, 10, 10, "{primary}&lAbilities", new DisabledIn(true, true, true, true, true, false, true),
+        return new AbilitySettings(true, 10, 10, "{primary}&lAbilities", new DisabledIn(true, true, true, true, true, false,
+                com.lawkeys.hcfcore.events.setup.TerritoryAbilityMode.DURING_EVENT),
                 List.of(), "{primary}&lPocket Bard", 27, List.of());
     }
 
