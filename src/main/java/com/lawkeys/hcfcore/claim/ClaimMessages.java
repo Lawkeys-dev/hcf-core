@@ -106,6 +106,7 @@ public final class ClaimMessages {
     public static final String MAP_STYLE_UNKNOWN = "claim.map.style-unknown";
     public static final String MAP_PILLARS_HEADER = "claim.map.pillars-header";
     public static final String MAP_PILLARS_TEAM = "claim.map.pillars-team";
+    public static final String MAP_PILLARS_HIDDEN = "claim.map.pillars-hidden";
     public static final String MAP_PILLARS_EMPTY = "claim.map.pillars-empty";
     public static final String MAP_HEADER = "claim.map.header";
     public static final String MAP_LEGEND = "claim.map.legend";

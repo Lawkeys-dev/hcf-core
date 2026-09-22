@@ -102,7 +102,8 @@ The wall a locked claim shows the players it refuses — red glass on its border
 | `wall.material` | `RED_STAINED_GLASS` | The block it is drawn in |
 | `wall.top-y` | `128` | The wall runs from the ground to this layer |
 | `wall.minimum-height` | `3` | What it gets instead where the ground is already above `top-y`, 1 to 64 |
-| `wall.radius-blocks` | `24` | How much of the border is drawn around the player, 4 to 128 |
+| `wall.show-within-blocks` | `5` | How close to the claim a player must be for the wall to appear at all, 0 to 128 |
+| `wall.radius-blocks` | `24` | How much of the border is then drawn around the player, 4 to 128 |
 | `wall.refresh-seconds` | `1` | How often it is redrawn as players move, 1 to 60 |
 
 ## Protection

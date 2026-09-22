@@ -86,6 +86,9 @@ public final class LockWalls {
         Location at = player.getLocation();
         int radius = rules.radiusBlocks();
         for (ClaimArea claim : nearbyClaims(manager, world.getName(), at.getBlockX(), at.getBlockZ(), radius)) {
+            if (BorderColumns.distanceTo(claim, at.getBlockX(), at.getBlockZ()) > rules.showWithinBlocks()) {
+                continue; // Too far to be about to walk in: the wall appears as they come near.
+            }
             if (manager.lockedAgainst(world.getName(), claim.minX(), claim.minZ(), player.getUniqueId()).isEmpty()) {
                 continue;
             }

@@ -52,4 +52,14 @@ class BorderColumnsTest {
         assertTrue(BorderColumns.isMarker(12, 6));
         assertTrue(BorderColumns.isMarker(3, 1), "every block is the marker when every is 1");
     }
+
+    @Test
+    void theDistanceToAClaimIsZeroInsideAndSquareOutside() {
+        ClaimArea claim = area(0, 0, 10, 10);
+        assertEquals(0, BorderColumns.distanceTo(claim, 5, 5));
+        assertEquals(0, BorderColumns.distanceTo(claim, 0, 10));
+        assertEquals(1, BorderColumns.distanceTo(claim, -1, 5));
+        assertEquals(5, BorderColumns.distanceTo(claim, 15, 5));
+        assertEquals(5, BorderColumns.distanceTo(claim, 15, 15), "a corner is as far as the sides");
+    }
 }

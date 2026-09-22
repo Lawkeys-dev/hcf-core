@@ -102,6 +102,24 @@ public final class MapPillars {
         return new Drawn(materials, drawn);
     }
 
+    /**
+     * Takes the pillars away if this player has any: {@code /team map} again is what
+     * turns them off, and once more brings them back.
+     *
+     * @return whether there were any to take away
+     */
+    public boolean hideIfShown(Player player) {
+        if (!view.isShowing(player.getUniqueId())) {
+            return false;
+        }
+        Integer running = fading.remove(player.getUniqueId());
+        if (running != null) {
+            Bukkit.getScheduler().cancelTask(running);
+        }
+        view.clear(player);
+        return true;
+    }
+
     /** @return the name of the team this claim belongs to, for the legend */
     public Optional<String> teamName(UUID teamId) {
         return module.getTeams().getManager().getTeam(teamId).map(Team::getName);

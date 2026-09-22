@@ -329,7 +329,9 @@ claim:
     # /team map with pillars (claims.yml, map.style): columns on the corners of the
     # claims around you, shown to you alone for %seconds% seconds.
     pillars-header: "{success}%claims% claim(s) {muted}around you, marked for {secondary}%seconds%s{muted}:"
-    pillars-team: "{muted}• {secondary}%team% {dark}{bullet} {muted}%block%"
+    # Which block is which team: read on the pillars around you.
+    pillars-team: "{muted}• {secondary}%block% {dark}{bullet} {primary}%team%"
+    pillars-hidden: "{muted}The territory markers are gone. {dark}(/team map again to bring them back)"
     pillars-empty: "{muted}No claim within %radius% chunk(s) of you."
     style-unknown: "{error}'%style%' is not a map style {muted}- {secondary}pillars {muted}or {secondary}chat{muted}."
     # %cell% is how many blocks one character stands for (claims.yml, map.chat.cell-blocks).

@@ -165,8 +165,11 @@ lock:
     # already higher than it gets minimum-height blocks instead.
     top-y: 128
     minimum-height: 3
-    # How much of the border is drawn around the player, in blocks - the rest is
-    # too far to be seen, and drawing it would cost for nothing.
+    # How close to the claim a player must be for the wall to appear at all, in
+    # blocks: it shows as they come near rather than standing across the map.
+    show-within-blocks: 5
+    # How much of the border is then drawn around the player, in blocks - the rest
+    # is too far to be seen, and drawing it would cost for nothing.
     radius-blocks: 24
     # How often it is redrawn as players move, in seconds.
     refresh-seconds: 1

@@ -54,6 +54,17 @@ public final class BorderColumns {
         return columns;
     }
 
+    /**
+     * @return how many blocks from {@code (x, z)} to the nearest block of the claim,
+     *         measured as a square - {@code 0} inside it. What decides whether a
+     *         locked claim's wall is shown at all
+     */
+    public static int distanceTo(ClaimArea area, int x, int z) {
+        int dx = Math.max(0, Math.max(area.minX() - x, x - area.maxX()));
+        int dz = Math.max(0, Math.max(area.minZ() - z, z - area.maxZ()));
+        return Math.max(dx, dz);
+    }
+
     private static boolean near(int x, int z, int centreX, int centreZ, int radius) {
         return Math.abs(x - centreX) <= radius && Math.abs(z - centreZ) <= radius;
     }

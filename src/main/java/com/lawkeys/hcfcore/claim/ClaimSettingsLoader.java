@@ -190,6 +190,7 @@ public final class ClaimSettingsLoader {
                 wall.getInt("top-y", defaults.topY()),
                 wall.getInt("minimum-height", defaults.minimumHeight()),
                 wall.getInt("radius-blocks", defaults.radiusBlocks()),
+                wall.getInt("show-within-blocks", defaults.showWithinBlocks()),
                 wall.getLong("refresh-seconds", defaults.refreshSeconds()));
     }
 

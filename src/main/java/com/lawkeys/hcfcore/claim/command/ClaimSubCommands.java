@@ -392,8 +392,17 @@ public final class ClaimSubCommands {
             chat(module, player, team);
         }
 
-        /** The pillars in the world: one block kind per team, on the corners of every claim around. */
+        /**
+         * The pillars in the world: one block kind per team, on the corners of every
+         * claim around. Asked for again while they stand, they go: the command is the
+         * switch, since a map that is in the way has to be turned off somehow (the
+         * project owner's choice, 22/09/2026).
+         */
         private void pillars(TeamModule module, Player player) {
+            if (claims.getMapPillars().hideIfShown(player)) {
+                module.getLang().send(player, ClaimMessages.MAP_PILLARS_HIDDEN);
+                return;
+            }
             com.lawkeys.hcfcore.claim.view.MapPillars.Drawn drawn = claims.getMapPillars().show(player);
             if (drawn.claims() == 0) {
                 module.getLang().send(player, ClaimMessages.MAP_PILLARS_EMPTY,
@@ -405,8 +414,8 @@ public final class ClaimSubCommands {
                     "seconds", String.valueOf(claims.getSettings().map().seconds()));
             drawn.materials().forEach((teamId, material) -> module.getLang().send(player,
                     ClaimMessages.MAP_PILLARS_TEAM,
-                    "team", claims.getMapPillars().teamName(teamId).orElse("?"),
-                    "block", readable(material)));
+                    "block", readable(material),
+                    "team", claims.getMapPillars().teamName(teamId).orElse("?")));
         }
 
         /** @return {@code RED_CONCRETE} as {@code Red Concrete}: a block named as players read it */

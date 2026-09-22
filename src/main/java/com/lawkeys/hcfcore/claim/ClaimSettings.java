@@ -115,16 +115,20 @@ public record ClaimSettings(
      * The wall around a locked claim ({@code /team lockclaim}).
      *
      * @param topY         the level the wall rises to from the ground
+     * @param showWithinBlocks how close to the claim a player must be to see the wall
+     *                     at all: it appears as they come near, rather than standing
+     *                     across the landscape (the project owner's choice, 22/09/2026)
      * @param radiusBlocks how much of the border to draw around the player: the rest
      *                     is too far to be seen, and drawing it would cost for nothing
      */
     public record LockRules(boolean wallEnabled, String material, int topY, int minimumHeight, int radiusBlocks,
-                            long refreshSeconds) {
+                            int showWithinBlocks, long refreshSeconds) {
 
         public LockRules {
             Objects.requireNonNull(material, "material");
             minimumHeight = Math.max(1, Math.min(64, minimumHeight));
             radiusBlocks = Math.max(4, Math.min(128, radiusBlocks));
+            showWithinBlocks = Math.max(0, Math.min(128, showWithinBlocks));
             refreshSeconds = Math.max(1L, Math.min(60L, refreshSeconds));
         }
     }
@@ -311,7 +315,7 @@ public record ClaimSettings(
                         "{muted}Right-click {dark}{bullet} {secondary}second corner",
                         "{muted}Sneak + left-click {dark}{bullet} {success}claim it",
                         "{muted}Drop it {dark}{bullet} {error}give up"), "GLASS", "GLOWSTONE", 6, 12),
-                new LockRules(true, "RED_STAINED_GLASS", 128, 3, 24, 1L),
+                new LockRules(true, "RED_STAINED_GLASS", 128, 3, 24, 5, 1L),
                 new MapRules(MapStyle.PILLARS, 8, 12, 6, 4, 128, 3, 20L, List.of(
                         "DIAMOND_BLOCK", "EMERALD_BLOCK", "GOLD_BLOCK", "IRON_BLOCK",
                         "LAPIS_BLOCK", "REDSTONE_BLOCK", "COAL_BLOCK", "COPPER_BLOCK",
