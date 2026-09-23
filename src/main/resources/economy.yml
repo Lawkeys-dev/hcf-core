@@ -65,19 +65,38 @@ shop:
     sell-header: "[Sell]"
   # /shop: every item below, a page at a time. amount per trade; buy and sell
   # prices for that amount, 0 for "not offered". Left click buys, right click sells.
+  #
+  # Priced on a kill being worth 10 (kill-reward below): 16 diamonds sell for
+  # five kills, a stack of pearls costs eight. Ores come in, what a fight uses
+  # goes out - pearls, food, potion ingredients, building blocks.
   menu:
     items:
-      - {material: DIAMOND, amount: 16, buy: 0, sell: 400}
-      - {material: EMERALD, amount: 16, buy: 0, sell: 200}
-      - {material: GOLD_INGOT, amount: 16, buy: 0, sell: 100}
-      - {material: IRON_INGOT, amount: 16, buy: 0, sell: 50}
-      - {material: REDSTONE, amount: 32, buy: 0, sell: 20}
-      - {material: LAPIS_LAZULI, amount: 32, buy: 0, sell: 20}
-      - {material: COAL, amount: 32, buy: 0, sell: 10}
-      - {material: ENDER_PEARL, amount: 16, buy: 400, sell: 0}
-      - {material: EXPERIENCE_BOTTLE, amount: 64, buy: 200, sell: 0}
-      - {material: GOLDEN_CARROT, amount: 64, buy: 100, sell: 0}
-      - {material: OBSIDIAN, amount: 16, buy: 300, sell: 0}
+      # --- Selling what you mine
+      - {material: DIAMOND, amount: 16, buy: 0, sell: 50}
+      - {material: EMERALD, amount: 16, buy: 0, sell: 30}
+      - {material: GOLD_INGOT, amount: 16, buy: 0, sell: 15}
+      - {material: IRON_INGOT, amount: 16, buy: 0, sell: 10}
+      - {material: REDSTONE, amount: 64, buy: 0, sell: 8}
+      - {material: LAPIS_LAZULI, amount: 64, buy: 0, sell: 8}
+      - {material: COAL, amount: 64, buy: 0, sell: 5}
+      # --- Fighting
+      - {material: ENDER_PEARL, amount: 16, buy: 80, sell: 0}
+      - {material: GOLDEN_APPLE, amount: 8, buy: 80, sell: 0}
+      - {material: EXPERIENCE_BOTTLE, amount: 64, buy: 50, sell: 0}
+      # --- Food
+      - {material: GOLDEN_CARROT, amount: 64, buy: 20, sell: 0}
+      - {material: COOKED_BEEF, amount: 64, buy: 10, sell: 0}
+      # --- Potions
+      - {material: GLASS_BOTTLE, amount: 64, buy: 10, sell: 0}
+      - {material: NETHER_WART, amount: 64, buy: 30, sell: 0}
+      - {material: BLAZE_ROD, amount: 16, buy: 40, sell: 0}
+      - {material: GLOWSTONE_DUST, amount: 64, buy: 30, sell: 0}
+      - {material: SUGAR, amount: 64, buy: 15, sell: 0}
+      - {material: MAGMA_CREAM, amount: 16, buy: 30, sell: 0}
+      - {material: GHAST_TEAR, amount: 8, buy: 40, sell: 0}
+      # --- Building
+      - {material: OBSIDIAN, amount: 16, buy: 40, sell: 0}
+      - {material: STONE, amount: 64, buy: 5, sell: 0}
 # --8<-- [end:shop]
 
 # --8<-- [start:bounties]
@@ -88,8 +107,8 @@ shop:
 # (hcfcore.economy.bounty.admin) - the money is not given back.
 bounties:
   enabled: true
-  # The least one placement may add.
-  minimum-amount: 100.0
+  # The least one placement may add: five kills' worth.
+  minimum-amount: 50.0
   # Tell everybody when a bounty is placed. Collecting one is always announced.
   announce: true
   # How many bounties /bounty lists.
@@ -103,7 +122,8 @@ bounties:
 # accounts trading kills is the first thing a kill reward invites.
 kill-reward:
   enabled: true
-  amount: 50.0
+  # The unit the rest of the economy is priced on (the shop, bounties).
+  amount: 10.0
   # The share of the victim's balance moved to the killer, 0 to 100.
   steal-percent: 0
   same-victim-cooldown-seconds: 300

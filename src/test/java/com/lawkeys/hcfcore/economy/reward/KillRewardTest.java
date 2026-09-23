@@ -15,7 +15,7 @@ class KillRewardTest {
     @Test
     void aKillPaysTheFlatAmount() {
         KillReward.Payout payout = new KillReward().payout(KillReward.Rules.defaults(), killer, victim, 1000.0, 0L);
-        assertEquals(50.0, payout.flat());
+        assertEquals(10.0, payout.flat());
         assertEquals(0.0, payout.stolen());
     }
 
@@ -31,11 +31,11 @@ class KillRewardTest {
     void theSameVictimPaysNothingAgainWithinTheCooldown() {
         KillReward reward = new KillReward();
         KillReward.Rules rules = KillReward.Rules.defaults();
-        assertEquals(50.0, reward.payout(rules, killer, victim, 0.0, 0L).flat());
+        assertEquals(10.0, reward.payout(rules, killer, victim, 0.0, 0L).flat());
         assertTrue(reward.payout(rules, killer, victim, 0.0, 299_000L).isEmpty());
-        assertEquals(50.0, reward.payout(rules, killer, victim, 0.0, 300_000L).flat());
+        assertEquals(10.0, reward.payout(rules, killer, victim, 0.0, 300_000L).flat());
         // Another victim is not on cooldown.
-        assertEquals(50.0, reward.payout(rules, killer, UUID.randomUUID(), 0.0, 1_000L).flat());
+        assertEquals(10.0, reward.payout(rules, killer, UUID.randomUUID(), 0.0, 1_000L).flat());
     }
 
     @Test

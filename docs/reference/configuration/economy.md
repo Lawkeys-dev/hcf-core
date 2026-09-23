@@ -51,7 +51,7 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 | `enabled` | `true` | The shop at all |
 | `mode` | `both` | `signs` (placed by staff), `menu` (`/shop`), or `both` |
 | `signs.buy-header` · `sell-header` | `[Buy]` · `[Sell]` | The first line that makes a sign a shop sign |
-| `menu.items` | ores sold, pearls and XP bought | One entry per item: `material`, `amount` per trade, `buy` and `sell` prices for that amount — `0` for not offered |
+| `menu.items` | 21 items priced on a 10-a-kill economy: ores sold; pearls, golden apples, XP, food, potion ingredients and building blocks bought | One entry per item: `material`, `amount` per trade, `buy` and `sell` prices for that amount — `0` for not offered |
 
 ## Bounties
 
@@ -62,7 +62,7 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 | Key | As shipped | What it does |
 |---|---|---|
 | `enabled` | `true` | `/bounty` at all |
-| `minimum-amount` | `100.0` | The least one placement may add |
+| `minimum-amount` | `50.0` | The least one placement may add — five kills' worth |
 | `announce` | `true` | Tell everybody when a bounty is placed; collecting one is always announced |
 | `list-size` | `10` | How many bounties `/bounty` lists |
 
@@ -75,7 +75,7 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 | Key | As shipped | What it does |
 |---|---|---|
 | `enabled` | `true` | Money for a kill at all |
-| `amount` | `50.0` | Paid to the killer, from nowhere |
+| `amount` | `10.0` | Paid to the killer, from nowhere — the unit the shop and bounties are priced on |
 | `steal-percent` | `0` | The share of the victim's balance moved to the killer, 0 to 100, rounded down to the cent |
 | `same-victim-cooldown-seconds` | `300` | The same killer earns nothing for the same victim again within this |
 

@@ -16,7 +16,7 @@ public record BountyRules(boolean enabled, double minimumAmount, boolean announc
     }
 
     public static BountyRules defaults() {
-        return new BountyRules(true, 100.0, true, 10);
+        return new BountyRules(true, 50.0, true, 10);
     }
 
     public static BountyRules load(ConfigurationSection section) {

@@ -39,7 +39,7 @@ Only plain items are counted and taken: a renamed or enchanted stack is never so
 
 ## Kill reward
 
-A kill pays the killer **50** (`kill-reward.amount`), and, if the server sets `steal-percent`, a share of the dead player's balance too. Killing an ally pays nothing, and the same victim pays nothing again for 5 minutes — two accounts trading kills earn one reward, not a salary.
+A kill pays the killer **10** (`kill-reward.amount`) — the unit the rest of the economy is priced on, and, if the server sets `steal-percent`, a share of the dead player's balance too. Killing an ally pays nothing, and the same victim pays nothing again for 5 minutes — two accounts trading kills earn one reward, not a salary.
 
 ## Team banks
 

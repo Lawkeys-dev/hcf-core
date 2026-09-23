@@ -33,7 +33,7 @@ public final class KillReward {
         }
 
         public static Rules defaults() {
-            return new Rules(true, 50.0, 0.0, 300L);
+            return new Rules(true, 10.0, 0.0, 300L);
         }
 
         public static Rules load(ConfigurationSection section) {
