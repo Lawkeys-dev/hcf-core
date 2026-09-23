@@ -21,19 +21,20 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 
 | Area | What it does |
 |---|---|
-| **Teams** | Roles, invitations, alliances, a bank, points and ranking, focus, rally, team and ally chat |
-| **Territory** | Claims drawn block by block with the claiming wand, paid from the team bank, with buffers and connected land, full protection (blocks, entities, pistons, liquids, explosions), HQ and base, `/team stuck`, server land for spawn and roads, a warzone, a claim lock for SOTW, elevator signs |
+| **Teams** | Roles, invitations, alliances, a bank, points and ranking — a kill, a death, an event won, a raid all counted — focus, rally, team and ally chat, `/lff` for players looking for one |
+| **Territory** | Claims drawn block by block with the claiming wand, paid from the team bank, with buffers and connected land, full protection (blocks, entities, pistons, liquids, explosions), HQ and base, subclaims (`[Subclaim]` chests), `/team stuck`, server land for spawn and roads, a warzone, a claim lock for SOTW behind a wall of red glass, `/team map` drawn in the world as pillars, elevator signs |
 | **DTR and raids** | The classic scale, computed from time so it never drifts; raids open land to pillage and protection returns on its own — land never changes hands |
-| **Combat** | Deathbans with rank tiers, combat tag and combat logging, safe zones, friendly fire rules, loot protection, strength nerf, ender pearl and item cooldowns (Gapple, Crapple…) — and a **classic 1.7.10 combat** mode: no attack cooldown, sword blocking, 1.7 weapon damage, Sharpness and knockback, regeneration, golden apples and pots |
+| **Combat** | Deathbans with rank tiers, combat tag and combat logging, safe zones with no damage and closed to anybody in combat, death signs, friendly fire rules, loot protection, strength nerf, ender pearl and item cooldowns (Gapple, Crapple…) — and a **classic 1.7.10 combat** mode: no attack cooldown, sword blocking, 1.7 weapon damage, Sharpness and knockback, regeneration, golden apples and pots |
 | **Classes** | Diamond, Bard, Archer, Rogue and Miner, chosen by the armour worn: Bard buffs and energy, archer tag, backstab, effects by dye colour for the Archer — and your own classes, written from scratch in `classes.yml` |
 | **Lives** | Revive friends, or spend your own life by logging in (HCF mode) |
-| **Events** | KOTH, Citadel (fought in a claimed Citadel with no pearls or partner items), Conquest, Kill the King, DTC, Last Break, Slide, Totem and Mini Totem on daily and weekly schedules (`/schedule` lists the week), with a hologram above every zone — each one created, set up and deleted in game with the same commands, its territory drawn with the claiming wand; Mountains that refill on a clock |
+| **Events** | KOTH, Citadel (fought in a claimed Citadel with no pearls or partner items), Conquest, Kill the King (team or solo), DTC, Last Break, Slide, Totem and Mini Totem on daily and weekly schedules (`/schedule` lists the week), with a hologram above every zone — each one created, set up and deleted in game with the same commands, its territory drawn with the claiming wand; Mountains that refill on a clock |
+| **Economy** | Balances and `/pay`, money for a kill, a shop on signs or in a menu of shelves, bounties — Vault-compatible |
 | **Map phases** | SOTW, EOTW and the Purge, by command or by date, surviving restarts |
 | **Kits and items** | Kits saved from an inventory, refill signs, a layout editor, 42 partner items built in (Switcher, Ninja Track, Rage Ball, Pocket Bard, Grappling Hook…) and your own, killstreak rewards, custom enchants, effect commands (`/speed`, `/strength`…), enchantment, potion and effect caps, block limits per claim, a crowbar |
-| **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams |
+| **Moderation** | Staff mode with a configurable toolbar, vanish, freeze, invsee, last inventories, a ticket queue, staff chat, strikes against teams, mining alerts |
 | **Everyday commands** | What an essentials plugin gives — `/ci`, `/feed`, `/fly`, `/god`, `/hat`, `/ec`, `/wb`, `/i`, `/tphere`, `/gmc`, `/day`… — each with its own permission, without what breaks HCF (`/tpa`, `/home`, `/back`, `/near`) |
 | **Interface** | One theme for the whole plugin (`theme.yml`: colours by role, prefix, framed menus), flicker-free scoreboard from template lines, each player hiding the sections they want in `/settings`, tab list — the HCF grid or the classic list with LuckPerms ranks —, chat format with LuckPerms prefixes and kill counts, stats and leaderboards, holograms, player settings |
-| **Integrations** | Vault, LuckPerms and Lunar Client (Apollo) — all optional; the HCF tab list needs nothing |
+| **Integrations** | Vault, LuckPerms, Lunar Client (Apollo) and Discord webhooks — all optional; the HCF tab list needs nothing |
 
 ## Quick start
 
@@ -63,14 +64,14 @@ The full documentation is at **https://lawkeys-dev.github.io/hcf-core/**:
 
 - **Nothing hardcoded.** Every gameplay value is a setting, `/hcf reload` applies it, and balance decisions (points scale, enchantment caps, rewards) ship empty or neutral.
 - **The game never waits on the database.** Memory is the source of truth; SQLite or MySQL is written in the background. Nobody plays on a half-loaded server.
-- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1174 tests, including real SQLite round trips.
+- **Rules are plain Java.** Every rule engine is free of the server API and unit-tested — 1245 tests, including real SQLite round trips.
 - **Official documentation only.** Every technical choice is checked against Paper's documentation and the libraries' own sources.
 
 The design documents for contributors: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`FEATURES.md`](FEATURES.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Status
 
-**Pre-release.** HCFCore compiles against the real Paper 26.2 API and its unit tests pass in CI. It has been tried in game module by module on a local Paper 26.2 server — SQLite and MySQL 8.4, LuckPerms, Vault, Lunar Client through Apollo, kitmap mode — classes, classic combat, effect caps, effect commands, partner items and cooldowns, the theme, both tab lists, strikes and elevators included, with two players; only the damage a sword block takes off awaits its test. It has not yet run a production map under load. Test it on your own setup before deploying it to a server you care about, and please [report](https://github.com/Lawkeys-dev/hcf-core/issues) what you find.
+**Pre-release.** HCFCore compiles against the real Paper 26.2 API and its unit tests pass in CI. It has been tried in game module by module on a local Paper 26.2 server — SQLite and MySQL 8.4, LuckPerms, Vault, Lunar Client through Apollo, kitmap mode — classes, classic combat, effect caps, effect commands, partner items and cooldowns, the theme, both tab lists, strikes, elevators, the claiming wand, the event setup commands, DTC, Last Break, the Totem, the weekly schedule, safe zones, the shop and bounties included, with two players. Still awaiting their test in game: the damage a sword block takes off, the Slide, both Kill the King modes, subclaims and the Discord webhook. It has not yet run a production map under load. Test it on your own setup before deploying it to a server you care about, and please [report](https://github.com/Lawkeys-dev/hcf-core/issues) what you find.
 
 ## Contributing
 
