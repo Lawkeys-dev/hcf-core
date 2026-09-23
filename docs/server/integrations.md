@@ -35,6 +35,15 @@ What is shown, each part switched in `apollo.yml`:
 
 Apollo's own configuration can switch each of its modules off for the whole server; a module off there stays off whatever `apollo.yml` says. `/hcf reload` takes back everything sent and sends it again as `apollo.yml` now says.
 
+## Discord
+
+The server's announcements can be posted to a Discord channel through a **webhook** — nothing to install, no bot. An event started or won, SOTW and EOTW, a bounty placed or collected, a team going raidable or protected again: the same text as in the game, colours removed.
+
+1. In Discord: the channel's settings › **Integrations** › **Webhooks** › **New Webhook** › **Copy Webhook URL**. Keep it private — anybody holding it can post in that channel.
+2. In `discord.yml`: paste it under `webhooks`, set `enabled: true`, `/hcf reload`.
+
+What goes where is a list of rules on the language keys (`forward`), read top to bottom: the shipped one posts every event start and result, the map phases, bounties and raids, and leaves out the chatty lines. Several webhooks can split them across channels. See [`discord.yml`](../reference/configuration/discord.md).
+
 ## The HCF tab list needs nothing
 
 The HCF tab list's grid is made of lines that are not players, which Paper's API cannot show. HCFCore sends them itself, as the server's own tab list packets — no PacketEvents, no ProtocolLib. They are checked when the plugin starts: on a Minecraft version whose packets are shaped otherwise, the classic tab list is shown instead, and the console says why.

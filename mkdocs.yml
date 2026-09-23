@@ -176,6 +176,7 @@ nav:
           - elevators.yml: reference/configuration/elevators.md
           - holograms.yml: reference/configuration/holograms.md
           - apollo.yml: reference/configuration/apollo.md
+          - discord.yml: reference/configuration/discord.md
   - Developers:
       - developers/index.md
       - Developer API: developers/api.md

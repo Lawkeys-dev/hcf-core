@@ -122,6 +122,7 @@ public final class BountyCommand implements TabExecutor {
                     "player", name(target), "amount", money.format(amount), "total", money.format(total));
             Bukkit.getOnlinePlayers().forEach(online -> online.sendMessage(line));
             Bukkit.getConsoleSender().sendMessage(line);
+            com.lawkeys.hcfcore.util.Announcements.publish(EconomyMessages.BOUNTY_PLACED_BROADCAST, line);
         }
     }
 

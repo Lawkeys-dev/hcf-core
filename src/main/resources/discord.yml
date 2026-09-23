@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# discord.yml - the server's announcements, sent to Discord through webhooks
+#
+# An event started or won, SOTW and EOTW, a bounty collected, a team going
+# raidable: the same text as in the game, colours removed, posted to a channel of
+# your Discord server. Nothing is sent - nothing leaves the server - until you
+# switch it on and give a webhook URL.
+#
+# A webhook URL is made in Discord: channel settings > Integrations > Webhooks >
+# New Webhook > Copy Webhook URL. Keep it private: anybody holding it can post in
+# that channel.
+#
+# /hcf reload applies changes at once.
+#
+# Lines "# --8<-- [start:...]" and "# --8<-- [end:...]" mark the parts the online
+# documentation quotes from this file. They are comments and change nothing.
+# ---------------------------------------------------------------------------
+
+# --8<-- [start:discord]
+enabled: false
+
+# Webhooks, each under a name of your choosing - one per channel you post to.
+webhooks:
+  announcements: ""
+
+# The name and picture the posts appear under. Empty: the webhook's own.
+username: "HCF"
+avatar-url: ""
+
+# Which announcements go where. "keys" is a key of lang/en.yml, where * stands for
+# anything: "events.*" is every event announcement. The FIRST rule that matches
+# decides; "to" is a webhook above, or "" to send the announcement nowhere - which
+# is how the chatty ones are kept out before a rule that takes all the rest.
+forward:
+  # Too chatty for a channel: progress lines, countdown marks, every capture of a
+  # Conquest zone and every block of a Totem, the "starts in N minutes" marks.
+  - {keys: "events.*.milestone*", to: ""}
+  - {keys: "events.broadcast.progress", to: ""}
+  - {keys: "events.broadcast.contested", to: ""}
+  - {keys: "events.broadcast.capture-began", to: ""}
+  - {keys: "events.broadcast.control-lost", to: ""}
+  - {keys: "events.conquest.zone-captured", to: ""}
+  - {keys: "events.totem.broken", to: ""}
+  - {keys: "events.totem.reset", to: ""}
+  - {keys: "events.king.progress", to: ""}
+  - {keys: "events.king.coordinates", to: ""}
+  - {keys: "events.planning.soon", to: ""}
+  # Every event starting, won, expiring or stopped.
+  - {keys: "events.*", to: announcements}
+  # SOTW, EOTW, the Purge.
+  - {keys: "phase.*", to: announcements}
+  # A bounty placed or collected.
+  - {keys: "economy.bounty.*", to: announcements}
+  # A team going raidable, or protected again.
+  - {keys: "discord.*", to: announcements}
+# --8<-- [end:discord]

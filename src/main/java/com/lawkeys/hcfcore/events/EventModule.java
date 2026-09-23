@@ -665,6 +665,7 @@ public final class EventModule {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(message);
         }
+        com.lawkeys.hcfcore.util.Announcements.publish(key, message);
         plugin.getLogger().info(ColorCodes.strip(message));
     }
 

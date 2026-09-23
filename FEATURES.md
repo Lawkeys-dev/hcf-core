@@ -222,6 +222,10 @@ Everything is computed on the main thread every `update-ticks` and **only what c
 
 Not used: Border, Combat, Marker/Notification/Title. **Apollo's Hologram module is deliberately not used for the plugin's holograms**: it is visible only to Lunar Client players, which would leave every other player out (section 14).
 
+## 13b. Discord
+
+- **Announcements posted to Discord through webhooks** (`integration/discord/`, `discord.yml`, the owner's request of 23/09/2026), **off as shipped**: every server-wide announcement - the events, King, phase and bounty broadcasts - passes through `util/Announcements` with its language key, a seam with a neutral default; `DiscordIntegration` routes it by `forward` rules on those keys (`*` wildcards, first match wins, `""` for nowhere - `DiscordRules`, pure and tested) to named webhooks. A team going raidable or protected comes from the public `TeamRaidableEvent`. Posts are sent one at a time on a thread of their own, never the main one; a Discord rate limit is waited out once, then the post dropped, at most 100 queued; `allowed_mentions` is empty so no name can ping a Discord server.
+
 ## 14. Holograms
 
 **Built on Paper's native `TextDisplay` API** (display entities, available since Minecraft 1.19.4 and exposed officially by Paper). **Every player sees them, whatever their client** (unlike Apollo's Hologram module, reserved to Lunar players — section 13), and **nothing needs installing** — no third-party plugin or library.

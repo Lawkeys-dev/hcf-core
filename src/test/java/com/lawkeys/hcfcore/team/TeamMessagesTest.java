@@ -72,6 +72,7 @@ class TeamMessagesTest {
             com.lawkeys.hcfcore.events.totem.TotemMessages.class,
             com.lawkeys.hcfcore.events.setup.EventSetupMessages.class,
             com.lawkeys.hcfcore.events.planning.PlanningMessages.class,
+            com.lawkeys.hcfcore.integration.discord.DiscordMessages.class,
             CrowbarMessages.class,
             DtrMessages.class,
             EconomyMessages.class,

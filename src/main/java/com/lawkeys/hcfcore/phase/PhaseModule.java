@@ -222,6 +222,7 @@ public final class PhaseModule {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage(message);
         }
+        com.lawkeys.hcfcore.util.Announcements.publish(update.messageKey(), message);
         plugin.getLogger().info(ColorCodes.strip(message));
     }
 

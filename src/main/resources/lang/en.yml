@@ -835,6 +835,14 @@ events:
       sunday: "Sunday"
 
 # ---------------------------------------------------------------------------
+# Discord (discord.yml) - announcements only Discord reads. Everything else it
+# receives is the same text as in the game, colours removed.
+# ---------------------------------------------------------------------------
+discord:
+  team-raidable: "⚔ Team %team% is raidable!"
+  team-protected: "🛡 Team %team% is protected again."
+
+# ---------------------------------------------------------------------------
 # Resource nodes (Mountain / Glowstone Mountain / Ore Mountain)
 # ---------------------------------------------------------------------------
 resourcenode:

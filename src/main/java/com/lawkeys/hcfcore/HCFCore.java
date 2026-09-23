@@ -93,6 +93,7 @@ public final class HCFCore extends JavaPlugin {
     private EffectCommandModule effectCommandModule;
     private AbilityModule abilityModule;
     private LunarIntegration lunarIntegration;
+    private com.lawkeys.hcfcore.integration.discord.DiscordIntegration discordIntegration;
     private UiModule uiModule;
     private GeneralModule generalModule;
     private KitModule kitModule;
@@ -398,6 +399,10 @@ public final class HCFCore extends JavaPlugin {
                 this.teamModule, this.claimModule, this.dtrModule, this.pvpModule, this.eventModule,
                 this.abilityModule, this.warmupModule, this.classModule, this.crowbarModule));
 
+        // Discord webhooks: hears the announcements the modules above make.
+        this.discordIntegration = com.lawkeys.hcfcore.integration.discord.DiscordIntegration.start(
+                this, this.langManager);
+
         // Every module has declared its load by now. Sealing is what lets the gate
         // open: before it, a fast load could not tell that another was still to come.
         this.startupGate.seal();
@@ -427,6 +432,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (this.enchantModule != null) {
             this.enchantModule.disable();
+        }
+        if (this.discordIntegration != null) {
+            this.discordIntegration.disable();
         }
         if (this.lunarIntegration != null) {
             this.lunarIntegration.disable();
@@ -598,6 +606,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (lunarIntegration != null) {
             lunarIntegration.reload();
+        }
+        if (discordIntegration != null) {
+            discordIntegration.reload();
         }
     }
 

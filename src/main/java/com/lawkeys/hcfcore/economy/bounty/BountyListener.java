@@ -57,5 +57,6 @@ public final class BountyListener implements Listener {
                 "player", victim.getName(), "amount", money.format(amount));
         Bukkit.getOnlinePlayers().forEach(online -> online.sendMessage(line));
         Bukkit.getConsoleSender().sendMessage(line);
+        com.lawkeys.hcfcore.util.Announcements.publish(EconomyMessages.BOUNTY_CLAIMED, line);
     }
 }
