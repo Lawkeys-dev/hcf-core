@@ -98,7 +98,7 @@ public final class LunarIntegration {
         NametagStyle themed = new NametagStyle(
                 theme.nametagTeam() != null ? theme.nametagTeam() : style.teamLine(),
                 theme.nametagName() != null ? theme.nametagName() : style.nameLine(), colors);
-        return new LunarSettings(read.enabled(), read.updateTicks(), read.resendSeconds(), read.waypoints(), read.teamView(),
+        return new LunarSettings(read.enabled(), read.updateTicks(), read.waypoints(), read.teamView(),
                 read.cooldowns(), new LunarSettings.Nametags(read.nametags().enabled(), themed));
     }
 }

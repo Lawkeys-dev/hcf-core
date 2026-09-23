@@ -22,12 +22,6 @@ enabled: true
 # How often everything is brought up to date, in ticks (20 = one second). Only
 # what changed is sent, except teammates' positions, which move.
 update-ticks: 10
-
-# How often everything is sent again even though nothing changed, in seconds.
-# Apollo forgets what a player holds whenever it is reloaded - /apollo reload
-# clears every waypoint and nametag the server had sent - and nothing tells the
-# plugin; this is how they come back.
-resend-seconds: 30
 # --8<-- [end:general]
 
 # --8<-- [start:waypoints]
@@ -39,18 +33,8 @@ waypoints:
   base: true        # your team's second base
   rally: true       # your team's rally point, while it lasts
   focus: true       # a focused player, where they are; a focused team's HQ
-  events: true      # every running event: KOTH and Citadel zones, Conquest zones,
-                    # a DTC or Last Break core, a Slide zone, a Totem, the King
-  # How far above the event itself its waypoint is put, in blocks (0 to 320).
-  # 0 puts it on the objective - the core, the column, the floor of the zone -
-  # which is where the beam should start. The King's follows the player and is
-  # never raised.
-  event-height: 0
-  # The pillar of light up from a waypoint, and the outline on the block it stands
-  # on. Apollo leaves both off unless asked: without the beam a waypoint is in the
-  # player's list and nowhere in the world.
-  show-beam: true
-  highlight-block: true
+  events: true      # KOTH and Citadel zones, Conquest zones, the King in KTK,
+                    # a running DTC/Last Break's core, a running Slide's zone and a running Totem's column
   colors:
     hq: "#55FF55"
     base: "#00AA00"

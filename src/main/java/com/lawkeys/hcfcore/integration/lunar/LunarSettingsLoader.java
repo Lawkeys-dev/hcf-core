@@ -24,7 +24,6 @@ public final class LunarSettingsLoader {
         return new LunarSettings(
                 section.getBoolean("enabled", defaults.enabled()),
                 section.getInt("update-ticks", defaults.updateTicks()),
-                section.getLong("resend-seconds", defaults.resendSeconds()),
                 waypoints(section.getConfigurationSection("waypoints"), defaults.waypoints(), warn),
                 teamView(section.getConfigurationSection("team-view"), defaults.teamView(), warn),
                 cooldowns(section.getConfigurationSection("cooldowns"), defaults.cooldowns()),
@@ -44,9 +43,6 @@ public final class LunarSettingsLoader {
                 section.getBoolean("rally", d.rally()),
                 section.getBoolean("focus", d.focus()),
                 section.getBoolean("events", d.events()),
-                section.getInt("event-height", d.eventHeight()),
-                section.getBoolean("show-beam", d.showBeam()),
-                section.getBoolean("highlight-block", d.highlightBlock()),
                 color(colors, "hq", d.hqColor(), warn),
                 color(colors, "base", d.baseColor(), warn),
                 color(colors, "rally", d.rallyColor(), warn),

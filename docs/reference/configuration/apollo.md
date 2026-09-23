@@ -15,7 +15,6 @@ Every example on this page is **taken from the shipped `apollo.yml`**. Changes a
 | Key | As shipped | What it does |
 |---|---|---|
 | `enabled` | `true` | Every Lunar Client feature |
-| `resend-seconds` | `30` | How often everything is sent again although nothing changed. Apollo forgets what a player holds when it is reloaded, and says nothing — this is how the waypoints and nametags come back |
 | `update-ticks` | `10` | How often everything is brought up to date; only what changed is sent |
 
 ## Waypoints
@@ -29,10 +28,7 @@ Every example on this page is **taken from the shipped `apollo.yml`**. Changes a
 | `enabled` | `true` | Waypoints at all |
 | `hq`, `base`, `rally` | `true` | The team's HQ, base and rally point |
 | `focus` | `true` | A focused player, and a focused team's HQ |
-| `event-height` | `0` | How far above the event itself its waypoint is put, in blocks (0 to 320). `0` puts it on the objective — the core, the column, the floor of the zone. The King's follows the player and is never raised |
-| `show-beam` | `true` | The pillar of light up from a waypoint. Apollo leaves it off unless asked — without it a waypoint is in the player's list and nowhere in the world |
-| `highlight-block` | `true` | Outlines the block the waypoint stands on |
-| `events` | `true` | Every running event: KOTH, Citadel and Conquest zones, a DTC or Last Break core, a Slide zone, a Totem's column, the King |
+| `events` | `true` | KOTH, Citadel and Conquest zones, the King, a running DTC/Last Break's core, and a running Slide's zone |
 | `colors` | hex colours | One per kind |
 
 ## Team view

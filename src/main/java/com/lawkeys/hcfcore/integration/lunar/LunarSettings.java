@@ -10,14 +10,9 @@ import java.util.OptionalInt;
  *
  * @param updateTicks how often everything is brought up to date; only what changed
  *                    is sent
- * @param resendSeconds how often everything is sent again even though nothing
- *                    changed. Apollo forgets what a player holds whenever it is
- *                    reloaded - {@code /apollo reload} clears every waypoint and
- *                    nametag the server had sent - and nothing tells the plugin
- *                    (found in game, 22/09/2026); this is how it comes back
  */
-public record LunarSettings(boolean enabled, int updateTicks, long resendSeconds, Waypoints waypoints,
-                            TeamView teamView, Cooldowns cooldowns, Nametags nametags) {
+public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoints, TeamView teamView,
+                            Cooldowns cooldowns, Nametags nametags) {
 
     public LunarSettings {
         Objects.requireNonNull(waypoints, "waypoints");
@@ -25,30 +20,12 @@ public record LunarSettings(boolean enabled, int updateTicks, long resendSeconds
         Objects.requireNonNull(cooldowns, "cooldowns");
         Objects.requireNonNull(nametags, "nametags");
         updateTicks = Math.max(1, updateTicks);
-        resendSeconds = Math.max(5L, Math.min(600L, resendSeconds));
     }
 
-    /**
-     * Colours are {@code 0xRRGGBB}.
-     *
-     * @param eventHeight how far above an event's own point its waypoint is put, in
-     *                    blocks. {@code 0} - as shipped - puts it on the objective
-     *                    itself, which is where the beam should start; raise it only
-     *                    if your map hides the marker. The King's follows the player,
-     *                    never raised
-     * @param showBeam       the pillar of light up from the waypoint. Apollo leaves it
-     *                       off unless asked, which is why a waypoint could be in a
-     *                       player's list and nowhere in the world (found in game,
-     *                       22/09/2026)
-     * @param highlightBlock outlines the block the waypoint stands on
-     */
+    /** Colours are {@code 0xRRGGBB}. */
     public record Waypoints(boolean enabled, boolean hq, boolean base, boolean rally, boolean focus,
-                            boolean events, int eventHeight, boolean showBeam, boolean highlightBlock,
-                            int hqColor, int baseColor, int rallyColor, int focusColor, int eventColor) {
-
-        public Waypoints {
-            eventHeight = Math.max(0, Math.min(320, eventHeight));
-        }
+                            boolean events, int hqColor, int baseColor, int rallyColor, int focusColor,
+                            int eventColor) {
     }
 
     /** @param trackingRange beyond this, in blocks, a teammate's position is sent as well as their marker */
@@ -67,8 +44,7 @@ public record LunarSettings(boolean enabled, int updateTicks, long resendSeconds
     /** Built-in fallback, mirroring {@code resources/apollo.yml}. */
     public static LunarSettings defaults() {
         return new LunarSettings(true, 10,
-                30L,
-                new Waypoints(true, true, true, true, true, true, 0, true, true,
+                new Waypoints(true, true, true, true, true, true,
                         0x55FF55, 0x00AA00, 0xFFFF55, 0xFF55FF, 0xFFAA00),
                 new TeamView(true, 0x55FF55, 48.0),
                 new Cooldowns(true, true, "DIAMOND_SWORD", true, "CLOCK", true, "NETHER_STAR", true, "ENDER_PEARL", true,
