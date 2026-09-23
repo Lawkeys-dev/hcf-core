@@ -121,7 +121,15 @@ public final class KingSettingsLoader {
                 announceSeconds,
                 loadPenalty(entry.getConfigurationSection("outside-penalty"), id, warn),
                 loadKit(entry.getConfigurationSection("kit"), id, warn),
-                EventSettingsLoader.nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn));
+                EventSettingsLoader.nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn),
+                loadMode(entry.getString("mode", "team"), id, warn));
+    }
+
+    private static KingMode loadMode(String raw, String id, Consumer<String> warn) {
+        return KingMode.of(raw).orElseGet(() -> {
+            warn.accept("kill-the-king '" + id + "': mode '" + raw + "' is not team or solo; team is used.");
+            return KingMode.TEAM;
+        });
     }
 
     private static OutsidePenalty loadPenalty(ConfigurationSection section, String id, Consumer<String> warn) {

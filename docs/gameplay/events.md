@@ -103,6 +103,13 @@ A random player becomes the King. Everyone else hunts them.
 2. **The crowning.** The King's items are **put aside in the database** and given back at the end. They receive the King's kit and effects (configurable: diamond armour, a sword, golden apples, pearls, Speed II and Resistance I in the example).
 3. **The hunt.** They are sent to a random spot in the **warzone** of the event's world, on the surface, off claimed land. **Everybody can find them**: their position is on every scoreboard, redrawn every second (`%king_location_line%`), Lunar Client players see a waypoint on them, and **once a minute** the chat says where the King is and **how much health they have left**, as a percentage (`announce-interval-seconds`, `60`; `0` turns the chat line off).
 
+**Two ways to play it** (`mode`):
+
+- **`team`** (as shipped) — the King's team defends them against every other player. The winner's team scores `points.per-king-win`.
+- **`solo`** — everybody against the King, their own teammates and allies included, and the King may strike anybody back. **No team scores**: the prize is the winner's own, the reward commands — crate keys, money...
+
+**Nobody helps the King**, in either mode: no Bard buff, no partner item, no potion thrown by anybody else — a splash of healing passes them by — and no beacon. The kit, and what they drink or eat themselves, is all they fight with. Harm still lands, an enemy Bard's debuff as much as a sword.
+
 **The arena is the warzone** set in `claims.yml` — a world without a warzone cannot run the event, and the world must not have a bedrock ceiling (not the Nether).
 
 ### The King's rules
@@ -117,7 +124,7 @@ While King, a player:
 ### Who wins
 
 - **The King**, if alive when the time runs out (**30 minutes**, `duration-seconds`).
-- Otherwise, **whoever kills the King** — unless that player was on the King's team when the King was crowned or killed. The King's allies are not excluded: the rule is strictly per team.
+- Otherwise, **whoever kills the King** — in `team` mode, unless that player was on the King's team when the King was crowned or killed (the King's allies are not excluded: the rule is strictly per team). In `solo` mode, anybody, teammates included.
 - Any other death — withered, fall, lava — or a logout ends the event with **no winner**.
 
 Reward commands run with `%player%` (the King or the killer) and `%event%`. What drops at the King's death is the kit, and it is ordinary loot. Their own items come back: at once if they survive or the event is stopped, at respawn if they die, at their next login if they leave or the server goes down.

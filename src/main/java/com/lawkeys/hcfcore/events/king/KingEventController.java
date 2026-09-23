@@ -151,6 +151,8 @@ public final class KingEventController {
         });
 
         plugin.getServer().getPluginManager().registerEvents(new KingListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new KingBuffGuard(player -> manager.isKing(player.getUniqueId()), () -> grantingKit), plugin);
         this.ruleTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20L, 20L);
     }
 
@@ -507,11 +509,28 @@ public final class KingEventController {
         }
     }
 
+    /** Set while the kit's effects are being put on: see {@link KingBuffGuard}. */
+    private boolean grantingKit;
+
+    /** @return whether this player is the King of a running solo Kill the King */
+    public boolean isSoloKing(UUID playerId) {
+        return manager.getCurrent()
+                .filter(run -> run.isReigning() && run.getKingId().equals(playerId))
+                .map(run -> run.getDefinition().mode() == KingMode.SOLO)
+                .orElse(false);
+    }
+
     private void finish(KingUpdate update, Player king) {
         arriving = false;
         stopCoordinates();
         if (update.winnerId() != null) {
-            teams.getManager().getTeamOf(update.winnerId()).ifPresent(team -> teams.getManager().recordKingWin(team));
+            // Team: the winner's team scores. Solo: the reward is the winner's own.
+            boolean team = settings.find(update.eventId()).map(KingEventDefinition::mode).orElse(KingMode.TEAM)
+                    == KingMode.TEAM;
+            if (team) {
+                teams.getManager().getTeamOf(update.winnerId())
+                        .ifPresent(winner -> teams.getManager().recordKingWin(winner));
+            }
             reward(update);
         }
         if (king == null) {
@@ -648,7 +667,13 @@ public final class KingEventController {
         PotionEffect current = player.getPotionEffect(type);
         if (current == null || current.getAmplifier() != amplifier
                 || (!current.isInfinite() && current.getDuration() < REFRESH_BELOW_TICKS)) {
-            player.addPotionEffect(new PotionEffect(type, EFFECT_TICKS, amplifier, true, true, true));
+            // The kit's own: the one plugin effect KingBuffGuard lets through.
+            grantingKit = true;
+            try {
+                player.addPotionEffect(new PotionEffect(type, EFFECT_TICKS, amplifier, true, true, true));
+            } finally {
+                grantingKit = false;
+            }
         }
     }
 

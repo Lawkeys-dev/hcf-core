@@ -365,8 +365,22 @@ kill-the-king:
     # only staff start it, with /events start ktk.
     schedule: []
 
+    # --8<-- [start:ktk-mode]
+    # How it is fought:
+    #   team - the King's team defends them against every other player. The
+    #          winner's team scores points.per-king-win (teams.yml).
+    #   solo - everybody against the King, their own teammates and allies
+    #          included, and the King may strike anybody back. No team scores:
+    #          the reward commands below are the winner's own reward.
+    # Either way nobody helps the King: no Bard buff, no partner item, no potion
+    # thrown by somebody else, no beacon. The kit, and what they drink or eat
+    # themselves, is all they fight with.
+    mode: team
+    # --8<-- [end:ktk-mode]
+
     # Console commands run for the winner - the killer, or the King.
-    # Placeholders: %player%, %event%.
+    # Placeholders: %player%, %event%. For a solo King, the prize, for instance:
+    #   reward-commands: ["crate key give %player% king 1", "eco give %player% 1000"]
     reward-commands: []
   # --8<-- [end:ktk]
 

@@ -34,6 +34,8 @@ import java.util.Objects;
  *                                 {@code %player%} and {@code %event%} substituted.
  *                                 Unlike a capture, the winner here is a player:
  *                                 the killer, or the King
+ * @param mode                     whether the King's team defends them, or everybody
+ *                                 is against the King (see {@link KingMode})
  */
 public record KingEventDefinition(String id,
                                   String displayName,
@@ -45,7 +47,8 @@ public record KingEventDefinition(String id,
                                   long announceIntervalSeconds,
                                   OutsidePenalty penalty,
                                   KingKit kit,
-                                  List<String> rewardCommands) {
+                                  List<String> rewardCommands,
+                                  KingMode mode) {
 
     public KingEventDefinition {
         Objects.requireNonNull(id, "id");
@@ -53,6 +56,7 @@ public record KingEventDefinition(String id,
         Objects.requireNonNull(world, "world");
         Objects.requireNonNull(penalty, "penalty");
         Objects.requireNonNull(kit, "kit");
+        Objects.requireNonNull(mode, "mode");
         announceAtSeconds = List.copyOf(Objects.requireNonNull(announceAtSeconds, "announceAtSeconds"));
         schedule = List.copyOf(Objects.requireNonNull(schedule, "schedule"));
         rewardCommands = List.copyOf(Objects.requireNonNull(rewardCommands, "rewardCommands"));
@@ -65,5 +69,14 @@ public record KingEventDefinition(String id,
         if (announceIntervalSeconds < 0) {
             throw new IllegalArgumentException("announceIntervalSeconds cannot be negative for event " + id);
         }
+    }
+
+    /** A team Kill the King: the mode every event had before the choice existed. */
+    public KingEventDefinition(String id, String displayName, String world, long durationSeconds,
+                               int minimumPlayers, List<Long> announceAtSeconds, List<LocalTime> schedule,
+                               long announceIntervalSeconds, OutsidePenalty penalty, KingKit kit,
+                               List<String> rewardCommands) {
+        this(id, displayName, world, durationSeconds, minimumPlayers, announceAtSeconds, schedule,
+                announceIntervalSeconds, penalty, kit, rewardCommands, KingMode.TEAM);
     }
 }

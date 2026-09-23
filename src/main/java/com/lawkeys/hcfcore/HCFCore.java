@@ -366,6 +366,7 @@ public final class HCFCore extends JavaPlugin {
         // where those are (ARCHITECTURE.md section 14).
         if (this.eventModule != null && this.pvpModule != null) {
             this.pvpModule.setAllyCombatZone(this.eventModule::coversAllyCombat);
+            this.pvpModule.setOpenTarget(this.eventModule::isOpenTarget);
         }
 
         // The scoreboard reads from every module above and is read by none, so it

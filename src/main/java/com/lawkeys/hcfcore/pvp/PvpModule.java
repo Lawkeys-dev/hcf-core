@@ -66,6 +66,8 @@ public final class PvpModule {
     private volatile DeathbanPolicy deathbanPolicy = DeathbanPolicy.USUAL;
     private volatile DeathbanWaiver deathbanWaiver = DeathbanWaiver.NONE;
     private volatile AllyCombatZone allyCombatZone = AllyCombatZone.NOWHERE;
+    /** The King of a solo Kill the King: open to everybody. Installed by {@code events/}. */
+    private volatile OpenTarget openTarget = OpenTarget.NOBODY;
     /** Which combat the server plays: config.yml, {@code combat}. */
     private volatile CombatMode combatMode = CombatMode.MODERN;
     /** The 1.7.10 combat's settings: pvp.yml, {@code legacy-combat}. Used in {@link CombatMode#CLASSIC} only. */
@@ -248,6 +250,10 @@ public final class PvpModule {
      * Installs where allies may fight. Called by the {@code events/} module at
      * startup; until then allies hurt each other nowhere.
      */
+    public void setOpenTarget(OpenTarget target) {
+        this.openTarget = Objects.requireNonNull(target, "target");
+    }
+
     public void setAllyCombatZone(AllyCombatZone zone) {
         this.allyCombatZone = Objects.requireNonNull(zone, "zone");
     }
@@ -259,6 +265,10 @@ public final class PvpModule {
      */
     public FriendlyFire judgeFriendlyFire(Player attacker, Player victim) {
         if (claims == null) {
+            return FriendlyFire.ALLOW;
+        }
+        // A solo King is everybody's target, and fights everybody back.
+        if (openTarget.isOpen(attacker.getUniqueId()) || openTarget.isOpen(victim.getUniqueId())) {
             return FriendlyFire.ALLOW;
         }
         var teams = claims.getTeams().getManager();

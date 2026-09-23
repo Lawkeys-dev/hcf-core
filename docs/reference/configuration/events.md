@@ -130,6 +130,7 @@ Under `kill-the-king:`. The arena is the warzone of `world`, set in `claims.yml`
 | `announce-interval-seconds` | `60` | How often the King's position and health go to chat; `0` never. The position is on the scoreboard all along |
 | `announce-at-seconds` | `[900, 300, 60, 10]` | Remaining-time marks to broadcast |
 | `schedule`, `reward-commands` | `[]` | As for a KOTH; rewards get `%player%` (the King or the killer) and `%event%` |
+| `mode` | `team` | `team`: the King's team defends them, the winner's team scores. `solo`: everybody against the King, teammates included, and the reward commands are the whole prize — no team scores |
 
 **Leaving the warzone:**
 

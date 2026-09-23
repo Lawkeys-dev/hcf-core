@@ -240,10 +240,13 @@ public final class KingEventManager {
         }
         KingEventDefinition definition = run.getDefinition();
         UUID king = run.getKingId();
+        // Team mode keeps the prize from the King's own team; in solo mode
+        // everybody hunts the King, teammates included, and the prize is personal.
+        boolean teamRule = definition.mode() == KingMode.TEAM;
         boolean earned = killerId != null
                 && !killerId.equals(king)
-                && !sameTeam(killerTeamId, run.getKingTeamId())
-                && !sameTeam(killerTeamId, kingTeamNow);
+                && (!teamRule || (!sameTeam(killerTeamId, run.getKingTeamId())
+                && !sameTeam(killerTeamId, kingTeamNow)));
         return Optional.of(earned
                 ? KingUpdate.of(KingUpdate.Type.KILLED, definition.id(), king, killerId,
                         KingMessages.KILLED, "event", definition.displayName())

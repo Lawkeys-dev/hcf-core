@@ -504,6 +504,11 @@ public final class EventModule {
                 .orElse(false);
     }
 
+    /** Answers {@code pvp/}'s {@code OpenTarget}: the King of a running solo Kill the King. */
+    public boolean isOpenTarget(UUID playerId) {
+        return king != null && king.isSoloKing(playerId);
+    }
+
     /** @return whether an event by this id is running now, whatever its engine */
     public boolean isRunning(String id) {
         if (manager != null && manager.getActiveEvent(id).isPresent()) {

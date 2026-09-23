@@ -7,6 +7,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **Kill the King has two modes** (`events.yml`, `mode`): `team`, as before — the King's team defends them and the winner's team scores — or `solo` — everybody against the King, teammates included, and the prize is the winner's own reward commands (crate keys, money), no team points.
+- **Nobody helps the King**, in either mode: no Bard buff, no partner item, no potion thrown by somebody else (healing included), no beacon — the kit and what they drink or eat themselves.
 - **Announcements on Discord** (`discord.yml`, off as shipped): through a webhook, the server posts event starts and results, SOTW and EOTW, bounties, and teams going raidable to a Discord channel — routed by rules on the language keys, chatty lines left out, nobody ever pinged.
 - **Bounties** (`economy.yml`, `bounties`): `/bounty <player> <amount>` puts money on a head, taken from your balance at once; whoever kills the target collects it all — never a teammate or an ally. `/bounty` lists the largest. Saved in a new table, `hcf_bounties`, created by itself.
 - **A shop** (`economy.yml`, `shop`): `[Buy]` and `[Sell]` signs placed by staff, the `/shop` menu, or both (`mode`). Sell your ores, buy pearls and XP — the list and prices are yours; only plain items are ever taken.

@@ -269,6 +269,20 @@ class KingEventManagerTest {
         }
 
         @Test
+        void inSoloModeATeammateWinsIt() {
+            KingEventDefinition solo = new KingEventDefinition("ktk", "&4Kill the King", "world", 600, 2,
+                    List.of(), List.of(), 60L, new OutsidePenalty(3L, 2.0, 1, 10L, 3), KingKit.empty(), List.of(),
+                    KingMode.SOLO);
+            settings = new KingSettings(true, UTC, List.of(solo));
+            crownAlice();
+            UUID aliceTeammate = UUID.randomUUID();
+            KingUpdate update = manager.kingDied(aliceTeammate, red, red).orElseThrow();
+
+            assertEquals(Type.KILLED, update.type());
+            assertEquals(aliceTeammate, update.winnerId());
+        }
+
+        @Test
         void aKingWhoLeftHisTeamCannotHandItToThem() {
             crownAlice();
             // Alice left red mid-reign; a red player kills them.
