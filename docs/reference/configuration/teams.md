@@ -63,6 +63,18 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | `rally.enabled` | `true` | Rally points at all |
 | `rally.duration-seconds` | `300` | How long a rally point lasts; `0` until cleared |
 
+## Looking for a team
+
+```yaml title="teams.yml"
+--8<-- "src/main/resources/teams.yml:lff"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | `/lff` at all |
+| `cooldown-seconds` | `300` | Before the same player can use it again |
+| `max-note-length` | `64` | The longest note kept, 0 to 200 characters; colour codes are stripped |
+
 ## Bank
 
 ```yaml title="teams.yml"

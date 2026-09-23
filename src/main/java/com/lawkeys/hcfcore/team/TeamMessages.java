@@ -38,6 +38,14 @@ public final class TeamMessages {
     public static final String CREATE_SUCCESS = "team.create.success";
 
     // System teams: safe zones and combat zones
+    // /lff (teams.yml, lff)
+    public static final String LFF_BROADCAST = "team.lff.broadcast";
+    public static final String LFF_BROADCAST_NOTE = "team.lff.broadcast-note";
+    public static final String LFF_IN_TEAM = "team.lff.in-team";
+    public static final String LFF_COOLDOWN = "team.lff.cooldown";
+    public static final String LFF_DISABLED = "team.lff.disabled";
+    public static final String LFF_PLAYERS_ONLY = "team.lff.players-only";
+
     public static final String SYSTEM_CREATED_SAFE = "team.system.created-safe";
     public static final String SYSTEM_CREATED_COMBAT = "team.system.created-combat";
     public static final String SYSTEM_ZONE_SAFE = "team.system.zone-safe";

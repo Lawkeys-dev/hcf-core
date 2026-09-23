@@ -33,6 +33,8 @@ Leader, co-leader (**2 at most**, `max-co-leaders`) and member. What each role m
 - `/team leave` leaves; `/team kick <player>` removes a member.
 - **When the last member leaves, the team is disbanded** (`disband-on-last-member-leave`) and its land released.
 
+**Looking for a team?** `/lff [note]` tells the whole server, with a few words about yourself if you like — `/lff PvP main, online evenings`. Once every 5 minutes, and only without a team (`teams.yml`, `lff`).
+
 ## Alliances
 
 ```text

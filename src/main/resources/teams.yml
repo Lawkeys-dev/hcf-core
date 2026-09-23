@@ -94,6 +94,18 @@ rally:
   duration-seconds: 300
 # --8<-- [end:rally]
 
+# --8<-- [start:lff]
+# /lff [note] - "looking for faction": a player with no team tells everybody
+# they want one, with a few words about themselves if they like.
+lff:
+  enabled: true
+  # Seconds before the same player can use it again: an announcement, not a
+  # spam channel.
+  cooldown-seconds: 300
+  # The longest note kept, in characters (0 to 200); the rest is cut.
+  max-note-length: 64
+# --8<-- [end:lff]
+
 # --8<-- [start:bank]
 bank:
   # Turning this off rejects every deposit/withdraw on a team bank.

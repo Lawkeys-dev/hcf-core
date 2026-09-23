@@ -7,6 +7,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **`/lff [note]`** (`teams.yml`, `lff`): a player with no team tells everybody they want one, with a few words of their own — once every 5 minutes.
 - **Death signs** (`pvp.yml`, `death-signs`): a kill by a player leaves a sign — the dead player, "slain by", the killer, the date — that keeps its text when placed and cannot be rewritten. It falls with the loot, or goes to the killer (`to-killer`).
 - **Mining alerts** (`staff.yml`, `mining-alerts`): staff are told when a player breaks into a vein of diamond, ancient debris or emerald — once per vein, with its size and position. Player-placed ores are never reported; `audience: everyone` shows everybody the classic "[FD]" line, without the position.
 - **Safe zones take no damage at all** (`pvp.yml`, `safe-zones.no-damage`) and **fill health and hunger back up** (`heal`, `keep-fed`), all on as shipped: on spawn, a fall, fire, drowning, suffocation, a mob or a cactus does nothing.

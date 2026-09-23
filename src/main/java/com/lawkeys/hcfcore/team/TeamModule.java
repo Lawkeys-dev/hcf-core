@@ -53,6 +53,9 @@ public final class TeamModule {
     };
     private TeamManager manager;
     private TeamCommand teamCommand;
+    /** {@code /lff}: kept across reloads, which only swap its rules. */
+    private final com.lawkeys.hcfcore.team.command.LffCommand lffCommand =
+            new com.lawkeys.hcfcore.team.command.LffCommand(this);
     private BukkitTask saveTask;
 
     public TeamModule(Plugin plugin, LangManager lang, StartupGate startup) {
@@ -181,6 +184,11 @@ public final class TeamModule {
         this.teamCommand = new TeamCommand(this);
         command.setExecutor(teamCommand);
         command.setTabCompleter(teamCommand);
+        PluginCommand lff = plugin.getServer().getPluginCommand("lff");
+        if (lff != null) {
+            lff.setExecutor(lffCommand);
+            lff.setTabCompleter(lffCommand);
+        }
     }
 
     /**
@@ -202,9 +210,11 @@ public final class TeamModule {
 
     /** Re-reads {@code teams.yml}. Every subsequent manager decision uses the new values. */
     public void reloadSettings() {
-        this.settings = TeamSettingsLoader.load(
-                ConfigManager.loadFile(plugin, "teams.yml"),
+        var file = ConfigManager.loadFile(plugin, "teams.yml");
+        this.settings = TeamSettingsLoader.load(file,
                 warning -> plugin.getLogger().warning("teams.yml: " + warning));
+        lffCommand.apply(com.lawkeys.hcfcore.team.command.LffCommand.Rules.load(
+                file == null ? null : file.getConfigurationSection("lff")));
     }
 
     /** Stops the periodic save and writes everything still pending, synchronously. */

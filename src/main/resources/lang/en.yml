@@ -66,6 +66,15 @@ team:
     player-not-found: "{error}No player named '%player%' was found."
 
   # --- Lifecycle ---------------------------------------------------------
+  # --- /lff: looking for a team ----------------------------------------------
+  lff:
+    broadcast: "{prefix}{secondary}%player% {muted}is looking for a team! {dark}(/team invite %player%)"
+    broadcast-note: "{prefix}{secondary}%player% {muted}is looking for a team: {secondary}%note% {dark}(/team invite %player%)"
+    in-team: "{error}You already have a team."
+    cooldown: "{error}You can look for a team again in {secondary}%time%{error}."
+    disabled: "{error}/lff is disabled on this server."
+    players-only: "{error}Only a player can look for a team."
+
   # --- Server (system) teams: safe zones and combat zones -------------------
   system:
     created-safe: "{success}Server team {secondary}%team% {success}created as a {secondary}safe zone {success}(no PvP while pvp.yml's safe-zones is on). Draw its land with the claiming wand {muted}(again later: {secondary}/team forceclaim %team%{muted}){success}."

@@ -64,6 +64,8 @@ The **role** column is the default minimum role in the player's team, set under 
 | `setdtr <team> <value>` | Set a team's DTR | `hcfcore.team.admin` |
 | `setregen <team> <seconds>` | Set how long until a team's DTR starts regenerating | `hcfcore.team.admin` |
 
+**Looking for a team**: `/lff [note]` (aliases `/lookingforfaction`, `/lookingforteam`) tells everybody a player with no team wants one, with a few words of their own — once every 5 minutes (`teams.yml`, `lff`). Everyone may use it.
+
 ## Combat, economy and statistics
 
 | Command | Aliases | Does | Permission |

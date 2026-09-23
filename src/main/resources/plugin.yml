@@ -28,6 +28,10 @@ commands:
     aliases: [f, faction]
     description: Team/Faction management command.
     usage: /<command> help
+  lff:
+    aliases: [lookingforfaction, lookingforteam]
+    description: Tell everybody you are looking for a team.
+    usage: /<command> [note]
   pvp:
     description: Combat tag and deathban status, plus staff overrides.
     usage: /<command> [check|lift|ban]
