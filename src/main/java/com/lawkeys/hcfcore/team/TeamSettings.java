@@ -161,10 +161,10 @@ public record TeamSettings(
                 new FocusRules(true, 0),
                 new RallyRules(true, 300L),
                 new BankRules(true),
-                // The owner's scale of 23/09/2026: a kill +1, a death -2, and each
-                // event worth about as many kills as the fight it takes - a KOTH's
-                // ten minutes 10, a Citadel's thirty 30.
-                new PointsRules(0L, 0L, 1L, -2L, 0L, 25L, 15L, 20L, 15L, 20L, 15L, 30L, 8L),
-                new KothRules(0, 10L));
+                // The owner's scale of 23/09/2026: a kill +1, a death -2, and an event
+                // worth far more than the kills fought for it along the way - a KOTH
+                // 100, a Citadel 300 - so the event, not the farm, decides the ranking.
+                new PointsRules(0L, 0L, 1L, -2L, 0L, 250L, 150L, 200L, 150L, 200L, 150L, 300L, 80L),
+                new KothRules(0, 100L));
     }
 }

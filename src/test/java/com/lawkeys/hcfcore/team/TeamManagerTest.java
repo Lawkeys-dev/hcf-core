@@ -1140,17 +1140,17 @@ class TeamManagerTest {
 
         /**
          * The shipped scale (the project owner's of 23/09/2026): a kill +1, a death
-         * -2, and each event worth about as many kills as the fight it takes.
+         * -2, and an event worth far more than the kills fought for it.
          */
         @Test
         void theShippedScalePaysKillsCostsDeathsAndWeighsEachEvent() {
             Team wizards = createTeam(alice, "Wizards");
             Team knights = createTeam(bob, "Knights");
             manager.recordKothCapture(knights);
-            assertEquals(10L, knights.getPoints(), "a KOTH capture");
+            assertEquals(100L, knights.getPoints(), "a KOTH capture");
             manager.recordDeath(alice, bob);
             assertEquals(1L, wizards.getPoints(), "a kill");
-            assertEquals(8L, knights.getPoints(), "a death");
+            assertEquals(98L, knights.getPoints(), "a death");
 
             long before = wizards.getPoints();
             manager.recordKothCapture(wizards, true);
@@ -1161,9 +1161,9 @@ class TeamManagerTest {
             manager.recordLastBreakWin(wizards);
             manager.recordTotemWin(wizards, 5);
             manager.recordTotemWin(wizards, 3);
-            // Citadel 30, Conquest 25, DTC and Slide 20, King and Last Break 15,
-            // Totem 15, Mini Totem 8.
-            assertEquals(before + 30 + 25 + 20 + 20 + 15 + 15 + 15 + 8, wizards.getPoints());
+            // Citadel 300, Conquest 250, DTC and Slide 200, King and Last Break 150,
+            // Totem 150, Mini Totem 80.
+            assertEquals(before + 300 + 250 + 200 + 200 + 150 + 150 + 150 + 80, wizards.getPoints());
         }
 
         @Test

@@ -98,13 +98,13 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | `per-kill` | `1` | To the killer's team, for killing a player of another team or of none |
 | `per-death` | `-2` | To the victim's team, for any death of a member |
 | `per-raidable` | `0` | To a team its DTR just made raidable |
-| `per-citadel-capture` | `30` | To the team that captures a Citadel |
-| `per-conquest-win` | `25` | To the team that wins a Conquest |
-| `per-dtc-win` · `per-slide-win` | `20` | To the team that wins a DTC, a Slide |
-| `per-king-win` | `15` | To the team of the player who wins Kill the King |
-| `per-last-break-win` | `15` | To the team that wins a Last Break |
-| `per-totem-win` | `15` | To the team that wins a Totem |
-| `per-mini-totem-win` | `8` | To the team that wins a Mini Totem — a column of 3 blocks or fewer |
+| `per-citadel-capture` | `300` | To the team that captures a Citadel |
+| `per-conquest-win` | `250` | To the team that wins a Conquest |
+| `per-dtc-win` · `per-slide-win` | `200` | To the team that wins a DTC, a Slide |
+| `per-king-win` | `150` | To the team of the player who wins Kill the King |
+| `per-last-break-win` | `150` | To the team that wins a Last Break |
+| `per-totem-win` | `150` | To the team that wins a Totem |
+| `per-mini-totem-win` | `80` | To the team that wins a Mini Totem — a column of 3 blocks or fewer |
 
 ## KOTH captures
 
@@ -115,7 +115,7 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | Key | As shipped | What it does |
 |---|---|---|
 | `max-counted-captures` | `0` | How many KOTH and Citadel captures count for a team's ranking; `/team resetkoth` resets the counts |
-| `points-per-capture` | `10` | Points a KOTH capture is worth; a Citadel's is `points.per-citadel-capture` |
+| `points-per-capture` | `100` | Points a KOTH capture is worth; a Citadel's is `points.per-citadel-capture` |
 
 ## The whole shipped file
 

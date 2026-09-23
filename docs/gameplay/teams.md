@@ -69,21 +69,21 @@ Money moves between the player's balance and the team bank. Turning the economy 
 
 `/team list [limit]` (alias `top`) ranks teams by points. Points are a score separate from the balance, starting at `points.starting` and never below `points.minimum`.
 
-Where points come from is entirely configurable. The shipped scale: **a kill +1, a death −2**, and each event worth about as many kills as the fight it takes.
+Where points come from is entirely configurable. The shipped scale: **a kill +1, a death −2**, and an event worth far more than the kills fought for it along the way — so the event, not the farm, decides the ranking.
 
 | Setting (`teams.yml`) | As shipped | Given to | When |
 |---|---|---|---|
 | `points.per-kill` | `1` | the killer's team | killing a player of another team, or of none |
 | `points.per-death` | `-2` | the victim's team | any death of a member |
 | `points.per-raidable` | `0` | the team | its DTR has just made it raidable (a negative number) |
-| `koth.points-per-capture` | `10` | the capturing team | capturing a KOTH |
-| `points.per-citadel-capture` | `30` | the capturing team | capturing a Citadel |
-| `points.per-conquest-win` | `25` | the winning team | winning a Conquest |
-| `points.per-dtc-win` · `per-slide-win` | `20` | the winning team | winning a DTC, a Slide |
-| `points.per-king-win` | `15` | the winner's team | winning Kill the King |
-| `points.per-last-break-win` | `15` | the winning team | winning a Last Break |
-| `points.per-totem-win` | `15` | the winning team | winning a Totem |
-| `points.per-mini-totem-win` | `8` | the winning team | winning a Mini Totem (a column of 3 blocks or fewer) |
+| `koth.points-per-capture` | `100` | the capturing team | capturing a KOTH |
+| `points.per-citadel-capture` | `300` | the capturing team | capturing a Citadel |
+| `points.per-conquest-win` | `250` | the winning team | winning a Conquest |
+| `points.per-dtc-win` · `per-slide-win` | `200` | the winning team | winning a DTC, a Slide |
+| `points.per-king-win` | `150` | the winner's team | winning Kill the King |
+| `points.per-last-break-win` | `150` | the winning team | winning a Last Break |
+| `points.per-totem-win` | `150` | the winning team | winning a Totem |
+| `points.per-mini-totem-win` | `80` | the winning team | winning a Mini Totem (a column of 3 blocks or fewer) |
 
 Killing a teammate, or yourself, earns nothing.
 
