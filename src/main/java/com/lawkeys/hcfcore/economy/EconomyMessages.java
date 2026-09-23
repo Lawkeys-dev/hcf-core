@@ -63,4 +63,21 @@ public final class EconomyMessages {
     public static final String SHOP_LORE_NOT_BUYABLE = "economy.shop.lore-not-buyable";
     public static final String SHOP_LORE_NOT_SELLABLE = "economy.shop.lore-not-sellable";
     public static final String SHOP_LORE_HINT = "economy.shop.lore-hint";
+
+    // economy.yml, bounties
+    public static final String BOUNTY_PLACED = "economy.bounty.placed";
+    public static final String BOUNTY_PLACED_BROADCAST = "economy.bounty.placed-broadcast";
+    public static final String BOUNTY_CLAIMED = "economy.bounty.claimed";
+    public static final String BOUNTY_LIST_HEADER = "economy.bounty.list-header";
+    public static final String BOUNTY_LIST_ENTRY = "economy.bounty.list-entry";
+    public static final String BOUNTY_LIST_EMPTY = "economy.bounty.list-empty";
+    public static final String BOUNTY_CHECK = "economy.bounty.check";
+    public static final String BOUNTY_CHECK_NONE = "economy.bounty.check-none";
+    public static final String BOUNTY_CLEARED = "economy.bounty.cleared";
+    public static final String BOUNTY_UNKNOWN_PLAYER = "economy.bounty.unknown-player";
+    public static final String BOUNTY_SELF = "economy.bounty.self";
+    public static final String BOUNTY_BELOW_MINIMUM = "economy.bounty.below-minimum";
+    public static final String BOUNTY_DISABLED = "economy.bounty.disabled";
+    public static final String BOUNTY_USAGE = "economy.bounty.usage";
+    public static final String BOUNTY_PLAYERS_ONLY = "economy.bounty.players-only";
 }

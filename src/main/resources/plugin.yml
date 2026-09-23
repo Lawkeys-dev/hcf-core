@@ -28,6 +28,10 @@ commands:
     aliases: [f, faction]
     description: Team/Faction management command.
     usage: /<command> help
+  bounty:
+    aliases: [bounties]
+    description: Put money on a player's head, or see who is worth the most.
+    usage: /<command> [<player> <amount>|list|check <player>|clear <player>]
   shop:
     description: Buy and sell for money.
     usage: /<command>
@@ -377,6 +381,7 @@ permissions:
       hcfcore.deathban.bypass: true
       hcfcore.economy.admin: true
       hcfcore.economy.shop.admin: true
+      hcfcore.economy.bounty.admin: true
       hcfcore.events.admin: true
       hcfcore.resourcenode.admin: true
       hcfcore.resourcenode.bypass: true
@@ -616,6 +621,9 @@ permissions:
     default: op
   hcfcore.economy.shop.admin:
     description: Write [Buy] and [Sell] shop signs.
+    default: op
+  hcfcore.economy.bounty.admin:
+    description: Clear a bounty with /bounty clear.
     default: op
   hcfcore.events.admin:
     description: Start and stop events by hand with /events start|stop, create, set up and delete every kind of event with /events create|info|claim|unclaim|setzone|delzone|setblock|delete, and edit the weekly schedule with /schedule add|remove.

@@ -81,7 +81,14 @@ public final class EconomyModule {
                 : new JdbcEconomyStore(dataSource, message -> plugin.getLogger().info(message));
 
         this.manager = new EconomyManager(() -> settings, store);
-        // A team bank reads in the same currency as a balance.
+        this.bounties = new com.lawkeys.hcfcore.economy.bounty.Bounties(dataSource == null
+                ? com.lawkeys.hcfcore.economy.bounty.BountyStore.NO_OP
+                : new com.lawkeys.hcfcore.database.dao.JdbcBountyStore(dataSource,
+                        message -> plugin.getLogger().info(message)));
+        plugin.getServer().getPluginManager().registerEvents(new com.lawkeys.hcfcore.economy.bounty.BountyListener(
+                () -> bounties, () -> bountyRules, () -> manager, teams::getManager, lang), plugin);
+        registerCommand("bounty", new com.lawkeys.hcfcore.economy.bounty.BountyCommand(
+                () -> bounties, () -> bountyRules, () -> manager, lang));
         var trades = new com.lawkeys.hcfcore.economy.shop.Shop(() -> manager, lang);
         plugin.getServer().getPluginManager().registerEvents(
                 new com.lawkeys.hcfcore.economy.shop.ShopSignListener(() -> shop, () -> manager, lang, trades), plugin);
@@ -91,9 +98,21 @@ public final class EconomyModule {
         plugin.getServer().getPluginManager().registerEvents(
                 new com.lawkeys.hcfcore.economy.reward.KillRewardListener(() -> manager, teams::getManager, lang,
                         () -> killReward), plugin);
+        // A team bank reads in the same currency as a balance.
         if (teams.getManager() != null) {
             teams.getManager().setMoneyFormat(manager::format);
         }
+
+        StartupBarrier.Load bountyLoad = startup.expect("bounties");
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                bounties.loadAll();
+                bountyLoad.succeeded();
+            } catch (Exception e) {
+                plugin.getLogger().log(Level.SEVERE, "Could not load bounties.", e);
+                bountyLoad.failed();
+            }
+        });
 
         StartupBarrier.Load load = startup.expect("balances");
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -135,6 +154,11 @@ public final class EconomyModule {
         command.setTabCompleter(executor);
     }
 
+    /** {@code economy.yml}, {@code bounties}, and the bounties themselves. */
+    private volatile com.lawkeys.hcfcore.economy.bounty.BountyRules bountyRules =
+            com.lawkeys.hcfcore.economy.bounty.BountyRules.defaults();
+    private com.lawkeys.hcfcore.economy.bounty.Bounties bounties;
+
     /** {@code economy.yml}, {@code shop}. */
     private volatile com.lawkeys.hcfcore.economy.shop.ShopRules shop =
             com.lawkeys.hcfcore.economy.shop.ShopRules.defaults();
@@ -149,6 +173,8 @@ public final class EconomyModule {
                 warning -> plugin.getLogger().warning("economy.yml: " + warning));
         this.killReward = com.lawkeys.hcfcore.economy.reward.KillReward.Rules.load(
                 file == null ? null : file.getConfigurationSection("kill-reward"));
+        this.bountyRules = com.lawkeys.hcfcore.economy.bounty.BountyRules.load(
+                file == null ? null : file.getConfigurationSection("bounties"));
         this.shop = com.lawkeys.hcfcore.economy.shop.ShopRules.load(
                 file == null ? null : file.getConfigurationSection("shop"),
                 warning -> plugin.getLogger().warning("economy.yml: " + warning));
@@ -170,6 +196,11 @@ public final class EconomyModule {
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Could not save balances on shutdown", e);
         }
+        try {
+            bounties.flush();
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not save bounties on shutdown", e);
+        }
     }
 
     private void flushQuietly() {
@@ -178,6 +209,11 @@ public final class EconomyModule {
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING,
                     "Periodic balance save failed; the affected accounts stay queued.", e);
+        }
+        try {
+            bounties.flush();
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.WARNING, "Periodic bounty save failed; the bounties stay queued.", e);
         }
     }
 

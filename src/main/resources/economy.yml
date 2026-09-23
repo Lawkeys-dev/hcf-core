@@ -80,6 +80,22 @@ shop:
       - {material: OBSIDIAN, amount: 16, buy: 300, sell: 0}
 # --8<-- [end:shop]
 
+# --8<-- [start:bounties]
+# /bounty <player> <amount> puts money on a player's head, taken from your balance
+# at once; whoever kills them collects all of it. Bounties on one player add up
+# and survive a restart. A teammate or an ally of the target cannot collect it.
+# /bounty lists the largest; staff clear one with /bounty clear <player>
+# (hcfcore.economy.bounty.admin) - the money is not given back.
+bounties:
+  enabled: true
+  # The least one placement may add.
+  minimum-amount: 100.0
+  # Tell everybody when a bounty is placed. Collecting one is always announced.
+  announce: true
+  # How many bounties /bounty lists.
+  list-size: 10
+# --8<-- [end:bounties]
+
 # --8<-- [start:kill-reward]
 # Money for a kill: a flat amount, and, if you want kills to cost something too, a
 # share taken from the dead player's balance. Nothing for killing an ally, and

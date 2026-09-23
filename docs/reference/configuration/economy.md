@@ -53,6 +53,19 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 | `signs.buy-header` · `sell-header` | `[Buy]` · `[Sell]` | The first line that makes a sign a shop sign |
 | `menu.items` | ores sold, pearls and XP bought | One entry per item: `material`, `amount` per trade, `buy` and `sell` prices for that amount — `0` for not offered |
 
+## Bounties
+
+```yaml title="economy.yml"
+--8<-- "src/main/resources/economy.yml:bounties"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | `/bounty` at all |
+| `minimum-amount` | `100.0` | The least one placement may add |
+| `announce` | `true` | Tell everybody when a bounty is placed; collecting one is always announced |
+| `list-size` | `10` | How many bounties `/bounty` lists |
+
 ## Kill reward
 
 ```yaml title="economy.yml"

@@ -3,9 +3,7 @@ package com.lawkeys.hcfcore.economy.reward;
 import com.lawkeys.hcfcore.economy.EconomyManager;
 import com.lawkeys.hcfcore.economy.EconomyMessages;
 import com.lawkeys.hcfcore.lang.LangManager;
-import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamManager;
-import com.lawkeys.hcfcore.team.TeamRelation;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,7 +40,8 @@ public final class KillRewardListener implements Listener {
         Player killer = victim.getKiller();
         EconomyManager money = economy.get();
         KillReward.Rules current = rules.get();
-        if (killer == null || money == null || !current.enabled() || sameSide(killer, victim)) {
+        if (killer == null || money == null || !current.enabled()
+                || Sides.same(teams.get(), killer.getUniqueId(), victim.getUniqueId())) {
             return;
         }
         long now = System.currentTimeMillis();
@@ -69,16 +68,5 @@ public final class KillRewardListener implements Listener {
             lang.send(victim, EconomyMessages.KILL_REWARD_STOLEN, "amount", money.format(stolen),
                     "killer", killer.getName());
         }
-    }
-
-    private boolean sameSide(Player killer, Player victim) {
-        TeamManager manager = teams.get();
-        if (manager == null) {
-            return false;
-        }
-        Team killerTeam = manager.getTeamOf(killer.getUniqueId()).orElse(null);
-        Team victimTeam = manager.getTeamOf(victim.getUniqueId()).orElse(null);
-        TeamRelation relation = manager.getRelation(killerTeam, victimTeam);
-        return relation == TeamRelation.SELF || relation == TeamRelation.ALLY;
     }
 }

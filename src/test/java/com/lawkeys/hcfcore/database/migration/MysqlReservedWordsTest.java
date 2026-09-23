@@ -62,7 +62,8 @@ class MysqlReservedWordsTest {
                         PvpSchema.migrations(), EconomySchema.migrations(), KingSchema.migrations(),
                         PhaseSchema.migrations(), StaffSchema.migrations(), StatsSchema.migrations(),
                         KitSchema.migrations(), LimiterSchema.migrations(), LivesSchema.migrations(),
-                        RedeemSchema.migrations(), SettingsSchema.migrations(), HologramSchema.migrations())
+                        RedeemSchema.migrations(), SettingsSchema.migrations(), HologramSchema.migrations(),
+                        com.lawkeys.hcfcore.economy.bounty.BountySchema.migrations())
                 .flatMap(List::stream)
                 .toList();
     }

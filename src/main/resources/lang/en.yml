@@ -503,6 +503,24 @@ economy:
     lore-not-sellable: "{dark}Not bought"
     lore-hint: "{muted}Left: buy {dark}(sneak: a stack) {dark}{bullet} {muted}Right: sell {dark}(sneak: all)"
 
+  # economy.yml, bounties - /bounty
+  bounty:
+    placed: "{success}You put {secondary}%amount% {success}on {secondary}%player%{success}'s head {muted}(%total% in all)."
+    placed-broadcast: "{prefix}{secondary}%placer% {muted}put {secondary}%amount% {muted}on {error}%player%{muted}'s head - {secondary}%total% {muted}to whoever kills them."
+    claimed: "{prefix}{success}%killer% {muted}killed {error}%player% {muted}and collected the {secondary}%amount% {muted}bounty!"
+    list-header: "{muted}&m------&r {primary}Bounties {muted}&m------"
+    list-entry: "{muted}%rank%. {error}%player% {dark}{bullet} {secondary}%amount%"
+    list-empty: "{muted}Nobody has a price on their head."
+    check: "{error}%player% {muted}is worth {secondary}%amount%{muted}."
+    check-none: "{muted}There is no bounty on {secondary}%player%{muted}."
+    cleared: "{success}Cleared the {secondary}%amount% {success}bounty on {secondary}%player%{success}."
+    unknown-player: "{error}Nobody called %player% has played here."
+    self: "{error}You cannot put a bounty on yourself."
+    below-minimum: "{error}A bounty is at least {secondary}%minimum%{error}."
+    disabled: "{error}Bounties are disabled on this server."
+    usage: "{error}Usage: {secondary}/bounty <player> <amount> {muted}| {secondary}/bounty {muted}| {secondary}/bounty check <player>"
+    players-only: "{error}Only a player can put money on a head."
+
   # economy.yml, kill-reward
   kill-reward:
     earned: "{success}+%amount% {muted}for killing {secondary}%victim%{muted}."

@@ -33,6 +33,10 @@ Money comes in by selling and goes out by buying, at the **shop** — signs at s
 
 Only plain items are counted and taken: a renamed or enchanted stack is never sold by mistake. Staff write a shop sign with `hcfcore.economy.shop.admin`.
 
+## Bounties
+
+`/bounty <player> <amount>` puts money on a player's head — taken from your balance at once — and **whoever kills them collects all of it**. Bounties on one player add up, and survive a restart. `/bounty` lists the largest, `/bounty check <player>` shows one. A teammate or an ally of the target cannot collect it: the bounty waits for somebody who will actually fight for it.
+
 ## Kill reward
 
 A kill pays the killer **50** (`kill-reward.amount`), and, if the server sets `steal-percent`, a share of the dead player's balance too. Killing an ally pays nothing, and the same victim pays nothing again for 5 minutes — two accounts trading kills earn one reward, not a salary.

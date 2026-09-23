@@ -7,6 +7,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **Bounties** (`economy.yml`, `bounties`): `/bounty <player> <amount>` puts money on a head, taken from your balance at once; whoever kills the target collects it all — never a teammate or an ally. `/bounty` lists the largest. Saved in a new table, `hcf_bounties`, created by itself.
 - **A shop** (`economy.yml`, `shop`): `[Buy]` and `[Sell]` signs placed by staff, the `/shop` menu, or both (`mode`). Sell your ores, buy pearls and XP — the list and prices are yours; only plain items are ever taken.
 - **Subclaims** (`claims.yml`, `subclaims`): a `[Subclaim]` sign on a chest of your team's land, with the players allowed below, keeps your other members out of it — no opening, breaking, rewriting its sign or hopper under it. Co-leaders and the leader open them all.
 - **Money for a kill** (`economy.yml`, `kill-reward`): 50 to the killer, plus, if you set `steal-percent`, a share of the dead player's balance. Nothing for an ally, and nothing again for the same victim within 5 minutes.
