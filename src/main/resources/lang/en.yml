@@ -852,6 +852,12 @@ phase:
 # Staff tools
 # ---------------------------------------------------------------------------
 staff:
+  # staff.yml, mining-alerts: a player broke into a vein of a reported ore.
+  # "found" is the public line (audience: everyone) and never gives the position;
+  # "found-staff" is what staff and the console read.
+  mining:
+    found: "{dark}[{secondary}FD{dark}] {secondary}%player% {muted}found {secondary}%count% %ore%{muted}."
+    found-staff: "{dark}[{secondary}FD{dark}] {secondary}%player% {muted}found {secondary}%count% %ore% {dark}{bullet} {muted}%world% %x% %y% %z%"
   mode:
     entered: "{success}Staff mode on{muted}. Your items are held safely until you leave it."
     left: "{muted}Staff mode off. Your items are back."

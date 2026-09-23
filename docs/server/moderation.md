@@ -2,6 +2,16 @@
 
 *Configured in [`staff.yml`](../reference/configuration/staff.md). Most tools need `hcfcore.staff`.*
 
+## Mining alerts
+
+When a player breaks into a vein of diamond, ancient debris or emerald, staff are told — once for the whole vein, with its size and position:
+
+```text
+[FD] Steve found 8 Diamond Ore • world 120 -54 -340
+```
+
+A player finding vein after vein, fast and at depth, is what an x-ray client looks like. Ores placed by a player are never reported, and a vein is counted once however it is mined. `audience: everyone` in `staff.yml` also shows everybody the classic public line — without the position. See [`mining-alerts`](../reference/configuration/staff.md#mining-alerts).
+
 ## Staff mode
 
 ```text

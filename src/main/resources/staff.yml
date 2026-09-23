@@ -16,6 +16,29 @@
 enabled: true
 # --8<-- [end:enabled]
 
+# --8<-- [start:mining-alerts]
+# "Found Diamonds": a line when a player breaks into a vein of a valuable ore,
+# once per vein and with its size - an x-ray client shows as a player who finds
+# vein after vein. Ores placed by a player are never reported.
+mining-alerts:
+  enabled: true
+  # The blocks reported, as the server spells them.
+  ores:
+    - DIAMOND_ORE
+    - DEEPSLATE_DIAMOND_ORE
+    - ANCIENT_DEBRIS
+    - EMERALD_ORE
+    - DEEPSLATE_EMERALD_ORE
+  # staff: only players with hcfcore.staff (and the console) are told, with the
+  # position. everyone: everybody reads "[FD] player found 8 Diamond Ore", staff
+  # still get the position on their own line.
+  audience: staff
+  # The most blocks one vein is counted up to.
+  max-vein: 32
+  # A player in creative is not reported.
+  ignore-creative: true
+# --8<-- [end:mining-alerts]
+
 # --8<-- [start:staff-mode]
 staff-mode:
   # Entering staff mode hides you from players who cannot see vanished staff.

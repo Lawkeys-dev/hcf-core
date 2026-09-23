@@ -12,6 +12,20 @@ Every example on this page is **taken from the shipped `staff.yml`**. Changes ap
 --8<-- "src/main/resources/staff.yml:enabled"
 ```
 
+## Mining alerts
+
+```yaml title="staff.yml"
+--8<-- "src/main/resources/staff.yml:mining-alerts"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | The alerts at all |
+| `ores` | diamond, ancient debris, emerald | The blocks reported, as the server spells them; an unknown name is left out with a warning |
+| `audience` | `staff` | `staff`: only `hcfcore.staff` and the console, with the position. `everyone`: everybody reads the "[FD]" line, without the position |
+| `max-vein` | `32` | The most blocks one vein is counted up to, 1 to 256 |
+| `ignore-creative` | `true` | A player in creative is not reported |
+
 ## Staff mode
 
 ```yaml title="staff.yml"

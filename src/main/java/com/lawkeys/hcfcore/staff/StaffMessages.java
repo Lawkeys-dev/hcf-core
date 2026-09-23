@@ -6,6 +6,10 @@ public final class StaffMessages {
     private StaffMessages() {
     }
 
+    // Mining alerts (staff.yml, mining-alerts)
+    public static final String MINING_FOUND = "staff.mining.found";
+    public static final String MINING_FOUND_STAFF = "staff.mining.found-staff";
+
     // Staff mode
     public static final String MODE_ENTERED = "staff.mode.entered";
     public static final String MODE_LEFT = "staff.mode.left";

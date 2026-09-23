@@ -7,6 +7,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **Mining alerts** (`staff.yml`, `mining-alerts`): staff are told when a player breaks into a vein of diamond, ancient debris or emerald — once per vein, with its size and position. Player-placed ores are never reported; `audience: everyone` shows everybody the classic "[FD]" line, without the position.
 - **Safe zones take no damage at all** (`pvp.yml`, `safe-zones.no-damage`) and **fill health and hunger back up** (`heal`, `keep-fed`), all on as shipped: on spawn, a fall, fire, drowning, suffocation, a mob or a cactus does nothing.
 - **Spawn is closed while you are in combat** (`safe-zones.block-combat-tagged`, on as shipped): a combat tag refuses the step into a safe zone — walking, a pearl, any jump — until it runs out, and the border is shown as a wall of red glass 15 blocks each way in front of the player, to layer 128 (`safe-zones.wall`). *Existing servers: take the whole `safe-zones` section from the jar — without the new keys, their defaults (all on) apply.*
 - **`/schedule` opens as a window** (`events.yml`, `weekly-schedule.menu`): one item per day of the week ahead, holding that day's events hour by hour. `/schedule chat` still prints the list, and the console always gets it.

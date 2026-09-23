@@ -157,6 +157,10 @@ public final class StaffModule {
         return toolbarMarker;
     }
 
+    /** {@code staff.yml}, {@code mining-alerts}. */
+    private volatile com.lawkeys.hcfcore.staff.mining.MiningAlertRules miningAlerts =
+            com.lawkeys.hcfcore.staff.mining.MiningAlertRules.defaults();
+
     public void enable(DataSource dataSource, long saveIntervalSeconds) {
         reloadSettings();
 
@@ -230,6 +234,8 @@ public final class StaffModule {
         }
 
         plugin.getServer().getPluginManager().registerEvents(new StaffListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.staff.mining.MiningAlertListener(this, () -> miningAlerts), plugin);
         plugin.getServer().getPluginManager().registerEvents(new FreezeListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new InspectListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new TicketMenuListener(this), plugin);
@@ -263,6 +269,9 @@ public final class StaffModule {
 
     public void reloadSettings() {
         var section = ConfigManager.loadFile(plugin, "staff.yml");
+        this.miningAlerts = com.lawkeys.hcfcore.staff.mining.MiningAlertRules.load(
+                section == null ? null : section.getConfigurationSection("mining-alerts"),
+                warning -> plugin.getLogger().warning("staff.yml: " + warning));
         this.settings = StaffSettingsLoader.load(section,
                 warning -> plugin.getLogger().warning("staff.yml: " + warning));
         this.strikeOffences = StaffSettingsLoader.loadStrikeOffences(section,
