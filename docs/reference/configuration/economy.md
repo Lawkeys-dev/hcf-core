@@ -51,7 +51,8 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 | `enabled` | `true` | The shop at all |
 | `mode` | `both` | `signs` (placed by staff), `menu` (`/shop`), or `both` |
 | `signs.buy-header` · `sell-header` | `[Buy]` · `[Sell]` | The first line that makes a sign a shop sign |
-| `menu.items` | 21 items priced on a 10-a-kill economy: ores sold; pearls, golden apples, XP, food, potion ingredients and building blocks bought | One entry per item: `material`, `amount` per trade, `buy` and `sell` prices for that amount — `0` for not offered |
+| `menu.categories` | 8 shelves, ~100 items, priced on a 10-a-kill economy | The shelves `/shop` opens on: each with a `name`, an `icon` and its `items` — `material`, `amount` per trade, `buy` and `sell` prices for that amount, `0` for not offered. Ores are sold; combat, the Archer's leather and every dye, potion ingredients, food, building blocks, utility blocks and farming are bought |
+| `menu.items` | — | A single list instead of shelves, the same way | One entry per item: `material`, `amount` per trade, `buy` and `sell` prices for that amount — `0` for not offered |
 
 ## Bounties
 

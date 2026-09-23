@@ -36,11 +36,11 @@ public final class ShopCommand implements TabExecutor {
             lang.send(player, EconomyMessages.SHOP_MENU_DISABLED);
             return true;
         }
-        if (current.items().isEmpty()) {
+        if (!current.hasItems()) {
             lang.send(player, EconomyMessages.SHOP_EMPTY);
             return true;
         }
-        ShopMenu.open(player, current, economy.get(), lang, 0);
+        ShopMenu.open(player, current, economy.get(), lang);
         return true;
     }
 

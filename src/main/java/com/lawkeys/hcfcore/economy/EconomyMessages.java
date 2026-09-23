@@ -63,6 +63,11 @@ public final class EconomyMessages {
     public static final String SHOP_LORE_NOT_BUYABLE = "economy.shop.lore-not-buyable";
     public static final String SHOP_LORE_NOT_SELLABLE = "economy.shop.lore-not-sellable";
     public static final String SHOP_LORE_HINT = "economy.shop.lore-hint";
+    public static final String SHOP_CATEGORY_TITLE = "economy.shop.category-title";
+    public static final String SHOP_CATEGORY_NAME = "economy.shop.category-name";
+    public static final String SHOP_CATEGORY_LORE = "economy.shop.category-lore";
+    public static final String SHOP_CATEGORY_HINT = "economy.shop.category-hint";
+    public static final String SHOP_BACK = "economy.shop.back";
 
     // economy.yml, bounties
     public static final String BOUNTY_PLACED = "economy.bounty.placed";

@@ -29,7 +29,7 @@ Money comes in by selling and goes out by buying, at the **shop** — signs at s
     400
     ```
 
-- **The menu** (`/shop`): left click buys, right click sells, sneak for more.
+- **The menu** (`/shop`): shelves — ores, combat, the Archer's leather and every dye, potions, food, building, utility, farming — and in each, left click buys, right click sells, sneak for more.
 
 Only plain items are counted and taken: a renamed or enchanted stack is never sold by mistake. Staff write a shop sign with `hcfcore.economy.shop.admin`.
 

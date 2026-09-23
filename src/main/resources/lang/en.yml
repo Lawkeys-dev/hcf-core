@@ -502,6 +502,12 @@ economy:
     lore-not-buyable: "{dark}Not for sale"
     lore-not-sellable: "{dark}Not bought"
     lore-hint: "{muted}Left: buy {dark}(sneak: a stack) {dark}{bullet} {muted}Right: sell {dark}(sneak: all)"
+    # The shelves (shop.menu.categories): the title of one, its icon, and the way back.
+    category-title: "Shop {dark}{bullet} %category%"
+    category-name: "%category%"
+    category-lore: "{muted}%count% items"
+    category-hint: "{secondary}Click to open"
+    back: "{muted}« Back to the shop"
 
   # economy.yml, bounties - /bounty
   bounty:

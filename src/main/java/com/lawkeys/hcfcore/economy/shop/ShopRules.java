@@ -16,7 +16,24 @@ import java.util.function.Consumer;
  * spawn shop of HCF servers, and the money that flows in from the ores they mine
  * (the project owner's request, 23/09/2026). Through signs, a menu, or both.
  */
-public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sellHeader, List<Item> items) {
+public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sellHeader, List<Item> items,
+                        List<Category> categories) {
+
+    /**
+     * A shelf of the menu: {@code /shop} lists the categories, a click opens one.
+     *
+     * @param name what players read, colour tokens included
+     * @param icon the item standing for it
+     */
+    public record Category(String id, String name, String icon, List<Item> items) {
+
+        public Category {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(name, "name");
+            Objects.requireNonNull(icon, "icon");
+            items = List.copyOf(Objects.requireNonNull(items, "items"));
+        }
+    }
 
     /** Where the shop is: signs placed by staff, the {@code /shop} menu, or both. */
     public enum Mode {
@@ -67,10 +84,21 @@ public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sel
         Objects.requireNonNull(buyHeader, "buyHeader");
         Objects.requireNonNull(sellHeader, "sellHeader");
         items = List.copyOf(Objects.requireNonNull(items, "items"));
+        categories = List.copyOf(Objects.requireNonNull(categories, "categories"));
+    }
+
+    /** A shop without categories: one list, as it was before they existed. */
+    public ShopRules(boolean enabled, Mode mode, String buyHeader, String sellHeader, List<Item> items) {
+        this(enabled, mode, buyHeader, sellHeader, items, List.of());
     }
 
     public static ShopRules defaults() {
-        return new ShopRules(true, Mode.BOTH, "[Buy]", "[Sell]", List.of());
+        return new ShopRules(true, Mode.BOTH, "[Buy]", "[Sell]", List.of(), List.of());
+    }
+
+    /** @return whether the menu has anything on its shelves */
+    public boolean hasItems() {
+        return !items.isEmpty() || categories.stream().anyMatch(category -> !category.items().isEmpty());
     }
 
     public static ShopRules load(ConfigurationSection section, Consumer<String> warn) {
@@ -86,24 +114,52 @@ public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sel
         ConfigurationSection signs = section.getConfigurationSection("signs");
         String buy = signs == null ? d.buyHeader() : signs.getString("buy-header", d.buyHeader());
         String sell = signs == null ? d.sellHeader() : signs.getString("sell-header", d.sellHeader());
+        List<Category> categories = new ArrayList<>();
+        ConfigurationSection shelves = section.getConfigurationSection("menu.categories");
+        if (shelves != null) {
+            for (String id : shelves.getKeys(false)) {
+                ConfigurationSection shelf = shelves.getConfigurationSection(id);
+                if (shelf == null) {
+                    continue;
+                }
+                String icon = shelf.getString("icon", "CHEST");
+                Material iconMaterial = icon == null ? null : Material.matchMaterial(icon);
+                if (iconMaterial == null || !iconMaterial.isItem()) {
+                    warn.accept("shop.menu.categories." + id + ".icon '" + icon + "' is not an item; CHEST is used.");
+                    icon = "CHEST";
+                }
+                List<Item> onShelf = items(shelf.getMapList("items"), "shop.menu.categories." + id + ".items", warn);
+                if (onShelf.isEmpty()) {
+                    warn.accept("shop.menu.categories." + id + " has no item; left out.");
+                    continue;
+                }
+                categories.add(new Category(id, shelf.getString("name", id), icon.toUpperCase(Locale.ROOT), onShelf));
+            }
+        }
+        List<Item> items = items(section.getMapList("menu.items"), "shop.menu.items", warn);
+        return new ShopRules(section.getBoolean("enabled", d.enabled()), mode,
+                buy == null ? d.buyHeader() : buy.trim(), sell == null ? d.sellHeader() : sell.trim(), items,
+                categories);
+    }
+
+    private static List<Item> items(List<Map<?, ?>> rawItems, String where, Consumer<String> warn) {
         List<Item> items = new ArrayList<>();
-        for (Map<?, ?> raw : section.getMapList("menu.items")) {
+        for (Map<?, ?> raw : rawItems) {
             Object name = raw.get("material");
             Material material = name == null ? null : Material.matchMaterial(name.toString());
             if (material == null || !material.isItem()) {
-                warn.accept("shop.menu.items: '" + name + "' is not an item; left out.");
+                warn.accept(where + ": '" + name + "' is not an item; left out.");
                 continue;
             }
             Item item = new Item(material.name(), number(raw.get("amount"), 1).intValue(),
                     number(raw.get("buy"), 0).doubleValue(), number(raw.get("sell"), 0).doubleValue());
             if (!item.buyable() && !item.sellable()) {
-                warn.accept("shop.menu.items: " + material.name() + " has neither a buy nor a sell price; left out.");
+                warn.accept(where + ": " + material.name() + " has neither a buy nor a sell price; left out.");
                 continue;
             }
             items.add(item);
         }
-        return new ShopRules(section.getBoolean("enabled", d.enabled()), mode,
-                buy == null ? d.buyHeader() : buy.trim(), sell == null ? d.sellHeader() : sell.trim(), items);
+        return items;
     }
 
     private static Number number(Object raw, Number fallback) {
