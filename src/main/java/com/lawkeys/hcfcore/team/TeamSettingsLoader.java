@@ -186,7 +186,12 @@ public final class TeamSettingsLoader {
                 section.getLong("per-slide-win", defaults.perSlideWin()),
                 section.getLong("per-totem-win", defaults.perTotemWin()),
                 section.getLong("per-citadel-capture", defaults.perCitadelCapture()),
-                section.getLong("per-mini-totem-win", defaults.perMiniTotemWin()));
+                section.getLong("per-mini-totem-win", defaults.perMiniTotemWin()),
+                // A file written before the share existed, with a per-raidable of its
+                // own, keeps meaning what it said: the share only applies when set.
+                section.contains("raidable-loss-percent")
+                        ? section.getDouble("raidable-loss-percent")
+                        : section.contains("per-raidable") ? 0.0 : defaults.raidableLossPercent());
     }
 
     private static TeamSettings.KothRules loadKoth(ConfigurationSection section,

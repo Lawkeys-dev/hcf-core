@@ -131,7 +131,10 @@ points:
   # To the victim's team, for any death of a member. A death costs more than a
   # kill earns: trading lives is a loss.
   per-death: -2
-  # To a team whose DTR has just made it raidable (write a negative number).
+  # What a team loses when its DTR makes it raidable - being raided is the worst
+  # that can happen to it. Either a share of its points, 0 to 100 (50: half)...
+  raidable-loss-percent: 50
+  # ...or, with the share at 0, a fixed number (write a negative one).
   per-raidable: 0
   # To the team that captures a Citadel: three times a KOTH's hold.
   per-citadel-capture: 300

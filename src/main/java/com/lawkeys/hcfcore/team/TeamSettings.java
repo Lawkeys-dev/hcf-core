@@ -78,7 +78,8 @@ public record TeamSettings(
      * @param minimum        floor the points score can never go below
      * @param perKill        to the killer's team, for a player of any other team or none
      * @param perDeath       to the victim's team, for any death - negative to take points
-     * @param perRaidable    to a team whose DTR makes it raidable - negative to take points
+     * @param perRaidable    to a team whose DTR makes it raidable - negative to take points;
+     *                       used when {@code raidableLossPercent} is 0
      * @param perConquestWin to the team that wins a Conquest
      * @param perKingWin     to the team of the player who wins Kill the King
      * @param perDtcWin      to the team that wins a DTC
@@ -89,17 +90,35 @@ public record TeamSettings(
      *                       KOTH's {@code koth.points-per-capture}, being three times as long
      * @param perMiniTotemWin to the team that wins a Mini Totem: a Totem of
      *                       {@link #MINI_TOTEM_HEIGHT} blocks or fewer
+     * @param raidableLossPercent the share of its points a team loses when its DTR makes
+     *                       it raidable, 0 to 100 - rather than {@code perRaidable}'s fixed
+     *                       number, which it replaces when above 0 (the project owner's
+     *                       choice of 23/09/2026: half, as shipped)
      */
     public record PointsRules(long starting, long minimum, long perKill, long perDeath, long perRaidable,
                               long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
-                              long perSlideWin, long perTotemWin, long perCitadelCapture, long perMiniTotemWin) {
+                              long perSlideWin, long perTotemWin, long perCitadelCapture, long perMiniTotemWin,
+                              double raidableLossPercent) {
+
+        public PointsRules {
+            raidableLossPercent = Double.isFinite(raidableLossPercent)
+                    ? Math.max(0.0, Math.min(100.0, raidableLossPercent)) : 0.0;
+        }
+
+        /** @return what a team holding {@code points} loses at becoming raidable, as a delta */
+        public long raidableDelta(long points) {
+            if (raidableLossPercent > 0) {
+                return -(long) Math.floor(Math.max(0L, points) * raidableLossPercent / 100.0);
+            }
+            return perRaidable;
+        }
 
         /** The tallest column that is a Mini Totem rather than a Totem. */
         public static final int MINI_TOTEM_HEIGHT = 3;
 
         /** A scale that awards nothing. */
         public PointsRules(long starting, long minimum) {
-            this(starting, minimum, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+            this(starting, minimum, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0.0);
         }
 
         /** The scale before a Citadel and a Mini Totem had values of their own: nothing for them. */
@@ -107,7 +126,7 @@ public record TeamSettings(
                            long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
                            long perSlideWin, long perTotemWin) {
             this(starting, minimum, perKill, perDeath, perRaidable, perConquestWin, perKingWin, perDtcWin,
-                    perLastBreakWin, perSlideWin, perTotemWin, 0L, 0L);
+                    perLastBreakWin, perSlideWin, perTotemWin, 0L, 0L, 0.0);
         }
     }
 
@@ -164,7 +183,7 @@ public record TeamSettings(
                 // The owner's scale of 23/09/2026: a kill +1, a death -2, and an event
                 // worth far more than the kills fought for it along the way - a KOTH
                 // 100, a Citadel 300 - so the event, not the farm, decides the ranking.
-                new PointsRules(0L, 0L, 1L, -2L, 0L, 250L, 150L, 200L, 150L, 200L, 150L, 300L, 80L),
+                new PointsRules(0L, 0L, 1L, -2L, 0L, 250L, 150L, 200L, 150L, 200L, 150L, 300L, 80L, 50.0),
                 new KothRules(0, 100L));
     }
 }

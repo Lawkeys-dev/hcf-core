@@ -75,7 +75,8 @@ Where points come from is entirely configurable. The shipped scale: **a kill +1,
 |---|---|---|---|
 | `points.per-kill` | `1` | the killer's team | killing a player of another team, or of none |
 | `points.per-death` | `-2` | the victim's team | any death of a member |
-| `points.per-raidable` | `0` | the team | its DTR has just made it raidable (a negative number) |
+| `points.raidable-loss-percent` | `50` | the team | its DTR has just made it raidable: it **loses that share of its points** — half, as shipped |
+| `points.per-raidable` | `0` | the team | the same, as a fixed number (negative), when the share is `0` |
 | `koth.points-per-capture` | `100` | the capturing team | capturing a KOTH |
 | `points.per-citadel-capture` | `300` | the capturing team | capturing a Citadel |
 | `points.per-conquest-win` | `250` | the winning team | winning a Conquest |

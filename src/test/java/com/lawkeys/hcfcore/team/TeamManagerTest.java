@@ -1167,6 +1167,28 @@ class TeamManagerTest {
         }
 
         @Test
+        void becomingRaidableCostsHalfThePointsAsShipped() {
+            Team wizards = createTeam(alice, "Wizards");
+            manager.recordKothCapture(wizards);
+            manager.recordKothCapture(wizards);
+            manager.recordDeath(null, alice);
+            assertEquals(198L, wizards.getPoints());
+            manager.recordRaidable(wizards);
+            assertEquals(99L, wizards.getPoints(), "half, rounded in the team's favour");
+        }
+
+        @Test
+        void aFixedLossAppliesWhenNoShareIsSet() {
+            TeamSettings.PointsRules fixed = new TeamSettings.PointsRules(0L, 0L, 0L, 0L, -40L, 0L, 0L, 0L, 0L,
+                    0L, 0L, 0L, 0L, 0.0);
+            assertEquals(-40L, fixed.raidableDelta(1000L));
+            TeamSettings.PointsRules share = new TeamSettings.PointsRules(0L, 0L, 0L, 0L, -40L, 0L, 0L, 0L, 0L,
+                    0L, 0L, 0L, 0L, 25.0);
+            assertEquals(-250L, share.raidableDelta(1000L), "a share replaces the fixed number");
+            assertEquals(0L, share.raidableDelta(0L));
+        }
+
+        @Test
         void theFloorHolds() {
             scale(0L, -500L, 0L, 0L, 0L);
             Team knights = createTeam(bob, "Knights");

@@ -1117,9 +1117,17 @@ public final class TeamManager {
         }
     }
 
-    /** A team's DTR has just made it raidable: {@code per-raidable}. */
+    /**
+     * A team's DTR has just made it raidable: it loses {@code raidable-loss-percent} of
+     * its points, or {@code per-raidable} when no share is set.
+     */
     public void recordRaidable(Team team) {
-        award(team, config().points().perRaidable());
+        if (team == null) {
+            return;
+        }
+        synchronized (team) {
+            award(team, config().points().raidableDelta(team.getPoints()));
+        }
     }
 
     public void recordConquestWin(Team team) {

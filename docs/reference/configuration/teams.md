@@ -97,7 +97,8 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | `minimum` | `0` | The floor points never go below |
 | `per-kill` | `1` | To the killer's team, for killing a player of another team or of none |
 | `per-death` | `-2` | To the victim's team, for any death of a member |
-| `per-raidable` | `0` | To a team its DTR just made raidable |
+| `raidable-loss-percent` | `50` | The share of its points a team loses when its DTR makes it raidable, 0 to 100 |
+| `per-raidable` | `0` | The same as a fixed number (negative), used when the share is `0` |
 | `per-citadel-capture` | `300` | To the team that captures a Citadel |
 | `per-conquest-win` | `250` | To the team that wins a Conquest |
 | `per-dtc-win` · `per-slide-win` | `200` | To the team that wins a DTC, a Slide |
