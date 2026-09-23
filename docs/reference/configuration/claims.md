@@ -89,6 +89,18 @@ Staff claims and server land follow none of these.
 | `chat.cell-blocks` | `8` | Blocks one character of the chat map stands for, 1 to 64; each is judged by the block in its middle |
 | `chat.radius-x` · `radius-z` | `12` · `6` | How many cells the chat map draws each way, 1 to 32 |
 
+## Subclaims
+
+```yaml title="claims.yml"
+--8<-- "src/main/resources/claims.yml:subclaims"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | Subclaim signs at all |
+| `header` | `[Subclaim]` | The first line that makes a sign a subclaim, matched without case |
+| `open-any` | `co-leader` | The lowest role that opens every subclaim of its team: `leader`, `co-leader`, `member`, or `none` for the names alone |
+
 ## Lock wall
 
 The wall a locked claim shows the players it refuses — red glass on its border, sent to that player alone, like the wand's columns. Members see nothing.

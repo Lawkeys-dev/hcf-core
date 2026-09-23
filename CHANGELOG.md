@@ -7,6 +7,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **Subclaims** (`claims.yml`, `subclaims`): a `[Subclaim]` sign on a chest of your team's land, with the players allowed below, keeps your other members out of it — no opening, breaking, rewriting its sign or hopper under it. Co-leaders and the leader open them all.
 - **Money for a kill** (`economy.yml`, `kill-reward`): 50 to the killer, plus, if you set `steal-percent`, a share of the dead player's balance. Nothing for an ally, and nothing again for the same victim within 5 minutes.
 - **`/lff [note]`** (`teams.yml`, `lff`): a player with no team tells everybody they want one, with a few words of their own — once every 5 minutes.
 - **Death signs** (`pvp.yml`, `death-signs`): a kill by a player leaves a sign — the dead player, "slain by", the killer, the date — that keeps its text when placed and cannot be rewritten. It falls with the loot, or goes to the killer (`to-killer`).

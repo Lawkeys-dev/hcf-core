@@ -156,6 +156,21 @@ map:
     radius-z: 6
 # --8<-- [end:map]
 
+# --8<-- [start:subclaims]
+# A container that only some of the team may open: hang a sign on it whose first
+# line is the header below and whose other lines are the players allowed. A sign
+# with no name is the writer's own. Other members cannot open it, break it, break
+# its sign or put a hopper under it. Several signs on one container add up; a
+# double chest is guarded from either half. Anybody outside the team is kept out
+# by the claim itself, and a raid opens subclaims with the rest of the land.
+subclaims:
+  enabled: true
+  header: "[Subclaim]"
+  # The lowest role that opens every subclaim of its team: leader, co-leader,
+  # member (everybody - the signs then mean nothing), or none (only the names).
+  open-any: co-leader
+# --8<-- [end:subclaims]
+
 # --8<-- [start:lock]
 # /team lockclaim, during SOTW: nobody but the team's members may enter the
 # claim. The players it refuses see a wall of red glass around it - sent to them

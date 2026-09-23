@@ -240,6 +240,15 @@ team:
 # ---------------------------------------------------------------------------
 claim:
 
+  # claims.yml, subclaims: [Subclaim] signs on a container of the team's own land.
+  subclaim:
+    # What the first line becomes once the sign is accepted.
+    header: "{primary}%header%"
+    created: "{success}Subclaim made {muted}- only the names on it (and your co-leaders and leader) can open it."
+    denied: "{error}This is somebody else's subclaim."
+    not-container: "{error}A subclaim sign goes on the side of a chest, a barrel or another container."
+    not-own-land: "{error}You can only make a subclaim on your own team's land."
+
   # /team hq, /team base and /team stuck share their countdowns with /spawn and
   # /logout, so only one can run at a time.
   warmup-busy: "{error}You are already counting down to something."

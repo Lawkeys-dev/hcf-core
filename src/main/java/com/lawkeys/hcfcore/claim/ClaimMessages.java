@@ -115,4 +115,11 @@ public final class ClaimMessages {
     // Shared
     public static final String NOT_IN_TEAM = "claim.error.not-in-team";
     public static final String INSUFFICIENT_ROLE = "claim.error.insufficient-role";
+
+    // claims.yml, subclaims
+    public static final String SUBCLAIM_HEADER = "claim.subclaim.header";
+    public static final String SUBCLAIM_CREATED = "claim.subclaim.created";
+    public static final String SUBCLAIM_DENIED = "claim.subclaim.denied";
+    public static final String SUBCLAIM_NOT_CONTAINER = "claim.subclaim.not-container";
+    public static final String SUBCLAIM_NOT_OWN_LAND = "claim.subclaim.not-own-land";
 }

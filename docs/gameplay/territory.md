@@ -76,6 +76,18 @@ A dispenser may still fire arrows, snowballs and potions across a border, as a p
 
 When a team is raidable — DTR at 0 or below, or during EOTW and the Purge — its land can be built in, broken and used by anyone but its allies (`allow-raid-building`), and explosions go through. Turning `allow-raid-building` off makes claims protected permanently, whatever the DTR.
 
+## Subclaims
+
+A chest only some of the team may open: hang a sign on its side and write **`[Subclaim]`** on the first line, then the players allowed on the others.
+
+```text
+[Subclaim]
+Steve
+Alex
+```
+
+A sign with no name is yours alone. Other members cannot open the container, break it, break or rewrite its sign, or put a hopper under it; several signs on one container add up, and a double chest is guarded from either half. **The co-leaders and the leader open every subclaim** of their team (`subclaims.open-any`). It only concerns your own team: everybody else is kept out by the claim, and a raid opens subclaims with the rest.
+
 ## HQ and base
 
 ```text

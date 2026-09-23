@@ -227,6 +227,8 @@ public final class ClaimModule {
         plugin.getServer().getPluginManager()
                 .registerEvents(new com.lawkeys.hcfcore.claim.listener.ClaimLockListener(this), plugin);
 
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.claim.subclaim.SubclaimListener(this, () -> subclaims), plugin);
         plugin.getServer().getPluginManager()
                 .registerEvents(new com.lawkeys.hcfcore.claim.view.ViewListener(pillarView, wallView, claimWalls), plugin);
         claimWalls.start();
@@ -238,16 +240,40 @@ public final class ClaimModule {
                 new com.lawkeys.hcfcore.claim.wand.TeamClaimTask(this, team.getId(), true)));
     }
 
+    /** {@code claims.yml}, {@code subclaims}. */
+    private volatile com.lawkeys.hcfcore.claim.subclaim.Subclaim.Rules subclaims =
+            com.lawkeys.hcfcore.claim.subclaim.Subclaim.Rules.defaults();
+
     /** Re-reads {@code claims.yml}; the running manager picks the new values up immediately. */
     public void reloadSettings() {
-        this.settings = ClaimSettingsLoader.load(
-                ConfigManager.loadFile(plugin, "claims.yml"),
+        var file = ConfigManager.loadFile(plugin, "claims.yml");
+        this.settings = ClaimSettingsLoader.load(file,
                 warning -> plugin.getLogger().warning("claims.yml: " + warning));
+        this.subclaims = loadSubclaims(file == null ? null : file.getConfigurationSection("subclaims"));
         if (manager != null) {
             // The wall may have been switched off, or its rate changed: redraw from
             // nothing rather than leave a wall nobody can see the settings behind.
             claimWalls.start();
         }
+    }
+
+    private com.lawkeys.hcfcore.claim.subclaim.Subclaim.Rules loadSubclaims(
+            org.bukkit.configuration.ConfigurationSection section) {
+        var d = com.lawkeys.hcfcore.claim.subclaim.Subclaim.Rules.defaults();
+        if (section == null) {
+            return d;
+        }
+        String openAny = section.getString("open-any", "co-leader");
+        com.lawkeys.hcfcore.team.TeamRole role = "none".equalsIgnoreCase(openAny == null ? "" : openAny.trim())
+                ? null
+                : com.lawkeys.hcfcore.team.TeamRole.fromId(openAny).orElseGet(() -> {
+                    plugin.getLogger().warning("claims.yml: subclaims.open-any '" + openAny
+                            + "' is not leader, co-leader, member or none; co-leader is used.");
+                    return com.lawkeys.hcfcore.team.TeamRole.CO_LEADER;
+                });
+        String header = section.getString("header", d.header());
+        return new com.lawkeys.hcfcore.claim.subclaim.Subclaim.Rules(section.getBoolean("enabled", d.enabled()),
+                header == null || header.isBlank() ? d.header() : header.trim(), role);
     }
 
     /** Stops the periodic save and writes what is still pending, synchronously. */
