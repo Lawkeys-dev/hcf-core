@@ -475,6 +475,34 @@ pvp:
 # ---------------------------------------------------------------------------
 economy:
 
+  # economy.yml, shop - signs and /shop. %amount% and %item% are one trade's
+  # count and item, %price% what it cost or paid.
+  shop:
+    bought: "{success}Bought {secondary}%amount% %item% {success}for {secondary}%price%{success}."
+    sold: "{success}Sold {secondary}%amount% %item% {success}for {secondary}%price%{success}."
+    no-money: "{error}You need {secondary}%price% {error}for %amount% %item%."
+    no-room: "{error}Your inventory has no room for %amount% %item%."
+    nothing-to-sell: "{error}You need at least {secondary}%amount% %item% {error}to sell."
+    not-buyable: "{error}The shop does not sell that."
+    not-sellable: "{error}The shop does not buy that."
+    disabled: "{error}The shop is closed."
+    menu-disabled: "{error}The shop is on the signs at spawn."
+    empty: "{error}The shop has nothing on its shelves yet."
+    players-only: "{error}Only a player can shop."
+    # What a sign's first line becomes once staff have written it.
+    sign-buy: "{success}%header%"
+    sign-sell: "{error}%header%"
+    sign-created: "{success}Shop sign ready."
+    sign-invalid: "{error}A shop sign reads: {secondary}[Buy] {muted}or {secondary}[Sell]{muted}, how many (1-64), the item, the price."
+    sign-no-permission: "{error}Only staff can write a shop sign."
+    menu-title: "Shop"
+    item-name: "{secondary}%amount%x %item%"
+    lore-buy: "{muted}Buy {dark}{bullet} {success}%price%"
+    lore-sell: "{muted}Sell {dark}{bullet} {success}%price%"
+    lore-not-buyable: "{dark}Not for sale"
+    lore-not-sellable: "{dark}Not bought"
+    lore-hint: "{muted}Left: buy {dark}(sneak: a stack) {dark}{bullet} {muted}Right: sell {dark}(sneak: all)"
+
   # economy.yml, kill-reward
   kill-reward:
     earned: "{success}+%amount% {muted}for killing {secondary}%victim%{muted}."

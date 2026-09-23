@@ -16,6 +16,23 @@ Every player has a balance, starting at **100** (`starting-balance`). A player w
 - `maximum-balance` caps an account (`0` = no ceiling). A credit that would cross it is **refused rather than clamped**, so money is never silently destroyed.
 - Amounts are shown with the currency symbol — `$1,234.50` — or named, `1 dollar`, `2 dollars` (`currency`).
 
+## Shop
+
+Money comes in by selling and goes out by buying, at the **shop** — signs at spawn, the `/shop` menu, or both, as the server chooses (`shop.mode`).
+
+- **A sign**, placed by staff: a right click trades one lot; sneaking, a stack's worth (buying) or everything you hold (selling).
+
+    ```text
+    [Sell]
+    16
+    Diamond
+    400
+    ```
+
+- **The menu** (`/shop`): left click buys, right click sells, sneak for more.
+
+Only plain items are counted and taken: a renamed or enchanted stack is never sold by mistake. Staff write a shop sign with `hcfcore.economy.shop.admin`.
+
 ## Kill reward
 
 A kill pays the killer **50** (`kill-reward.amount`), and, if the server sets `steal-percent`, a share of the dead player's balance too. Killing an ally pays nothing, and the same victim pays nothing again for 5 minutes — two accounts trading kills earn one reward, not a salary.

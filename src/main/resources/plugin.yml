@@ -28,6 +28,9 @@ commands:
     aliases: [f, faction]
     description: Team/Faction management command.
     usage: /<command> help
+  shop:
+    description: Buy and sell for money.
+    usage: /<command>
   lff:
     aliases: [lookingforfaction, lookingforteam]
     description: Tell everybody you are looking for a team.
@@ -373,6 +376,7 @@ permissions:
       hcfcore.pvp.admin: true
       hcfcore.deathban.bypass: true
       hcfcore.economy.admin: true
+      hcfcore.economy.shop.admin: true
       hcfcore.events.admin: true
       hcfcore.resourcenode.admin: true
       hcfcore.resourcenode.bypass: true
@@ -609,6 +613,9 @@ permissions:
     default: op
   hcfcore.economy.admin:
     description: Give, take and set player balances with /eco.
+    default: op
+  hcfcore.economy.shop.admin:
+    description: Write [Buy] and [Sell] shop signs.
     default: op
   hcfcore.events.admin:
     description: Start and stop events by hand with /events start|stop, create, set up and delete every kind of event with /events create|info|claim|unclaim|setzone|delzone|setblock|delete, and edit the weekly schedule with /schedule add|remove.

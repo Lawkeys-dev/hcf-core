@@ -46,6 +46,40 @@ pay:
   minimum-amount: 1.0
 # --8<-- [end:pay]
 
+# --8<-- [start:shop]
+# Where players buy and sell for money: signs that staff place (at spawn, as a
+# rule), the /shop menu, or both. Only plain items are counted and taken - a
+# renamed or enchanted stack is never sold by mistake.
+shop:
+  enabled: true
+  # signs, menu or both.
+  mode: both
+  # A shop sign, written by staff (hcfcore.economy.shop.admin):
+  #   [Buy]  or [Sell]
+  #   16             how many per trade (1-64)
+  #   Ender Pearl    the item
+  #   400            the price of those 16
+  # A right click trades one lot; sneaking, a stack's worth (buy) or all you hold (sell).
+  signs:
+    buy-header: "[Buy]"
+    sell-header: "[Sell]"
+  # /shop: every item below, a page at a time. amount per trade; buy and sell
+  # prices for that amount, 0 for "not offered". Left click buys, right click sells.
+  menu:
+    items:
+      - {material: DIAMOND, amount: 16, buy: 0, sell: 400}
+      - {material: EMERALD, amount: 16, buy: 0, sell: 200}
+      - {material: GOLD_INGOT, amount: 16, buy: 0, sell: 100}
+      - {material: IRON_INGOT, amount: 16, buy: 0, sell: 50}
+      - {material: REDSTONE, amount: 32, buy: 0, sell: 20}
+      - {material: LAPIS_LAZULI, amount: 32, buy: 0, sell: 20}
+      - {material: COAL, amount: 32, buy: 0, sell: 10}
+      - {material: ENDER_PEARL, amount: 16, buy: 400, sell: 0}
+      - {material: EXPERIENCE_BOTTLE, amount: 64, buy: 200, sell: 0}
+      - {material: GOLDEN_CARROT, amount: 64, buy: 100, sell: 0}
+      - {material: OBSIDIAN, amount: 16, buy: 300, sell: 0}
+# --8<-- [end:shop]
+
 # --8<-- [start:kill-reward]
 # Money for a kill: a flat amount, and, if you want kills to cost something too, a
 # share taken from the dead player's balance. Nothing for killing an ally, and

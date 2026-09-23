@@ -21,6 +21,7 @@ Commands that need no node — `/team` and its player subcommands, `/pay`, `/bal
 | `hcfcore.pvp.admin` | op | `/pvp check`, `/pvp lift`, `/pvp ban` | ✓ |
 | `hcfcore.deathban.bypass` | op | Never deathbanned. Read when the player dies: granting it to somebody already banned does not let them in | ✓ |
 | `hcfcore.economy.admin` | op | `/eco` | ✓ |
+| `hcfcore.economy.shop.admin` | op | Write `[Buy]` and `[Sell]` shop signs | ✓ |
 | `hcfcore.events.admin` | op | `/events start`/`stop`, and the setup commands for every event: `create`/`info`/`claim`/`unclaim`/`setzone`/`delzone`/`setblock`/`delete`, and `/schedule add`/`remove` | ✓ |
 | `hcfcore.resourcenode.admin` | op | `/resourcenode refill` | ✓ |
 | `hcfcore.resourcenode.bypass` | op | Build and mine freely inside a Mountain's region | ✓ |

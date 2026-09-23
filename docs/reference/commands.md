@@ -77,6 +77,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/lives give\|take\|set <player> <amount>` | | Change a player's lives | `hcfcore.lives.admin` |
 | `/revive <player>` | | Same as `/lives revive` | everyone |
 | `/balance [player]` | `/bal`, `/money` | A balance | everyone |
+| `/shop` | | The shop menu: left click buys, right click sells (sneak: a stack, or all you hold) — when `shop.mode` has a menu | everyone |
 | `/pay <player> <amount>` | | Send money | everyone |
 | `/eco give\|take\|set <player> <amount>` | `/economy` | Change a player's balance | `hcfcore.economy.admin` |
 | `/class` · `/class list` · `/class info <class>` | `/classes`, `/pvpclass` | Your class, energy and warmup; every class; what one does | everyone |

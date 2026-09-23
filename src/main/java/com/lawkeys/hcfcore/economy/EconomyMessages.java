@@ -38,4 +38,29 @@ public final class EconomyMessages {
     // economy.yml, kill-reward
     public static final String KILL_REWARD = "economy.kill-reward.earned";
     public static final String KILL_REWARD_STOLEN = "economy.kill-reward.stolen";
+
+    // economy.yml, shop
+    public static final String SHOP_BOUGHT = "economy.shop.bought";
+    public static final String SHOP_SOLD = "economy.shop.sold";
+    public static final String SHOP_NO_MONEY = "economy.shop.no-money";
+    public static final String SHOP_NO_ROOM = "economy.shop.no-room";
+    public static final String SHOP_NOTHING_TO_SELL = "economy.shop.nothing-to-sell";
+    public static final String SHOP_NOT_BUYABLE = "economy.shop.not-buyable";
+    public static final String SHOP_NOT_SELLABLE = "economy.shop.not-sellable";
+    public static final String SHOP_DISABLED = "economy.shop.disabled";
+    public static final String SHOP_MENU_DISABLED = "economy.shop.menu-disabled";
+    public static final String SHOP_EMPTY = "economy.shop.empty";
+    public static final String SHOP_PLAYERS_ONLY = "economy.shop.players-only";
+    public static final String SHOP_SIGN_BUY = "economy.shop.sign-buy";
+    public static final String SHOP_SIGN_SELL = "economy.shop.sign-sell";
+    public static final String SHOP_SIGN_CREATED = "economy.shop.sign-created";
+    public static final String SHOP_SIGN_INVALID = "economy.shop.sign-invalid";
+    public static final String SHOP_SIGN_NO_PERMISSION = "economy.shop.sign-no-permission";
+    public static final String SHOP_MENU_TITLE = "economy.shop.menu-title";
+    public static final String SHOP_ITEM_NAME = "economy.shop.item-name";
+    public static final String SHOP_LORE_BUY = "economy.shop.lore-buy";
+    public static final String SHOP_LORE_SELL = "economy.shop.lore-sell";
+    public static final String SHOP_LORE_NOT_BUYABLE = "economy.shop.lore-not-buyable";
+    public static final String SHOP_LORE_NOT_SELLABLE = "economy.shop.lore-not-sellable";
+    public static final String SHOP_LORE_HINT = "economy.shop.lore-hint";
 }

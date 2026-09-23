@@ -82,6 +82,12 @@ public final class EconomyModule {
 
         this.manager = new EconomyManager(() -> settings, store);
         // A team bank reads in the same currency as a balance.
+        var trades = new com.lawkeys.hcfcore.economy.shop.Shop(() -> manager, lang);
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.economy.shop.ShopSignListener(() -> shop, () -> manager, lang, trades), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.economy.shop.ShopMenu.Clicks(() -> shop, () -> manager, lang, trades), plugin);
+        registerCommand("shop", new com.lawkeys.hcfcore.economy.shop.ShopCommand(() -> shop, () -> manager, lang));
         plugin.getServer().getPluginManager().registerEvents(
                 new com.lawkeys.hcfcore.economy.reward.KillRewardListener(() -> manager, teams::getManager, lang,
                         () -> killReward), plugin);
@@ -129,6 +135,10 @@ public final class EconomyModule {
         command.setTabCompleter(executor);
     }
 
+    /** {@code economy.yml}, {@code shop}. */
+    private volatile com.lawkeys.hcfcore.economy.shop.ShopRules shop =
+            com.lawkeys.hcfcore.economy.shop.ShopRules.defaults();
+
     /** {@code economy.yml}, {@code kill-reward}. */
     private volatile com.lawkeys.hcfcore.economy.reward.KillReward.Rules killReward =
             com.lawkeys.hcfcore.economy.reward.KillReward.Rules.defaults();
@@ -139,6 +149,9 @@ public final class EconomyModule {
                 warning -> plugin.getLogger().warning("economy.yml: " + warning));
         this.killReward = com.lawkeys.hcfcore.economy.reward.KillReward.Rules.load(
                 file == null ? null : file.getConfigurationSection("kill-reward"));
+        this.shop = com.lawkeys.hcfcore.economy.shop.ShopRules.load(
+                file == null ? null : file.getConfigurationSection("shop"),
+                warning -> plugin.getLogger().warning("economy.yml: " + warning));
     }
 
     public void disable() {

@@ -40,6 +40,19 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 | `enabled` | `true` | `/pay`, on its own |
 | `minimum-amount` | `1.0` | The smallest transfer |
 
+## Shop
+
+```yaml title="economy.yml"
+--8<-- "src/main/resources/economy.yml:shop"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | The shop at all |
+| `mode` | `both` | `signs` (placed by staff), `menu` (`/shop`), or `both` |
+| `signs.buy-header` · `sell-header` | `[Buy]` · `[Sell]` | The first line that makes a sign a shop sign |
+| `menu.items` | ores sold, pearls and XP bought | One entry per item: `material`, `amount` per trade, `buy` and `sell` prices for that amount — `0` for not offered |
+
 ## Kill reward
 
 ```yaml title="economy.yml"
