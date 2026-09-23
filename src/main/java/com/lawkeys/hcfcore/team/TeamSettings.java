@@ -84,15 +84,30 @@ public record TeamSettings(
      * @param perDtcWin      to the team that wins a DTC
      * @param perLastBreakWin to the team that wins a Last Break
      * @param perSlideWin    to the team that wins a Slide
-     * @param perTotemWin    to the team that wins a Totem or a Mini Totem
+     * @param perTotemWin    to the team that wins a Totem
+     * @param perCitadelCapture to the team that captures a Citadel - worth more than a
+     *                       KOTH's {@code koth.points-per-capture}, being three times as long
+     * @param perMiniTotemWin to the team that wins a Mini Totem: a Totem of
+     *                       {@link #MINI_TOTEM_HEIGHT} blocks or fewer
      */
     public record PointsRules(long starting, long minimum, long perKill, long perDeath, long perRaidable,
                               long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
-                              long perSlideWin, long perTotemWin) {
+                              long perSlideWin, long perTotemWin, long perCitadelCapture, long perMiniTotemWin) {
+
+        /** The tallest column that is a Mini Totem rather than a Totem. */
+        public static final int MINI_TOTEM_HEIGHT = 3;
 
         /** A scale that awards nothing. */
         public PointsRules(long starting, long minimum) {
-            this(starting, minimum, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+            this(starting, minimum, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+        }
+
+        /** The scale before a Citadel and a Mini Totem had values of their own: nothing for them. */
+        public PointsRules(long starting, long minimum, long perKill, long perDeath, long perRaidable,
+                           long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
+                           long perSlideWin, long perTotemWin) {
+            this(starting, minimum, perKill, perDeath, perRaidable, perConquestWin, perKingWin, perDtcWin,
+                    perLastBreakWin, perSlideWin, perTotemWin, 0L, 0L);
         }
     }
 
@@ -146,10 +161,10 @@ public record TeamSettings(
                 new FocusRules(true, 0),
                 new RallyRules(true, 300L),
                 new BankRules(true),
-                // A scale, rather than zeroes: every event is worth something out of
-                // the box (the project owner's choice, 22/09/2026). Kills, deaths and
-                // raids stay at 0 - those are a server's own balance.
-                new PointsRules(0L, 0L, 0L, 0L, 0L, 25L, 20L, 20L, 20L, 20L, 15L),
+                // The owner's scale of 23/09/2026: a kill +1, a death -2, and each
+                // event worth about as many kills as the fight it takes - a KOTH's
+                // ten minutes 10, a Citadel's thirty 30.
+                new PointsRules(0L, 0L, 1L, -2L, 0L, 25L, 15L, 20L, 15L, 20L, 15L, 30L, 8L),
                 new KothRules(0, 10L));
     }
 }

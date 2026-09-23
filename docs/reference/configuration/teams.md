@@ -95,15 +95,16 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 |---|---|---|
 | `starting` | `0` | Points a new team starts with |
 | `minimum` | `0` | The floor points never go below |
-| `per-kill` | `0` | To the killer's team, for killing a player of another team or of none |
-| `per-death` | `0` | To the victim's team, for any death — write a negative number to take points |
+| `per-kill` | `1` | To the killer's team, for killing a player of another team or of none |
+| `per-death` | `-2` | To the victim's team, for any death of a member |
 | `per-raidable` | `0` | To a team its DTR just made raidable |
+| `per-citadel-capture` | `30` | To the team that captures a Citadel |
 | `per-conquest-win` | `25` | To the team that wins a Conquest |
-| `per-king-win` | `20` | To the team of the player who wins Kill the King |
-| `per-dtc-win` | `20` | To the team that wins a DTC |
-| `per-last-break-win` | `20` | To the team that wins a Last Break |
-| `per-slide-win` | `20` | To the team that wins a Slide |
-| `per-totem-win` | `15` | To the team that wins a Totem or a Mini Totem |
+| `per-dtc-win` · `per-slide-win` | `20` | To the team that wins a DTC, a Slide |
+| `per-king-win` | `15` | To the team of the player who wins Kill the King |
+| `per-last-break-win` | `15` | To the team that wins a Last Break |
+| `per-totem-win` | `15` | To the team that wins a Totem |
+| `per-mini-totem-win` | `8` | To the team that wins a Mini Totem — a column of 3 blocks or fewer |
 
 ## KOTH captures
 
@@ -114,7 +115,7 @@ The minimum role for each action: `leader`, `co-leader` or `member`. An unknown 
 | Key | As shipped | What it does |
 |---|---|---|
 | `max-counted-captures` | `0` | How many KOTH and Citadel captures count for a team's ranking; `/team resetkoth` resets the counts |
-| `points-per-capture` | `10` | Points a capture — a KOTH's or a Citadel's — is worth |
+| `points-per-capture` | `10` | Points a KOTH capture is worth; a Citadel's is `points.per-citadel-capture` |
 
 ## The whole shipped file
 

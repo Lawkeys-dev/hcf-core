@@ -1139,28 +1139,31 @@ class TeamManagerTest {
         }
 
         /**
-         * The shipped scale pays for winning an event and for nothing else: kills,
-         * deaths and raids are a server's own balance (the project owner's choice,
-         * 22/09/2026).
+         * The shipped scale (the project owner's of 23/09/2026): a kill +1, a death
+         * -2, and each event worth about as many kills as the fight it takes.
          */
         @Test
-        void theShippedScalePaysForEventsOnly() {
+        void theShippedScalePaysKillsCostsDeathsAndWeighsEachEvent() {
             Team wizards = createTeam(alice, "Wizards");
             Team knights = createTeam(bob, "Knights");
-            long before = wizards.getPoints();
+            manager.recordKothCapture(knights);
+            assertEquals(10L, knights.getPoints(), "a KOTH capture");
             manager.recordDeath(alice, bob);
-            manager.recordRaidable(knights);
-            assertEquals(before, wizards.getPoints(), "a kill pays nothing as shipped");
-            assertEquals(before, knights.getPoints(), "a death and a raid cost nothing as shipped");
+            assertEquals(1L, wizards.getPoints(), "a kill");
+            assertEquals(8L, knights.getPoints(), "a death");
 
-            manager.recordKothCapture(wizards);
+            long before = wizards.getPoints();
+            manager.recordKothCapture(wizards, true);
             manager.recordConquestWin(wizards);
             manager.recordDtcWin(wizards);
-            manager.recordLastBreakWin(wizards);
             manager.recordSlideWin(wizards);
-            manager.recordTotemWin(wizards);
-            // 10 + 25 + 20 + 20 + 20 + 15, and a King win goes to a player's team.
-            assertEquals(before + 110L, wizards.getPoints());
+            manager.recordKingWin(wizards);
+            manager.recordLastBreakWin(wizards);
+            manager.recordTotemWin(wizards, 5);
+            manager.recordTotemWin(wizards, 3);
+            // Citadel 30, Conquest 25, DTC and Slide 20, King and Last Break 15,
+            // Totem 15, Mini Totem 8.
+            assertEquals(before + 30 + 25 + 20 + 20 + 15 + 15 + 15 + 8, wizards.getPoints());
         }
 
         @Test

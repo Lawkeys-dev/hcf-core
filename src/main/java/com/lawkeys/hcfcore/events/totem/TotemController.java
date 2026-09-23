@@ -291,7 +291,7 @@ public final class TotemController implements Listener {
         }
         if (update.type() == TotemUpdate.Type.WON) {
             team.filter(winner -> !winner.getType().isSystem()).ifPresent(winner -> definition.ifPresent(found -> {
-                teams.getManager().recordTotemWin(winner);
+                teams.getManager().recordTotemWin(winner, found.height());
                 RewardCommands.run(found.rewardCommands(),
                         Map.of("team", winner.getName(), "event", found.displayName()),
                         command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command),

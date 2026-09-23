@@ -184,7 +184,9 @@ public final class TeamSettingsLoader {
                 section.getLong("per-dtc-win", defaults.perDtcWin()),
                 section.getLong("per-last-break-win", defaults.perLastBreakWin()),
                 section.getLong("per-slide-win", defaults.perSlideWin()),
-                section.getLong("per-totem-win", defaults.perTotemWin()));
+                section.getLong("per-totem-win", defaults.perTotemWin()),
+                section.getLong("per-citadel-capture", defaults.perCitadelCapture()),
+                section.getLong("per-mini-totem-win", defaults.perMiniTotemWin()));
     }
 
     private static TeamSettings.KothRules loadKoth(ConfigurationSection section,

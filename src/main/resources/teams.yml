@@ -121,36 +121,40 @@ points:
   # Floor the score can never drop below.
   minimum: 0
 
-  # The scale: what earns - or, with a negative number, costs - points. Every
-  # event is worth something as shipped; kills, deaths and raids are 0, those
-  # being a server's own balance. KOTH and Citadel captures are
-  # koth.points-per-capture below.
+  # The scale: what earns - or, with a negative number, costs - points. As
+  # shipped a kill is +1 and a death -2, and each event is worth about as many
+  # kills as the fight it takes: a KOTH's ten minutes 10 (koth.points-per-capture
+  # below), a Citadel's thirty 30.
   # To the killer's team, for killing a player of any other team, or of none. A
-  # player with no team can be an alt: with per-kill above 0, watch for farming.
-  per-kill: 0
-  # To the victim's team, for any death of a member (write -1 to take a point).
-  per-death: 0
+  # player with no team can be an alt: watch for farming.
+  per-kill: 1
+  # To the victim's team, for any death of a member. A death costs more than a
+  # kill earns: trading lives is a loss.
+  per-death: -2
   # To a team whose DTR has just made it raidable (write a negative number).
   per-raidable: 0
-  # To the team that wins a Conquest.
+  # To the team that captures a Citadel: three times a KOTH's hold.
+  per-citadel-capture: 30
+  # To the team that wins a Conquest: a long fight over several zones.
   per-conquest-win: 25
-  # To the team of the player who wins Kill the King.
-  per-king-win: 20
-  # To the team that wins a DTC.
+  # To the team that wins a DTC, or a Slide.
   per-dtc-win: 20
-  # To the team that wins a Last Break.
-  per-last-break-win: 20
-  # To the team that wins a Slide.
   per-slide-win: 20
-  # To the team that wins a Totem or a Mini Totem.
+  # To the team of the player who wins Kill the King, and to the team that wins
+  # a Last Break - the last hit decides it, however the rest went.
+  per-king-win: 15
+  per-last-break-win: 15
+  # To the team that wins a Totem, and a Mini Totem (a column of 3 blocks or fewer).
   per-totem-win: 15
+  per-mini-totem-win: 8
 # --8<-- [end:points]
 
 # --8<-- [start:koth]
 koth:
   # Cap on how many KOTH captures count toward a team's ranking. 0 = uncapped.
-  # A capture - a KOTH's or a Citadel's - is worth points-per-capture; where the
-  # cap belongs is a balance decision for your server, so it ships uncapped.
+  # A KOTH capture is worth points-per-capture (a Citadel's is
+  # points.per-citadel-capture); both count toward the cap, which is a balance
+  # decision for your server, so it ships uncapped.
   max-counted-captures: 0
   points-per-capture: 10
   # Counted captures are reset by staff with /team resetkoth - at the start of a

@@ -1047,6 +1047,14 @@ public final class TeamManager {
      *         capped - the capture still happened in-game, it simply stops counting
      */
     public TeamResult recordKothCapture(Team team) {
+        return recordKothCapture(team, false);
+    }
+
+    /**
+     * @param citadel whether the capture was a Citadel's: counted like a KOTH's toward
+     *                the cap, paid {@code points.per-citadel-capture} instead
+     */
+    public TeamResult recordKothCapture(Team team, boolean citadel) {
         Objects.requireNonNull(team, "team");
         TeamSettings.KothRules rules = config().koth();
         synchronized (team) {
@@ -1055,8 +1063,9 @@ public final class TeamManager {
                         "team", team.getName(), "max", String.valueOf(rules.maxCountedCaptures()));
             }
             int captures = team.incrementKothCaptures();
-            if (rules.pointsPerCapture() != 0) {
-                addPoints(team, rules.pointsPerCapture());
+            long points = citadel ? config().points().perCitadelCapture() : rules.pointsPerCapture();
+            if (points != 0) {
+                addPoints(team, points);
             }
             return TeamResult.ok(TeamMessages.KOTH_CAPTURE_COUNTED, team,
                     "team", team.getName(), "captures", String.valueOf(captures));
@@ -1133,9 +1142,19 @@ public final class TeamManager {
         award(team, config().points().perSlideWin());
     }
 
-    /** Awards {@code per-totem-win} to the team that broke a whole Totem or Mini Totem. */
+    /** Awards {@code per-totem-win} to the team that broke a whole Totem. */
     public void recordTotemWin(Team team) {
         award(team, config().points().perTotemWin());
+    }
+
+    /**
+     * Awards the team that broke a whole column: {@code per-mini-totem-win} for one of
+     * {@link TeamSettings.PointsRules#MINI_TOTEM_HEIGHT} blocks or fewer, otherwise
+     * {@code per-totem-win}.
+     */
+    public void recordTotemWin(Team team, int height) {
+        award(team, height <= TeamSettings.PointsRules.MINI_TOTEM_HEIGHT
+                ? config().points().perMiniTotemWin() : config().points().perTotemWin());
     }
 
     private void award(Team team, long amount) {

@@ -631,7 +631,8 @@ public final class EventModule {
      * nothing of its own.
      */
     private void award(Team winner, EventUpdate update, Map<String, String> placeholders) {
-        TeamResult result = teams.getManager().recordKothCapture(winner);
+        TeamResult result = teams.getManager().recordKothCapture(winner,
+                settings.citadel(update.eventId()).isPresent());
         // A capped team still captured the event in-game; it simply stops counting
         // towards the ranking. Telling the team why is better than silence.
         teams.broadcast(winner, null, result.getMessageKey(), flatten(result.getPlaceholders()));
