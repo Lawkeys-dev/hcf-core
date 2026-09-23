@@ -568,9 +568,9 @@ totem:
     idle-material: BEDROCK
     # The items a block may be broken with; an empty list allows anything.
     tools: [WOODEN_SWORD, STONE_SWORD, COPPER_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD]
-    # An allowed hit breaks a block at once, rather than after the time the
-    # game gives that block to a sword.
-    instant-break: true
+    # false: a block is mined the whole way with the sword, taking the time the
+    # game gives it (a few seconds for quartz). true: one hit breaks it at once.
+    instant-break: false
     # RESET or RESET_AND_START - see above.
     rival-break: RESET
     # Announce every block broken; the start, a reset and the win are always announced.
@@ -593,7 +593,7 @@ totem:
     broken-material: BEDROCK
     idle-material: BEDROCK
     tools: [WOODEN_SWORD, STONE_SWORD, COPPER_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD]
-    instant-break: true
+    instant-break: false
     rival-break: RESET
     announce-breaks: true
     max-duration-seconds: 0

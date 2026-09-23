@@ -119,7 +119,7 @@ public final class TotemSettingsLoader {
         }
         try {
             return new TotemDefinition(id, displayName, zone, base.getInt("x"), base.getInt("y"), base.getInt("z"),
-                    height, active, broken, idle, tools, entry.getBoolean("instant-break", true), rival,
+                    height, active, broken, idle, tools, entry.getBoolean("instant-break", false), rival,
                     entry.getBoolean("announce-breaks", true),
                     EventSettingsLoader.loadSchedule(entry.getStringList("schedule"), id, warn),
                     maxDuration,

@@ -242,7 +242,7 @@ Under `totem:`, one entry per Totem — a Mini Totem is only a shorter one. **Ho
 | `broken-material` | `BEDROCK` | A block once a team has broken it |
 | `idle-material` | `BEDROCK` | The column between runs |
 | `tools` | every sword | What a block may be broken with; an empty list allows anything |
-| `instant-break` | `true` | One hit breaks a block, rather than the time the game gives it to that tool |
+| `instant-break` | `false` | `false`: each block is mined the whole way with the sword, in the time the game gives it. `true`: one hit breaks it at once |
 | `rival-break` | `RESET` | A block broken by another team: `RESET` starts the totem over and counts for nobody; `RESET_AND_START` also makes it the other team's first |
 | `announce-breaks` | `true` | Announce every block broken; the start, a reset and the win are always announced |
 | `max-duration-seconds`, `schedule`, `reward-commands` | `0`, `[]`, `[]` | As for a KOTH; rewards get `%team%` and `%event%` |

@@ -184,7 +184,7 @@ A column of blocks in the event zone — **5** for a Totem, **3** for a Mini Tot
 --8<-- "src/main/resources/events.yml:totem"
 ```
 
-- **Break it with a sword** (`tools`, every sword by default) — at once, one hit per block (`instant-break`). Each block your team breaks turns to bedrock and stays so.
+- **Break it with a sword** (`tools`, every sword by default) — mined the whole way, in the time the game gives the block (`instant-break: true` makes one hit enough). Each block your team breaks turns to bedrock and stays so.
 - **The first team to break the whole column wins.**
 - **A block broken by any other team starts the totem over**: every block turns back to quartz, and that team's progress counts for nothing (`rival-break: RESET`). With `RESET_AND_START`, that break is then the other team's first.
 - Creative, spectator and teamless players never break it. The column cannot be blown up or pushed by a piston, and outside a run only a staff member in creative can take it apart.
