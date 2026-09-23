@@ -412,6 +412,8 @@ public final class PvpModule {
         plugin.getServer().getPluginManager().registerEvents(new CombatListener(this), plugin);
         plugin.getServer().getPluginManager()
                 .registerEvents(new com.lawkeys.hcfcore.pvp.listener.SafeZoneListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.pvp.deathsign.DeathSignListener(lang, () -> deathSigns), plugin);
         if (claims != null) {
             // Who sees spawn closed to them: the claim module draws it, combat decides.
             claims.setSafeZoneWallPolicy(player -> {
@@ -454,8 +456,15 @@ public final class PvpModule {
         command.setTabCompleter(executor);
     }
 
+    /** {@code pvp.yml}, {@code death-signs}. */
+    private volatile com.lawkeys.hcfcore.pvp.deathsign.DeathSignRules deathSigns =
+            com.lawkeys.hcfcore.pvp.deathsign.DeathSignRules.defaults();
+
     public void reloadSettings() {
         var section = ConfigManager.loadFile(plugin, "pvp.yml");
+        this.deathSigns = com.lawkeys.hcfcore.pvp.deathsign.DeathSignRules.load(
+                section == null ? null : section.getConfigurationSection("death-signs"),
+                warning -> plugin.getLogger().warning("pvp.yml: " + warning));
         this.settings = PvpSettingsLoader.load(section,
                 warning -> plugin.getLogger().warning("pvp.yml: " + warning));
         this.legacy = LegacyCombatLoader.load(section == null ? null : section.getConfigurationSection("legacy-combat"),

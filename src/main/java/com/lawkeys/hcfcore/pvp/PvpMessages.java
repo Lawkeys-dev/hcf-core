@@ -38,6 +38,11 @@ public final class PvpMessages {
     public static final String DEATHBAN_MAP_END_STATUS = "pvp.deathban.map-end.status";
 
     // Safe zones
+    public static final String DEATH_SIGN_NAME = "pvp.death-sign.name";
+    public static final String DEATH_SIGN_LINE_1 = "pvp.death-sign.line-1";
+    public static final String DEATH_SIGN_LINE_2 = "pvp.death-sign.line-2";
+    public static final String DEATH_SIGN_LINE_3 = "pvp.death-sign.line-3";
+    public static final String DEATH_SIGN_LINE_4 = "pvp.death-sign.line-4";
     public static final String SAFE_ZONE_COMBAT = "pvp.safezone.combat";
     public static final String SAFE_ZONE_ATTACKER = "pvp.safezone.attacker";
     public static final String FRIENDLY_FIRE_TEAMMATE = "pvp.friendly-fire.teammate";

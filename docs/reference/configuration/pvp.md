@@ -119,6 +119,21 @@ An item is used when it is eaten, or — a totem — when it saves its holder. T
 | `wall.width-blocks` | `15` | How far along the border it is drawn, each way from the player |
 | `wall.top-y` · `minimum-height` | `128` · `3` | It runs from the ground to that layer; ground already higher gets the minimum |
 
+## Death signs
+
+```yaml title="pvp.yml"
+--8<-- "src/main/resources/pvp.yml:death-signs"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | A kill by a player leaves a sign |
+| `material` | `OAK_SIGN` | Any standing or hanging sign |
+| `to-killer` | `false` | `false`: among the dead player's drops, under loot protection. `true`: into the killer's inventory, at their feet when it is full |
+| `date-format` | `dd/MM/yyyy HH:mm` | How `%date%` is written |
+
+The four lines are `pvp.death-sign.line-1` to `line-4` in the [language file](../messages.md).
+
 ## Loot protection
 
 ```yaml title="pvp.yml"

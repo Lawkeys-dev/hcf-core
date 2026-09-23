@@ -68,6 +68,10 @@ Where a player may not hit another — a safe zone, SOTW, a teammate, an ally ou
 - a fishing rod does not reel them in;
 - a wind charge — or TNT or a crystal the player set off — does not push them.
 
+## Death signs
+
+A kill by a player leaves a **death sign**: the dead player's name, "slain by", the killer's name and the date. It falls with the loot (or goes straight to the killer, `death-signs.to-killer`), and keeps its text when placed — waxed, so nobody rewrites it. A trophy wall of them is a classic of HCF bases.
+
 ## Loot protection
 
 For **10 seconds** after a kill, what the dead player dropped can be picked up **only by the killer and the killer's team** — no other player, no mob, no hopper (`loot-protection`). Then it is ordinary loot.

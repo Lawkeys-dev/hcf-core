@@ -426,6 +426,14 @@ pvp:
       login-denied: "{error}You died during EOTW and are deathbanned until the end of the map."
       status: "{muted}Deathban: {error}until the end of the map{muted}."
 
+  # pvp.yml, death-signs: the sign a kill leaves. Its four lines, and its name as
+  # an item. Placeholders: %victim%, %killer%, %date%.
+  death-sign:
+    name: "{error}%victim% {muted}slain by {success}%killer%"
+    line-1: "{error}%victim%"
+    line-2: "{muted}slain by"
+    line-3: "{success}%killer%"
+    line-4: "{dark}%date%"
   safezone:
     attacker: "{error}You cannot fight inside a safe zone."
     # pvp.yml, safe-zones.block-combat-tagged: spawn is closed while you are in combat.

@@ -197,6 +197,21 @@ safe-zones:
     minimum-height: 3
 # --8<-- [end:safe-zones]
 
+# --8<-- [start:death-signs]
+# A kill by a player leaves a sign: who died, to whom, and when - its four lines
+# are in the language file (pvp.death-sign). The text is on the sign itself, so it
+# stays when the sign is placed, and the sign is waxed: nobody rewrites it.
+death-signs:
+  enabled: true
+  # Any standing or hanging sign.
+  material: OAK_SIGN
+  # false: among the dead player's drops, covered by loot protection like the rest.
+  # true: straight into the killer's inventory (at their feet when it is full).
+  to-killer: false
+  # How %date% is written (Java DateTimeFormatter letters).
+  date-format: "dd/MM/yyyy HH:mm"
+# --8<-- [end:death-signs]
+
 # --8<-- [start:loot-protection]
 # Anticlean - loot protection. For a few seconds after a kill, what the dead player
 # drops can be picked up only by the killer (and, with team-shares, the killer's
