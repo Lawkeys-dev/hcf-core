@@ -35,7 +35,7 @@ public final class Shop {
         }
         double balance = money.getBalance(player.getUniqueId());
         int lots = ShopMath.lotsToBuy(lotsWanted, lotSize, price, balance, room(player.getInventory(), material));
-        String item = ShopRules.readable(material.name());
+        String item = com.lawkeys.hcfcore.util.MaterialNames.readable(material.name());
         if (lots == 0) {
             lang.send(player, balance < price ? EconomyMessages.SHOP_NO_MONEY : EconomyMessages.SHOP_NO_ROOM,
                     "price", money.format(price), "amount", String.valueOf(lotSize), "item", item);
@@ -61,7 +61,7 @@ public final class Shop {
             return;
         }
         int lots = ShopMath.lotsToSell(held(player.getInventory(), material), lotSize, all);
-        String item = ShopRules.readable(material.name());
+        String item = com.lawkeys.hcfcore.util.MaterialNames.readable(material.name());
         if (lots == 0) {
             lang.send(player, EconomyMessages.SHOP_NOTHING_TO_SELL, "amount", String.valueOf(lotSize), "item", item);
             return;

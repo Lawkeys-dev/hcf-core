@@ -153,8 +153,14 @@ public final class ClaimLockListener implements Listener {
                 continue;
             }
             refused(player, to).ifPresent(team -> {
-                event.getVehicle().setVelocity(new org.bukkit.util.Vector());
-                event.getVehicle().teleport(from);
+                org.bukkit.entity.Vehicle vehicle = event.getVehicle();
+                // The rider is set down first: an entity carrying a passenger is not
+                // teleported (found in review, 23/09/2026). Both then go back outside,
+                // and walking in is refused block by block.
+                vehicle.removePassenger(player);
+                vehicle.setVelocity(new org.bukkit.util.Vector());
+                vehicle.teleport(from);
+                player.teleport(from.clone().setDirection(player.getLocation().getDirection()));
                 tell(player, team);
             });
         }

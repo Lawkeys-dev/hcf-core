@@ -97,7 +97,7 @@ public final class MiningAlertListener implements Listener {
     }
 
     private void announce(Player player, Material ore, int count, Block at, boolean everyone) {
-        String name = MiningAlertRules.readable(ore);
+        String name = com.lawkeys.hcfcore.util.MaterialNames.readable(ore.name());
         String staffLine = module.getLang().get(StaffMessages.MINING_FOUND_STAFF, "player", player.getName(),
                 "count", String.valueOf(count), "ore", name, "world", at.getWorld().getName(),
                 "x", String.valueOf(at.getX()), "y", String.valueOf(at.getY()), "z", String.valueOf(at.getZ()));

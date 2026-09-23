@@ -34,7 +34,8 @@ public final class KillRewardListener implements Listener {
         this.rules = Objects.requireNonNull(rules, "rules");
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    /** Not on a death another plugin cancelled: the victim lives, and nothing was won. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
         Player killer = victim.getKiller();

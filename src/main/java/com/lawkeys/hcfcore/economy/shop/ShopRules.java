@@ -173,15 +173,4 @@ public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sel
         }
     }
 
-    /** @return {@code DIAMOND_ORE} as {@code Diamond Ore} */
-    public static String readable(String material) {
-        StringBuilder name = new StringBuilder();
-        for (String word : material.toLowerCase(Locale.ROOT).split("_")) {
-            if (!word.isEmpty()) {
-                name.append(name.isEmpty() ? "" : " ").append(Character.toUpperCase(word.charAt(0)))
-                        .append(word.substring(1));
-            }
-        }
-        return name.toString();
-    }
 }

@@ -174,8 +174,9 @@ safe-zones:
   # Turning this off makes every server team fightable, whatever its kind - and
   # takes the two rules below with it.
   enabled: true
-  # No damage of ANY kind on safe-zone land: a fall, fire, drowning, suffocation,
+  # No damage of any kind on safe-zone land: a fall, fire, drowning, suffocation,
   # a mob, a cactus. Spawn is where players sort themselves out between fights.
+  # The void and /kill still land: a player fallen below spawn must not fall for ever.
   no-damage: true
   # Hunger never drops there, and is filled back up when a player walks, teleports
   # or logs in on safe-zone land. "heal" does the same with health.

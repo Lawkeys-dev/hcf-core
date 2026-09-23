@@ -37,7 +37,8 @@ public final class BountyListener implements Listener {
         this.lang = Objects.requireNonNull(lang, "lang");
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    /** Not on a death another plugin cancelled: the target lives, and the bounty stays. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
         Player killer = victim.getKiller();

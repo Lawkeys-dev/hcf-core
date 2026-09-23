@@ -110,7 +110,7 @@ An item is used when it is eaten, or — a totem — when it saves its holder. T
 | Key | As shipped | What it does |
 |---|---|---|
 | `enabled` | `true` | No PvP on the land of a **safe** server team. `false` makes every server team fightable, whatever its kind — and takes the two below with it |
-| `no-damage` | `true` | No damage of any kind there: a fall, fire, drowning, suffocation, a mob, a cactus |
+| `no-damage` | `true` | No damage of any kind there: a fall, fire, drowning, suffocation, a mob, a cactus. The void and `/kill` still land |
 | `keep-fed` | `true` | Hunger never drops there, and is filled back up when a player walks, teleports or logs in on safe-zone land |
 | `heal` | `true` | Health is filled back up there the same way |
 | `block-combat-tagged` | `true` | A player in combat cannot enter a safe zone until their tag runs out |

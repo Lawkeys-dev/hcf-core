@@ -70,7 +70,7 @@ It is **stepwise, not continuous**: a partial interval gives nothing, so what pl
 
 ## Points
 
-A team can gain or lose [points](teams.md#points-and-ranking) when its DTR makes it raidable (`teams.yml`, `points.per-raidable`, `0` by default).
+A team whose DTR makes it raidable **loses half its [points](teams.md#points-and-ranking)** (`teams.yml`, `points.raidable-loss-percent`, `50`), or a fixed number with the share at `0` (`points.per-raidable`).
 
 ## For developers
 

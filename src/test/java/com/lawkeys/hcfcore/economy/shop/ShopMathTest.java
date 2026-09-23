@@ -40,6 +40,6 @@ class ShopMathTest {
         assertEquals(64, item.amount());
         assertFalse(item.buyable());
         assertTrue(item.sellable());
-        assertEquals("Deepslate Diamond Ore", ShopRules.readable("DEEPSLATE_DIAMOND_ORE"));
+        assertEquals("Deepslate Diamond Ore", com.lawkeys.hcfcore.util.MaterialNames.readable("DEEPSLATE_DIAMOND_ORE"));
     }
 }

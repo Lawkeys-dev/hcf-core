@@ -414,20 +414,8 @@ public final class ClaimSubCommands {
                     "seconds", String.valueOf(claims.getSettings().map().seconds()));
             drawn.materials().forEach((teamId, material) -> module.getLang().send(player,
                     ClaimMessages.MAP_PILLARS_TEAM,
-                    "block", readable(material),
+                    "block", com.lawkeys.hcfcore.util.MaterialNames.readable(material),
                     "team", claims.getMapPillars().teamName(teamId).orElse("?")));
-        }
-
-        /** @return {@code RED_CONCRETE} as {@code Red Concrete}: a block named as players read it */
-        private static String readable(String material) {
-            StringBuilder name = new StringBuilder();
-            for (String word : material.toLowerCase(Locale.ROOT).split("_")) {
-                if (!word.isEmpty()) {
-                    name.append(name.isEmpty() ? "" : " ")
-                            .append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
-                }
-            }
-            return name.toString();
         }
 
         private void chat(TeamModule module, Player player, Team team) {

@@ -65,15 +65,4 @@ public record MiningAlertRules(boolean enabled, Set<String> ores, int maxVein, b
                 section.getBoolean("ignore-creative", d.ignoreCreative()));
     }
 
-    /** @return {@code DEEPSLATE_DIAMOND_ORE} as {@code Deepslate Diamond Ore} */
-    public static String readable(Material material) {
-        StringBuilder name = new StringBuilder();
-        for (String word : material.name().toLowerCase(Locale.ROOT).split("_")) {
-            if (!word.isEmpty()) {
-                name.append(name.isEmpty() ? "" : " ").append(Character.toUpperCase(word.charAt(0)))
-                        .append(word.substring(1));
-            }
-        }
-        return name.toString();
-    }
 }

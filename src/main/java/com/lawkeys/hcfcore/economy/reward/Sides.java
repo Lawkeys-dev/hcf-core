@@ -1,6 +1,5 @@
 package com.lawkeys.hcfcore.economy.reward;
 
-import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamManager;
 import com.lawkeys.hcfcore.team.TeamRelation;
 
@@ -20,9 +19,7 @@ public final class Sides {
         if (teams == null) {
             return false;
         }
-        Team first = teams.getTeamOf(a).orElse(null);
-        Team second = teams.getTeamOf(b).orElse(null);
-        TeamRelation relation = teams.getRelation(first, second);
+        TeamRelation relation = teams.getRelation(a, b);
         return relation == TeamRelation.SELF || relation == TeamRelation.ALLY;
     }
 }

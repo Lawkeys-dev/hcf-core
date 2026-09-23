@@ -58,7 +58,7 @@ Mountains are not event areas: nobody captures a node.
 
 ## Not only hits
 
-On a **safe zone**, a player takes no damage at all — not only no PvP: no fall, fire, drowning, suffocation, mob or cactus damage (`pvp.yml`, `safe-zones.no-damage`), and their health and hunger are filled back up (`heal`, `keep-fed`).
+On a **safe zone**, a player takes no damage at all — not only no PvP: no fall, fire, drowning, suffocation, mob or cactus damage (`pvp.yml`, `safe-zones.no-damage`) — only the void and `/kill` still land, and their health and hunger are filled back up (`heal`, `keep-fed`).
 
 **A player in combat cannot enter one** until their tag runs out (`block-combat-tagged`): a fight is not ended by running home to spawn. They see the border they may not cross as a wall of red glass, 15 blocks each way in front of them and up to layer 128 — sent to them alone, never placed, like the claiming wand's columns (`safe-zones.wall`).
 

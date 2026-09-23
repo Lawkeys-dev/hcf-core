@@ -98,8 +98,9 @@ public final class CoreEventManager {
         cooldowns.clearAll();
         String key = run.getDefinition().kind() == CoreEventKind.DTC ? CoreMessages.DTC_STOPPED
                 : CoreMessages.LAST_BREAK_STOPPED;
+        // The id is how the controller finds the core to put back as its idle block.
         return Optional.of(CoreUpdate.of(CoreUpdate.Type.STOPPED, key, null,
-                "event", run.getDefinition().displayName()));
+                "event", run.getDefinition().displayName(), "id", run.getDefinition().id()));
     }
 
     public void stopAll() {
@@ -221,7 +222,8 @@ public final class CoreEventManager {
             current.compareAndSet(run, null);
             String key = definition.kind() == CoreEventKind.DTC ? CoreMessages.DTC_EXPIRED
                     : CoreMessages.LAST_BREAK_EXPIRED;
-            updates.add(CoreUpdate.of(CoreUpdate.Type.EXPIRED, key, null, "event", definition.displayName()));
+            updates.add(CoreUpdate.of(CoreUpdate.Type.EXPIRED, key, null, "event", definition.displayName(),
+                    "id", definition.id()));
         }
         return updates;
     }

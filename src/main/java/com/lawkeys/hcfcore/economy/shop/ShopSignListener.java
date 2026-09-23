@@ -75,7 +75,7 @@ public final class ShopSignListener implements Listener {
         event.line(0, LegacyText.SERIALIZER.deserialize(lang.get(
                 sign.get().buy() ? EconomyMessages.SHOP_SIGN_BUY : EconomyMessages.SHOP_SIGN_SELL, "header", header)));
         event.line(1, Component.text(String.valueOf(sign.get().amount())));
-        event.line(2, Component.text(ShopRules.readable(material.name())));
+        event.line(2, Component.text(com.lawkeys.hcfcore.util.MaterialNames.readable(material.name())));
         event.line(3, Component.text(money == null ? String.valueOf(sign.get().price())
                 : money.format(sign.get().price())));
         lang.send(player, EconomyMessages.SHOP_SIGN_CREATED);

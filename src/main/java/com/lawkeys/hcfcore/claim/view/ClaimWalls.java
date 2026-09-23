@@ -38,23 +38,24 @@ import java.util.concurrent.ConcurrentHashMap;
  * Bukkit API only allows that on the main thread. What was slow was doing it again
  * for every claim on every tick of a one-second timer: the wall lagged a step behind
  * the player walking into it (the project owner's report, 22/09/2026). So each
- * claim's wall is worked out once and <em>kept</em> ({@link Wall}), and a step only
- * cuts that to what is near the player and sends the difference - no world reads at
- * all. Which makes it cheap enough to redraw as they move, every few ticks, rather
- * than once a second.
+ * column of a wall is worked out once and <em>kept</em> ({@link Column}), only the
+ * columns near the player are ever read - the far side of a large spawn is never
+ * touched, nor its chunks loaded (found in review, 23/09/2026) - and a step sends
+ * the difference. Which makes it cheap enough to redraw as they move rather than
+ * once a second.
  */
 public final class ClaimWalls {
 
     /** How long a claim's wall is kept before the world is read again for it. */
     private static final long CACHE_MILLIS = 30_000L;
 
-    /** One claim's wall, worked out once: every block of it, whatever the player. */
-    private record Wall(Map<Location, BlockData> blocks, long builtAt, String material, int topY) {
+    /** One column of a wall, worked out once: the blocks it is drawn in. */
+    private record Column(Map<Location, BlockData> blocks, long builtAt) {
     }
 
     private final ClaimModule module;
     private final ClientBlocks view;
-    private final Map<UUID, Wall> walls = new ConcurrentHashMap<>();
+    private final Map<String, Column> columns = new ConcurrentHashMap<>();
     /** The block each player was last drawn for: a step that stays in it changes nothing. */
     private final Map<UUID, Long> drawnAt = new ConcurrentHashMap<>();
     private BukkitTask task;
@@ -79,12 +80,15 @@ public final class ClaimWalls {
             task.cancel();
             task = null;
         }
-        walls.clear();
+        columns.clear();
         drawnAt.clear();
         view.clearAll(Bukkit.getOnlinePlayers());
     }
 
     private void drawAll() {
+        // Old columns go: a wall is only kept for as long as somebody stands by it.
+        long cutoff = System.currentTimeMillis() - CACHE_MILLIS;
+        columns.values().removeIf(column -> column.builtAt() < cutoff);
         drawnAt.clear(); // The timer redraws everybody, whether they moved or not.
         for (Player player : Bukkit.getOnlinePlayers()) {
             draw(player);
@@ -147,50 +151,42 @@ public final class ClaimWalls {
             int topY = locked ? rules.topY() : safeZone.get().topY();
             int minimum = locked ? rules.minimumHeight() : safeZone.get().minimumHeight();
             int radius = locked ? rules.radiusBlocks() : safeZone.get().widthBlocks();
-            for (Map.Entry<Location, BlockData> block : wallOf(claim, world, material, topY, minimum).entrySet()) {
-                Location where = block.getKey();
-                if (Math.abs(where.getBlockX() - at.getBlockX()) <= radius
-                        && Math.abs(where.getBlockZ() - at.getBlockZ()) <= radius) {
-                    wall.put(where, block.getValue());
-                }
+            // Only the border near the player is read from the world, column by column:
+            // the far side of a large spawn is never touched, nor its chunks loaded.
+            for (int[] column : BorderColumns.outline(claim, at.getBlockX(), at.getBlockZ(), radius)) {
+                wall.putAll(columnOf(world, column[0], column[1], material, topY, minimum));
             }
         }
         return wall;
     }
 
     /**
-     * @return every block of this claim's wall, read from the world once and kept for
-     *         {@link #CACHE_MILLIS}; a claim whose ground is dug out draws its old
-     *         wall until then, which is a wall standing a block too low, not a wall
-     *         that lets anybody through - the lock itself is a movement rule
+     * @return one column of a wall: every air block from above the ground to the top,
+     *         read from the world once and kept for {@link #CACHE_MILLIS}. A column
+     *         whose ground is dug out draws its old wall until then - a wall a block
+     *         too low, never a way in: the refusal is a movement rule
      */
-    private Map<Location, BlockData> wallOf(ClaimArea claim, World world, String materialName, int topY, int minimum) {
-        Wall kept = walls.get(claim.id());
+    private Map<Location, BlockData> columnOf(World world, int x, int z, String materialName, int topY, int minimum) {
+        String key = world.getName() + ':' + x + ':' + z + ':' + materialName + ':' + topY + ':' + minimum;
         long now = System.currentTimeMillis();
-        if (kept != null && now - kept.builtAt() < CACHE_MILLIS && kept.material().equals(materialName)
-                && kept.topY() == topY) {
+        Column kept = columns.get(key);
+        if (kept != null && now - kept.builtAt() < CACHE_MILLIS) {
             return kept.blocks();
         }
         Material material = Material.matchMaterial(materialName);
         BlockData glass = (material == null || !material.isBlock() ? Material.RED_STAINED_GLASS : material)
                 .createBlockData();
         Map<Location, BlockData> blocks = new HashMap<>();
-        // The whole border: cropped to the player afterwards, so one read serves
-        // every player walking around the claim.
-        for (int[] column : BorderColumns.outline(claim, claim.centreX(), claim.centreZ(), Integer.MAX_VALUE / 4)) {
-            int[] range = ColumnHeights.range(world.getHighestBlockYAt(column[0], column[1]),
-                    topY, minimum, world.getMaxHeight());
-            if (range == null) {
-                continue;
-            }
+        int[] range = ColumnHeights.range(world.getHighestBlockYAt(x, z), topY, minimum, world.getMaxHeight());
+        if (range != null) {
             for (int y = range[0]; y <= range[1]; y++) {
-                Location block = new Location(world, column[0], y, column[1]);
+                Location block = new Location(world, x, y, z);
                 if (block.getBlock().getType().isAir()) {
                     blocks.put(block, glass);
                 }
             }
         }
-        walls.put(claim.id(), new Wall(blocks, now, materialName, topY));
+        columns.put(key, new Column(blocks, now));
         return blocks;
     }
 

@@ -45,7 +45,9 @@ public final class ShopMenu implements InventoryHolder {
     private final int back;
     private final Inventory inventory;
 
-    private ShopMenu(ShopRules rules, EconomyManager money, LangManager lang, int category, int page) {
+    private ShopMenu(ShopRules rules, EconomyManager money, LangManager lang, int requested, int page) {
+        // A shelf opened before a reload that took it away: back to the shelves.
+        int category = requested < rules.categories().size() ? requested : -1;
         boolean shelves = category < 0 && !rules.categories().isEmpty();
         this.categories = shelves ? rules.categories() : List.of();
         this.category = category;
@@ -57,13 +59,15 @@ public final class ShopMenu implements InventoryHolder {
         int backSlot = -1;
         if (category >= 0) {
             int bottomMiddle = (layout.rows() - 1) * COLUMNS + 4;
-            if (layout.frameSlots().contains(bottomMiddle)) {
+            if (layout.frameSlots().contains(bottomMiddle) || layout.pages() > 1) {
+                // The frame's bottom bar, or the row of a paged list's arrows.
                 backSlot = bottomMiddle;
-            } else {
+            } else if (layout.rows() < 6) {
                 // No frame to hold it: a row of its own.
                 size += COLUMNS;
                 backSlot = layout.rows() * COLUMNS + 4;
             }
+            // Six full rows and no frame: no room for the button - /shop again goes back.
         }
         this.back = backSlot;
         String title = category >= 0
@@ -135,7 +139,7 @@ public final class ShopMenu implements InventoryHolder {
         lore.add(ItemText.line(lang.get(EconomyMessages.SHOP_LORE_HINT)));
         icon.editMeta(meta -> {
             meta.customName(ItemText.line(lang.get(EconomyMessages.SHOP_ITEM_NAME,
-                    "amount", String.valueOf(item.amount()), "item", ShopRules.readable(item.material()))));
+                    "amount", String.valueOf(item.amount()), "item", com.lawkeys.hcfcore.util.MaterialNames.readable(item.material()))));
             meta.lore(lore);
         });
         return icon;

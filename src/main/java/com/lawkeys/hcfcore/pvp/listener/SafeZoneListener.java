@@ -63,6 +63,12 @@ public final class SafeZoneListener implements Listener {
         if (!(event.getEntity() instanceof Player player) || !applies() || !rules().noDamage()) {
             return;
         }
+        // The void and /kill still land: claims run the full height of the world, and
+        // a player fallen below a safe zone would otherwise fall for ever.
+        EntityDamageEvent.DamageCause cause = event.getCause();
+        if (cause == EntityDamageEvent.DamageCause.VOID || cause == EntityDamageEvent.DamageCause.KILL) {
+            return;
+        }
         if (module.isInSafeZone(player)) {
             event.setCancelled(true);
         }
@@ -84,18 +90,19 @@ public final class SafeZoneListener implements Listener {
     public void onMove(PlayerMoveEvent event) {
         if (event.getFrom().getBlockX() != event.getTo().getBlockX()
                 || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
-            feed(event.getPlayer());
+            feed(event.getPlayer(), event.getTo());
         }
     }
 
+    /** Judged where the player arrives: during the event they still stand where they left. */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleported(PlayerTeleportEvent event) {
-        feed(event.getPlayer());
+        feed(event.getPlayer(), event.getTo());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
-        feed(event.getPlayer());
+        feed(event.getPlayer(), event.getPlayer().getLocation());
     }
 
     /**
@@ -144,8 +151,8 @@ public final class SafeZoneListener implements Listener {
     }
 
     /** Health and hunger back to full on safe-zone land. */
-    private void feed(Player player) {
-        if (!applies() || !module.isInSafeZone(player)) {
+    private void feed(Player player, org.bukkit.Location at) {
+        if (!applies() || !module.isSafeZoneAt(at)) {
             return;
         }
         if (rules().keepFed() && player.getFoodLevel() < FULL) {
