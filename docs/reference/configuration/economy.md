@@ -40,6 +40,19 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 | `enabled` | `true` | `/pay`, on its own |
 | `minimum-amount` | `1.0` | The smallest transfer |
 
+## Kill reward
+
+```yaml title="economy.yml"
+--8<-- "src/main/resources/economy.yml:kill-reward"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | Money for a kill at all |
+| `amount` | `50.0` | Paid to the killer, from nowhere |
+| `steal-percent` | `0` | The share of the victim's balance moved to the killer, 0 to 100, rounded down to the cent |
+| `same-victim-cooldown-seconds` | `300` | The same killer earns nothing for the same victim again within this |
+
 ## The whole shipped file
 
 [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/economy.yml).

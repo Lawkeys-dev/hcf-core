@@ -45,3 +45,16 @@ pay:
   # Smallest transfer allowed, to stop 0.01 spam.
   minimum-amount: 1.0
 # --8<-- [end:pay]
+
+# --8<-- [start:kill-reward]
+# Money for a kill: a flat amount, and, if you want kills to cost something too, a
+# share taken from the dead player's balance. Nothing for killing an ally, and
+# nothing again for the same victim within same-victim-cooldown-seconds - two
+# accounts trading kills is the first thing a kill reward invites.
+kill-reward:
+  enabled: true
+  amount: 50.0
+  # The share of the victim's balance moved to the killer, 0 to 100.
+  steal-percent: 0
+  same-victim-cooldown-seconds: 300
+# --8<-- [end:kill-reward]

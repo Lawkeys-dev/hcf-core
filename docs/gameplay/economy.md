@@ -16,6 +16,10 @@ Every player has a balance, starting at **100** (`starting-balance`). A player w
 - `maximum-balance` caps an account (`0` = no ceiling). A credit that would cross it is **refused rather than clamped**, so money is never silently destroyed.
 - Amounts are shown with the currency symbol — `$1,234.50` — or named, `1 dollar`, `2 dollars` (`currency`).
 
+## Kill reward
+
+A kill pays the killer **50** (`kill-reward.amount`), and, if the server sets `steal-percent`, a share of the dead player's balance too. Killing an ally pays nothing, and the same victim pays nothing again for 5 minutes — two accounts trading kills earn one reward, not a salary.
+
 ## Team banks
 
 A team has a balance of its own: `/team deposit <amount>` (every member) and `/team withdraw <amount>` (the leader). See [Teams](teams.md#bank).

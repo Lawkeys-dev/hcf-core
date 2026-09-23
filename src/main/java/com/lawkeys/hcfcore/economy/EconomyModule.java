@@ -82,6 +82,9 @@ public final class EconomyModule {
 
         this.manager = new EconomyManager(() -> settings, store);
         // A team bank reads in the same currency as a balance.
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.economy.reward.KillRewardListener(() -> manager, teams::getManager, lang,
+                        () -> killReward), plugin);
         if (teams.getManager() != null) {
             teams.getManager().setMoneyFormat(manager::format);
         }
@@ -126,10 +129,16 @@ public final class EconomyModule {
         command.setTabCompleter(executor);
     }
 
+    /** {@code economy.yml}, {@code kill-reward}. */
+    private volatile com.lawkeys.hcfcore.economy.reward.KillReward.Rules killReward =
+            com.lawkeys.hcfcore.economy.reward.KillReward.Rules.defaults();
+
     public void reloadSettings() {
-        this.settings = EconomySettingsLoader.load(
-                ConfigManager.loadFile(plugin, "economy.yml"),
+        var file = ConfigManager.loadFile(plugin, "economy.yml");
+        this.settings = EconomySettingsLoader.load(file,
                 warning -> plugin.getLogger().warning("economy.yml: " + warning));
+        this.killReward = com.lawkeys.hcfcore.economy.reward.KillReward.Rules.load(
+                file == null ? null : file.getConfigurationSection("kill-reward"));
     }
 
     public void disable() {

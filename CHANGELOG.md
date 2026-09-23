@@ -7,6 +7,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 ## [Unreleased]
 
 ### Added
+- **Money for a kill** (`economy.yml`, `kill-reward`): 50 to the killer, plus, if you set `steal-percent`, a share of the dead player's balance. Nothing for an ally, and nothing again for the same victim within 5 minutes.
 - **`/lff [note]`** (`teams.yml`, `lff`): a player with no team tells everybody they want one, with a few words of their own — once every 5 minutes.
 - **Death signs** (`pvp.yml`, `death-signs`): a kill by a player leaves a sign — the dead player, "slain by", the killer, the date — that keeps its text when placed and cannot be rewritten. It falls with the loot, or goes to the killer (`to-killer`).
 - **Mining alerts** (`staff.yml`, `mining-alerts`): staff are told when a player breaks into a vein of diamond, ancient debris or emerald — once per vein, with its size and position. Player-placed ores are never reported; `audience: everyone` shows everybody the classic "[FD]" line, without the position.

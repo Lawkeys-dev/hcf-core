@@ -34,4 +34,8 @@ public final class EconomyMessages {
     public static final String DISABLED = "economy.error.disabled";
     public static final String PLAYER_NOT_FOUND = "economy.error.player-not-found";
     public static final String NOT_IN_TEAM = "economy.error.not-in-team";
+
+    // economy.yml, kill-reward
+    public static final String KILL_REWARD = "economy.kill-reward.earned";
+    public static final String KILL_REWARD_STOLEN = "economy.kill-reward.stolen";
 }

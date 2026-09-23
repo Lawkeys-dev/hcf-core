@@ -466,6 +466,11 @@ pvp:
 # ---------------------------------------------------------------------------
 economy:
 
+  # economy.yml, kill-reward
+  kill-reward:
+    earned: "{success}+%amount% {muted}for killing {secondary}%victim%{muted}."
+    stolen: "{error}%killer% {muted}took {error}%amount% {muted}from you."
+
   balance:
     self: "{muted}Balance: {success}%balance%"
     other: "{secondary}%player%{muted}'s balance: {success}%balance%"
