@@ -6,11 +6,18 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-24
+
+Kill the King fixed after its first try in game: the King keeps the kit's armour on, and their death is the event's — no kit to loot, no DTR lost, no deathban. `/revive` completes the names of the deathbanned. And the license is now plain MIT.
+
+*Tried in game on Paper 26.2: Kill the King in team mode, before these fixes. The fixes themselves and the solo mode are not yet tried in game.*
+
 ### Added
 - **The King cannot take off their armour** (`events.yml`, `kill-the-king.<id>.reign.lock-armour`, on as shipped): no click, drag or key swap on an armour slot, no right-click swap with another piece.
 - **`/revive` completes names**: Tab offers the players deathbanned now (never a ban until the map ends, which a life cannot lift).
 
 ### Changed
+- **The license is plain MIT**: the additional attribution requirement is gone. Keeping the copyright and permission notice with the software, as MIT asks, is all that remains.
 - **The King's death is the event's, not a real one** (`reign`): the kit vanishes with the reign instead of dropping as loot (`drop-kit: false`), the King's team loses no DTR (`death-costs-dtr: false`) and the King is not deathbanned (`deathban: false`) — they respawn and get their own items back. A King who logs out in combat is not spared. *To keep the 0.8.0 behaviour, set all three to `true` in a `reign` section; without the section, the new values apply.*
 
 ## [0.8.0] - 2026-09-23
@@ -176,7 +183,8 @@ Classes and events.
 ### Added
 - First public version: teams, territory and DTR, combat and deathbans, lives, capture events (KOTH, Citadel, Conquest, Kill the King), Mountains, SOTW/EOTW/Purge, economy with Vault, kits and abilities, custom enchants and limiters, moderation tools, scoreboard and chat, holograms, redeem codes, the Lunar Client integration, and this documentation.
 
-[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.8.1
 [0.8.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.8.0
 [0.7.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.7.0
 [0.6.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.6.0

@@ -10,7 +10,7 @@ HCFCore is not published to a Maven repository yet. Download the jar of a [relea
 // build.gradle.kts of your plugin
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
-    compileOnly(files("libs/hcf-core-0.8.0.jar"))
+    compileOnly(files("libs/hcf-core-0.8.1.jar"))
 }
 ```
 

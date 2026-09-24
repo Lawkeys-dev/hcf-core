@@ -9,7 +9,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 [![Docs](https://github.com/Lawkeys-dev/hcf-core/actions/workflows/docs.yml/badge.svg)](https://lawkeys-dev.github.io/hcf-core/)
 ![Paper 26.2](https://img.shields.io/badge/Paper-26.2-blue)
 ![Java 25](https://img.shields.io/badge/Java-25-orange)
-[![License: MIT + attribution](https://img.shields.io/badge/license-MIT%20%2B%20attribution-green)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ### 📖 [Read the documentation](https://lawkeys-dev.github.io/hcf-core/) · 🎨 [Design your theme](https://lawkeys-dev.github.io/hcf-core/tools/theme-builder.html)
 
@@ -79,4 +79,4 @@ Issues and pull requests are welcome — read [`CONTRIBUTING.md`](CONTRIBUTING.m
 
 ## License
 
-[MIT with an attribution requirement](LICENSE): any redistribution or public deployment, modified or not, must visibly credit this repository.
+[MIT](LICENSE).
