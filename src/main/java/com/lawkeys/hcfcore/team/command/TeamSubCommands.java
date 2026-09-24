@@ -276,7 +276,7 @@ final class TeamSubCommands {
     /** {@code /team settings}: permissions, members and invitations, in a window. */
     private static final class Settings extends TeamSubCommand {
         Settings() {
-            super("settings", Set.of("options"), null, "", "Set up your team: permissions, members, invitations",
+            super("settings", Set.of("options"), null, "", "Set up your team without commands: profile, joining, permissions, members",
                     true, 0);
         }
 
@@ -291,12 +291,7 @@ final class TeamSubCommands {
             if (team.isEmpty()) {
                 return;
             }
-            Optional<TeamResult> denied = module.getManager().denied(team.get(), player.getUniqueId(),
-                    com.lawkeys.hcfcore.team.TeamAction.SETTINGS);
-            if (denied.isPresent()) {
-                report(module, sender, denied.get());
-                return;
-            }
+            // Every member opens it: each button checks what it does.
             TeamSettingsMenu.open(module, player, team.get());
         }
     }
@@ -523,6 +518,18 @@ final class TeamSubCommands {
                 lang.send(sender, team.isSafeZone() ? TeamMessages.INFO_ZONE_SAFE : TeamMessages.INFO_ZONE_COMBAT);
                 return;
             }
+            team.getDescription().ifPresent(description ->
+                    lang.send(sender, TeamMessages.INFO_DESCRIPTION, "description", description));
+            team.getDiscord().ifPresent(link -> {
+                // Clickable: the game opens the invitation, after asking.
+                String line = lang.get(TeamMessages.INFO_DISCORD, "link", link);
+                if (!line.isEmpty()) {
+                    sender.sendMessage(com.lawkeys.hcfcore.util.LegacyText.SERIALIZER.deserialize(line)
+                            .clickEvent(net.kyori.adventure.text.event.ClickEvent.openUrl(link)));
+                }
+            });
+            lang.send(sender, TeamMessages.INFO_JOIN_MODE,
+                    "mode", lang.get(TeamMessages.joinMode(manager.joinMode(team))));
             lang.send(sender, TeamMessages.INFO_LEADER,
                     "leader", team.getLeader().map(module::nameOf).orElse(lang.get(TeamMessages.INFO_NONE)));
             lang.send(sender, TeamMessages.INFO_CO_LEADERS,

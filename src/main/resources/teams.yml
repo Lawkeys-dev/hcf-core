@@ -79,23 +79,34 @@ required-roles:
 # --8<-- [end:required-roles]
 
 # --8<-- [start:team-settings]
-# /team settings: a window where a team sets itself up - which rank may do what
-# (every key of required-roles above and in claims.yml, plus open-subclaims),
-# its members (promote, demote, kick) and its invitations (pending ones, and
-# whether the team is open to anybody: /team join without an invitation).
+# /team settings: a window where a team sets itself up with no command to type -
+# its name, description and Discord invitation (typed in the game's own dialogs),
+# who may join, which rank may do what (every key of required-roles above and in
+# claims.yml, plus open-subclaims), its members (promote, demote, kick), its
+# invitations, and the claim lock, HQ and base. Every member opens it; each button
+# checks what it does and says, under it, who may use it.
 team-settings:
-  # false: every team follows the server's roles, and /team settings is refused.
+  # false: every team follows the server's roles and default join mode, and
+  # /team settings is refused.
   enabled: true
-  # A team may open itself to anybody.
-  open-teams: true
+  # Who may join, among which a team chooses: closed (nobody - only staff put a
+  # player in), invite (the invited), open (anybody, with /team join).
+  join-modes: [closed, invite, open]
+  # A team's join mode until it chooses one.
+  default-join-mode: invite
   # Permissions no team may change: they follow the server's roles for everybody.
   locked: [disband, transfer-leadership]
-  # Nobody hands out more than they have: whoever opens the settings changes only a
-  # permission they hold themselves, to a rank no higher than their own. The leader
-  # changes everything.
-  #
-  # The window's items, by permission key or button (permissions, members, invites,
-  # open, closed, back). A key left out keeps its default.
+  # Nobody hands out more than they have: whoever changes a permission must hold it,
+  # and cannot set it above their own rank. The leader changes everything.
+  description:
+    # Shown in /team info. Colour codes are not kept: the team's words, as typed.
+    max-length: 100
+  discord:
+    # What a Discord invitation link must look like. Shown in /team info, clickable.
+    pattern: "^(https?://)?(www\\.)?(discord\\.gg|discord(app)?\\.com/invite)/[A-Za-z0-9-]{2,32}/?$"
+  # The window's items, by permission key or button: profile, join-mode-closed,
+  # join-mode-invite, join-mode-open, permissions, members, invites, invite, back,
+  # lock-claim, sethq, setbase. A key left out keeps its default.
   icons: {}
 # --8<-- [end:team-settings]
 

@@ -49,12 +49,15 @@ The minimum role for each action: `leader`, `co-leader`, `officer` or `member`. 
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `enabled` | `true` | `false`: every team follows `required-roles`, and `/team settings` is refused |
-| `open-teams` | `true` | A team may open itself, so anybody joins without an invitation |
+| `enabled` | `true` | `false`: every team follows `required-roles` and the default joining, and `/team settings` is refused |
+| `join-modes` | `[closed, invite, open]` | Among which a team chooses who may join: nobody, the invited, anybody |
+| `default-join-mode` | `invite` | A team's joining until it chooses |
 | `locked` | `[disband, transfer-leadership]` | Permissions no team may change. The keys are those of `required-roles` here and in `claims.yml`, and `open-subclaims` |
-| `icons` | `{}` | The window's items, by permission key or button: `permissions`, `members`, `invites`, `open`, `closed`, `back` |
+| `description.max-length` | `100` | The longest description, in characters |
+| `discord.pattern` | `discord.gg/...` or `discord.com/invite/...` | What a Discord invitation link must look like (a regular expression) |
+| `icons` | `{}` | The window's items, by permission key or button: `profile`, `join-mode-closed`, `join-mode-invite`, `join-mode-open`, `permissions`, `members`, `invites`, `invite`, `back`, `lock-claim`, `sethq`, `setbase` |
 
-A team's choices are kept in the database (`hcf_team_settings`). One stored before the server locked the permission, or switched the settings off, is ignored, not erased: unlock it and it applies again.
+A team's choices — permissions, joining, description, Discord link — are kept in the database (`hcf_team_settings`). One stored before the server locked the permission, or switched the settings off, is ignored, not erased: unlock it and it applies again.
 
 ## Shortcuts
 

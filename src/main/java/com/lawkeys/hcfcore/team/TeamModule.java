@@ -109,6 +109,21 @@ public final class TeamModule {
         return List.copyOf(permissions);
     }
 
+    /** Buttons other modules add to the home page of {@code /team settings}, in order. */
+    private final List<TeamMenuButton> menuButtons = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    /** Adds a button to {@code /team settings}; a key already there is ignored. */
+    public void registerMenuButton(TeamMenuButton button) {
+        Objects.requireNonNull(button, "button");
+        if (menuButtons.stream().noneMatch(b -> b.key().equals(button.key()))) {
+            menuButtons.add(button);
+        }
+    }
+
+    public List<TeamMenuButton> getMenuButtons() {
+        return List.copyOf(menuButtons);
+    }
+
     /** Sends the outcome of a manager call, whether it succeeded or not. */
     public void report(org.bukkit.command.CommandSender sender, TeamResult result) {
         lang.send(sender, result.getMessageKey(), readable(result.getPlaceholders()));

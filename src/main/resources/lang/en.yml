@@ -39,6 +39,12 @@ startup:
 
 team:
   # How a role is written in messages (%role%, %required%).
+  # Who may join a team, as it reads in /team info and /team settings.
+  join-mode:
+    closed: "Closed"
+    invite: "On invitation"
+    open: "Open to anybody"
+
   role:
     leader: "Leader"
     co-leader: "Co-leader"
@@ -110,6 +116,7 @@ team:
   join:
     success: "{success}You joined {secondary}%team%{success}."
     no-invite: "{error}You have no pending invitation from %team%, and it is not open."
+    closed: "{error}%team% is closed: nobody can join it."
     already-in-team: "{error}You are already in a team."
     broadcast: "{prefix}{success}%player% joined the team."
     # /team forcejoin, to the staff member who typed it.
@@ -208,6 +215,9 @@ team:
 
   info:
     header: "{muted}&m--------&r {secondary}%team% {muted}&m--------"
+    description: "{secondary}%description%"
+    discord: "{muted}Discord: {secondary}&n%link%"
+    join-mode: "{muted}Joining: {secondary}%mode%"
     leader: "{muted}Leader: {secondary}%leader%"
     co-leaders: "{muted}Co-leaders: {secondary}%members%"
     officers: "{muted}Officers: {secondary}%members%"
@@ -230,9 +240,13 @@ team:
     locked: "{error}The server sets that one for every team."
     above-you: "{error}As %role%, you can only change what you may do yourself, up to your own rank."
     permission-set: "{success}Permission changed."
-    open-disabled: "{error}Teams cannot be open on this server."
-    opened: "{success}Your team is open: anybody can join with {secondary}/team join{success}."
-    closed: "{success}Your team is closed: only invited players can join."
+    join-mode-disabled: "{error}Teams cannot be %mode% on this server."
+    join-mode-set: "{success}Who may join changed."
+    description-set: "{success}Description saved."
+    description-cleared: "{success}Description removed."
+    discord-set: "{success}Discord invitation saved: {secondary}%link%"
+    discord-cleared: "{success}Discord invitation removed."
+    discord-invalid: "{error}That is not a Discord invitation - something like {secondary}discord.gg/abc123{error}."
     title: "%team% - settings"
     permissions-title: "Permissions"
     members-title: "Members"
@@ -244,10 +258,30 @@ team:
       members-lore: "{muted}%count% member(s): promote, demote, kick."
       invites: "{primary}Invitations"
       invites-lore: "{muted}%count% pending - click one to take it back."
-      open: "{success}Open team"
-      closed: "{muted}Closed team"
-      open-lore: "{muted}Open: anybody joins without an invitation. Click to switch."
+      profile: "{primary}%team%"
+      join-mode: "{primary}Joining: {secondary}%mode%"
+      join-mode-lore: "{muted}Click for the next."
+      invite: "{success}Invite a player"
+      invite-lore: "{muted}Click and type their name."
+      # Under a button the viewer may not use.
+      not-allowed: "{error}From %role% only."
       back: "{secondary}Back"
+    profile:
+      description: "{muted}Description: {secondary}%description%"
+      discord: "{muted}Discord: {secondary}%link%"
+      none: "none"
+      hint: "{muted}Click to change the name, description and Discord invitation."
+    # The windows where text is typed.
+    dialog:
+      profile-title: "%team%"
+      name: "Team name"
+      description: "Description (%max% characters at most)"
+      discord: "Discord invitation link (empty for none)"
+      invite-title: "Invite a player to %team%"
+      player: "Player name"
+      save: "{success}Save"
+      send: "{success}Invite"
+      cancel: "{muted}Cancel"
     permission:
       name: "{primary}%permission%"
       role: "{muted}From: {secondary}%role%"
@@ -262,7 +296,6 @@ team:
     invite:
       name: "{secondary}%player%"
       hint: "{muted}Click to take the invitation back."
-      none: "{muted}No pending invitation"
     # The name of each permission in the menu, by its key in required-roles.
     permissions:
       disband: "Disband the team"
@@ -385,6 +418,17 @@ claim:
     expelled: "{muted}You were moved out of {secondary}%team%{muted}'s claim: it is locked until the end of SOTW."
     broadcast-locked: "{prefix}{warning}%player% locked the team's claim until the end of SOTW."
     broadcast-unlocked: "{prefix}{warning}%player% opened the team's claim again."
+
+  # claim/'s buttons in /team settings.
+  menu:
+    lock-on: "{error}Claim locked"
+    lock-off: "{success}Claim not locked"
+    lock-lore: "{muted}Click to lock or unlock it: nobody but your team enters until SOTW ends."
+    lock-not-now: "{muted}A claim can only be locked during SOTW."
+    sethq: "{primary}Set the HQ here"
+    sethq-lore: "{muted}Your HQ where you stand."
+    setbase: "{primary}Set the base here"
+    setbase-lore: "{muted}Your second base where you stand."
 
   protection:
     claimed: "{error}This land belongs to {secondary}%team%{error}."

@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.database.dao;
 
 import com.lawkeys.hcfcore.database.migration.SchemaMigrator;
+import com.lawkeys.hcfcore.team.JoinMode;
 import com.lawkeys.hcfcore.team.SystemZone;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamRole;
@@ -113,7 +114,9 @@ public final class JdbcTeamStore implements TeamStore {
                         membersByTeam.getOrDefault(id, Map.of()),
                         alliesByTeam.getOrDefault(id, Set.of()),
                         permissionsOf(id, settingsByTeam.getOrDefault(id, Map.of())),
-                        Boolean.parseBoolean(settingsByTeam.getOrDefault(id, Map.of()).get(OPEN)));
+                        joinModeOf(settingsByTeam.getOrDefault(id, Map.of())),
+                        settingsByTeam.getOrDefault(id, Map.of()).get(DESCRIPTION),
+                        settingsByTeam.getOrDefault(id, Map.of()).get(DISCORD));
                 teams.add(Team.fromSnapshot(snapshot));
             }
         }
@@ -144,9 +147,13 @@ public final class JdbcTeamStore implements TeamStore {
         return byTeam;
     }
 
-    /** {@code hcf_team_settings}: a permission is {@code permission.<key>}, the switch {@code open}. */
+    /** {@code hcf_team_settings}: a permission is {@code permission.<key>}; then the team's profile. */
     private static final String PERMISSION_PREFIX = "permission.";
-    private static final String OPEN = "open";
+    private static final String JOIN_MODE = "join-mode";
+    private static final String DESCRIPTION = "description";
+    private static final String DISCORD = "discord";
+    /** Written by a build of 24/09/2026 that had only "open or not"; read as {@code join-mode: open}. */
+    private static final String LEGACY_OPEN = "open";
 
     private Map<UUID, Map<String, String>> loadSettings() throws SQLException {
         Map<UUID, Map<String, String>> byTeam = new HashMap<>();
@@ -160,6 +167,14 @@ public final class JdbcTeamStore implements TeamStore {
             }
         }
         return byTeam;
+    }
+
+    private static JoinMode joinModeOf(Map<String, String> settings) {
+        JoinMode mode = JoinMode.fromId(settings.get(JOIN_MODE)).orElse(null);
+        if (mode == null && Boolean.parseBoolean(settings.get(LEGACY_OPEN))) {
+            return JoinMode.OPEN;
+        }
+        return mode;
     }
 
     private Map<String, TeamRole> permissionsOf(UUID teamId, Map<String, String> settings) {
@@ -218,8 +233,14 @@ public final class JdbcTeamStore implements TeamStore {
         }
         Map<String, String> rows = new LinkedHashMap<>();
         snapshot.permissions().forEach((key, role) -> rows.put(PERMISSION_PREFIX + key, role.name()));
-        if (snapshot.open()) {
-            rows.put(OPEN, "true");
+        if (snapshot.joinMode() != null) {
+            rows.put(JOIN_MODE, snapshot.joinMode().configKey());
+        }
+        if (snapshot.description() != null) {
+            rows.put(DESCRIPTION, snapshot.description());
+        }
+        if (snapshot.discord() != null) {
+            rows.put(DISCORD, snapshot.discord());
         }
         if (rows.isEmpty()) {
             return;

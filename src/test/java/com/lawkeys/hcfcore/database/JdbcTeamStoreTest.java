@@ -4,6 +4,7 @@ import com.lawkeys.hcfcore.database.dao.JdbcTeamStore;
 import com.lawkeys.hcfcore.database.migration.Migration;
 import com.lawkeys.hcfcore.database.migration.SchemaMigrator;
 import com.lawkeys.hcfcore.team.SystemZone;
+import com.lawkeys.hcfcore.team.JoinMode;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamRole;
 import com.lawkeys.hcfcore.team.TeamSchema;
@@ -185,20 +186,27 @@ class JdbcTeamStoreTest {
         Team team = withMembers(sampleTeam("Wizards", leader), Map.of(leader, TeamRole.LEADER, officer, TeamRole.OFFICER));
         team.setPermission("kick", TeamRole.OFFICER);
         team.setPermission("claim", TeamRole.MEMBER);
-        team.setOpen(true);
+        team.setJoinMode(JoinMode.OPEN);
+        String description = "A description of a hundred characters, well beyond the sixty-four the column once held.";
+        team.setDescription(description);
+        team.setDiscord("https://discord.gg/abc123");
         store.save(team);
 
         Team loaded = single(store.loadAll());
         assertEquals(TeamRole.OFFICER, loaded.getRole(officer).orElseThrow());
         assertEquals(Map.of("kick", TeamRole.OFFICER, "claim", TeamRole.MEMBER), loaded.getPermissions());
-        assertTrue(loaded.isOpen());
+        assertEquals(JoinMode.OPEN, loaded.getJoinMode().orElseThrow());
+        assertEquals(description, loaded.getDescription().orElseThrow());
+        assertEquals("https://discord.gg/abc123", loaded.getDiscord().orElseThrow());
 
         team.setPermission("claim", null);
-        team.setOpen(false);
+        team.setJoinMode(null);
+        team.setDescription(null);
         store.save(team);
         loaded = single(store.loadAll());
         assertEquals(Map.of("kick", TeamRole.OFFICER), loaded.getPermissions());
-        assertFalse(loaded.isOpen());
+        assertTrue(loaded.getJoinMode().isEmpty());
+        assertTrue(loaded.getDescription().isEmpty());
 
         store.delete(team.getId());
         try (var connection = dataSource.getConnection();

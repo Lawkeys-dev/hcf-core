@@ -19,13 +19,13 @@ The **role** column is the default minimum role in the player's team, set under 
 | `rename <name>` | | Rename your team | leader |
 | `invite <player>` | `inv` | Invite a player | officer |
 | `uninvite <player>` | `revoke` | Withdraw an invitation | officer |
-| `join <team>` | | Accept an invitation, or join an open team | — |
+| `join <team>` | | Accept an invitation, or join an open team (a closed team takes nobody) | — |
 | `leave` | `quit` | Leave your team | — |
 | `kick <player>` | | Remove a member | co-leader |
 | `promote <player>` | | Member → officer → co-leader, never to your own rank | leader |
 | `demote <player>` | | Co-leader → officer → member | leader |
 | `transfer <player>` | `setleader` | Hand over leadership | leader |
-| `settings` | `options` | The team's window: permissions of each rank, members, invitations, open or closed | leader |
+| `settings` | `options` | The team's window, set up with no command: name, description, Discord link, who may join (closed, invitation, open), each rank's permissions, members, invitations, claim lock, HQ and base | every member; each button its own rank |
 | `info [team]` | `who`, `show` | A team's details | — |
 | `list [limit]` | `top` | Teams ranked by points (up to 100 lines) | — |
 | `chat [public\|team\|ally]` | `c` | Pick a chat channel; no argument cycles through them | — |

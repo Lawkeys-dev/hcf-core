@@ -69,7 +69,7 @@ class TeamCustomSettingsTest {
     @Test
     void settingsSwitchedOffLeaveEveryTeamOnTheServersRoles() {
         team.setPermission("kick", TeamRole.MEMBER);
-        custom(new TeamSettings.CustomRules(false, true, Set.of(), Map.of()), 0);
+        custom(rules(false, Set.of(JoinMode.values()), JoinMode.INVITE), 0);
         assertEquals(TeamRole.CO_LEADER, manager.requiredRole(team, "kick", TeamRole.CO_LEADER));
     }
 
@@ -109,29 +109,81 @@ class TeamCustomSettingsTest {
         assertEquals(TeamMessages.PROMOTE_OFFICER_LIMIT, manager.promote(team, alice, carol).getMessageKey());
     }
 
+    private static TeamSettings.CustomRules rules(boolean enabled, Set<JoinMode> modes, JoinMode defaultMode) {
+        TeamSettings.CustomRules d = TeamSettings.CustomRules.defaults();
+        return new TeamSettings.CustomRules(enabled, modes, defaultMode, d.locked(), d.icons(),
+                d.descriptionLength(), d.discordPattern());
+    }
+
+    @Test
+    void aTeamIsOnInvitationAsShipped() {
+        assertEquals(JoinMode.INVITE, manager.joinMode(team));
+        assertEquals(TeamMessages.JOIN_NO_INVITE, manager.join(dave, team, false).getMessageKey());
+    }
+
     @Test
     void anOpenTeamTakesAnybody() {
-        assertEquals(TeamMessages.JOIN_NO_INVITE, manager.join(dave, team, false).getMessageKey());
-        assertTrue(manager.setOpen(team, alice, true).isSuccess());
+        assertTrue(manager.setJoinMode(team, alice, JoinMode.OPEN).isSuccess());
         assertTrue(manager.join(dave, team, false).isSuccess());
     }
 
     @Test
-    void theServerCanForbidOpenTeams() {
-        custom(new TeamSettings.CustomRules(true, false, Set.of(), Map.of()), 0);
-        assertEquals(TeamMessages.SETTINGS_OPEN_DISABLED, manager.setOpen(team, alice, true).getMessageKey());
-        team.setOpen(true); // stored before the server forbade it
+    void aClosedTeamTakesNobodyButStaffPutsThemIn() {
+        manager.invite(team, alice, dave);
+        assertTrue(manager.setJoinMode(team, alice, JoinMode.CLOSED).isSuccess());
+        assertEquals(TeamMessages.TEAM_CLOSED, manager.join(dave, team, false).getMessageKey(),
+                "an invitation sent before it closed opens nothing");
+        assertEquals(TeamMessages.TEAM_CLOSED, manager.invite(team, alice, UUID.randomUUID()).getMessageKey());
+        assertTrue(manager.join(dave, team, true).isSuccess(), "staff still can");
+    }
+
+    @Test
+    void onlyTheModesTheServerAllowsCount() {
+        custom(rules(true, Set.of(JoinMode.INVITE, JoinMode.CLOSED), JoinMode.INVITE), 0);
+        assertEquals(TeamMessages.SETTINGS_JOIN_MODE_DISABLED,
+                manager.setJoinMode(team, alice, JoinMode.OPEN).getMessageKey());
+        team.setJoinMode(JoinMode.OPEN); // chosen before the server forbade it
         assertFalse(manager.isOpen(team));
         assertEquals(TeamMessages.JOIN_NO_INVITE, manager.join(dave, team, false).getMessageKey());
     }
 
     @Test
+    void theServersDefaultJoinModeAppliesUntilTheTeamChooses() {
+        custom(rules(true, Set.of(JoinMode.values()), JoinMode.OPEN), 0);
+        assertTrue(manager.join(dave, team, false).isSuccess());
+    }
+
+    @Test
+    void onlyWhoMayChangeTheSettingsWritesTheProfile() {
+        assertEquals(TeamMessages.INSUFFICIENT_ROLE,
+                manager.setDescription(team, bob, "hello").getMessageKey());
+        assertTrue(manager.setDescription(team, alice, "  PvP &cfocused   team {prefix}  ").isSuccess());
+        assertEquals("PvP cfocused team prefix", team.getDescription().orElseThrow());
+        assertTrue(manager.setDescription(team, alice, "").isSuccess());
+        assertTrue(team.getDescription().isEmpty());
+    }
+
+    @Test
+    void theDiscordLinkMustBeAnInvitation() {
+        assertEquals(TeamMessages.SETTINGS_DISCORD_INVALID,
+                manager.setDiscord(team, alice, "https://evil.example/x").getMessageKey());
+        assertTrue(manager.setDiscord(team, alice, "discord.gg/abc123").isSuccess());
+        assertEquals("https://discord.gg/abc123", team.getDiscord().orElseThrow());
+        assertTrue(manager.setDiscord(team, alice, " ").isSuccess());
+        assertTrue(team.getDiscord().isEmpty());
+    }
+
+    @Test
     void theSettingsSurviveASnapshot() {
         manager.setPermission(team, alice, "kick", TeamRole.OFFICER, TeamRole.CO_LEADER);
-        manager.setOpen(team, alice, true);
+        manager.setJoinMode(team, alice, JoinMode.CLOSED);
+        manager.setDescription(team, alice, "Hello");
+        manager.setDiscord(team, alice, "discord.gg/abc123");
         Team copy = Team.fromSnapshot(team.toSnapshot());
         assertEquals(TeamRole.OFFICER, copy.getPermission("kick").orElseThrow());
-        assertTrue(copy.isOpen());
+        assertEquals(JoinMode.CLOSED, copy.getJoinMode().orElseThrow());
+        assertEquals("Hello", copy.getDescription().orElseThrow());
+        assertEquals("https://discord.gg/abc123", copy.getDiscord().orElseThrow());
     }
 
     @Test

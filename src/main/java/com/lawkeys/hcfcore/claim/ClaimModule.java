@@ -247,6 +247,10 @@ public final class ClaimModule {
                     },
                     () -> getSettings().requiredRole(action)));
         }
+        // And its buttons in the same window: the claim lock, the HQ and the base.
+        teams.registerMenuButton(new com.lawkeys.hcfcore.claim.command.ClaimMenuButtons.Lock(this));
+        teams.registerMenuButton(new com.lawkeys.hcfcore.claim.command.ClaimMenuButtons.SetHome(this, true));
+        teams.registerMenuButton(new com.lawkeys.hcfcore.claim.command.ClaimMenuButtons.SetHome(this, false));
         teams.registerPermission(new com.lawkeys.hcfcore.team.TeamPermission(
                 com.lawkeys.hcfcore.claim.subclaim.SubclaimListener.OPEN_SUBCLAIMS, "CHEST",
                 () -> subclaims.openAny() == null ? com.lawkeys.hcfcore.team.TeamRole.LEADER : subclaims.openAny()));

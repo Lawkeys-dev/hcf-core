@@ -39,7 +39,9 @@ public record TeamSnapshot(
         Map<UUID, TeamRole> members,
         Set<UUID> allies,
         Map<String, TeamRole> permissions,
-        boolean open) {
+        JoinMode joinMode,
+        String description,
+        String discord) {
 
     public TeamSnapshot {
         Objects.requireNonNull(id, "id");
@@ -55,11 +57,11 @@ public record TeamSnapshot(
         permissions = Map.copyOf(Objects.requireNonNull(permissions, "permissions"));
     }
 
-    /** A team with no settings of its own: the server's roles, closed. */
+    /** A team with no settings of its own: the server's roles and join mode, nothing said. */
     public TeamSnapshot(UUID id, String name, TeamType type, SystemZone systemZone, UUID leader, long createdAt,
                         double balance, long points, int kothCaptures, WorldPosition rally, long rallyExpiresAt,
                         Map<UUID, TeamRole> members, Set<UUID> allies) {
         this(id, name, type, systemZone, leader, createdAt, balance, points, kothCaptures, rally, rallyExpiresAt,
-                members, allies, Map.of(), false);
+                members, allies, Map.of(), null, null, null);
     }
 }

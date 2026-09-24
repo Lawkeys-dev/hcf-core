@@ -64,24 +64,40 @@ public record TeamSettings(
      * {@code team-settings:} - what a team may decide for itself with
      * {@code /team settings}.
      *
-     * @param enabled   {@code false}: every team follows {@code required-roles} and
-     *                  {@code /team settings} is refused
-     * @param openTeams a team may open itself, so anybody joins without an invitation
-     * @param locked    permission keys no team may change - they follow the server's
-     *                  roles for everybody
-     * @param icons     the menu's items, by permission key or button name
-     *                  ({@code permissions}, {@code members}, {@code invites}, {@code open},
-     *                  {@code closed}, {@code back}); one absent keeps its default
+     * @param enabled            {@code false}: every team follows {@code required-roles}
+     *                           and the server's join mode, and {@code /team settings}
+     *                           is refused
+     * @param joinModes          the join modes a team may choose from
+     * @param defaultJoinMode    a team's join mode until it chooses one: invitation,
+     *                           as shipped
+     * @param locked             permission keys no team may change - they follow the
+     *                           server's roles for everybody
+     * @param icons              the menu's items, by permission key or button name;
+     *                           one absent keeps its default
+     * @param descriptionLength  the longest description, in characters
+     * @param discordPattern     what a Discord invitation link must look like
      */
-    public record CustomRules(boolean enabled, boolean openTeams, Set<String> locked, Map<String, String> icons) {
+    public record CustomRules(boolean enabled, Set<JoinMode> joinModes, JoinMode defaultJoinMode, Set<String> locked,
+                              Map<String, String> icons, int descriptionLength, Pattern discordPattern) {
 
         public CustomRules {
+            joinModes = joinModes.isEmpty() ? Set.of(JoinMode.INVITE) : Set.copyOf(joinModes);
+            Objects.requireNonNull(defaultJoinMode, "defaultJoinMode");
             locked = Set.copyOf(Objects.requireNonNull(locked, "locked"));
             icons = Map.copyOf(Objects.requireNonNull(icons, "icons"));
+            descriptionLength = Math.max(0, Math.min(200, descriptionLength));
+            Objects.requireNonNull(discordPattern, "discordPattern");
         }
 
         public static CustomRules defaults() {
-            return new CustomRules(true, true, Set.of("disband", "transfer-leadership"), Map.of());
+            return new CustomRules(true, Set.of(JoinMode.values()), JoinMode.INVITE,
+                    Set.of("disband", "transfer-leadership"), Map.of(), 100,
+                    Pattern.compile(TeamProfile.DEFAULT_DISCORD_PATTERN));
+        }
+
+        /** @return whether a team may choose this join mode */
+        public boolean allows(JoinMode mode) {
+            return enabled && joinModes.contains(mode);
         }
 
         /** @return the material name configured for this item, or {@code fallback} */

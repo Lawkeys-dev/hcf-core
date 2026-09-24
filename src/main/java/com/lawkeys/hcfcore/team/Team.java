@@ -68,8 +68,12 @@ public final class Team {
      * role that may use it. A key absent follows the server's {@code required-roles}.
      */
     private final Map<String, TeamRole> permissions = new ConcurrentHashMap<>();
-    /** Anybody may join without an invitation. */
-    private volatile boolean open;
+    /** Who may join; {@code null} follows the server's {@code team-settings.default-join-mode}. */
+    private volatile JoinMode joinMode;
+    /** What the team says about itself, shown in {@code /team info}; {@code null} for nothing. */
+    private volatile String description;
+    /** The team's Discord invitation, shown in {@code /team info}; {@code null} for none. */
+    private volatile String discord;
 
     /** Set whenever mutable state changes; consumed and cleared by the async persistence flush. */
     private volatile boolean dirty;
@@ -317,12 +321,33 @@ public final class Team {
         markDirty();
     }
 
-    public boolean isOpen() {
-        return open;
+    /** @return the team's own choice, or empty to follow the server's default */
+    public Optional<JoinMode> getJoinMode() {
+        return Optional.ofNullable(joinMode);
     }
 
-    public void setOpen(boolean open) {
-        this.open = open;
+    public void setJoinMode(JoinMode joinMode) {
+        this.joinMode = joinMode;
+        markDirty();
+    }
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
+    }
+
+    /** @param description {@code null} or empty for none */
+    public void setDescription(String description) {
+        this.description = description == null || description.isEmpty() ? null : description;
+        markDirty();
+    }
+
+    public Optional<String> getDiscord() {
+        return Optional.ofNullable(discord);
+    }
+
+    /** @param discord {@code null} or empty for none */
+    public void setDiscord(String discord) {
+        this.discord = discord == null || discord.isEmpty() ? null : discord;
         markDirty();
     }
 
@@ -407,7 +432,7 @@ public final class Team {
     public synchronized TeamSnapshot toSnapshot() {
         return new TeamSnapshot(id, name, type, systemZone, leader, createdAt, balance, points,
                 kothCaptures, getRally().orElse(null), getRallyExpiresAt(), getMembers(), getAllies(),
-                getPermissions(), open);
+                getPermissions(), joinMode, description, discord);
     }
 
     /**
@@ -428,7 +453,9 @@ public final class Team {
         team.rally = snapshot.rally() == null ? null : new Rally(snapshot.rally(), snapshot.rallyExpiresAt());
         team.systemZone = snapshot.systemZone();
         team.permissions.putAll(snapshot.permissions());
-        team.open = snapshot.open();
+        team.joinMode = snapshot.joinMode();
+        team.description = snapshot.description();
+        team.discord = snapshot.discord();
         team.clearDirty();
         return team;
     }

@@ -89,8 +89,32 @@ public final class TeamSettingsLoader {
                 }
             }
         }
-        return new TeamSettings.CustomRules(section.getBoolean("enabled", defaults.enabled()),
-                section.getBoolean("open-teams", defaults.openTeams()), locked, icons);
+        Set<JoinMode> modes = java.util.EnumSet.noneOf(JoinMode.class);
+        if (section.contains("join-modes")) {
+            for (String mode : section.getStringList("join-modes")) {
+                JoinMode.fromId(mode).ifPresentOrElse(modes::add, () -> warn.accept(
+                        "team-settings.join-modes: '" + mode + "' is not closed, invite or open; ignored."));
+            }
+        } else {
+            modes.addAll(defaults.joinModes());
+        }
+        String rawDefault = section.getString("default-join-mode", defaults.defaultJoinMode().configKey());
+        JoinMode defaultMode = JoinMode.fromId(rawDefault).orElseGet(() -> {
+            warn.accept("team-settings.default-join-mode: '" + rawDefault + "' is not closed, invite or open; invite is used.");
+            return JoinMode.INVITE;
+        });
+        Pattern discord = defaults.discordPattern();
+        String rawPattern = section.getString("discord.pattern");
+        if (rawPattern != null && !rawPattern.isBlank()) {
+            try {
+                discord = Pattern.compile(rawPattern);
+            } catch (PatternSyntaxException e) {
+                warn.accept("team-settings.discord.pattern is not a valid regex (" + e.getDescription()
+                        + "); the default is used.");
+            }
+        }
+        return new TeamSettings.CustomRules(section.getBoolean("enabled", defaults.enabled()), modes, defaultMode,
+                locked, icons, section.getInt("description.max-length", defaults.descriptionLength()), discord);
     }
 
     /**

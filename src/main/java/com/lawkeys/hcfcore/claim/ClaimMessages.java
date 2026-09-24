@@ -59,6 +59,14 @@ public final class ClaimMessages {
     public static final String HOME_WORLD_UNLOADED = "claim.home.world-unloaded";
     public static final String HOME_TELEPORTED = "claim.home.teleported";
     public static final String LOCK_ON = "claim.lock.locked";
+    public static final String MENU_LOCK_ON = "claim.menu.lock-on";
+    public static final String MENU_LOCK_OFF = "claim.menu.lock-off";
+    public static final String MENU_LOCK_LORE = "claim.menu.lock-lore";
+    public static final String MENU_LOCK_NOT_NOW = "claim.menu.lock-not-now";
+    public static final String MENU_SETHQ = "claim.menu.sethq";
+    public static final String MENU_SETHQ_LORE = "claim.menu.sethq-lore";
+    public static final String MENU_SETBASE = "claim.menu.setbase";
+    public static final String MENU_SETBASE_LORE = "claim.menu.setbase-lore";
     public static final String LOCK_OFF = "claim.lock.unlocked";
     public static final String LOCK_NOT_NOW = "claim.lock.not-now";
     public static final String LOCK_ENTRY_DENIED = "claim.lock.entry-denied";

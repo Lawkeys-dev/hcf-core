@@ -30,7 +30,7 @@ Leader, co-leader (**2 at most**, `max-co-leaders`), **officer** (no limit, `max
 ## Joining and leaving
 
 - `/team invite <player>` invites; the invitation lasts **5 minutes** (`invite-expiry-seconds`, `0` = never expires). `/team uninvite <player>` withdraws it.
-- The invited player types `/team join <team>`. **An open team** takes anybody, invited or not (`/team settings`).
+- The invited player types `/team join <team>`. **An open team** takes anybody, invited or not; **a closed one** nobody (`/team settings`).
 - A team holds **20 members** (`max-members`).
 - `/team leave` leaves; `/team kick <player>` removes a member.
 - **When the last member leaves, the team is disbanded** (`disband-on-last-member-leave`) and its land released.
@@ -39,13 +39,16 @@ Leader, co-leader (**2 at most**, `max-co-leaders`), **officer** (no limit, `max
 
 ## Team settings
 
-`/team settings` (alias `options`; `/f s`) opens a window to set the team up — the leader's, as shipped (`required-roles.settings`):
+`/team settings` (alias `options`; `/f s`) opens a window to **set the team up with no command to type** — every member opens it, and each button says under it which rank may use it:
 
+- **Profile** — the team's name, its **description** and its **Discord invitation**, typed in the game's own window (a text field for each, Save or Cancel). `/team info` shows the description, and the Discord link, which a click opens. The link must be a Discord invitation (`discord.gg/...`); colour codes are not kept in a description.
+- **Joining** — **closed** (nobody joins; only staff put a player in), **on invitation** (as shipped) or **open** (anybody, with `/team join`). A click moves to the next.
 - **Permissions** — the lowest rank that may do each thing: every action above, and opening every subclaim. Left click raises it a rank, right click lowers it, shift-click gives it back to the server's setting. Whoever changes a permission must hold it, and cannot set it above their own rank; the leader changes everything. Some stay the server's for every team (`team-settings.locked`: disbanding and handing over leadership, as shipped).
 - **Members** — left click promotes, right click demotes, shift + right click kicks, with the same rules as the commands.
-- **Invitations** — who holds one (a click takes it back), and a switch to **open the team** to anybody (`team-settings.open-teams`).
+- **Invitations** — **invite a player** by typing their name, and the pending invitations (a click takes one back).
+- **Claim lock** (during SOTW), **set the HQ here**, **set the base here**.
 
-`team-settings.enabled: false` keeps every team on the server's roles.
+The profile, the joining and the permissions are the leader's to change, as shipped (`required-roles.settings`). `team-settings.enabled: false` keeps every team on the server's roles and joining.
 
 ## Alliances
 

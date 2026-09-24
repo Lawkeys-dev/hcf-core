@@ -1,7 +1,9 @@
 package com.lawkeys.hcfcore.team.command;
 
+import com.lawkeys.hcfcore.team.JoinMode;
 import com.lawkeys.hcfcore.team.Team;
 import com.lawkeys.hcfcore.team.TeamAction;
+import com.lawkeys.hcfcore.team.TeamMenuButton;
 import com.lawkeys.hcfcore.team.TeamMessages;
 import com.lawkeys.hcfcore.team.TeamModule;
 import com.lawkeys.hcfcore.team.TeamPermission;
@@ -33,16 +35,23 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * {@code /team settings}: the team set up from one window.
+ * {@code /team settings}: the team set up from one window, with no command to
+ * type - the owner's request of 24/09/2026, for accessibility. Every member opens
+ * it; each button checks what it does, and says so under it when the viewer may not.
  *
  * <ul>
+ *   <li><strong>Profile</strong> - name, description, Discord invitation, typed in a
+ *       dialog ({@link TeamDialogs}).</li>
+ *   <li><strong>Join mode</strong> - closed, on invitation, open; a click moves to
+ *       the next the server allows.</li>
  *   <li><strong>Permissions</strong> - the lowest role that may do each thing, the
  *       team's own choice or the server's ({@code required-roles}). Left click raises
  *       it a role, right click lowers it, shift-click gives it back to the server.</li>
  *   <li><strong>Members</strong> - left click promotes, right click demotes,
  *       shift + right click kicks.</li>
- *   <li><strong>Invitations</strong> - who holds one (a click takes it back), and
- *       whether the team is open to anybody.</li>
+ *   <li><strong>Invitations</strong> - a player to invite, typed in a dialog; who
+ *       holds one (a click takes it back).</li>
+ *   <li>What other modules add ({@link TeamMenuButton}): the claim lock, the HQ.</li>
  * </ul>
  *
  * <p>Members and invitations run the {@code /team} commands themselves, so the menu
@@ -56,9 +65,14 @@ public final class TeamSettingsMenu implements InventoryHolder {
         HOME, PERMISSIONS, MEMBERS, INVITES
     }
 
-    /** The home page's buttons, in order. */
+    /** The home page's own buttons, in order; other modules' follow. */
     private enum Button {
-        PERMISSIONS, MEMBERS, INVITES, OPEN
+        PROFILE, JOIN_MODE, PERMISSIONS, MEMBERS, INVITES
+    }
+
+    /** The first item of the invitations page: a player to invite. */
+    private enum InviteButton {
+        INVITE
     }
 
     private final TeamModule module;
@@ -114,10 +128,8 @@ public final class TeamSettingsMenu implements InventoryHolder {
     private static List<Object> entries(TeamModule module, Team team, Page page) {
         return switch (page) {
             case HOME -> {
-                List<Object> buttons = new ArrayList<>(List.of(Button.PERMISSIONS, Button.MEMBERS, Button.INVITES));
-                if (module.getSettings().custom().openTeams()) {
-                    buttons.add(Button.OPEN);
-                }
+                List<Object> buttons = new ArrayList<>(List.of(Button.values()));
+                buttons.addAll(module.getMenuButtons());
                 yield buttons;
             }
             case PERMISSIONS -> new ArrayList<>(module.getPermissions());
@@ -126,7 +138,11 @@ public final class TeamSettingsMenu implements InventoryHolder {
                             .thenComparing(e -> module.nameOf(e.getKey()).toLowerCase(java.util.Locale.ROOT)))
                     .map(e -> (Object) e.getKey())
                     .toList();
-            case INVITES -> new ArrayList<>(module.getManager().getInvitesOf(team));
+            case INVITES -> {
+                List<Object> invites = new ArrayList<>(List.of(InviteButton.INVITE));
+                invites.addAll(module.getManager().getInvitesOf(team));
+                yield invites;
+            }
         };
     }
 
@@ -138,17 +154,19 @@ public final class TeamSettingsMenu implements InventoryHolder {
                 break;
             }
             Object entry = entries.get(index);
-            ItemStack icon = switch (page) {
-                case HOME -> button((Button) entry, team, rules);
-                case PERMISSIONS -> permission((TeamPermission) entry, team, rules);
-                case MEMBERS -> member((UUID) entry, team);
-                case INVITES -> invite((UUID) entry);
+            ItemStack icon = switch (entry) {
+                case Button button -> button(button, team, viewer, rules);
+                case TeamMenuButton button -> item(material(rules.icon(button.key(), button.defaultIcon()),
+                        material(button.defaultIcon(), Material.PAPER)), button.name(team, viewer), button.lore(team, viewer));
+                case TeamPermission permission -> permission(permission, team, rules);
+                case InviteButton ignored -> item(material(rules.icon("invite", "WRITABLE_BOOK"), Material.WRITABLE_BOOK),
+                        module.getLang().get(TeamMessages.SETTINGS_BUTTON_INVITE),
+                        List.of(module.getLang().get(TeamMessages.SETTINGS_BUTTON_INVITE_LORE)));
+                case UUID id when page == Page.MEMBERS -> member(id, team);
+                case UUID id -> invite(id);
+                default -> null;
             };
             inventory.setItem(layout.itemSlots().get(i), icon);
-        }
-        if (page == Page.INVITES && entries.isEmpty()) {
-            inventory.setItem(layout.itemSlots().getFirst(),
-                    item(Material.BARRIER, module.getLang().get(TeamMessages.SETTINGS_INVITE_NONE), List.of()));
         }
         if (back >= 0) {
             inventory.setItem(back, item(material(rules.icon("back", "ARROW"), Material.ARROW),
@@ -157,9 +175,41 @@ public final class TeamSettingsMenu implements InventoryHolder {
         MenuStyle.decorate(inventory, layout, module.getLang());
     }
 
-    private ItemStack button(Button button, Team team, TeamSettings.CustomRules rules) {
+    private ItemStack button(Button button, Team team, Player viewer, TeamSettings.CustomRules rules) {
         var lang = module.getLang();
         return switch (button) {
+            case PROFILE -> {
+                List<String> lore = new ArrayList<>();
+                lore.add(lang.get(TeamMessages.SETTINGS_PROFILE_DESCRIPTION, "description",
+                        team.getDescription().orElse(lang.get(TeamMessages.SETTINGS_PROFILE_NONE))));
+                lore.add(lang.get(TeamMessages.SETTINGS_PROFILE_DISCORD, "link",
+                        team.getDiscord().orElse(lang.get(TeamMessages.SETTINGS_PROFILE_NONE))));
+                lore.add("");
+                lore.add(allowed(team, viewer, TeamAction.SETTINGS)
+                        ? lang.get(TeamMessages.SETTINGS_PROFILE_HINT) : notAllowed(team, TeamAction.SETTINGS));
+                yield item(material(rules.icon("profile", "NAME_TAG"), Material.NAME_TAG),
+                        lang.get(TeamMessages.SETTINGS_BUTTON_PROFILE, "team", team.getName()), lore);
+            }
+            case JOIN_MODE -> {
+                JoinMode mode = module.getManager().joinMode(team);
+                List<String> lore = new ArrayList<>();
+                for (JoinMode each : JoinMode.values()) {
+                    if (rules.allows(each)) {
+                        lore.add((each == mode ? "{primary}➥ " : "{muted}  ") + lang.get(TeamMessages.joinMode(each)));
+                    }
+                }
+                lore.add("");
+                lore.add(allowed(team, viewer, TeamAction.SETTINGS)
+                        ? lang.get(TeamMessages.SETTINGS_BUTTON_JOIN_MODE_LORE) : notAllowed(team, TeamAction.SETTINGS));
+                String fallback = switch (mode) {
+                    case CLOSED -> "RED_DYE";
+                    case INVITE -> "YELLOW_DYE";
+                    case OPEN -> "LIME_DYE";
+                };
+                yield item(material(rules.icon("join-mode-" + mode.configKey(), fallback), Material.PAPER),
+                        lang.get(TeamMessages.SETTINGS_BUTTON_JOIN_MODE, "mode", lang.get(TeamMessages.joinMode(mode))),
+                        lore);
+            }
             case PERMISSIONS -> item(material(rules.icon("permissions", "WRITABLE_BOOK"), Material.WRITABLE_BOOK),
                     lang.get(TeamMessages.SETTINGS_BUTTON_PERMISSIONS),
                     List.of(lang.get(TeamMessages.SETTINGS_BUTTON_PERMISSIONS_LORE)));
@@ -171,14 +221,18 @@ public final class TeamSettingsMenu implements InventoryHolder {
                     lang.get(TeamMessages.SETTINGS_BUTTON_INVITES),
                     List.of(lang.get(TeamMessages.SETTINGS_BUTTON_INVITES_LORE,
                             "count", String.valueOf(module.getManager().getInvitesOf(team).size()))));
-            case OPEN -> team.isOpen()
-                    ? item(material(rules.icon("open", "LIME_DYE"), Material.LIME_DYE),
-                            lang.get(TeamMessages.SETTINGS_BUTTON_OPEN),
-                            List.of(lang.get(TeamMessages.SETTINGS_BUTTON_OPEN_LORE)))
-                    : item(material(rules.icon("closed", "GRAY_DYE"), Material.GRAY_DYE),
-                            lang.get(TeamMessages.SETTINGS_BUTTON_CLOSED),
-                            List.of(lang.get(TeamMessages.SETTINGS_BUTTON_OPEN_LORE)));
         };
+    }
+
+    private boolean allowed(Team team, Player viewer, TeamAction action) {
+        return module.getManager().denied(team, viewer.getUniqueId(), action).isEmpty();
+    }
+
+    /** The line under a button its viewer may not use: which rank may. */
+    private String notAllowed(Team team, TeamAction action) {
+        TeamRole role = module.getManager().requiredRole(team, action.configKey(),
+                module.getSettings().requiredRole(action));
+        return module.getLang().get(TeamMessages.SETTINGS_BUTTON_NOT_ALLOWED, "role", module.roleName(role));
     }
 
     private ItemStack permission(TeamPermission permission, Team team, TeamSettings.CustomRules rules) {
@@ -278,12 +332,6 @@ public final class TeamSettingsMenu implements InventoryHolder {
                 player.closeInventory();
                 return;
             }
-            Optional<TeamResult> denied = module.getManager().denied(team.get(), player.getUniqueId(), TeamAction.SETTINGS);
-            if (denied.isPresent()) {
-                player.closeInventory();
-                module.report(player, denied.get());
-                return;
-            }
             int slot = event.getRawSlot();
             if (slot == menu.back) {
                 open(module, player, team.get());
@@ -300,11 +348,22 @@ public final class TeamSettingsMenu implements InventoryHolder {
             }
             Object entry = menu.entries.get(menu.layout.firstItem() + index);
             ClickType click = event.getClick();
-            switch (menu.page) {
-                case HOME -> home(player, team.get(), (Button) entry);
-                case PERMISSIONS -> permission(player, team.get(), (TeamPermission) entry, click);
-                case MEMBERS -> member(player, (UUID) entry, click);
-                case INVITES -> run(player, "uninvite " + module.nameOf((UUID) entry));
+            switch (entry) {
+                case Button button -> {
+                    if (home(player, team.get(), button)) {
+                        return; // a page or a dialog took the window's place
+                    }
+                }
+                case TeamMenuButton button -> button.click(team.get(), player, click);
+                case TeamPermission permission -> permission(player, team.get(), permission, click);
+                case InviteButton ignored -> {
+                    TeamDialogs.invite(module, player, team.get());
+                    return;
+                }
+                case UUID id when menu.page == Page.MEMBERS -> member(player, id, click);
+                case UUID id -> run(player, "uninvite " + module.nameOf(id));
+                default -> {
+                }
             }
             // Drawn again as it now is - a tick later, once the command has done its work.
             Bukkit.getScheduler().runTask(module.getPlugin(), () -> module.getManager()
@@ -314,13 +373,40 @@ public final class TeamSettingsMenu implements InventoryHolder {
                     .ifPresent(t -> open(module, player, t, menu.page, menu.layout.page())));
         }
 
-        private void home(Player player, Team team, Button button) {
+        /** @return whether the window was replaced - by a page or a dialog - rather than to be redrawn */
+        private boolean home(Player player, Team team, Button button) {
             switch (button) {
+                case PROFILE -> {
+                    Optional<TeamResult> denied = module.getManager().denied(team, player.getUniqueId(), TeamAction.SETTINGS);
+                    if (denied.isPresent()) {
+                        module.report(player, denied.get());
+                        return false;
+                    }
+                    TeamDialogs.profile(module, player, team);
+                    return true;
+                }
+                case JOIN_MODE -> {
+                    module.report(player, module.getManager().setJoinMode(team, player.getUniqueId(), next(team)));
+                    return false;
+                }
                 case PERMISSIONS -> open(module, player, team, Page.PERMISSIONS, 0);
                 case MEMBERS -> open(module, player, team, Page.MEMBERS, 0);
                 case INVITES -> open(module, player, team, Page.INVITES, 0);
-                case OPEN -> module.report(player, module.getManager().setOpen(team, player.getUniqueId(), !team.isOpen()));
             }
+            return true;
+        }
+
+        /** The next join mode the server allows, closed → invitation → open → closed. */
+        private JoinMode next(Team team) {
+            JoinMode current = module.getManager().joinMode(team);
+            JoinMode[] modes = JoinMode.values();
+            for (int step = 1; step <= modes.length; step++) {
+                JoinMode candidate = modes[(current.ordinal() + step) % modes.length];
+                if (module.getSettings().custom().allows(candidate)) {
+                    return candidate;
+                }
+            }
+            return current;
         }
 
         private void permission(Player player, Team team, TeamPermission permission, ClickType click) {

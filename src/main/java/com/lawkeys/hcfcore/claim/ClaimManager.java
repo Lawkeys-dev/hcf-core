@@ -177,6 +177,11 @@ public final class ClaimManager {
         return TeamResult.ok(ClaimMessages.LOCK_ON, team);
     }
 
+    /** @return whether a claim can be locked now - during SOTW, as {@code phase/} sets it */
+    public boolean canLock() {
+        return lockWindow.isOpen();
+    }
+
     /**
      * @return whether this team's claim is locked. Once the window has closed -
      *         SOTW over - every lock is dropped, so the next SOTW starts open

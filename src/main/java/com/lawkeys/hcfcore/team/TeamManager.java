@@ -262,23 +262,71 @@ public final class TeamManager {
         return TeamResult.ok(TeamMessages.SETTINGS_PERMISSION_SET, team);
     }
 
-    /** Opens a team to anybody, or closes it to the invited again. */
-    public TeamResult setOpen(Team team, UUID actor, boolean open) {
+    /**
+     * @return who may join this team now: its own choice while the server allows it,
+     *         otherwise the server's default
+     */
+    public JoinMode joinMode(Team team) {
+        TeamSettings.CustomRules rules = config().custom();
+        return team.getJoinMode().filter(rules::allows).orElse(rules.defaultJoinMode());
+    }
+
+    /** @return whether a team lets anybody in right now */
+    public boolean isOpen(Team team) {
+        return joinMode(team) == JoinMode.OPEN;
+    }
+
+    /** Closes a team, puts it on invitation, or opens it to anybody. */
+    public TeamResult setJoinMode(Team team, UUID actor, JoinMode mode) {
+        Objects.requireNonNull(team, "team");
+        Objects.requireNonNull(mode, "mode");
+        Optional<TeamResult> denied = checkRole(team, actor, TeamAction.SETTINGS);
+        if (denied.isPresent()) {
+            return denied.get();
+        }
+        if (!config().custom().allows(mode)) {
+            return TeamResult.fail(TeamMessages.SETTINGS_JOIN_MODE_DISABLED, "mode", mode.configKey());
+        }
+        team.setJoinMode(mode);
+        return TeamResult.ok(TeamMessages.SETTINGS_JOIN_MODE_SET, team, "mode", mode.configKey());
+    }
+
+    /** @param text what the team says about itself; empty clears it */
+    public TeamResult setDescription(Team team, UUID actor, String text) {
         Objects.requireNonNull(team, "team");
         Optional<TeamResult> denied = checkRole(team, actor, TeamAction.SETTINGS);
         if (denied.isPresent()) {
             return denied.get();
         }
-        if (open && !config().custom().openTeams()) {
-            return TeamResult.fail(TeamMessages.SETTINGS_OPEN_DISABLED);
+        if (!config().custom().enabled()) {
+            return TeamResult.fail(TeamMessages.SETTINGS_DISABLED);
         }
-        team.setOpen(open);
-        return TeamResult.ok(open ? TeamMessages.SETTINGS_OPENED : TeamMessages.SETTINGS_CLOSED, team);
+        String description = TeamProfile.description(text, config().custom().descriptionLength());
+        team.setDescription(description);
+        return TeamResult.ok(description.isEmpty() ? TeamMessages.SETTINGS_DESCRIPTION_CLEARED
+                : TeamMessages.SETTINGS_DESCRIPTION_SET, team);
     }
 
-    /** @return whether a team lets anybody in right now: open, and the server allows it */
-    public boolean isOpen(Team team) {
-        return team.isOpen() && config().custom().enabled() && config().custom().openTeams();
+    /** @param link the team's Discord invitation; empty clears it */
+    public TeamResult setDiscord(Team team, UUID actor, String link) {
+        Objects.requireNonNull(team, "team");
+        Optional<TeamResult> denied = checkRole(team, actor, TeamAction.SETTINGS);
+        if (denied.isPresent()) {
+            return denied.get();
+        }
+        if (!config().custom().enabled()) {
+            return TeamResult.fail(TeamMessages.SETTINGS_DISABLED);
+        }
+        if (link == null || link.isBlank()) {
+            team.setDiscord(null);
+            return TeamResult.ok(TeamMessages.SETTINGS_DISCORD_CLEARED, team);
+        }
+        Optional<String> valid = TeamProfile.discord(link, config().custom().discordPattern());
+        if (valid.isEmpty()) {
+            return TeamResult.fail(TeamMessages.SETTINGS_DISCORD_INVALID);
+        }
+        team.setDiscord(valid.get());
+        return TeamResult.ok(TeamMessages.SETTINGS_DISCORD_SET, team, "link", valid.get());
     }
 
     // ------------------------------------------------------------------
@@ -496,6 +544,9 @@ public final class TeamManager {
         if (denied.isPresent()) {
             return denied.get();
         }
+        if (joinMode(team) == JoinMode.CLOSED) {
+            return TeamResult.fail(TeamMessages.TEAM_CLOSED, "team", team.getName());
+        }
         if (team.isMember(target)) {
             return TeamResult.fail(TeamMessages.INVITE_TARGET_IN_TEAM);
         }
@@ -542,6 +593,9 @@ public final class TeamManager {
         }
         if (hasTeam(player)) {
             return TeamResult.fail(TeamMessages.JOIN_ALREADY_IN_TEAM);
+        }
+        if (!force && joinMode(team) == JoinMode.CLOSED) {
+            return TeamResult.fail(TeamMessages.TEAM_CLOSED, "team", team.getName());
         }
         if (!force && !hasInvite(player, team) && !isOpen(team)) {
             return TeamResult.fail(TeamMessages.JOIN_NO_INVITE, "team", team.getName());

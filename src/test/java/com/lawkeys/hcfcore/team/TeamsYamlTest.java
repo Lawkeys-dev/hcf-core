@@ -43,7 +43,12 @@ class TeamsYamlTest {
         Map<String, Object> custom = (Map<String, Object>) file().get("team-settings");
         TeamSettings.CustomRules defaults = TeamSettings.CustomRules.defaults();
         assertEquals(defaults.enabled(), custom.get("enabled"));
-        assertEquals(defaults.openTeams(), custom.get("open-teams"));
+        Set<JoinMode> modes = new HashSet<>();
+        ((List<String>) custom.get("join-modes")).forEach(mode -> modes.add(JoinMode.fromId(mode).orElseThrow()));
+        assertEquals(defaults.joinModes(), modes);
+        assertEquals(defaults.defaultJoinMode(), JoinMode.fromId((String) custom.get("default-join-mode")).orElseThrow());
+        assertEquals(defaults.descriptionLength(), ((Map<String, Object>) custom.get("description")).get("max-length"));
+        assertEquals(defaults.discordPattern().pattern(), ((Map<String, Object>) custom.get("discord")).get("pattern"));
         assertEquals(defaults.locked(), new HashSet<>((List<String>) custom.get("locked")));
         assertEquals(0, ((Number) file().get("max-officers")).intValue());
     }

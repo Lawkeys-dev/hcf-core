@@ -74,8 +74,10 @@ public final class TeamSchema {
 
     /**
      * A team's own settings from {@code /team settings}, one row each: a permission
-     * ({@code permission.<key>} = the role) or a switch ({@code open} = true). A key
-     * and a value rather than a column each, so a new setting needs no migration.
+     * ({@code permission.<key>} = the role), its join mode, description or Discord
+     * link. A key and a value rather than a column each, so a new setting needs no
+     * migration. (The value was 64 characters wide until it held a description, the
+     * same day and before any release had it.)
      */
     private static final Migration V3 = Migration.of(MODULE, 3,
             "team settings",
@@ -83,7 +85,7 @@ public final class TeamSchema {
                     CREATE TABLE IF NOT EXISTS hcf_team_settings (
                         team_id VARCHAR(36) NOT NULL,
                         setting_key VARCHAR(64) NOT NULL,
-                        setting_value VARCHAR(64) NOT NULL,
+                        setting_value VARCHAR(255) NOT NULL,
                         PRIMARY KEY (team_id, setting_key)
                     )"""));
 

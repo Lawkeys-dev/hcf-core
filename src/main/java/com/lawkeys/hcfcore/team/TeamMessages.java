@@ -187,9 +187,40 @@ public final class TeamMessages {
     public static final String SETTINGS_LOCKED = "team.settings.locked";
     public static final String SETTINGS_ABOVE_YOU = "team.settings.above-you";
     public static final String SETTINGS_PERMISSION_SET = "team.settings.permission-set";
-    public static final String SETTINGS_OPEN_DISABLED = "team.settings.open-disabled";
-    public static final String SETTINGS_OPENED = "team.settings.opened";
-    public static final String SETTINGS_CLOSED = "team.settings.closed";
+    public static final String SETTINGS_JOIN_MODE_DISABLED = "team.settings.join-mode-disabled";
+    public static final String SETTINGS_JOIN_MODE_SET = "team.settings.join-mode-set";
+    public static final String SETTINGS_DESCRIPTION_SET = "team.settings.description-set";
+    public static final String SETTINGS_DESCRIPTION_CLEARED = "team.settings.description-cleared";
+    public static final String SETTINGS_DISCORD_SET = "team.settings.discord-set";
+    public static final String SETTINGS_DISCORD_CLEARED = "team.settings.discord-cleared";
+    public static final String SETTINGS_DISCORD_INVALID = "team.settings.discord-invalid";
+    public static final String TEAM_CLOSED = "team.join.closed";
+    public static final String INFO_DESCRIPTION = "team.info.description";
+    public static final String INFO_DISCORD = "team.info.discord";
+    public static final String INFO_JOIN_MODE = "team.info.join-mode";
+    /** How a join mode reads: {@code team.join-mode.<mode>}. */
+    public static String joinMode(JoinMode mode) {
+        return "team.join-mode." + mode.configKey();
+    }
+    public static final String SETTINGS_BUTTON_PROFILE = "team.settings.button.profile";
+    public static final String SETTINGS_BUTTON_JOIN_MODE = "team.settings.button.join-mode";
+    public static final String SETTINGS_BUTTON_JOIN_MODE_LORE = "team.settings.button.join-mode-lore";
+    public static final String SETTINGS_BUTTON_INVITE = "team.settings.button.invite";
+    public static final String SETTINGS_BUTTON_INVITE_LORE = "team.settings.button.invite-lore";
+    public static final String SETTINGS_BUTTON_NOT_ALLOWED = "team.settings.button.not-allowed";
+    public static final String SETTINGS_PROFILE_DESCRIPTION = "team.settings.profile.description";
+    public static final String SETTINGS_PROFILE_DISCORD = "team.settings.profile.discord";
+    public static final String SETTINGS_PROFILE_NONE = "team.settings.profile.none";
+    public static final String SETTINGS_PROFILE_HINT = "team.settings.profile.hint";
+    public static final String DIALOG_PROFILE_TITLE = "team.settings.dialog.profile-title";
+    public static final String DIALOG_NAME = "team.settings.dialog.name";
+    public static final String DIALOG_DESCRIPTION = "team.settings.dialog.description";
+    public static final String DIALOG_DISCORD = "team.settings.dialog.discord";
+    public static final String DIALOG_INVITE_TITLE = "team.settings.dialog.invite-title";
+    public static final String DIALOG_PLAYER = "team.settings.dialog.player";
+    public static final String DIALOG_SAVE = "team.settings.dialog.save";
+    public static final String DIALOG_SEND = "team.settings.dialog.send";
+    public static final String DIALOG_CANCEL = "team.settings.dialog.cancel";
     public static final String SETTINGS_DISABLED = "team.settings.disabled";
     public static final String SETTINGS_TITLE = "team.settings.title";
     public static final String SETTINGS_PERMISSIONS_TITLE = "team.settings.permissions-title";
@@ -202,9 +233,6 @@ public final class TeamMessages {
     public static final String SETTINGS_BUTTON_INVITES = "team.settings.button.invites";
     public static final String SETTINGS_BUTTON_INVITES_LORE = "team.settings.button.invites-lore";
     public static final String SETTINGS_BUTTON_BACK = "team.settings.button.back";
-    public static final String SETTINGS_BUTTON_OPEN = "team.settings.button.open";
-    public static final String SETTINGS_BUTTON_CLOSED = "team.settings.button.closed";
-    public static final String SETTINGS_BUTTON_OPEN_LORE = "team.settings.button.open-lore";
     public static final String SETTINGS_PERMISSION_NAME = "team.settings.permission.name";
     public static final String SETTINGS_PERMISSION_ROLE = "team.settings.permission.role";
     public static final String SETTINGS_PERMISSION_SERVER = "team.settings.permission.server";
@@ -216,5 +244,4 @@ public final class TeamMessages {
     public static final String SETTINGS_MEMBER_HINT = "team.settings.member.hint";
     public static final String SETTINGS_INVITE_NAME = "team.settings.invite.name";
     public static final String SETTINGS_INVITE_HINT = "team.settings.invite.hint";
-    public static final String SETTINGS_INVITE_NONE = "team.settings.invite.none";
 }
