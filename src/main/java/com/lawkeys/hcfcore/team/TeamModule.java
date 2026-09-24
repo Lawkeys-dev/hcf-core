@@ -57,11 +57,61 @@ public final class TeamModule {
     private final com.lawkeys.hcfcore.team.command.LffCommand lffCommand =
             new com.lawkeys.hcfcore.team.command.LffCommand(this);
     private BukkitTask saveTask;
+    /** What {@code /team settings} offers, in menu order; other modules add theirs. */
+    private final List<TeamPermission> permissions = new java.util.concurrent.CopyOnWriteArrayList<>();
+    /** {@code /hq} and the other commands of {@code shortcuts.commands}. */
+    private com.lawkeys.hcfcore.team.command.ShortcutCommands shortcutCommands;
 
     public TeamModule(Plugin plugin, LangManager lang, StartupGate startup) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
         this.lang = Objects.requireNonNull(lang, "lang");
         this.startup = Objects.requireNonNull(startup, "startup");
+        for (TeamAction action : TeamAction.values()) {
+            permissions.add(new TeamPermission(action.configKey(), defaultIcon(action),
+                    () -> settings.requiredRole(action)));
+        }
+    }
+
+    private static String defaultIcon(TeamAction action) {
+        return switch (action) {
+            case DISBAND -> "TNT";
+            case RENAME -> "NAME_TAG";
+            case INVITE -> "PAPER";
+            case REVOKE_INVITE -> "MAP";
+            case KICK -> "IRON_BOOTS";
+            case PROMOTE -> "EXPERIENCE_BOTTLE";
+            case DEMOTE -> "GLASS_BOTTLE";
+            case TRANSFER_LEADERSHIP -> "GOLDEN_HELMET";
+            case ALLY -> "LIGHT_BLUE_BANNER";
+            case UNALLY -> "RED_BANNER";
+            case FOCUS -> "TARGET";
+            case RALLY -> "BEACON";
+            case BANK_DEPOSIT -> "GOLD_INGOT";
+            case BANK_WITHDRAW -> "GOLD_NUGGET";
+            case SETTINGS -> "COMPARATOR";
+        };
+    }
+
+    /**
+     * Adds a permission to {@code /team settings}: how {@code claim/} offers its own
+     * without the team module knowing about territory. A key already offered is
+     * ignored.
+     */
+    public void registerPermission(TeamPermission permission) {
+        Objects.requireNonNull(permission, "permission");
+        if (permissions.stream().noneMatch(p -> p.key().equals(permission.key()))) {
+            permissions.add(permission);
+        }
+    }
+
+    /** @return what {@code /team settings} offers, in menu order */
+    public List<TeamPermission> getPermissions() {
+        return List.copyOf(permissions);
+    }
+
+    /** Sends the outcome of a manager call, whether it succeeded or not. */
+    public void report(org.bukkit.command.CommandSender sender, TeamResult result) {
+        lang.send(sender, result.getMessageKey(), readable(result.getPlaceholders()));
     }
 
     public Plugin getPlugin() {
@@ -184,6 +234,16 @@ public final class TeamModule {
         this.teamCommand = new TeamCommand(this);
         command.setExecutor(teamCommand);
         command.setTabCompleter(teamCommand);
+        plugin.getServer().getPluginManager()
+                .registerEvents(new com.lawkeys.hcfcore.team.command.TeamSettingsMenu.Clicks(this), plugin);
+        // At the first tick, once every module has grafted its subcommands on /team:
+        // /hq is claim/'s, /team deposit economy/'s.
+        com.lawkeys.hcfcore.team.command.ShortcutCommands shortcuts =
+                new com.lawkeys.hcfcore.team.command.ShortcutCommands(this, teamCommand, command);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            shortcuts.apply(settings.shortcuts());
+            this.shortcutCommands = shortcuts;
+        });
         PluginCommand lff = plugin.getServer().getPluginCommand("lff");
         if (lff != null) {
             lff.setExecutor(lffCommand);
@@ -215,10 +275,16 @@ public final class TeamModule {
                 warning -> plugin.getLogger().warning("teams.yml: " + warning));
         lffCommand.apply(com.lawkeys.hcfcore.team.command.LffCommand.Rules.load(
                 file == null ? null : file.getConfigurationSection("lff")));
+        if (shortcutCommands != null) {
+            shortcutCommands.apply(settings.shortcuts());
+        }
     }
 
     /** Stops the periodic save and writes everything still pending, synchronously. */
     public void disable() {
+        if (shortcutCommands != null) {
+            shortcutCommands.apply(TeamSettings.Shortcuts.none());
+        }
         if (saveTask != null) {
             saveTask.cancel();
             saveTask = null;

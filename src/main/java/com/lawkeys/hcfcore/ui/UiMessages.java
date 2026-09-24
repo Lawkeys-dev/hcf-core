@@ -31,6 +31,7 @@ public final class UiMessages {
     public static final String TAB_MEMBER_OFFLINE = "ui.tab.member-offline";
     public static final String TAB_ROLE_LEADER = "ui.tab.role-leader";
     public static final String TAB_ROLE_CO_LEADER = "ui.tab.role-co-leader";
+    public static final String TAB_ROLE_OFFICER = "ui.tab.role-officer";
     public static final String TAB_ROLE_MEMBER = "ui.tab.role-member";
     public static final String TAB_TOP_TEAM = "ui.tab.top-team";
     public static final String TAB_NO_EVENT = "ui.tab.no-event";

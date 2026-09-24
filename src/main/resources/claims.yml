@@ -167,7 +167,8 @@ subclaims:
   enabled: true
   header: "[Subclaim]"
   # The lowest role that opens every subclaim of its team: leader, co-leader,
-  # member (everybody - the signs then mean nothing), or none (only the names).
+  # officer, member (everybody - the signs then mean nothing), or none (only the
+  # names). A team may choose its own in /team settings (open-subclaims).
   open-any: co-leader
 # --8<-- [end:subclaims]
 
@@ -250,8 +251,9 @@ claimable-worlds: []
 # --8<-- [end:claimable-worlds]
 
 # --8<-- [start:required-roles]
-# Minimum role required for each claim action. One of: leader, co-leader, member.
-# An unrecognised value falls back to "leader" and is reported in the console.
+# Minimum role required for each claim action. One of: leader, co-leader, officer,
+# member. An unrecognised value falls back to "leader" and is reported in the
+# console. A team may choose its own in /team settings (teams.yml, team-settings).
 required-roles:
   claim: co-leader
   unclaim: leader

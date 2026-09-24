@@ -31,7 +31,10 @@ public record TeamSettings(
         RallyRules rally,
         BankRules bank,
         PointsRules points,
-        KothRules koth) {
+        KothRules koth,
+        int maxOfficers,
+        CustomRules custom,
+        Shortcuts shortcuts) {
 
     public TeamSettings {
         Objects.requireNonNull(names, "names");
@@ -43,6 +46,81 @@ public record TeamSettings(
         Objects.requireNonNull(bank, "bank");
         Objects.requireNonNull(points, "points");
         Objects.requireNonNull(koth, "koth");
+        Objects.requireNonNull(custom, "custom");
+        Objects.requireNonNull(shortcuts, "shortcuts");
+    }
+
+    /** The settings before officers, {@code /team settings} and shortcuts: their defaults. */
+    public TeamSettings(NameRules names, int maxMembers, int maxCoLeaders, long inviteExpirySeconds,
+                        boolean disbandOnLastMemberLeave, TeamRole roleAfterLeadershipTransfer,
+                        Map<TeamAction, TeamRole> requiredRoles, AllianceRules alliances, FocusRules focus,
+                        RallyRules rally, BankRules bank, PointsRules points, KothRules koth) {
+        this(names, maxMembers, maxCoLeaders, inviteExpirySeconds, disbandOnLastMemberLeave,
+                roleAfterLeadershipTransfer, requiredRoles, alliances, focus, rally, bank, points, koth,
+                0, CustomRules.defaults(), Shortcuts.none());
+    }
+
+    /**
+     * {@code team-settings:} - what a team may decide for itself with
+     * {@code /team settings}.
+     *
+     * @param enabled   {@code false}: every team follows {@code required-roles} and
+     *                  {@code /team settings} is refused
+     * @param openTeams a team may open itself, so anybody joins without an invitation
+     * @param locked    permission keys no team may change - they follow the server's
+     *                  roles for everybody
+     * @param icons     the menu's items, by permission key or button name
+     *                  ({@code permissions}, {@code members}, {@code invites}, {@code open},
+     *                  {@code closed}, {@code back}); one absent keeps its default
+     */
+    public record CustomRules(boolean enabled, boolean openTeams, Set<String> locked, Map<String, String> icons) {
+
+        public CustomRules {
+            locked = Set.copyOf(Objects.requireNonNull(locked, "locked"));
+            icons = Map.copyOf(Objects.requireNonNull(icons, "icons"));
+        }
+
+        public static CustomRules defaults() {
+            return new CustomRules(true, true, Set.of("disband", "transfer-leadership"), Map.of());
+        }
+
+        /** @return the material name configured for this item, or {@code fallback} */
+        public String icon(String key, String fallback) {
+            return icons.getOrDefault(key, fallback);
+        }
+
+        /** @return whether a team may set its own role for this permission */
+        public boolean editable(String key) {
+            return enabled && !locked.contains(key);
+        }
+    }
+
+    /**
+     * {@code shortcuts:} - shorter ways to type team commands.
+     *
+     * @param subcommands another word for a subcommand: {@code i} for {@code info}
+     * @param commands    a command of its own for a subcommand: {@code /hq} for
+     *                    {@code /team hq}. The value is the subcommand, and may carry
+     *                    arguments put before the player's own
+     */
+    public record Shortcuts(boolean enabled, Map<String, String> subcommands, Map<String, String> commands) {
+
+        public Shortcuts {
+            subcommands = Map.copyOf(Objects.requireNonNull(subcommands, "subcommands"));
+            commands = Map.copyOf(Objects.requireNonNull(commands, "commands"));
+        }
+
+        public static Shortcuts none() {
+            return new Shortcuts(false, Map.of(), Map.of());
+        }
+
+        /** As shipped in {@code teams.yml}. */
+        public static Shortcuts defaults() {
+            return new Shortcuts(true,
+                    Map.of("i", "info", "h", "hq", "home", "hq", "sh", "sethq", "d", "deposit",
+                            "w", "withdraw", "m", "map", "k", "kick", "s", "settings"),
+                    Map.of("hq", "hq", "base", "base", "stuck", "stuck", "fc", "chat"));
+        }
     }
 
     /**
@@ -155,18 +233,19 @@ public record TeamSettings(
         Map<TeamAction, TeamRole> roles = new EnumMap<>(TeamAction.class);
         roles.put(TeamAction.DISBAND, TeamRole.LEADER);
         roles.put(TeamAction.RENAME, TeamRole.LEADER);
-        roles.put(TeamAction.INVITE, TeamRole.CO_LEADER);
-        roles.put(TeamAction.REVOKE_INVITE, TeamRole.CO_LEADER);
+        roles.put(TeamAction.INVITE, TeamRole.OFFICER);
+        roles.put(TeamAction.REVOKE_INVITE, TeamRole.OFFICER);
         roles.put(TeamAction.KICK, TeamRole.CO_LEADER);
         roles.put(TeamAction.PROMOTE, TeamRole.LEADER);
         roles.put(TeamAction.DEMOTE, TeamRole.LEADER);
         roles.put(TeamAction.TRANSFER_LEADERSHIP, TeamRole.LEADER);
         roles.put(TeamAction.ALLY, TeamRole.LEADER);
         roles.put(TeamAction.UNALLY, TeamRole.LEADER);
-        roles.put(TeamAction.FOCUS, TeamRole.CO_LEADER);
-        roles.put(TeamAction.RALLY, TeamRole.CO_LEADER);
+        roles.put(TeamAction.FOCUS, TeamRole.OFFICER);
+        roles.put(TeamAction.RALLY, TeamRole.OFFICER);
         roles.put(TeamAction.BANK_DEPOSIT, TeamRole.MEMBER);
         roles.put(TeamAction.BANK_WITHDRAW, TeamRole.LEADER);
+        roles.put(TeamAction.SETTINGS, TeamRole.LEADER);
 
         return new TeamSettings(
                 new NameRules(3, 16, Pattern.compile("^[A-Za-z0-9_]+$"), Set.of()),
@@ -184,6 +263,9 @@ public record TeamSettings(
                 // worth far more than the kills fought for it along the way - a KOTH
                 // 100, a Citadel 300 - so the event, not the farm, decides the ranking.
                 new PointsRules(0L, 0L, 1L, -2L, 0L, 250L, 150L, 200L, 150L, 200L, 150L, 300L, 80L, 50.0),
-                new KothRules(0, 100L));
+                new KothRules(0, 100L),
+                0,
+                CustomRules.defaults(),
+                Shortcuts.defaults());
     }
 }

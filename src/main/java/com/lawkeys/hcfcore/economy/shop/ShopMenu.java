@@ -84,7 +84,8 @@ public final class ShopMenu implements InventoryHolder {
             }
         }
         if (back >= 0) {
-            ItemStack button = ItemStack.of(Material.ARROW);
+            Material backMaterial = Material.matchMaterial(rules.backIcon());
+            ItemStack button = ItemStack.of(backMaterial == null ? Material.ARROW : backMaterial);
             button.editMeta(meta -> meta.customName(ItemText.line(lang.get(EconomyMessages.SHOP_BACK))));
             inventory.setItem(back, button);
         }

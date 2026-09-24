@@ -28,9 +28,10 @@ Every example on this page is **taken from the shipped `teams.yml`**. Changes ap
 |---|---|---|
 | `max-members` | `20` | Members per team |
 | `max-co-leaders` | `2` | Co-leaders at once |
+| `max-officers` | `0` | Officers at once; `0` = no limit |
 | `invite-expiry-seconds` | `300` | How long an invitation lasts; `0` never expires |
 | `disband-on-last-member-leave` | `true` | Disband a team whose last member leaves |
-| `role-after-leadership-transfer` | `co-leader` | What the old leader becomes: `leader`, `co-leader` or `member` |
+| `role-after-leadership-transfer` | `co-leader` | What the old leader becomes: `leader`, `co-leader`, `officer` or `member` |
 
 ## Roles
 
@@ -38,7 +39,35 @@ Every example on this page is **taken from the shipped `teams.yml`**. Changes ap
 --8<-- "src/main/resources/teams.yml:required-roles"
 ```
 
-The minimum role for each action: `leader`, `co-leader` or `member`. An unknown value falls back to `leader`, the safest, and is reported. The territory actions (claim, unclaim, set home, lock) are in [`claims.yml`](claims.md#roles).
+The minimum role for each action: `leader`, `co-leader`, `officer` or `member`. An unknown value falls back to `leader`, the safest, and is reported. The territory actions (claim, unclaim, set home, lock) are in [`claims.yml`](claims.md#roles). Each team may choose its own role for any of them in `/team settings`, unless `team-settings` below locks it.
+
+## Team settings
+
+```yaml title="teams.yml"
+--8<-- "src/main/resources/teams.yml:team-settings"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | `false`: every team follows `required-roles`, and `/team settings` is refused |
+| `open-teams` | `true` | A team may open itself, so anybody joins without an invitation |
+| `locked` | `[disband, transfer-leadership]` | Permissions no team may change. The keys are those of `required-roles` here and in `claims.yml`, and `open-subclaims` |
+| `icons` | `{}` | The window's items, by permission key or button: `permissions`, `members`, `invites`, `open`, `closed`, `back` |
+
+A team's choices are kept in the database (`hcf_team_settings`). One stored before the server locked the permission, or switched the settings off, is ignored, not erased: unlock it and it applies again.
+
+## Shortcuts
+
+```yaml title="teams.yml"
+--8<-- "src/main/resources/teams.yml:shortcuts"
+```
+
+| Key | What it does |
+|---|---|
+| `subcommands` | Another word for a subcommand: `i: info` makes `/team i` work. A subcommand's own name or alias always wins |
+| `commands` | A command of its own: `hq: hq` makes `/hq`. The value may carry arguments, put before the player's own. A name that is already a command — another plugin's, the server's — is left to it and reported in the console |
+
+Both are read again by `/hcf reload`; the commands are made and removed then, without a restart.
 
 ## Alliances, focus and rally
 

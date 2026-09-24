@@ -4,6 +4,8 @@
 
 A team (or faction) is the unit of HCF: it owns land, shares a DTR, a bank and a chat, and wins events. `/team` — aliases `/f` and `/faction` — holds everything; `/team help` lists the subcommands you are allowed to use.
 
+**Shortcuts** (`teams.yml`, `shortcuts`): `/hq`, `/base`, `/stuck` and `/fc` (team chat) are commands of their own, and `/f i` is `/f info` — `h`/`home` for `hq`, `sh` for `sethq`, `d`/`w` for `deposit`/`withdraw`, `m` for `map`, `k` for `kick`, `s` for `settings`. The server chooses them; a name another plugin already has is left to it.
+
 ## Creating a team
 
 ```text
@@ -16,24 +18,34 @@ A name is 3 to 16 characters, letters, digits and underscores (`names.pattern`),
 
 ## Roles
 
-Leader, co-leader (**2 at most**, `max-co-leaders`) and member. What each role may do is set per action under `required-roles` in `teams.yml` and `claims.yml`:
+Leader, co-leader (**2 at most**, `max-co-leaders`), **officer** (no limit, `max-officers`) and member. What each role may do is set per action under `required-roles` in `teams.yml` and `claims.yml` — and **each team may choose its own** in `/team settings`:
 
-| Leader only | Co-leader and above | Every member |
-|---|---|---|
-| disband, rename, promote, demote, hand over leadership, ally, unally, withdraw from the bank, unclaim | invite, revoke an invite, kick, focus, rally, claim, set HQ and base, lock the claim | deposit in the bank |
+| Leader only | Co-leader and above | Officer and above | Every member |
+|---|---|---|---|
+| disband, rename, promote, demote, hand over leadership, ally, unally, withdraw from the bank, unclaim, open the settings | kick, claim, set HQ and base, lock the claim | invite, revoke an invite, focus, rally | deposit in the bank |
 
-- `/team promote <player>` and `/team demote <player>` move a member between member and co-leader.
+- `/team promote <player>` and `/team demote <player>` move a member one rank: member → officer → co-leader. **Nobody makes somebody their equal**: a co-leader a team lets promote raises members to officer, never to co-leader.
 - `/team transfer <player>` (alias `setleader`) hands leadership over; the old leader becomes a **co-leader** (`role-after-leadership-transfer`).
 
 ## Joining and leaving
 
 - `/team invite <player>` invites; the invitation lasts **5 minutes** (`invite-expiry-seconds`, `0` = never expires). `/team uninvite <player>` withdraws it.
-- The invited player types `/team join <team>`.
+- The invited player types `/team join <team>`. **An open team** takes anybody, invited or not (`/team settings`).
 - A team holds **20 members** (`max-members`).
 - `/team leave` leaves; `/team kick <player>` removes a member.
 - **When the last member leaves, the team is disbanded** (`disband-on-last-member-leave`) and its land released.
 
 **Looking for a team?** `/lff [note]` tells the whole server, with a few words about yourself if you like — `/lff PvP main, online evenings`. Once every 5 minutes, and only without a team (`teams.yml`, `lff`).
+
+## Team settings
+
+`/team settings` (alias `options`; `/f s`) opens a window to set the team up — the leader's, as shipped (`required-roles.settings`):
+
+- **Permissions** — the lowest rank that may do each thing: every action above, and opening every subclaim. Left click raises it a rank, right click lowers it, shift-click gives it back to the server's setting. Whoever changes a permission must hold it, and cannot set it above their own rank; the leader changes everything. Some stay the server's for every team (`team-settings.locked`: disbanding and handing over leadership, as shipped).
+- **Members** — left click promotes, right click demotes, shift + right click kicks, with the same rules as the commands.
+- **Invitations** — who holds one (a click takes it back), and a switch to **open the team** to anybody (`team-settings.open-teams`).
+
+`team-settings.enabled: false` keeps every team on the server's roles.
 
 ## Alliances
 

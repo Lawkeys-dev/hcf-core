@@ -179,6 +179,36 @@ class JdbcTeamStoreTest {
     }
 
     @Test
+    void aTeamsOwnSettingsAreSavedReplacedAndDeleted() throws Exception {
+        UUID leader = UUID.randomUUID();
+        UUID officer = UUID.randomUUID();
+        Team team = withMembers(sampleTeam("Wizards", leader), Map.of(leader, TeamRole.LEADER, officer, TeamRole.OFFICER));
+        team.setPermission("kick", TeamRole.OFFICER);
+        team.setPermission("claim", TeamRole.MEMBER);
+        team.setOpen(true);
+        store.save(team);
+
+        Team loaded = single(store.loadAll());
+        assertEquals(TeamRole.OFFICER, loaded.getRole(officer).orElseThrow());
+        assertEquals(Map.of("kick", TeamRole.OFFICER, "claim", TeamRole.MEMBER), loaded.getPermissions());
+        assertTrue(loaded.isOpen());
+
+        team.setPermission("claim", null);
+        team.setOpen(false);
+        store.save(team);
+        loaded = single(store.loadAll());
+        assertEquals(Map.of("kick", TeamRole.OFFICER), loaded.getPermissions());
+        assertFalse(loaded.isOpen());
+
+        store.delete(team.getId());
+        try (var connection = dataSource.getConnection();
+             var rows = connection.createStatement().executeQuery("SELECT COUNT(*) FROM hcf_team_settings")) {
+            rows.next();
+            assertEquals(0, rows.getInt(1), "a deleted team's settings must not survive it");
+        }
+    }
+
+    @Test
     void savingTwiceUpdatesInPlaceInsteadOfDuplicating() throws Exception {
         Team team = sampleTeam("Wizards", UUID.randomUUID());
         store.save(team);

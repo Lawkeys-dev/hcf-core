@@ -173,8 +173,27 @@ public final class SubclaimListener implements Listener {
     private boolean mayOpen(Player player, Team owner, Block container) {
         Subclaim.Rules current = rules.get();
         TeamRole role = owner.getRole(player.getUniqueId()).orElse(null);
-        return Subclaim.anyAllows(signsOn(container, current.header()), player.getName(), role, current.openAny());
+        return Subclaim.anyAllows(signsOn(container, current.header()), player.getName(), role,
+                openAny(owner, current.openAny()));
     }
+
+    /**
+     * The lowest role of the owning team that opens all its subclaims: the team's own
+     * choice ({@code /team settings}, {@code open-subclaims}) where it may make one,
+     * else the server's - {@code null}, nobody, when the server says {@code none} and
+     * the team said nothing.
+     */
+    private TeamRole openAny(Team owner, TeamRole server) {
+        var manager = module.getTeams().getManager();
+        boolean editable = module.getTeams().getSettings().custom().editable(OPEN_SUBCLAIMS);
+        if (!editable || owner.getPermission(OPEN_SUBCLAIMS).isEmpty()) {
+            return server;
+        }
+        return manager.requiredRole(owner, OPEN_SUBCLAIMS, server == null ? TeamRole.LEADER : server);
+    }
+
+    /** The permission's key in {@code /team settings}. */
+    public static final String OPEN_SUBCLAIMS = "open-subclaims";
 
     // ------------------------------------------------------------------
     // Finding the signs

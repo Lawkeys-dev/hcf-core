@@ -72,8 +72,23 @@ public final class TeamSchema {
                     "ALTER TABLE hcf_teams ADD COLUMN system_zone VARCHAR(16) NULL",
                     "UPDATE hcf_teams SET system_zone = 'SAFE' WHERE type = 'SYSTEM'"));
 
+    /**
+     * A team's own settings from {@code /team settings}, one row each: a permission
+     * ({@code permission.<key>} = the role) or a switch ({@code open} = true). A key
+     * and a value rather than a column each, so a new setting needs no migration.
+     */
+    private static final Migration V3 = Migration.of(MODULE, 3,
+            "team settings",
+            List.of("""
+                    CREATE TABLE IF NOT EXISTS hcf_team_settings (
+                        team_id VARCHAR(36) NOT NULL,
+                        setting_key VARCHAR(64) NOT NULL,
+                        setting_value VARCHAR(64) NOT NULL,
+                        PRIMARY KEY (team_id, setting_key)
+                    )"""));
+
     /** Every team migration, in application order. */
     public static List<Migration> migrations() {
-        return List.of(V1, V2);
+        return List.of(V1, V2, V3);
     }
 }

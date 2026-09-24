@@ -1161,6 +1161,9 @@ class ClaimManagerTest {
                     claimChunks(wizards, carol, chunk(0, 0)).getMessageKey());
 
             teamManager.promote(wizards, alice, carol);
+            assertEquals(ClaimMessages.INSUFFICIENT_ROLE, claimChunks(wizards, carol, chunk(0, 0)).getMessageKey(),
+                    "an officer does not claim, as shipped");
+            teamManager.promote(wizards, alice, carol);
             assertTrue(claimChunks(wizards, carol, chunk(0, 0)).isSuccess());
         }
 

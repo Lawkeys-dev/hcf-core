@@ -48,11 +48,14 @@ Every example on this page is **taken from the shipped `economy.yml`**. Changes 
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `enabled` | `true` | The shop at all |
+| `enabled` | `true` | The shop at all. `false`: no `/shop`, signs inert — and the name `/shop` is left to another shop plugin, if the server has one. Read again by `/hcf reload` |
 | `mode` | `both` | `signs` (placed by staff), `menu` (`/shop`), or `both` |
 | `signs.buy-header` · `sell-header` | `[Buy]` · `[Sell]` | The first line that makes a sign a shop sign |
 | `menu.categories` | 8 shelves, ~100 items, priced on a 10-a-kill economy | The shelves `/shop` opens on: each with a `name`, an `icon` and its `items` — `material`, `amount` per trade, `buy` and `sell` prices for that amount, `0` for not offered. Ores are sold; combat, the Archer's leather and every dye, potion ingredients, food, building blocks, utility blocks and farming are bought |
 | `menu.items` | — | A single list instead of shelves, the same way | One entry per item: `material`, `amount` per trade, `buy` and `sell` prices for that amount — `0` for not offered |
+| `menu.back-icon` | `ARROW` | The button back to the shelves |
+
+Everything the shop shows is configured here or in `lang/en.yml` (`economy.shop`: titles, item names and lines, messages): shelves, items and prices are the server's own, and a shelf or an item can be added, removed or repriced, then `/hcf reload`.
 
 ## Bounties
 

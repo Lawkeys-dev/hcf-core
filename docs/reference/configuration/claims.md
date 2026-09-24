@@ -99,7 +99,7 @@ Staff claims and server land follow none of these.
 |---|---|---|
 | `enabled` | `true` | Subclaim signs at all |
 | `header` | `[Subclaim]` | The first line that makes a sign a subclaim, matched without case |
-| `open-any` | `co-leader` | The lowest role that opens every subclaim of its team: `leader`, `co-leader`, `member`, or `none` for the names alone |
+| `open-any` | `co-leader` | The lowest role that opens every subclaim of its team: `leader`, `co-leader`, `officer`, `member`, or `none` for the names alone. Each team may choose its own in `/team settings` (`open-subclaims`) |
 
 ## Lock wall
 
@@ -163,7 +163,7 @@ An empty list allows every world.
 --8<-- "src/main/resources/claims.yml:required-roles"
 ```
 
-The minimum role for each territory action: `leader`, `co-leader` or `member`. `lock-claim` is `/team lockclaim`, during SOTW only.
+The minimum role for each territory action: `leader`, `co-leader`, `officer` or `member`. `lock-claim` is `/team lockclaim`, during SOTW only. Each team may choose its own in `/team settings` ([teams.yml](teams.md#team-settings)).
 
 ## Warzone
 

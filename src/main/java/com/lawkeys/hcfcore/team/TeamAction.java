@@ -26,7 +26,9 @@ public enum TeamAction {
     FOCUS,
     RALLY,
     BANK_DEPOSIT,
-    BANK_WITHDRAW;
+    BANK_WITHDRAW,
+    /** Opening {@code /team settings} to change the team's permissions, members and invitations. */
+    SETTINGS;
 
     /** Config key form, e.g. {@code TRANSFER_LEADERSHIP -> transfer-leadership}. */
     public String configKey() {

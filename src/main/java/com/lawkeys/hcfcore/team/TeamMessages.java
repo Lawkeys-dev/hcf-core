@@ -138,6 +138,7 @@ public final class TeamMessages {
     public static final String INFO_HEADER = "team.info.header";
     public static final String INFO_LEADER = "team.info.leader";
     public static final String INFO_CO_LEADERS = "team.info.co-leaders";
+    public static final String INFO_OFFICERS = "team.info.officers";
     public static final String INFO_MEMBERS = "team.info.members";
     public static final String INFO_ONLINE = "team.info.online";
     public static final String INFO_BALANCE = "team.info.balance";
@@ -180,4 +181,40 @@ public final class TeamMessages {
     // Lookup
     public static final String NOT_FOUND = "team.error.not-found";
     public static final String PLAYER_NOT_FOUND = "team.error.player-not-found";
+
+    // /team settings
+    public static final String PROMOTE_OFFICER_LIMIT = "team.promote.officer-limit";
+    public static final String SETTINGS_LOCKED = "team.settings.locked";
+    public static final String SETTINGS_ABOVE_YOU = "team.settings.above-you";
+    public static final String SETTINGS_PERMISSION_SET = "team.settings.permission-set";
+    public static final String SETTINGS_OPEN_DISABLED = "team.settings.open-disabled";
+    public static final String SETTINGS_OPENED = "team.settings.opened";
+    public static final String SETTINGS_CLOSED = "team.settings.closed";
+    public static final String SETTINGS_DISABLED = "team.settings.disabled";
+    public static final String SETTINGS_TITLE = "team.settings.title";
+    public static final String SETTINGS_PERMISSIONS_TITLE = "team.settings.permissions-title";
+    public static final String SETTINGS_MEMBERS_TITLE = "team.settings.members-title";
+    public static final String SETTINGS_INVITES_TITLE = "team.settings.invites-title";
+    public static final String SETTINGS_BUTTON_PERMISSIONS = "team.settings.button.permissions";
+    public static final String SETTINGS_BUTTON_PERMISSIONS_LORE = "team.settings.button.permissions-lore";
+    public static final String SETTINGS_BUTTON_MEMBERS = "team.settings.button.members";
+    public static final String SETTINGS_BUTTON_MEMBERS_LORE = "team.settings.button.members-lore";
+    public static final String SETTINGS_BUTTON_INVITES = "team.settings.button.invites";
+    public static final String SETTINGS_BUTTON_INVITES_LORE = "team.settings.button.invites-lore";
+    public static final String SETTINGS_BUTTON_BACK = "team.settings.button.back";
+    public static final String SETTINGS_BUTTON_OPEN = "team.settings.button.open";
+    public static final String SETTINGS_BUTTON_CLOSED = "team.settings.button.closed";
+    public static final String SETTINGS_BUTTON_OPEN_LORE = "team.settings.button.open-lore";
+    public static final String SETTINGS_PERMISSION_NAME = "team.settings.permission.name";
+    public static final String SETTINGS_PERMISSION_ROLE = "team.settings.permission.role";
+    public static final String SETTINGS_PERMISSION_SERVER = "team.settings.permission.server";
+    public static final String SETTINGS_PERMISSION_OWN = "team.settings.permission.own";
+    public static final String SETTINGS_PERMISSION_HINT = "team.settings.permission.hint";
+    public static final String SETTINGS_PERMISSION_LOCKED = "team.settings.permission.locked";
+    public static final String SETTINGS_MEMBER_NAME = "team.settings.member.name";
+    public static final String SETTINGS_MEMBER_ROLE = "team.settings.member.role";
+    public static final String SETTINGS_MEMBER_HINT = "team.settings.member.hint";
+    public static final String SETTINGS_INVITE_NAME = "team.settings.invite.name";
+    public static final String SETTINGS_INVITE_HINT = "team.settings.invite.hint";
+    public static final String SETTINGS_INVITE_NONE = "team.settings.invite.none";
 }

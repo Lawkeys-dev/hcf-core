@@ -236,6 +236,20 @@ public final class ClaimModule {
         for (TeamSubCommand subCommand : ClaimSubCommands.all(this)) {
             teams.registerSubCommand(subCommand);
         }
+        // What a team may give a role of its choice in /team settings.
+        for (ClaimAction action : ClaimAction.values()) {
+            teams.registerPermission(new com.lawkeys.hcfcore.team.TeamPermission(action.configKey(),
+                    switch (action) {
+                        case CLAIM -> "GOLDEN_HOE";
+                        case UNCLAIM -> "WOODEN_HOE";
+                        case SET_HOME -> "RED_BED";
+                        case LOCK_CLAIM -> "IRON_DOOR";
+                    },
+                    () -> getSettings().requiredRole(action)));
+        }
+        teams.registerPermission(new com.lawkeys.hcfcore.team.TeamPermission(
+                com.lawkeys.hcfcore.claim.subclaim.SubclaimListener.OPEN_SUBCLAIMS, "CHEST",
+                () -> subclaims.openAny() == null ? com.lawkeys.hcfcore.team.TeamRole.LEADER : subclaims.openAny()));
         teams.setSystemLandTool((player, team) -> wandSessions.give(player,
                 new com.lawkeys.hcfcore.claim.wand.TeamClaimTask(this, team.getId(), true)));
     }
@@ -268,7 +282,7 @@ public final class ClaimModule {
                 ? null
                 : com.lawkeys.hcfcore.team.TeamRole.fromId(openAny).orElseGet(() -> {
                     plugin.getLogger().warning("claims.yml: subclaims.open-any '" + openAny
-                            + "' is not leader, co-leader, member or none; co-leader is used.");
+                            + "' is not leader, co-leader, officer, member or none; co-leader is used.");
                     return com.lawkeys.hcfcore.team.TeamRole.CO_LEADER;
                 });
         String header = section.getString("header", d.header());

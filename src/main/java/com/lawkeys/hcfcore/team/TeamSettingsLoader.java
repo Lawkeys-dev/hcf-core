@@ -58,7 +58,78 @@ public final class TeamSettingsLoader {
                 loadRally(section.getConfigurationSection("rally"), defaults.rally(), warn),
                 loadBank(section.getConfigurationSection("bank"), defaults.bank()),
                 loadPoints(section.getConfigurationSection("points"), defaults.points()),
-                loadKoth(section.getConfigurationSection("koth"), defaults.koth()));
+                loadKoth(section.getConfigurationSection("koth"), defaults.koth()),
+                Math.max(0, section.getInt("max-officers", defaults.maxOfficers())),
+                loadCustom(section.getConfigurationSection("team-settings"), defaults.custom(), warn),
+                loadShortcuts(section.getConfigurationSection("shortcuts"), defaults.shortcuts(), warn));
+    }
+
+    private static TeamSettings.CustomRules loadCustom(ConfigurationSection section,
+                                                       TeamSettings.CustomRules defaults, Consumer<String> warn) {
+        if (section == null) {
+            return defaults;
+        }
+        Set<String> locked = new LinkedHashSet<>();
+        List<String> raw = section.contains("locked") ? section.getStringList("locked") : List.copyOf(defaults.locked());
+        for (String key : raw) {
+            if (key != null && !key.isBlank()) {
+                locked.add(key.trim().toLowerCase(Locale.ROOT));
+            }
+        }
+        Map<String, String> icons = new java.util.LinkedHashMap<>(defaults.icons());
+        ConfigurationSection iconSection = section.getConfigurationSection("icons");
+        if (iconSection != null) {
+            for (String key : iconSection.getKeys(false)) {
+                String material = iconSection.getString(key, "").trim();
+                org.bukkit.Material found = org.bukkit.Material.matchMaterial(material);
+                if (found == null || !found.isItem()) {
+                    warn.accept("team-settings.icons." + key + ": '" + material + "' is not an item; the default is used.");
+                } else {
+                    icons.put(key.trim().toLowerCase(Locale.ROOT), found.name());
+                }
+            }
+        }
+        return new TeamSettings.CustomRules(section.getBoolean("enabled", defaults.enabled()),
+                section.getBoolean("open-teams", defaults.openTeams()), locked, icons);
+    }
+
+    /**
+     * Words and commands are kept lower-case and without a slash; one that is not a
+     * single word is reported and left out.
+     */
+    private static TeamSettings.Shortcuts loadShortcuts(ConfigurationSection section,
+                                                        TeamSettings.Shortcuts defaults, Consumer<String> warn) {
+        if (section == null) {
+            return defaults;
+        }
+        return new TeamSettings.Shortcuts(section.getBoolean("enabled", defaults.enabled()),
+                words(section, "subcommands", defaults.subcommands(), warn),
+                words(section, "commands", defaults.commands(), warn));
+    }
+
+    private static Map<String, String> words(ConfigurationSection parent, String path, Map<String, String> defaults,
+                                             Consumer<String> warn) {
+        ConfigurationSection section = parent.getConfigurationSection(path);
+        if (section == null) {
+            return parent.contains(path) ? Map.of() : defaults;
+        }
+        Map<String, String> words = new java.util.LinkedHashMap<>();
+        for (String key : section.getKeys(false)) {
+            String word = key.trim().toLowerCase(Locale.ROOT);
+            if (word.startsWith("/")) {
+                word = word.substring(1);
+            }
+            String target = section.getString(key, "").trim();
+            if (target.startsWith("/")) {
+                target = target.substring(1);
+            }
+            if (word.isEmpty() || word.contains(" ") || target.isEmpty()) {
+                warn.accept("shortcuts." + path + "." + key + " needs one word and a subcommand; ignored.");
+                continue;
+            }
+            words.put(word, target);
+        }
+        return words;
     }
 
     private static TeamSettings.NameRules loadNames(ConfigurationSection section,
@@ -124,7 +195,7 @@ public final class TeamSettingsLoader {
             return fallback;
         }
         return TeamRole.fromId(raw).orElseGet(() -> {
-            warn.accept(path + ": '" + raw + "' is not a valid role (leader, co-leader, member); using "
+            warn.accept(path + ": '" + raw + "' is not a valid role (leader, co-leader, officer, member); using "
                     + fallback.name().toLowerCase(Locale.ROOT) + ".");
             return fallback;
         });

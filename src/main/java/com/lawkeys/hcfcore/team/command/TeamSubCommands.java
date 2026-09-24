@@ -55,6 +55,7 @@ final class TeamSubCommands {
                 new Promote(),
                 new Demote(),
                 new Transfer(),
+                new Settings(),
                 new Info(),
                 new ListTeams(),
                 new Chat(),
@@ -272,9 +273,37 @@ final class TeamSubCommands {
         }
     }
 
+    /** {@code /team settings}: permissions, members and invitations, in a window. */
+    private static final class Settings extends TeamSubCommand {
+        Settings() {
+            super("settings", Set.of("options"), null, "", "Set up your team: permissions, members, invitations",
+                    true, 0);
+        }
+
+        @Override
+        public void execute(TeamModule module, CommandSender sender, String label, String[] args) {
+            Player player = (Player) sender;
+            if (!module.getSettings().custom().enabled()) {
+                module.getLang().send(sender, TeamMessages.SETTINGS_DISABLED);
+                return;
+            }
+            Optional<Team> team = requireTeam(module, sender, player);
+            if (team.isEmpty()) {
+                return;
+            }
+            Optional<TeamResult> denied = module.getManager().denied(team.get(), player.getUniqueId(),
+                    com.lawkeys.hcfcore.team.TeamAction.SETTINGS);
+            if (denied.isPresent()) {
+                report(module, sender, denied.get());
+                return;
+            }
+            TeamSettingsMenu.open(module, player, team.get());
+        }
+    }
+
     private static final class Join extends TeamSubCommand {
         Join() {
-            super("join", Set.of(), null, "<team>", "Accept an invitation", true, 1);
+            super("join", Set.of(), null, "<team>", "Accept an invitation, or join an open team", true, 1);
         }
 
         @Override
@@ -301,6 +330,13 @@ final class TeamSubCommands {
             String lower = args[0].toLowerCase(Locale.ROOT);
             for (Team team : module.getManager().getPendingInvites(player.getUniqueId())) {
                 if (team.getName().toLowerCase(Locale.ROOT).startsWith(lower)) {
+                    names.add(team.getName());
+                }
+            }
+            // And every team open to anybody (/team settings).
+            for (Team team : module.getManager().getTeams()) {
+                if (module.getManager().isOpen(team) && !names.contains(team.getName())
+                        && team.getName().toLowerCase(Locale.ROOT).startsWith(lower)) {
                     names.add(team.getName());
                 }
             }
@@ -491,6 +527,8 @@ final class TeamSubCommands {
                     "leader", team.getLeader().map(module::nameOf).orElse(lang.get(TeamMessages.INFO_NONE)));
             lang.send(sender, TeamMessages.INFO_CO_LEADERS,
                     "members", module.describeMembers(team.getMembersWithRole(TeamRole.CO_LEADER)));
+            lang.send(sender, TeamMessages.INFO_OFFICERS,
+                    "members", module.describeMembers(team.getMembersWithRole(TeamRole.OFFICER)));
             lang.send(sender, TeamMessages.INFO_MEMBERS,
                     "members", module.describeMembers(team.getMembersWithRole(TeamRole.MEMBER)));
             lang.send(sender, TeamMessages.INFO_ONLINE,

@@ -314,7 +314,7 @@ public final class ClaimSettingsLoader {
             String raw = section.getString(key);
             TeamRole role = TeamRole.fromId(raw).orElseGet(() -> {
                 warn.accept("required-roles." + key + ": '" + raw
-                        + "' is not a valid role (leader, co-leader, member); using "
+                        + "' is not a valid role (leader, co-leader, officer, member); using "
                         + fallback.name().toLowerCase(Locale.ROOT) + ".");
                 return fallback;
             });

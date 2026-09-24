@@ -18,7 +18,7 @@ Every player has a balance, starting at **100** (`starting-balance`). A player w
 
 ## Shop
 
-Money comes in by selling and goes out by buying, at the **shop** — signs at spawn, the `/shop` menu, or both, as the server chooses (`shop.mode`).
+Money comes in by selling and goes out by buying, at the **shop** — signs at spawn, the `/shop` menu, or both, as the server chooses (`shop.mode`). A server with its own shop plugin switches this one off (`shop.enabled: false`), and `/shop` is then the other plugin's.
 
 - **A sign**, placed by staff: a right click trades one lot; sneaking, a stack's worth (buying) or everything you hold (selling).
 

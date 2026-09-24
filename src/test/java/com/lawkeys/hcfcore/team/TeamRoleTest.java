@@ -13,7 +13,8 @@ class TeamRoleTest {
     @Test
     void hierarchyIsOrderedByWeight() {
         assertTrue(TeamRole.LEADER.outranks(TeamRole.CO_LEADER));
-        assertTrue(TeamRole.CO_LEADER.outranks(TeamRole.MEMBER));
+        assertTrue(TeamRole.CO_LEADER.outranks(TeamRole.OFFICER));
+        assertTrue(TeamRole.OFFICER.outranks(TeamRole.MEMBER));
         assertFalse(TeamRole.MEMBER.outranks(TeamRole.MEMBER));
         assertTrue(TeamRole.MEMBER.isAtLeast(TeamRole.MEMBER));
         assertFalse(TeamRole.CO_LEADER.isAtLeast(TeamRole.LEADER));
@@ -21,12 +22,14 @@ class TeamRoleTest {
 
     @Test
     void promotionAndDemotionStopAtTheEnds() {
-        assertEquals(Optional.of(TeamRole.CO_LEADER), TeamRole.MEMBER.promoted());
+        assertEquals(Optional.of(TeamRole.OFFICER), TeamRole.MEMBER.promoted());
+        assertEquals(Optional.of(TeamRole.CO_LEADER), TeamRole.OFFICER.promoted());
         assertEquals(Optional.of(TeamRole.LEADER), TeamRole.CO_LEADER.promoted());
         assertEquals(Optional.empty(), TeamRole.LEADER.promoted());
 
         assertEquals(Optional.of(TeamRole.CO_LEADER), TeamRole.LEADER.demoted());
-        assertEquals(Optional.of(TeamRole.MEMBER), TeamRole.CO_LEADER.demoted());
+        assertEquals(Optional.of(TeamRole.OFFICER), TeamRole.CO_LEADER.demoted());
+        assertEquals(Optional.of(TeamRole.MEMBER), TeamRole.OFFICER.demoted());
         assertEquals(Optional.empty(), TeamRole.MEMBER.demoted());
     }
 

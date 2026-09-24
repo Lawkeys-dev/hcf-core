@@ -17,7 +17,13 @@ import java.util.function.Consumer;
  * (the project owner's request, 23/09/2026). Through signs, a menu, or both.
  */
 public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sellHeader, List<Item> items,
-                        List<Category> categories) {
+                        List<Category> categories, String backIcon) {
+
+    /** Before the back button's item was configurable: an arrow. */
+    public ShopRules(boolean enabled, Mode mode, String buyHeader, String sellHeader, List<Item> items,
+                     List<Category> categories) {
+        this(enabled, mode, buyHeader, sellHeader, items, categories, "ARROW");
+    }
 
     /**
      * A shelf of the menu: {@code /shop} lists the categories, a click opens one.
@@ -85,6 +91,8 @@ public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sel
         Objects.requireNonNull(sellHeader, "sellHeader");
         items = List.copyOf(Objects.requireNonNull(items, "items"));
         categories = List.copyOf(Objects.requireNonNull(categories, "categories"));
+        // The menu's button back to the shelves (shop.menu.back-icon).
+        backIcon = backIcon == null ? "ARROW" : backIcon;
     }
 
     /** A shop without categories: one list, as it was before they existed. */
@@ -93,7 +101,7 @@ public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sel
     }
 
     public static ShopRules defaults() {
-        return new ShopRules(true, Mode.BOTH, "[Buy]", "[Sell]", List.of(), List.of());
+        return new ShopRules(true, Mode.BOTH, "[Buy]", "[Sell]", List.of(), List.of(), "ARROW");
     }
 
     /** @return whether the menu has anything on its shelves */
@@ -137,9 +145,15 @@ public record ShopRules(boolean enabled, Mode mode, String buyHeader, String sel
             }
         }
         List<Item> items = items(section.getMapList("menu.items"), "shop.menu.items", warn);
+        String back = section.getString("menu.back-icon", d.backIcon());
+        Material backMaterial = back == null ? null : Material.matchMaterial(back);
+        if (backMaterial == null || !backMaterial.isItem()) {
+            warn.accept("shop.menu.back-icon '" + back + "' is not an item; ARROW is used.");
+            backMaterial = Material.ARROW;
+        }
         return new ShopRules(section.getBoolean("enabled", d.enabled()), mode,
                 buy == null ? d.buyHeader() : buy.trim(), sell == null ? d.sellHeader() : sell.trim(), items,
-                categories);
+                categories, backMaterial.name());
     }
 
     private static List<Item> items(List<Map<?, ?>> rawItems, String where, Consumer<String> warn) {

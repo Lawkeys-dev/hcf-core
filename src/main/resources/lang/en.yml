@@ -42,6 +42,7 @@ team:
   role:
     leader: "Leader"
     co-leader: "Co-leader"
+    officer: "Officer"
     member: "Member"
 
   # --- Name validation ---------------------------------------------------
@@ -108,7 +109,7 @@ team:
     broadcast: "{prefix}{warning}%player% invited %target% to the team."
   join:
     success: "{success}You joined {secondary}%team%{success}."
-    no-invite: "{error}You have no pending invitation from %team%."
+    no-invite: "{error}You have no pending invitation from %team%, and it is not open."
     already-in-team: "{error}You are already in a team."
     broadcast: "{prefix}{success}%player% joined the team."
     # /team forcejoin, to the staff member who typed it.
@@ -131,6 +132,7 @@ team:
     success: "{success}Promoted to {secondary}%role%{success}."
     already-highest: "{error}That player is already %role% - use {secondary}/team transfer {error}to hand over leadership."
     co-leader-limit: "{error}Your team already has the maximum of %max% co-leaders."
+    officer-limit: "{error}Your team already has the maximum of %max% officers."
     broadcast: "{prefix}{success}%target% was promoted to %role% by %player%."
   demote:
     success: "{success}Demoted to {secondary}%role%{success}."
@@ -208,6 +210,7 @@ team:
     header: "{muted}&m--------&r {secondary}%team% {muted}&m--------"
     leader: "{muted}Leader: {secondary}%leader%"
     co-leaders: "{muted}Co-leaders: {secondary}%members%"
+    officers: "{muted}Officers: {secondary}%members%"
     members: "{muted}Members: {secondary}%members%"
     online: "{muted}Online: {secondary}%online%{muted}/{secondary}%total%"
     balance: "{muted}Balance: {secondary}%balance%"
@@ -220,6 +223,68 @@ team:
     none: "{muted}none"
     zone-safe: "{muted}Server land - {success}safe zone{muted}: nobody can be attacked here."
     zone-combat: "{muted}Server land - {error}combat zone{muted}: players can fight here."
+
+  # --- /team settings ----------------------------------------------------
+  settings:
+    disabled: "{error}Teams cannot change their settings on this server."
+    locked: "{error}The server sets that one for every team."
+    above-you: "{error}As %role%, you can only change what you may do yourself, up to your own rank."
+    permission-set: "{success}Permission changed."
+    open-disabled: "{error}Teams cannot be open on this server."
+    opened: "{success}Your team is open: anybody can join with {secondary}/team join{success}."
+    closed: "{success}Your team is closed: only invited players can join."
+    title: "%team% - settings"
+    permissions-title: "Permissions"
+    members-title: "Members"
+    invites-title: "Invitations"
+    button:
+      permissions: "{primary}Permissions"
+      permissions-lore: "{muted}Which rank may do what in the team."
+      members: "{primary}Members"
+      members-lore: "{muted}%count% member(s): promote, demote, kick."
+      invites: "{primary}Invitations"
+      invites-lore: "{muted}%count% pending - click one to take it back."
+      open: "{success}Open team"
+      closed: "{muted}Closed team"
+      open-lore: "{muted}Open: anybody joins without an invitation. Click to switch."
+      back: "{secondary}Back"
+    permission:
+      name: "{primary}%permission%"
+      role: "{muted}From: {secondary}%role%"
+      server: "{muted}The server's setting."
+      own: "{muted}Your team's choice {dark}(server: %role%)"
+      hint: "{muted}Left click: higher rank. Right click: lower. Shift-click: the server's."
+      locked: "{error}Set by the server for every team."
+    member:
+      name: "{secondary}%player%"
+      role: "{muted}Rank: {secondary}%role%"
+      hint: "{muted}Left click: promote. Right click: demote. Shift + right click: kick."
+    invite:
+      name: "{secondary}%player%"
+      hint: "{muted}Click to take the invitation back."
+      none: "{muted}No pending invitation"
+    # The name of each permission in the menu, by its key in required-roles.
+    permissions:
+      disband: "Disband the team"
+      rename: "Rename the team"
+      invite: "Invite players"
+      revoke-invite: "Take invitations back"
+      kick: "Kick members"
+      promote: "Promote members"
+      demote: "Demote members"
+      transfer-leadership: "Hand over leadership"
+      ally: "Make alliances"
+      unally: "End alliances"
+      focus: "Focus a team or player"
+      rally: "Set the rally point"
+      bank-deposit: "Deposit in the bank"
+      bank-withdraw: "Withdraw from the bank"
+      settings: "Open these settings"
+      claim: "Claim land"
+      unclaim: "Release land"
+      set-home: "Set the HQ and base"
+      lock-claim: "Lock the claim"
+      open-subclaims: "Open every subclaim"
 
   list:
     header: "{muted}&m--------&r {secondary}Top teams {muted}&m--------"
@@ -1177,6 +1242,7 @@ ui:
     member-offline: "{muted}%role%%player%"
     role-leader: "{primary}**"
     role-co-leader: "{primary}*"
+    role-officer: "{primary}+"
     role-member: ""
     # One of the teams with most points.
     top-team: "{muted}%rank%. {secondary}%team% {dark}{bullet} {primary}%points%"

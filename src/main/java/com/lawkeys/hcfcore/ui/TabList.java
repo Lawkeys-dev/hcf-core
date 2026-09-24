@@ -396,6 +396,7 @@ final class TabList {
                 String marker = lang.get(switch (role) {
                     case LEADER -> UiMessages.TAB_ROLE_LEADER;
                     case CO_LEADER -> UiMessages.TAB_ROLE_CO_LEADER;
+                    case OFFICER -> UiMessages.TAB_ROLE_OFFICER;
                     case MEMBER -> UiMessages.TAB_ROLE_MEMBER;
                 });
                 row = lang.get(seenOnline(viewer, id) ? UiMessages.TAB_MEMBER_ONLINE : UiMessages.TAB_MEMBER_OFFLINE,

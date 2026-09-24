@@ -65,6 +65,7 @@ public final class JdbcTeamStore implements TeamStore {
     public Collection<Team> loadAll() throws SQLException {
         Map<UUID, Map<UUID, TeamRole>> membersByTeam = loadMembers();
         Map<UUID, Set<UUID>> alliesByTeam = loadAlliances();
+        Map<UUID, Map<String, String>> settingsByTeam = loadSettings();
 
         List<Team> teams = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
@@ -110,7 +111,9 @@ public final class JdbcTeamStore implements TeamStore {
                         rally,
                         rs.getLong("rally_expires_at"),
                         membersByTeam.getOrDefault(id, Map.of()),
-                        alliesByTeam.getOrDefault(id, Set.of()));
+                        alliesByTeam.getOrDefault(id, Set.of()),
+                        permissionsOf(id, settingsByTeam.getOrDefault(id, Map.of())),
+                        Boolean.parseBoolean(settingsByTeam.getOrDefault(id, Map.of()).get(OPEN)));
                 teams.add(Team.fromSnapshot(snapshot));
             }
         }
@@ -141,6 +144,43 @@ public final class JdbcTeamStore implements TeamStore {
         return byTeam;
     }
 
+    /** {@code hcf_team_settings}: a permission is {@code permission.<key>}, the switch {@code open}. */
+    private static final String PERMISSION_PREFIX = "permission.";
+    private static final String OPEN = "open";
+
+    private Map<UUID, Map<String, String>> loadSettings() throws SQLException {
+        Map<UUID, Map<String, String>> byTeam = new HashMap<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT team_id, setting_key, setting_value FROM hcf_team_settings");
+             ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+                byTeam.computeIfAbsent(UUID.fromString(rs.getString("team_id")), ignored -> new HashMap<>())
+                        .put(rs.getString("setting_key"), rs.getString("setting_value"));
+            }
+        }
+        return byTeam;
+    }
+
+    private Map<String, TeamRole> permissionsOf(UUID teamId, Map<String, String> settings) {
+        Map<String, TeamRole> permissions = new HashMap<>();
+        for (Map.Entry<String, String> entry : settings.entrySet()) {
+            if (!entry.getKey().startsWith(PERMISSION_PREFIX)) {
+                continue;
+            }
+            String key = entry.getKey().substring(PERMISSION_PREFIX.length());
+            TeamRole role = TeamRole.fromId(entry.getValue()).orElse(null);
+            if (role == null) {
+                // A role removed in a later version: the server's role applies again.
+                logger.accept("Unknown role '" + entry.getValue() + "' for permission " + key + " of team "
+                        + teamId + "; the server's role applies.");
+            } else {
+                permissions.put(key, role);
+            }
+        }
+        return permissions;
+    }
+
     private Map<UUID, Set<UUID>> loadAlliances() throws SQLException {
         Map<UUID, Set<UUID>> byTeam = new HashMap<>();
         try (Connection connection = dataSource.getConnection();
@@ -166,7 +206,34 @@ public final class JdbcTeamStore implements TeamStore {
             }
             replaceMembers(connection, snapshot);
             replaceAlliances(connection, snapshot);
+            replaceSettings(connection, snapshot);
         });
+    }
+
+    private void replaceSettings(Connection connection, TeamSnapshot snapshot) throws SQLException {
+        try (PreparedStatement delete = connection.prepareStatement(
+                "DELETE FROM hcf_team_settings WHERE team_id = ?")) {
+            delete.setString(1, snapshot.id().toString());
+            delete.executeUpdate();
+        }
+        Map<String, String> rows = new LinkedHashMap<>();
+        snapshot.permissions().forEach((key, role) -> rows.put(PERMISSION_PREFIX + key, role.name()));
+        if (snapshot.open()) {
+            rows.put(OPEN, "true");
+        }
+        if (rows.isEmpty()) {
+            return;
+        }
+        try (PreparedStatement insert = connection.prepareStatement(
+                "INSERT INTO hcf_team_settings (team_id, setting_key, setting_value) VALUES (?, ?, ?)")) {
+            for (Map.Entry<String, String> row : rows.entrySet()) {
+                insert.setString(1, snapshot.id().toString());
+                insert.setString(2, row.getKey());
+                insert.setString(3, row.getValue());
+                insert.addBatch();
+            }
+            insert.executeBatch();
+        }
     }
 
     private int updateTeamRow(Connection connection, TeamSnapshot snapshot) throws SQLException {
@@ -267,6 +334,7 @@ public final class JdbcTeamStore implements TeamStore {
     public void delete(UUID teamId) throws SQLException {
         Transactions.run(dataSource, connection -> {
             executeDelete(connection, "DELETE FROM hcf_team_members WHERE team_id = ?", teamId);
+            executeDelete(connection, "DELETE FROM hcf_team_settings WHERE team_id = ?", teamId);
             executeDelete(connection, "DELETE FROM hcf_team_alliances WHERE team_id = ?", teamId);
             executeDelete(connection, "DELETE FROM hcf_team_alliances WHERE ally_team_id = ?", teamId);
             executeDelete(connection, "DELETE FROM hcf_teams WHERE id = ?", teamId);

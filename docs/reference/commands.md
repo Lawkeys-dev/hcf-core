@@ -6,32 +6,33 @@ While the plugin is still loading its data at startup, the commands that touch t
 
 ## `/team`
 
-Aliases `/f`, `/faction`. **`/team` or `/team help` lists every subcommand you are allowed to use.**
+Aliases `/f`, `/faction`. **`/team` or `/team help` lists every subcommand you are allowed to use.** Shortcuts, as shipped (`teams.yml`, `shortcuts`): `/hq`, `/base`, `/stuck` and `/fc` stand for `/team hq`, `base`, `stuck` and `chat`; and `/team i`, `h`/`home`, `sh`, `d`, `w`, `m`, `k`, `s` for `info`, `hq`, `sethq`, `deposit`, `withdraw`, `map`, `kick`, `settings`.
 
 ### For players
 
-The **role** column is the default minimum role in the player's team, set under `required-roles` in `teams.yml` and `claims.yml`.
+The **role** column is the default minimum role in the player's team, set under `required-roles` in `teams.yml` and `claims.yml` — and by each team for itself in `/team settings`. Ranks: leader, co-leader, officer, member.
 
 | Subcommand | Aliases | Does | Role |
 |---|---|---|---|
 | `create <name>` | | Found a team | — |
 | `disband` | | Disband your team | leader |
 | `rename <name>` | | Rename your team | leader |
-| `invite <player>` | `inv` | Invite a player | co-leader |
-| `uninvite <player>` | `revoke` | Withdraw an invitation | co-leader |
-| `join <team>` | | Accept an invitation | — |
+| `invite <player>` | `inv` | Invite a player | officer |
+| `uninvite <player>` | `revoke` | Withdraw an invitation | officer |
+| `join <team>` | | Accept an invitation, or join an open team | — |
 | `leave` | `quit` | Leave your team | — |
 | `kick <player>` | | Remove a member | co-leader |
-| `promote <player>` | | Member → co-leader | leader |
-| `demote <player>` | | Co-leader → member | leader |
+| `promote <player>` | | Member → officer → co-leader, never to your own rank | leader |
+| `demote <player>` | | Co-leader → officer → member | leader |
 | `transfer <player>` | `setleader` | Hand over leadership | leader |
+| `settings` | `options` | The team's window: permissions of each rank, members, invitations, open or closed | leader |
 | `info [team]` | `who`, `show` | A team's details | — |
 | `list [limit]` | `top` | Teams ranked by points (up to 100 lines) | — |
 | `chat [public\|team\|ally]` | `c` | Pick a chat channel; no argument cycles through them | — |
 | `ally <team>` | | Offer an alliance, or accept one offered | leader |
 | `unally <team>` | | Break an alliance | leader |
-| `focus <player\|team>` / `unfocus <player\|team>` | | Mark or clear a target for your team | co-leader |
-| `rally` / `unrally` | | Set or clear a rally point where you stand | co-leader |
+| `focus <player\|team>` / `unfocus <player\|team>` | | Mark or clear a target for your team | officer |
+| `rally` / `unrally` | | Set or clear a rally point where you stand | officer |
 | `dtr [team]` | | A team's DTR | — |
 | `claim` | | Get the claiming wand: left-click a corner, right-click the other, sneak + left-click to claim, drop to give up | co-leader |
 | `unclaim` | | Release the claim you stand in — all of it — refunding part of its price | leader |

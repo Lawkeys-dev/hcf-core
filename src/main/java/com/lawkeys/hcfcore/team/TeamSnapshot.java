@@ -37,7 +37,9 @@ public record TeamSnapshot(
         WorldPosition rally,
         long rallyExpiresAt,
         Map<UUID, TeamRole> members,
-        Set<UUID> allies) {
+        Set<UUID> allies,
+        Map<String, TeamRole> permissions,
+        boolean open) {
 
     public TeamSnapshot {
         Objects.requireNonNull(id, "id");
@@ -50,5 +52,14 @@ public record TeamSnapshot(
         }
         members = Map.copyOf(Objects.requireNonNull(members, "members"));
         allies = Set.copyOf(Objects.requireNonNull(allies, "allies"));
+        permissions = Map.copyOf(Objects.requireNonNull(permissions, "permissions"));
+    }
+
+    /** A team with no settings of its own: the server's roles, closed. */
+    public TeamSnapshot(UUID id, String name, TeamType type, SystemZone systemZone, UUID leader, long createdAt,
+                        double balance, long points, int kothCaptures, WorldPosition rally, long rallyExpiresAt,
+                        Map<UUID, TeamRole> members, Set<UUID> allies) {
+        this(id, name, type, systemZone, leader, createdAt, balance, points, kothCaptures, rally, rallyExpiresAt,
+                members, allies, Map.of(), false);
     }
 }

@@ -21,7 +21,7 @@ One plugin drives both **HCF** and **Kitmap**, and every rule, number and messag
 
 | Area | What it does |
 |---|---|
-| **Teams** | Roles, invitations, alliances, a bank, points and ranking — a kill, a death, an event won, a raid all counted — focus, rally, team and ally chat, `/lff` for players looking for one |
+| **Teams** | Roles with officers, a `/team settings` window (each rank's permissions, members, invitations, open teams), shortcuts like `/hq` and `/f i`, invitations, alliances, a bank, points and ranking — a kill, a death, an event won, a raid all counted — focus, rally, team and ally chat, `/lff` for players looking for one |
 | **Territory** | Claims drawn block by block with the claiming wand, paid from the team bank, with buffers and connected land, full protection (blocks, entities, pistons, liquids, explosions), HQ and base, subclaims (`[Subclaim]` chests), `/team stuck`, server land for spawn and roads, a warzone, a claim lock for SOTW behind a wall of red glass, `/team map` drawn in the world as pillars, elevator signs |
 | **DTR and raids** | The classic scale, computed from time so it never drifts; raids open land to pillage and protection returns on its own — land never changes hands |
 | **Combat** | Deathbans with rank tiers, combat tag and combat logging, safe zones with no damage and closed to anybody in combat, death signs, friendly fire rules, loot protection, strength nerf, ender pearl and item cooldowns (Gapple, Crapple…) — and a **classic 1.7.10 combat** mode: no attack cooldown, sword blocking, 1.7 weapon damage, Sharpness and knockback, regeneration, golden apples and pots |

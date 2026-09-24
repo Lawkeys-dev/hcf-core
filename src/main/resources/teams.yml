@@ -36,6 +36,8 @@ names:
 max-members: 20
 # Maximum simultaneous co-leaders. 0 = unlimited.
 max-co-leaders: 2
+# Maximum simultaneous officers - the rank between member and co-leader. 0 = unlimited.
+max-officers: 0
 
 # How long an invitation stays valid, in seconds. 0 = invitations never expire.
 invite-expiry-seconds: 300
@@ -46,32 +48,82 @@ invite-expiry-seconds: 300
 disband-on-last-member-leave: true
 
 # Role the outgoing leader drops to after handing over leadership.
-# One of: leader, co-leader, member.
+# One of: leader, co-leader, officer, member.
 role-after-leadership-transfer: co-leader
 # --8<-- [end:membership]
 
 # ---------------------------------------------------------------------------
-# Minimum role required for each action. One of: leader, co-leader, member.
-# An unrecognised value falls back to "leader" (the safest option) and is
-# reported in the console.
+# Minimum role required for each action. One of: leader, co-leader, officer,
+# member. An unrecognised value falls back to "leader" (the safest option) and is
+# reported in the console. Each team may choose its own in /team settings, unless
+# team-settings below says otherwise.
 # ---------------------------------------------------------------------------
 # --8<-- [start:required-roles]
 required-roles:
   disband: leader
   rename: leader
-  invite: co-leader
-  revoke-invite: co-leader
+  invite: officer
+  revoke-invite: officer
   kick: co-leader
   promote: leader
   demote: leader
   transfer-leadership: leader
   ally: leader
   unally: leader
-  focus: co-leader
-  rally: co-leader
+  focus: officer
+  rally: officer
   bank-deposit: member
   bank-withdraw: leader
+  # Opening /team settings.
+  settings: leader
 # --8<-- [end:required-roles]
+
+# --8<-- [start:team-settings]
+# /team settings: a window where a team sets itself up - which rank may do what
+# (every key of required-roles above and in claims.yml, plus open-subclaims),
+# its members (promote, demote, kick) and its invitations (pending ones, and
+# whether the team is open to anybody: /team join without an invitation).
+team-settings:
+  # false: every team follows the server's roles, and /team settings is refused.
+  enabled: true
+  # A team may open itself to anybody.
+  open-teams: true
+  # Permissions no team may change: they follow the server's roles for everybody.
+  locked: [disband, transfer-leadership]
+  # Nobody hands out more than they have: whoever opens the settings changes only a
+  # permission they hold themselves, to a rank no higher than their own. The leader
+  # changes everything.
+  #
+  # The window's items, by permission key or button (permissions, members, invites,
+  # open, closed, back). A key left out keeps its default.
+  icons: {}
+# --8<-- [end:team-settings]
+
+# --8<-- [start:shortcuts]
+# Shorter ways to type team commands.
+shortcuts:
+  enabled: true
+  # Another word for a /team subcommand: /team i is /team info. A subcommand's own
+  # name or alias always wins over a word here.
+  subcommands:
+    i: info
+    h: hq
+    home: hq
+    sh: sethq
+    d: deposit
+    w: withdraw
+    m: map
+    k: kick
+    s: settings
+  # A command of its own: /hq is /team hq. The value is the subcommand, and may
+  # carry arguments put before the player's own. A name that is already a command -
+  # another plugin's, the server's - is left to it and reported in the console.
+  commands:
+    hq: hq
+    base: base
+    stuck: stuck
+    fc: chat
+# --8<-- [end:shortcuts]
 
 # --8<-- [start:alliances]
 alliances:

@@ -204,12 +204,81 @@ public final class TeamManager {
         if (role.isEmpty()) {
             return Optional.of(TeamResult.fail(TeamMessages.NOT_A_MEMBER, "team", team.getName()));
         }
-        TeamRole required = config().requiredRole(action);
+        TeamRole required = requiredRole(team, action.configKey(), config().requiredRole(action));
         if (!role.get().isAtLeast(required)) {
             return Optional.of(TeamResult.fail(TeamMessages.INSUFFICIENT_ROLE,
                     "required", required.name(), "role", role.get().name()));
         }
         return Optional.empty();
+    }
+
+    /** @return a failing result when this member may not use {@code action}, or empty when they may */
+    public Optional<TeamResult> denied(Team team, UUID actor, TeamAction action) {
+        return checkRole(team, actor, action);
+    }
+
+    /**
+     * The lowest role that may use a permission in this team: the team's own choice
+     * ({@code /team settings}) where the server lets teams choose, otherwise the
+     * server's. Other modules ask here for their own permissions ({@code claim/}'s).
+     *
+     * @param serverRole what {@code required-roles} says, for every team
+     */
+    public TeamRole requiredRole(Team team, String key, TeamRole serverRole) {
+        if (team == null || !config().custom().editable(key)) {
+            return serverRole;
+        }
+        return team.getPermission(key).orElse(serverRole);
+    }
+
+    /**
+     * Sets the lowest role that may use a permission in a team, or back to the
+     * server's with {@code null}. Nobody hands out more than they have: an editor
+     * changes only a permission they hold, to a role no higher than their own - the
+     * leader, everything.
+     *
+     * @param actor      {@code null} for staff
+     * @param serverRole the server's role for it, which the team's replaces
+     */
+    public TeamResult setPermission(Team team, UUID actor, String key, TeamRole role, TeamRole serverRole) {
+        Objects.requireNonNull(team, "team");
+        Objects.requireNonNull(key, "key");
+        Optional<TeamResult> denied = checkRole(team, actor, TeamAction.SETTINGS);
+        if (denied.isPresent()) {
+            return denied.get();
+        }
+        if (!config().custom().editable(key)) {
+            return TeamResult.fail(TeamMessages.SETTINGS_LOCKED);
+        }
+        if (actor != null) {
+            TeamRole actorRole = team.getRole(actor).orElse(TeamRole.MEMBER);
+            TeamRole current = requiredRole(team, key, serverRole);
+            TeamRole wanted = role == null ? serverRole : role;
+            if (actorRole != TeamRole.LEADER && (!actorRole.isAtLeast(current) || !actorRole.isAtLeast(wanted))) {
+                return TeamResult.fail(TeamMessages.SETTINGS_ABOVE_YOU, "role", actorRole.name());
+            }
+        }
+        team.setPermission(key, role);
+        return TeamResult.ok(TeamMessages.SETTINGS_PERMISSION_SET, team);
+    }
+
+    /** Opens a team to anybody, or closes it to the invited again. */
+    public TeamResult setOpen(Team team, UUID actor, boolean open) {
+        Objects.requireNonNull(team, "team");
+        Optional<TeamResult> denied = checkRole(team, actor, TeamAction.SETTINGS);
+        if (denied.isPresent()) {
+            return denied.get();
+        }
+        if (open && !config().custom().openTeams()) {
+            return TeamResult.fail(TeamMessages.SETTINGS_OPEN_DISABLED);
+        }
+        team.setOpen(open);
+        return TeamResult.ok(open ? TeamMessages.SETTINGS_OPENED : TeamMessages.SETTINGS_CLOSED, team);
+    }
+
+    /** @return whether a team lets anybody in right now: open, and the server allows it */
+    public boolean isOpen(Team team) {
+        return team.isOpen() && config().custom().enabled() && config().custom().openTeams();
     }
 
     // ------------------------------------------------------------------
@@ -406,6 +475,17 @@ public final class TeamManager {
         return List.copyOf(pending);
     }
 
+    /** @return the players holding a live invitation from this team */
+    public List<UUID> getInvitesOf(Team team) {
+        List<UUID> invited = new ArrayList<>();
+        for (Map.Entry<UUID, Map<UUID, Invite>> entry : invites.entrySet()) {
+            if (entry.getValue().containsKey(team.getId()) && hasInvite(entry.getKey(), team)) {
+                invited.add(entry.getKey());
+            }
+        }
+        return List.copyOf(invited);
+    }
+
     public TeamResult invite(Team team, UUID actor, UUID target) {
         Objects.requireNonNull(team, "team");
         Objects.requireNonNull(target, "target");
@@ -463,7 +543,7 @@ public final class TeamManager {
         if (hasTeam(player)) {
             return TeamResult.fail(TeamMessages.JOIN_ALREADY_IN_TEAM);
         }
-        if (!force && !hasInvite(player, team)) {
+        if (!force && !hasInvite(player, team) && !isOpen(team)) {
             return TeamResult.fail(TeamMessages.JOIN_NO_INVITE, "team", team.getName());
         }
         if (isFull(team)) {
@@ -566,15 +646,19 @@ public final class TeamManager {
     }
 
     /**
-     * @return who leads a team that has lost its leader: a co-leader, otherwise a
-     *         member. Between equals the choice is arbitrary - nothing records who
-     *         joined first - so it is made by id, to be the same on every run
+     * @return who leads a team that has lost its leader: a co-leader, otherwise an
+     *         officer, otherwise a member. Between equals the choice is arbitrary -
+     *         nothing records who joined first - so it is made by id, to be the same
+     *         on every run
      */
     private static Optional<UUID> successorOf(Team team) {
-        Optional<UUID> coLeader = team.getMembersWithRole(TeamRole.CO_LEADER).stream().min(Comparator.naturalOrder());
-        return coLeader.isPresent()
-                ? coLeader
-                : team.getMembersWithRole(TeamRole.MEMBER).stream().min(Comparator.naturalOrder());
+        for (TeamRole role : List.of(TeamRole.CO_LEADER, TeamRole.OFFICER, TeamRole.MEMBER)) {
+            Optional<UUID> found = team.getMembersWithRole(role).stream().min(Comparator.naturalOrder());
+            if (found.isPresent()) {
+                return found;
+            }
+        }
+        return Optional.empty();
     }
 
     private void removeFromTeam(Team team, UUID player, TeamEventDispatcher.LeaveCause cause) {
@@ -608,6 +692,20 @@ public final class TeamManager {
             return TeamResult.fail(TeamMessages.PROMOTE_ALREADY_HIGHEST, "role", current.get().name());
         }
         TeamRole next = current.get().promoted().orElseThrow();
+        // Nobody makes somebody their equal: an officer or co-leader allowed to promote
+        // (a team's own choice, /team settings) raises members only below themselves.
+        if (actor != null) {
+            TeamRole actorRole = team.getRole(actor).orElse(TeamRole.MEMBER);
+            if (!actorRole.outranks(next)) {
+                return TeamResult.fail(TeamMessages.INSUFFICIENT_ROLE,
+                        "required", TeamRole.LEADER.name(), "role", actorRole.name());
+            }
+        }
+        int maxOfficers = config().maxOfficers();
+        if (next == TeamRole.OFFICER && maxOfficers > 0
+                && team.getMembersWithRole(TeamRole.OFFICER).size() >= maxOfficers) {
+            return TeamResult.fail(TeamMessages.PROMOTE_OFFICER_LIMIT, "max", String.valueOf(maxOfficers));
+        }
 
         int maxCoLeaders = config().maxCoLeaders();
         if (next == TeamRole.CO_LEADER && maxCoLeaders > 0

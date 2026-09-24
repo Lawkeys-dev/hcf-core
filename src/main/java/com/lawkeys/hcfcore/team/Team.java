@@ -63,6 +63,14 @@ public final class Team {
     private long points;
     private int kothCaptures;
 
+    /**
+     * The team's own choices in {@code /team settings}: a permission key to the lowest
+     * role that may use it. A key absent follows the server's {@code required-roles}.
+     */
+    private final Map<String, TeamRole> permissions = new ConcurrentHashMap<>();
+    /** Anybody may join without an invitation. */
+    private volatile boolean open;
+
     /** Set whenever mutable state changes; consumed and cleared by the async persistence flush. */
     private volatile boolean dirty;
 
@@ -286,6 +294,38 @@ public final class Team {
         focusedPlayers.clear();
     }
 
+    // --- Settings (/team settings) ----------------------------------------
+
+    /** @return the team's own role for this permission, or empty to follow the server's */
+    public Optional<TeamRole> getPermission(String key) {
+        return Optional.ofNullable(permissions.get(key));
+    }
+
+    /** @return every permission the team set itself */
+    public Map<String, TeamRole> getPermissions() {
+        return Map.copyOf(permissions);
+    }
+
+    /** @param role {@code null} to follow the server's again */
+    public void setPermission(String key, TeamRole role) {
+        Objects.requireNonNull(key, "key");
+        if (role == null) {
+            permissions.remove(key);
+        } else {
+            permissions.put(key, role);
+        }
+        markDirty();
+    }
+
+    public boolean isOpen() {
+        return open;
+    }
+
+    public void setOpen(boolean open) {
+        this.open = open;
+        markDirty();
+    }
+
     // --- Rally ------------------------------------------------------------
 
     /** @return the rally point without checking expiry; use {@code TeamManager#getRally}. */
@@ -366,7 +406,8 @@ public final class Team {
      */
     public synchronized TeamSnapshot toSnapshot() {
         return new TeamSnapshot(id, name, type, systemZone, leader, createdAt, balance, points,
-                kothCaptures, getRally().orElse(null), getRallyExpiresAt(), getMembers(), getAllies());
+                kothCaptures, getRally().orElse(null), getRallyExpiresAt(), getMembers(), getAllies(),
+                getPermissions(), open);
     }
 
     /**
@@ -386,6 +427,8 @@ public final class Team {
         team.kothCaptures = snapshot.kothCaptures();
         team.rally = snapshot.rally() == null ? null : new Rally(snapshot.rally(), snapshot.rallyExpiresAt());
         team.systemZone = snapshot.systemZone();
+        team.permissions.putAll(snapshot.permissions());
+        team.open = snapshot.open();
         team.clearDirty();
         return team;
     }

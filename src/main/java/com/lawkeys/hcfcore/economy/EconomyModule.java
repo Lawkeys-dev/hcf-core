@@ -95,6 +95,8 @@ public final class EconomyModule {
         plugin.getServer().getPluginManager().registerEvents(
                 new com.lawkeys.hcfcore.economy.shop.ShopMenu.Clicks(() -> shop, () -> manager, lang, trades), plugin);
         registerCommand("shop", new com.lawkeys.hcfcore.economy.shop.ShopCommand(() -> shop, () -> manager, lang));
+        this.shopCommand = plugin.getServer().getPluginCommand("shop");
+        applyShopCommand();
         plugin.getServer().getPluginManager().registerEvents(
                 new com.lawkeys.hcfcore.economy.reward.KillRewardListener(() -> manager, teams::getManager, lang,
                         () -> killReward), plugin);
@@ -159,6 +161,24 @@ public final class EconomyModule {
             com.lawkeys.hcfcore.economy.bounty.BountyRules.defaults();
     private com.lawkeys.hcfcore.economy.bounty.Bounties bounties;
 
+    /** {@code /shop}, kept to hand its name over and take it back. */
+    private PluginCommand shopCommand;
+
+    /**
+     * The shop switched off leaves {@code /shop} to another shop plugin; switched on,
+     * takes it back where it is free. Its signs are inert while it is off.
+     */
+    private void applyShopCommand() {
+        if (shopCommand == null) {
+            return;
+        }
+        if (shop.enabled()) {
+            com.lawkeys.hcfcore.util.CommandLabels.claim(shopCommand);
+        } else {
+            com.lawkeys.hcfcore.util.CommandLabels.release(plugin, shopCommand);
+        }
+    }
+
     /** {@code economy.yml}, {@code shop}. */
     private volatile com.lawkeys.hcfcore.economy.shop.ShopRules shop =
             com.lawkeys.hcfcore.economy.shop.ShopRules.defaults();
@@ -178,6 +198,7 @@ public final class EconomyModule {
         this.shop = com.lawkeys.hcfcore.economy.shop.ShopRules.load(
                 file == null ? null : file.getConfigurationSection("shop"),
                 warning -> plugin.getLogger().warning("economy.yml: " + warning));
+        applyShopCommand();
     }
 
     public void disable() {

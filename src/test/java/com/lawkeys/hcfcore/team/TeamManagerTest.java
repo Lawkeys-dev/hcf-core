@@ -453,6 +453,8 @@ class TeamManagerTest {
             manager.join(bob, team, true);
 
             assertTrue(manager.promote(team, alice, bob).isSuccess());
+            assertEquals(TeamRole.OFFICER, team.getRole(bob).orElseThrow());
+            assertTrue(manager.promote(team, alice, bob).isSuccess());
             assertEquals(TeamRole.CO_LEADER, team.getRole(bob).orElseThrow());
 
             assertEquals(TeamMessages.PROMOTE_ALREADY_HIGHEST, manager.promote(team, alice, bob).getMessageKey());
@@ -466,6 +468,8 @@ class TeamManagerTest {
             manager.join(bob, team, true);
             manager.join(carol, team, true);
 
+            manager.promote(team, alice, bob);
+            manager.promote(team, alice, carol);
             assertTrue(manager.promote(team, alice, bob).isSuccess());
             assertEquals(TeamMessages.PROMOTE_CO_LEADER_LIMIT, manager.promote(team, alice, carol).getMessageKey());
         }

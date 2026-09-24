@@ -13,8 +13,10 @@ import java.util.Optional;
 public enum TeamRole {
 
     MEMBER(0),
-    CO_LEADER(1),
-    LEADER(2);
+    /** Between a member and a co-leader (added 24/09/2026); a team decides what it may do. */
+    OFFICER(1),
+    CO_LEADER(2),
+    LEADER(3);
 
     private final int weight;
 
@@ -39,7 +41,8 @@ public enum TeamRole {
     /** @return the next role up, or empty if already at the top. */
     public Optional<TeamRole> promoted() {
         return switch (this) {
-            case MEMBER -> Optional.of(CO_LEADER);
+            case MEMBER -> Optional.of(OFFICER);
+            case OFFICER -> Optional.of(CO_LEADER);
             case CO_LEADER -> Optional.of(LEADER);
             case LEADER -> Optional.empty();
         };
@@ -49,7 +52,8 @@ public enum TeamRole {
     public Optional<TeamRole> demoted() {
         return switch (this) {
             case LEADER -> Optional.of(CO_LEADER);
-            case CO_LEADER -> Optional.of(MEMBER);
+            case CO_LEADER -> Optional.of(OFFICER);
+            case OFFICER -> Optional.of(MEMBER);
             case MEMBER -> Optional.empty();
         };
     }

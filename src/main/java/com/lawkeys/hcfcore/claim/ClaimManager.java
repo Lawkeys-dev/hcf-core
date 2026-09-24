@@ -861,7 +861,8 @@ public final class ClaimManager {
         if (role.isEmpty()) {
             return Optional.of(TeamResult.fail(TeamMessages.NOT_A_MEMBER, "team", team.getName()));
         }
-        TeamRole required = config().requiredRole(action);
+        // The team's own choice where it may make one (/team settings), else the server's.
+        TeamRole required = teams.requiredRole(team, action.configKey(), config().requiredRole(action));
         if (!role.get().isAtLeast(required)) {
             return Optional.of(TeamResult.fail(ClaimMessages.INSUFFICIENT_ROLE,
                     "required", required.name(), "role", role.get().name()));

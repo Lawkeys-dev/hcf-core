@@ -139,13 +139,32 @@ public final class TeamCommand implements TabExecutor {
         return sub.get().tabComplete(module, sender, Arrays.copyOfRange(args, 1, args.length));
     }
 
-    private Optional<TeamSubCommand> find(String input) {
+    /**
+     * A subcommand by its name or one of its own aliases, and failing that by a word
+     * of {@code shortcuts.subcommands} ({@code /team i}): the plugin's own words
+     * always win, so a shortcut can never hide a subcommand.
+     */
+    Optional<TeamSubCommand> find(String input) {
         for (TeamSubCommand sub : subCommands) {
             if (sub.matches(input)) {
                 return Optional.of(sub);
             }
         }
+        var shortcuts = module.getSettings().shortcuts();
+        String target = shortcuts.enabled() ? shortcuts.subcommands().get(input.toLowerCase(Locale.ROOT)) : null;
+        if (target != null) {
+            for (TeamSubCommand sub : subCommands) {
+                if (sub.matches(target)) {
+                    return Optional.of(sub);
+                }
+            }
+        }
         return Optional.empty();
+    }
+
+    /** @return whether this word is a subcommand's own name or alias, shortcuts aside */
+    boolean isOwnWord(String word) {
+        return word.equalsIgnoreCase(HELP) || subCommands.stream().anyMatch(sub -> sub.matches(word));
     }
 
     private void sendHelp(CommandSender sender, String label) {

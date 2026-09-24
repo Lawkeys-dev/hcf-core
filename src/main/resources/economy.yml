@@ -51,6 +51,8 @@ pay:
 # rule), the /shop menu, or both. Only plain items are counted and taken - a
 # renamed or enchanted stack is never sold by mistake.
 shop:
+  # false: no shop at all - no /shop, signs inert. /shop is then left to another
+  # shop plugin, if the server has one: the name goes to its /shop.
   enabled: true
   # signs, menu or both.
   mode: both
@@ -73,6 +75,8 @@ shop:
   # brewing stand use goes out. The shop never buys back what it sells, so nothing
   # can be bought and sold at a profit.
   menu:
+    # The button back to the shelves, in a shelf.
+    back-icon: ARROW
     categories:
       # Selling what you mine.
       ores:
