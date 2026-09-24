@@ -103,10 +103,40 @@ final class ServerGridTab implements GridTab {
         return new ServerGridTab();
     }
 
+    /**
+     * The names each viewer's chat completes, the players they can see. The game
+     * completes a name in the chat from the players on its list - here, the grid's
+     * cells - so the real players, taken off it, are handed back to it as chat
+     * completions (found in game, 24/09/2026: Tab offered the cells, not the players).
+     */
+    private final Map<UUID, Set<String>> completions = new ConcurrentHashMap<>();
+
+    /** Brings a viewer's chat completions in line with the players they can see now. */
+    private void keepCompletions(Player viewer) {
+        Set<String> wanted = new HashSet<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (viewer.canSee(player)) {
+                wanted.add(player.getName());
+            }
+        }
+        Set<String> had = completions.computeIfAbsent(viewer.getUniqueId(), id -> ConcurrentHashMap.newKeySet());
+        List<String> gone = had.stream().filter(name -> !wanted.contains(name)).toList();
+        List<String> added = wanted.stream().filter(name -> !had.contains(name)).toList();
+        if (!gone.isEmpty()) {
+            viewer.removeCustomChatCompletions(gone);
+            gone.forEach(had::remove);
+        }
+        if (!added.isEmpty()) {
+            viewer.addCustomChatCompletions(added);
+            had.addAll(added);
+        }
+    }
+
     @Override
     public void show(Player viewer, List<Cell> cells, Look look) {
         viewers.put(viewer.getUniqueId(), ConcurrentHashMap.newKeySet());
         keepUnlisted(viewer);
+        keepCompletions(viewer);
         List<Object> entries = new ArrayList<>(TabGrid.SIZE);
         for (int cell = 0; cell < TabGrid.SIZE; cell++) {
             entries.add(cell(cell, cell < cells.size() ? cells.get(cell) : new Cell(Component.empty(), null), look));
@@ -120,6 +150,7 @@ final class ServerGridTab implements GridTab {
             return;
         }
         keepUnlisted(viewer);
+        keepCompletions(viewer);
         if (!heads.isEmpty()) {
             send(viewer, construct(removePacket, heads.keySet().stream().map(TabGrid::id).toList()));
             List<Object> entries = new ArrayList<>(heads.size());
@@ -149,6 +180,11 @@ final class ServerGridTab implements GridTab {
 
     @Override
     public void hide(Player viewer) {
+        Set<String> completed = completions.remove(viewer.getUniqueId());
+        if (completed != null && !completed.isEmpty()) {
+            // Back on the list, the players are completed by the game itself.
+            viewer.removeCustomChatCompletions(completed);
+        }
         Set<UUID> unlisted = viewers.remove(viewer.getUniqueId());
         if (unlisted == null) {
             return;
@@ -170,6 +206,7 @@ final class ServerGridTab implements GridTab {
     @Override
     public void forget(UUID viewer) {
         viewers.remove(viewer);
+        completions.remove(viewer);
         for (Set<UUID> unlisted : viewers.values()) {
             unlisted.remove(viewer);
         }

@@ -46,7 +46,7 @@ class TabGridTest {
         Set<UUID> ids = new HashSet<>();
         for (int i = 0; i < TabGrid.SIZE; i++) {
             ids.add(TabGrid.id(i));
-            assertTrue(TabGrid.name(i).length() <= 16, "a profile name is sixteen characters at most");
+            assertEquals("", TabGrid.name(i), "a cell's name is never completed in the chat");
             assertTrue(TabGrid.isCell(TabGrid.id(i)));
         }
         assertEquals(TabGrid.SIZE, ids.size());

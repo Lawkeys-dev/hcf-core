@@ -21,6 +21,9 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **`shop.enabled: false` leaves `/shop` to another plugin**: the shop switched off gives the name `/shop` to another shop plugin's `/shop`, where there was a clash.
 - **The King's death is the event's, not a real one** (`reign`): the kit vanishes with the reign instead of dropping as loot (`drop-kit: false`), the King's team loses no DTR (`death-costs-dtr: false`) and the King is not deathbanned (`deathban: false`) — they respawn and get their own items back. A King who logs out in combat is not spared. *To keep the 0.8.0 behaviour, set all three to `true` in a `reign` section; without the section, the new values apply.*
 
+### Fixed
+- **Tab in the chat offered the HCF grid's cells** (`!tab00`...) instead of the players' names: the cells are no longer completed, and the players you can see are.
+
 ## [0.8.0] - 2026-09-23
 
 Claims drawn block by block with the claiming wand, and every event set up in game with the same commands — three new ones (DTC, Last Break, Slide), the Totem and Mini Totem, a weekly schedule. Territory shown in the world, safe zones that close to anybody in combat, and an economy for the fights: money for a kill, a shop, bounties. Kill the King in teams or alone, Discord announcements, mining alerts, death signs, subclaims.

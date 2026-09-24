@@ -75,11 +75,15 @@ public final class TabGrid {
     }
 
     /**
-     * @return a cell's profile name. Never shown - every cell has a display name - but
-     *         the game wants one, and a name no player can have keeps it apart
+     * @return a cell's profile name: empty. Never shown - every cell has a display
+     *         name - but the game completes names in the chat from the list's
+     *         profiles, and offered {@code !tab00}... to a player pressing Tab (found
+     *         in game, 24/09/2026). An empty name is never offered: with nothing typed
+     *         the suggestion equals the text and is dropped, and once a letter is typed
+     *         an empty name no longer matches
      */
     public static String name(int cell) {
-        return String.format("!tab%02d", cell);
+        return "";
     }
 
     /** @return a cell's list order: the game puts the highest first */
