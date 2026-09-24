@@ -4,7 +4,7 @@ site_url: https://lawkeys-dev.github.io/hcf-core/
 repo_url: https://github.com/Lawkeys-dev/hcf-core
 repo_name: Lawkeys-dev/hcf-core
 edit_uri: edit/main/docs/
-copyright: HCFCore is released under the MIT License, with an attribution requirement.
+copyright: HCFCore is released under the MIT License.
 
 validation:
   omitted_files: warn

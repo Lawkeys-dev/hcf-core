@@ -17,6 +17,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **The shop's back button** is configurable (`economy.yml`, `shop.menu.back-icon`).
 
 ### Changed
+- **The license is plain MIT**: the additional attribution requirement is gone. Keeping the copyright and permission notice with the software, as MIT asks, is all that remains.
 - **Invite, revoke an invite, focus and rally need an officer** as shipped (`required-roles`), not a co-leader. *A server's own `teams.yml` keeps its values.*
 - **`shop.enabled: false` leaves `/shop` to another plugin**: the shop switched off gives the name `/shop` to another shop plugin's `/shop`, where there was a clash.
 - **The King's death is the event's, not a real one** (`reign`): the kit vanishes with the reign instead of dropping as loot (`drop-kit: false`), the King's team loses no DTR (`death-costs-dtr: false`) and the King is not deathbanned (`deathban: false`) — they respawn and get their own items back. A King who logs out in combat is not spared. *To keep the 0.8.0 behaviour, set all three to `true` in a `reign` section; without the section, the new values apply.*

@@ -1,4 +1,4 @@
-MIT License (with Attribution Requirement)
+MIT License
 
 Copyright (c) 2026 Kylian
 
@@ -11,20 +11,6 @@ furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
-ADDITIONAL ATTRIBUTION REQUIREMENT:
-Any distribution, publication, or public deployment of the Software, whether
-in its original form or as a modified/derivative work, must include a clear
-and visible reference to the original source repository:
-
-    https://github.com/Lawkeys-dev/hcf-core
-
-This reference must appear in at least one of the following locations:
-- the plugin's source code header comments,
-- the project's README or equivalent documentation,
-- any public-facing "credits"/"about" command or page exposed by the plugin.
-
-Removing or obscuring this attribution requirement is not permitted.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

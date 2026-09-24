@@ -30,4 +30,4 @@ Open an [issue](https://github.com/Lawkeys-dev/hcf-core/issues) with:
 
 ## License
 
-HCFCore is released under the [MIT License with an attribution requirement](https://github.com/Lawkeys-dev/hcf-core/blob/main/LICENSE): any public distribution or deployment, modified or not, must visibly reference the original repository. By contributing, you agree that your contribution is released under the same license.
+HCFCore is released under the [MIT License](https://github.com/Lawkeys-dev/hcf-core/blob/main/LICENSE). By contributing, you agree that your contribution is released under the same license.
