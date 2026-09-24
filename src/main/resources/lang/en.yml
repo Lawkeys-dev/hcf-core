@@ -660,6 +660,7 @@ events:
     returned: "{success}Back in the warzone."
     safe-zone-refused: "{error}The King cannot enter a safe zone."
     not-while-king: "{error}Not while you are the King - the kit stays with you."
+    armour-locked: "{error}The King's armour stays on until the reign ends."
     items-returned: "{success}Your own items are back."
     already-running: "{error}%event% is already running - only one King at a time."
     list:

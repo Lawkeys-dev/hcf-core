@@ -1,6 +1,9 @@
 package com.lawkeys.hcfcore.events.king;
 
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
+import com.lawkeys.hcfcore.util.ForgivenDeaths;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Equippable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,7 +17,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -26,7 +32,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -54,8 +63,12 @@ import java.util.UUID;
  * hung in an item frame, given to an allay - would leave the event with the team
  * and the King's items back with them. While King, a player can drop nothing,
  * open no container, interact with no entity and put nothing in a block that holds
- * items (a pot, a shelf). What drops at the King's death is the kit, and that is
- * the point.
+ * items (a pot, a shelf). What becomes of the kit at the King's death is
+ * {@code reign.drop-kit}: gone by default, loot for the killer otherwise.
+ *
+ * <p><strong>The armour stays on</strong> ({@code reign.lock-armour}, 23/09/2026):
+ * no click, drag or key swap on an armour slot, and no right-click swap with a
+ * piece in hand.
  */
 final class KingListener implements Listener {
 
@@ -182,6 +195,57 @@ final class KingListener implements Listener {
         controller.refuse(event.getPlayer(), KingMessages.NOT_WHILE_KING);
     }
 
+    // ------------------------------------------------------------------
+    // The armour stays on
+    // ------------------------------------------------------------------
+
+    private boolean armourLocked(Player player) {
+        return isKing(player) && controller.reignOf(player.getUniqueId()).lockArmour();
+    }
+
+    /**
+     * Any click on an armour slot: taking, placing, shift-click, a number key or the
+     * off-hand key. {@code InventoryCreativeEvent} shares this handler list.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onArmourClick(InventoryClickEvent event) {
+        if (event.getSlotType() == InventoryType.SlotType.ARMOR
+                && event.getWhoClicked() instanceof Player player && armourLocked(player)) {
+            event.setCancelled(true);
+            controller.refuse(player, KingMessages.ARMOUR_LOCKED);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onArmourDrag(InventoryDragEvent event) {
+        if (event.getWhoClicked() instanceof Player player && armourLocked(player)
+                && event.getRawSlots().stream()
+                        .anyMatch(raw -> event.getView().getSlotType(raw) == InventoryType.SlotType.ARMOR)) {
+            event.setCancelled(true);
+            controller.refuse(player, KingMessages.ARMOUR_LOCKED);
+        }
+    }
+
+    /**
+     * Right-clicking a piece of armour swaps it with the one worn. Not
+     * {@code ignoreCancelled}: a click in the air arrives already "cancelled" -
+     * its block use is denied - with the item's use still allowed.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onArmourSwap(PlayerInteractEvent event) {
+        Action action = event.getAction();
+        ItemStack item = event.getItem();
+        if ((action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) || item == null
+                || event.useItemInHand() == Event.Result.DENY || !armourLocked(event.getPlayer())) {
+            return;
+        }
+        Equippable equippable = item.getData(DataComponentTypes.EQUIPPABLE);
+        if (equippable != null && equippable.slot().isArmor() && equippable.swappable()) {
+            event.setUseItemInHand(Event.Result.DENY);
+            controller.refuse(event.getPlayer(), KingMessages.ARMOUR_LOCKED);
+        }
+    }
+
     /** Names and tags checked against Paper 26.2. */
     private static boolean takesItems(Material type) {
         return type == Material.DECORATED_POT || type == Material.CHISELED_BOOKSHELF
@@ -199,16 +263,40 @@ final class KingListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onDeath(PlayerDeathEvent event) {
         Player king = event.getEntity();
+        UUID id = king.getUniqueId();
         boolean reigning = isKing(king);
         // A King who logged out in combat is no longer King when pvp/ kills them,
-        // but still carries the kit: their drops are loot all the same.
-        if (reigning || controller.isOwed(king.getUniqueId())) {
-            for (ItemStack drop : event.getDrops()) {
-                controller.getKits().unmark(drop);
+        // but still carries the kit: it goes the same way.
+        if (reigning || controller.isOwed(id)) {
+            boolean dropKit = controller.reignOf(id).dropKit();
+            for (Iterator<ItemStack> drops = event.getDrops().iterator(); drops.hasNext(); ) {
+                ItemStack drop = drops.next();
+                if (!controller.getKits().isKit(drop)) {
+                    continue; // picked up during the reign: it falls as any loot
+                }
+                if (dropKit) {
+                    controller.getKits().unmark(drop);
+                } else {
+                    drops.remove();
+                }
             }
         }
         if (!reigning) {
             return;
+        }
+        // The reign's death: spared what the reign's rules spare it, read by dtr/ and
+        // pvp/ at MONITOR, and forgotten once this death is over.
+        ReignRules reign = controller.reignOf(id);
+        Set<ForgivenDeaths.Cost> spared = EnumSet.noneOf(ForgivenDeaths.Cost.class);
+        if (!reign.deathCostsDtr()) {
+            spared.add(ForgivenDeaths.Cost.DTR);
+        }
+        if (!reign.deathban()) {
+            spared.add(ForgivenDeaths.Cost.DEATHBAN);
+        }
+        if (!spared.isEmpty()) {
+            ForgivenDeaths.forgive(id, spared);
+            Bukkit.getScheduler().runTask(controller.getPlugin(), () -> ForgivenDeaths.clear(id));
         }
         Player killer = king.getKiller();
         UUID killerId = killer == null ? null : killer.getUniqueId();

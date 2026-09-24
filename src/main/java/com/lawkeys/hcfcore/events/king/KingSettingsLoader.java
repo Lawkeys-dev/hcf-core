@@ -122,7 +122,20 @@ public final class KingSettingsLoader {
                 loadPenalty(entry.getConfigurationSection("outside-penalty"), id, warn),
                 loadKit(entry.getConfigurationSection("kit"), id, warn),
                 EventSettingsLoader.nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn),
-                loadMode(entry.getString("mode", "team"), id, warn));
+                loadMode(entry.getString("mode", "team"), id, warn),
+                loadReign(entry.getConfigurationSection("reign")));
+    }
+
+    private static ReignRules loadReign(ConfigurationSection section) {
+        ReignRules defaults = ReignRules.defaults();
+        if (section == null) {
+            return defaults;
+        }
+        return new ReignRules(
+                section.getBoolean("lock-armour", defaults.lockArmour()),
+                section.getBoolean("drop-kit", defaults.dropKit()),
+                section.getBoolean("death-costs-dtr", defaults.deathCostsDtr()),
+                section.getBoolean("deathban", defaults.deathban()));
     }
 
     private static KingMode loadMode(String raw, String id, Consumer<String> warn) {

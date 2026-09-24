@@ -169,6 +169,26 @@ public final class LivesModule implements Listener {
         return Revive.DONE;
     }
 
+    /**
+     * @return the names of the players a life could revive now, for {@code /revive}'s
+     *         completion. Read from the server's own record of who has played - never
+     *         a lookup over the network - so a player it has no name for is left out
+     */
+    public java.util.List<String> revivableNames() {
+        if (pvp == null) {
+            return java.util.List.of();
+        }
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (UUID id : pvp.getDeathbans().getRevivable()) {
+            String name = Bukkit.getOfflinePlayer(id).getName();
+            if (name != null) {
+                names.add(name);
+            }
+        }
+        names.sort(String.CASE_INSENSITIVE_ORDER);
+        return names;
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         if (spentAtLogin.remove(event.getPlayer().getUniqueId())) {

@@ -75,7 +75,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/lives` | | Your lives (HCF mode only) | everyone |
 | `/lives check <player>` · `send <player> <amount>` · `revive <player>` | | Someone's lives; give some of yours; spend one to lift a friend's deathban | everyone |
 | `/lives give\|take\|set <player> <amount>` | | Change a player's lives | `hcfcore.lives.admin` |
-| `/revive <player>` | | Same as `/lives revive` | everyone |
+| `/revive <player>` | | Same as `/lives revive`; Tab offers the players deathbanned now | everyone |
 | `/balance [player]` | `/bal`, `/money` | A balance | everyone |
 | `/bounty <player> <amount>` | `/bounties` | Put money on a player's head, taken from your balance at once; whoever kills them collects it | everyone |
 | `/bounty` · `/bounty check <player>` | | The largest bounties; one player's | everyone |

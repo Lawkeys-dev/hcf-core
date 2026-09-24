@@ -61,7 +61,7 @@ A life brings a deathbanned player back. Players start with **none** (`starting-
 | `/lives` | How many you have |
 | `/lives check <player>` | How many someone else has |
 | `/lives send <player> <amount>` | Give some of yours (`allow-send`) |
-| `/lives revive <player>` · `/revive <player>` | Spend one of yours to lift a friend's deathban |
+| `/lives revive <player>` · `/revive <player>` | Spend one of yours to lift a friend's deathban — Tab offers the players deathbanned now |
 | `/lives give\|take\|set <player> <amount>` | Staff (`hcfcore.lives.admin`) |
 
 ### Using your own life

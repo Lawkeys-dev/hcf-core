@@ -520,8 +520,27 @@ public final class KingEventController {
                 .orElse(false);
     }
 
+    /**
+     * The reign rules of the last reign of each former King still owed their items:
+     * their death after the reign - a combat-logger killed as they leave - is judged
+     * by the rules they reigned under. Not kept over a restart, when the defaults apply.
+     */
+    private final Map<UUID, ReignRules> formerReigns = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** @return the rules this player reigns under now, or last reigned under */
+    ReignRules reignOf(UUID playerId) {
+        return manager.getCurrent()
+                .filter(run -> run.isReigning() && run.getKingId().equals(playerId))
+                .map(run -> run.getDefinition().reign())
+                .orElseGet(() -> formerReigns.getOrDefault(playerId, ReignRules.defaults()));
+    }
+
     private void finish(KingUpdate update, Player king) {
         arriving = false;
+        if (update.kingId() != null) {
+            settings.find(update.eventId()).ifPresent(definition ->
+                    formerReigns.put(update.kingId(), definition.reign()));
+        }
         stopCoordinates();
         if (update.winnerId() != null) {
             // Team: the winner's team scores. Solo: the reward is the winner's own.
@@ -605,6 +624,7 @@ public final class KingEventController {
             player.getWorld().dropItemNaturally(player.getLocation(), leftover);
         }
         stashes.remove(id);
+        formerReigns.remove(id);
         flushStashesAsync();
         lang.send(player, KingMessages.ITEMS_RETURNED);
         return true;

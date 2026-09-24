@@ -36,6 +36,8 @@ import java.util.Objects;
  *                                 the killer, or the King
  * @param mode                     whether the King's team defends them, or everybody
  *                                 is against the King (see {@link KingMode})
+ * @param reign                    what the crown asks of the King and what dying
+ *                                 with it costs (see {@link ReignRules})
  */
 public record KingEventDefinition(String id,
                                   String displayName,
@@ -48,7 +50,8 @@ public record KingEventDefinition(String id,
                                   OutsidePenalty penalty,
                                   KingKit kit,
                                   List<String> rewardCommands,
-                                  KingMode mode) {
+                                  KingMode mode,
+                                  ReignRules reign) {
 
     public KingEventDefinition {
         Objects.requireNonNull(id, "id");
@@ -57,6 +60,7 @@ public record KingEventDefinition(String id,
         Objects.requireNonNull(penalty, "penalty");
         Objects.requireNonNull(kit, "kit");
         Objects.requireNonNull(mode, "mode");
+        Objects.requireNonNull(reign, "reign");
         announceAtSeconds = List.copyOf(Objects.requireNonNull(announceAtSeconds, "announceAtSeconds"));
         schedule = List.copyOf(Objects.requireNonNull(schedule, "schedule"));
         rewardCommands = List.copyOf(Objects.requireNonNull(rewardCommands, "rewardCommands"));
@@ -78,5 +82,14 @@ public record KingEventDefinition(String id,
                                List<String> rewardCommands) {
         this(id, displayName, world, durationSeconds, minimumPlayers, announceAtSeconds, schedule,
                 announceIntervalSeconds, penalty, kit, rewardCommands, KingMode.TEAM);
+    }
+
+    /** With the default reign: armour locked, kit gone at death, no DTR, no deathban. */
+    public KingEventDefinition(String id, String displayName, String world, long durationSeconds,
+                               int minimumPlayers, List<Long> announceAtSeconds, List<LocalTime> schedule,
+                               long announceIntervalSeconds, OutsidePenalty penalty, KingKit kit,
+                               List<String> rewardCommands, KingMode mode) {
+        this(id, displayName, world, durationSeconds, minimumPlayers, announceAtSeconds, schedule,
+                announceIntervalSeconds, penalty, kit, rewardCommands, mode, ReignRules.defaults());
     }
 }

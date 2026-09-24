@@ -378,6 +378,24 @@ kill-the-king:
     mode: team
     # --8<-- [end:ktk-mode]
 
+    # --8<-- [start:ktk-reign]
+    # What the crown asks of the King, and what dying with it costs. The King's
+    # own items are put aside at the crowning and come back at the respawn, whatever
+    # is set here.
+    reign:
+      # The King cannot take off the kit's armour: no click, drag or key swap on an
+      # armour slot, no right-click swap with a piece in hand.
+      lock-armour: true
+      # true: the kit falls at the King's death, as loot for the killer
+      # (loot-protection, pvp.yml). false: it vanishes with the reign. What the
+      # King picked up during the reign falls either way.
+      drop-kit: false
+      # The King's death takes DTR from their team, as any death would.
+      death-costs-dtr: false
+      # The King's death deathbans them, as any death would.
+      deathban: false
+    # --8<-- [end:ktk-reign]
+
     # Console commands run for the winner - the killer, or the King.
     # Placeholders: %player%, %event%. For a solo King, the prize, for instance:
     #   reward-commands: ["crate key give %player% king 1", "eco give %player% 1000"]

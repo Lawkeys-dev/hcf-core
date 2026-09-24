@@ -154,6 +154,21 @@ Under `kill-the-king:`. The arena is the warzone of `world`, set in `claims.yml`
 
 `helmet`, `chestplate`, `leggings`, `boots` and each of `items` take a `material`, and optionally a `name`, an `amount` and `enchantments` (levels may exceed vanilla). `effects` gives effects for the reign, as levels. An unknown name is reported and left out.
 
+**The reign — what the crown asks, and what dying with it costs:**
+
+```yaml title="events.yml"
+--8<-- "src/main/resources/events.yml:ktk-reign"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `lock-armour` | `true` | The King cannot take off their armour |
+| `drop-kit` | `false` | `true`: the kit falls at the King's death, loot for the killer; `false`: it vanishes |
+| `death-costs-dtr` | `false` | The King's death takes DTR from their team |
+| `deathban` | `false` | The King's death deathbans them |
+
+*Existing servers: without a `reign` section, these values apply — copy it from the jar to change them.*
+
 ## Conquest
 
 Under `conquest:`.

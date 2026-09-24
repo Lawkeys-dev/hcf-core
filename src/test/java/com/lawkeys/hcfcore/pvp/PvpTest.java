@@ -220,6 +220,18 @@ class PvpTest {
         }
 
         @Test
+        void onlyTimedActiveBansCanBeRevived() {
+            UUID carol = UUID.randomUUID();
+            deathbans.apply(alice, 600L, "died");
+            deathbans.apply(bob, 60L, "died");
+            deathbans.applyUntilMapEnd(carol, "eotw");
+
+            advance(61 * SECOND);
+
+            assertEquals(List.of(alice), deathbans.getRevivable());
+        }
+
+        @Test
         void countingIgnoresExpiredBans() {
             deathbans.apply(alice, 600L, "died");
             deathbans.apply(bob, 60L, "died");

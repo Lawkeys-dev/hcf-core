@@ -217,8 +217,10 @@ public final class LivesCommand implements TabExecutor {
             if (sender.hasPermission(LivesModule.ADMIN_PERMISSION)) {
                 options.addAll(ADMIN_SUBCOMMANDS);
             }
-        } else if (!revive && args.length == 2 && !args[0].equalsIgnoreCase("revive")) {
-            // Not for revive: whoever it is for is deathbanned, so never online.
+        } else if (revive ? args.length == 1 : args.length == 2 && args[0].equalsIgnoreCase("revive")) {
+            // Whoever a revive is for is deathbanned, so never online: the banned are offered.
+            options.addAll(module.revivableNames());
+        } else if (!revive && args.length == 2) {
             options.addAll(VisiblePlayers.names(sender, ""));
         }
         String prefix = args.length == 0 ? "" : args[args.length - 1].toLowerCase(Locale.ROOT);

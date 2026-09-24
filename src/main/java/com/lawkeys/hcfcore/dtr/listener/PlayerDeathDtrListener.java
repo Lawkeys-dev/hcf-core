@@ -3,6 +3,7 @@ package com.lawkeys.hcfcore.dtr.listener;
 import com.lawkeys.hcfcore.api.event.TeamMemberLeaveEvent;
 import com.lawkeys.hcfcore.api.event.TeamDisbandEvent;
 import com.lawkeys.hcfcore.dtr.DtrModule;
+import com.lawkeys.hcfcore.util.ForgivenDeaths;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -34,6 +35,10 @@ public final class PlayerDeathDtrListener implements Listener {
             return;
         }
         Player player = event.getEntity();
+        // The King of Kill the King, by default: the reign's death is the event's.
+        if (ForgivenDeaths.spares(player.getUniqueId(), ForgivenDeaths.Cost.DTR)) {
+            return;
+        }
         module.getTeams().getManager().getTeamOf(player.getUniqueId())
                 .ifPresent(team -> module.applyDeath(team, player.getName()));
     }

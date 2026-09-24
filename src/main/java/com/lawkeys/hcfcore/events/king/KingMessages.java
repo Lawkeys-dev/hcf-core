@@ -34,6 +34,7 @@ public final class KingMessages {
     public static final String RETURNED = "events.king.returned";
     public static final String SAFE_ZONE_REFUSED = "events.king.safe-zone-refused";
     public static final String NOT_WHILE_KING = "events.king.not-while-king";
+    public static final String ARMOUR_LOCKED = "events.king.armour-locked";
     public static final String ITEMS_RETURNED = "events.king.items-returned";
 
     // /events

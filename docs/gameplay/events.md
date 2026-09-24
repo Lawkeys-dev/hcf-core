@@ -119,6 +119,7 @@ While King, a player:
 - **cannot leave the warzone** without penalty: after a 3-second grace, damage every second, then a Wither whose level rises every 10 seconds up to V (`outside-penalty`). The count starts over each time they come back in. A safe zone counts as outside;
 - **cannot enter spawn by any means** — walking, pearls, chorus fruit, commands, portals;
 - cannot mount anything, drop items, open containers, use item frames and armour stands, or put an item in a block that holds one (a decorated pot, a shelf, a lectern, a campfire...) — the kit stays on the King;
+- **cannot take off their armour** — no click, drag or key swap on an armour slot, no right-click swap with another piece (`reign.lock-armour`);
 - keeps whatever they pick up. Only the kit is taken back at the end.
 
 ### Who wins
@@ -127,7 +128,9 @@ While King, a player:
 - Otherwise, **whoever kills the King** — in `team` mode, unless that player was on the King's team when the King was crowned or killed (the King's allies are not excluded: the rule is strictly per team). In `solo` mode, anybody, teammates included.
 - Any other death — withered, fall, lava — or a logout ends the event with **no winner**.
 
-Reward commands run with `%player%` (the King or the killer) and `%event%`. What drops at the King's death is the kit, and it is ordinary loot. Their own items come back: at once if they survive or the event is stopped, at respawn if they die, at their next login if they leave or the server goes down.
+Reward commands run with `%player%` (the King or the killer) and `%event%`. Their own items come back: at once if they survive or the event is stopped, at respawn if they die, at their next login if they leave or the server goes down.
+
+**The King's death is the event's, not a real one** (`reign`, as shipped): the kit vanishes with the reign — nobody picks it up (`drop-kit: true` makes it the killer's loot) — their team loses **no DTR** (`death-costs-dtr`) and the King is **not deathbanned** (`deathban`): they respawn and get their own items back. What they picked up during the reign falls as any loot. A King who logs out is not spared: leaving in combat is a combat log.
 
 The scoreboard shows `%king_line%` — the King and the time left — and `%king_location_line%` — where the King is.
 

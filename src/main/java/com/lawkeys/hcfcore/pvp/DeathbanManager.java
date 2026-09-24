@@ -111,6 +111,21 @@ public final class DeathbanManager {
         return false;
     }
 
+    /**
+     * @return who is banned now for a time - what a life can lift, and so what
+     *         {@code /revive} offers to complete. A ban until the map ends is left out
+     */
+    public java.util.List<UUID> getRevivable() {
+        long now = clock.getAsLong();
+        if (!config().enabled() || !config().deathban().enabled()) {
+            return java.util.List.of();
+        }
+        return bans.values().stream()
+                .filter(ban -> ban.isActiveAt(now) && !ban.isUntilMapEnd())
+                .map(Deathban::playerId)
+                .toList();
+    }
+
     public int getActiveBanCount() {
         long now = clock.getAsLong();
         int count = 0;

@@ -50,6 +50,16 @@ class EventsYamlTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void theKingsDeathIsTheEventsByDefault() throws IOException {
+        Map<String, Object> reign = (Map<String, Object>) section("kill-the-king", "ktk").get("reign");
+        assertEquals(Boolean.TRUE, reign.get("lock-armour"));
+        assertEquals(Boolean.FALSE, reign.get("drop-kit"));
+        assertEquals(Boolean.FALSE, reign.get("death-costs-dtr"));
+        assertEquals(Boolean.FALSE, reign.get("deathban"));
+    }
+
+    @Test
     void slideSectionShipsWithNoScheduleAndSensibleDefaults() throws IOException {
         Map<String, Object> slide = section("slide", "slide");
         assertEquals(List.of(), slide.get("schedule"));

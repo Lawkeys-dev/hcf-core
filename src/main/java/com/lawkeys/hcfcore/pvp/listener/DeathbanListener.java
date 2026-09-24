@@ -3,6 +3,7 @@ package com.lawkeys.hcfcore.pvp.listener;
 import com.lawkeys.hcfcore.pvp.Deathban;
 import com.lawkeys.hcfcore.pvp.PvpMessages;
 import com.lawkeys.hcfcore.pvp.PvpModule;
+import com.lawkeys.hcfcore.util.ForgivenDeaths;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import io.papermc.paper.connection.PlayerConfigurationConnection;
 import io.papermc.paper.connection.PlayerConnection;
@@ -59,7 +60,10 @@ public final class DeathbanListener implements Listener {
         Player player = event.getEntity();
         // The tag dies with the player: keeping it would punish them twice.
         module.getCombatTags().clear(player.getUniqueId());
-        module.applyDeathban(player);
+        // The King of Kill the King, by default (util/ForgivenDeaths).
+        if (!ForgivenDeaths.spares(player.getUniqueId(), ForgivenDeaths.Cost.DEATHBAN)) {
+            module.applyDeathban(player);
+        }
     }
 
     /**
