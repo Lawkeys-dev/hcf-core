@@ -6,13 +6,18 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-27
+
+Teams set up without a single command: `/team settings` holds the team's profile — its description and Discord invitation —, who may join (closed, on invitation, open), each rank's permissions, its members and invitations, the claim lock and the HQ. A new rank, the officer. Shortcuts: `/hq`, `/fc`, `/f i`. `deposit all` and `withdraw all` for the team bank.
+
+*Tried in game on Paper 26.2 with two players: everything below. Several settings came with it: the notes under each change say what to copy from the jar — your configuration files are never rewritten, and a missing key takes its default.*
+
 ### Added
 - **Officers**: a rank between member and co-leader (`teams.yml`, `max-officers`, no limit as shipped). `/team promote` now goes member → officer → co-leader, and nobody promotes somebody to their own rank.
 - **`/team settings`** (alias `options`): a window where a team sets itself up **with no command to type**, for every member — each button checks its own rank and says under it who may use it. Its **profile**: name, **description** and **Discord invitation**, typed in the game's own dialogs and shown in `/team info` (the link clickable). **Who may join**: closed, on invitation (as shipped) or open. **Permissions**: the lowest rank for each (every key of `required-roles`, and `open-subclaims`); whoever changes one must hold it and cannot set it above their own rank, and the server locks some for every team (`team-settings.locked`: disband and transfer-leadership as shipped). **Members** (promote, demote, kick), **invitations** (invite a player by typing a name, take one back), the **claim lock** and **set HQ**. Kept in the new table `hcf_team_settings`. *Existing servers: copy the `team-settings` and `shortcuts` sections, `max-officers` and `required-roles.settings` from the jar's `teams.yml`, and the new `team.settings`, `team.join-mode`, `team.join.closed`, `team.info` (`description`, `discord`, `join-mode`, `officers`), `team.role.officer`, `team.promote.officer-limit`, `claim.menu` and `ui.tab.role-officer` lines of `lang/en.yml` — without them, the defaults apply.*
 - **Shortcuts** (`teams.yml`, `shortcuts`): `/hq`, `/base`, `/stuck` and `/fc` as commands of their own, and `/team i`, `h`, `home`, `sh`, `d`, `w`, `m`, `k`, `s` for `info`, `hq`, `sethq`, `deposit`, `withdraw`, `map`, `kick`, `settings`. Both lists are the server's; a name another plugin already has is left to it.
 - **Who may join a team**: closed (nobody; staff still can), on invitation (as shipped) or open (`/team join` without an invitation) — each team's choice in `/team settings`, among `team-settings.join-modes`, from `default-join-mode`.
 - **The shop's back button** is configurable (`economy.yml`, `shop.menu.back-icon`).
-
 - **`/team deposit all` and `/team withdraw all`**: everything in your wallet into the bank, or the whole bank out — as much as your balance can still hold under the ceiling.
 
 ### Changed
@@ -199,7 +204,8 @@ Classes and events.
 ### Added
 - First public version: teams, territory and DTR, combat and deathbans, lives, capture events (KOTH, Citadel, Conquest, Kill the King), Mountains, SOTW/EOTW/Purge, economy with Vault, kits and abilities, custom enchants and limiters, moderation tools, scoreboard and chat, holograms, redeem codes, the Lunar Client integration, and this documentation.
 
-[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.9.0
 [0.8.1]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.8.1
 [0.8.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.8.0
 [0.7.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.7.0
