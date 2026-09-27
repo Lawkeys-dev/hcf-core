@@ -205,6 +205,8 @@ public final class TeamMessages {
     public static final String SETTINGS_BUTTON_PROFILE = "team.settings.button.profile";
     public static final String SETTINGS_BUTTON_JOIN_MODE = "team.settings.button.join-mode";
     public static final String SETTINGS_BUTTON_JOIN_MODE_LORE = "team.settings.button.join-mode-lore";
+    public static final String SETTINGS_BUTTON_JOIN_MODE_CURRENT = "team.settings.button.join-mode-current";
+    public static final String SETTINGS_BUTTON_JOIN_MODE_OTHER = "team.settings.button.join-mode-other";
     public static final String SETTINGS_BUTTON_INVITE = "team.settings.button.invite";
     public static final String SETTINGS_BUTTON_INVITE_LORE = "team.settings.button.invite-lore";
     public static final String SETTINGS_BUTTON_NOT_ALLOWED = "team.settings.button.not-allowed";

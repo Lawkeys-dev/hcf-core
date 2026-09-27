@@ -44,8 +44,8 @@ The **role** column is the default minimum role in the player's team, set under 
 | `stuck` | | Get out of land you cannot leave, after a countdown (60 s) | — |
 | `map [pillars\|chat]` | | Mark the claims around you with columns in the world, or draw the grid in the chat | everyone |
 | `lockclaim` | `lock` | Close your land to non-members until SOTW ends (SOTW only) | co-leader |
-| `deposit <amount>` | | Money from you to the team bank | member |
-| `withdraw <amount>` | | Money from the team bank to you | leader |
+| `deposit <amount\|all>` | | Money from you to the team bank; `all`: everything you have | member |
+| `withdraw <amount\|all>` | | Money from the team bank to you; `all`: the whole bank, as much as your balance can hold | leader |
 | `limits` | `blocks` | How much of each limited block your land holds | — |
 
 ### For staff

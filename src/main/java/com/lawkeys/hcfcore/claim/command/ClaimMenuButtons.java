@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * {@code claim/}'s buttons in {@code /team settings}. Each runs its command as the
- * player - {@code /team lockclaim}, {@code /team sethq}, {@code /team setbase} - so
+ * player - {@code /team lockclaim}, {@code /team sethq} - so
  * the menu does exactly what the command does, checks and messages included.
  */
 public final class ClaimMenuButtons {
@@ -56,40 +56,38 @@ public final class ClaimMenuButtons {
         }
     }
 
-    /** Puts the HQ, or the second base, where the player stands. */
-    public static final class SetHome implements TeamMenuButton {
+    /** Puts the HQ where the player stands. */
+    public static final class SetHq implements TeamMenuButton {
 
         private final ClaimModule claims;
-        private final boolean hq;
 
-        public SetHome(ClaimModule claims, boolean hq) {
+        public SetHq(ClaimModule claims) {
             this.claims = claims;
-            this.hq = hq;
         }
 
         @Override
         public String key() {
-            return hq ? "sethq" : "setbase";
+            return "sethq";
         }
 
         @Override
         public String defaultIcon() {
-            return hq ? "RED_BED" : "WHITE_BED";
+            return "RED_BED";
         }
 
         @Override
         public String name(Team team, Player viewer) {
-            return claims.getLang().get(hq ? ClaimMessages.MENU_SETHQ : ClaimMessages.MENU_SETBASE);
+            return claims.getLang().get(ClaimMessages.MENU_SETHQ);
         }
 
         @Override
         public List<String> lore(Team team, Player viewer) {
-            return List.of(claims.getLang().get(hq ? ClaimMessages.MENU_SETHQ_LORE : ClaimMessages.MENU_SETBASE_LORE));
+            return List.of(claims.getLang().get(ClaimMessages.MENU_SETHQ_LORE));
         }
 
         @Override
         public void click(Team team, Player viewer, ClickType click) {
-            viewer.performCommand(hq ? "hcfcore:team sethq" : "hcfcore:team setbase");
+            viewer.performCommand("hcfcore:team sethq");
         }
     }
 }

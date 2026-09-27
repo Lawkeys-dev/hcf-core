@@ -65,8 +65,7 @@ public final class ClaimMessages {
     public static final String MENU_LOCK_NOT_NOW = "claim.menu.lock-not-now";
     public static final String MENU_SETHQ = "claim.menu.sethq";
     public static final String MENU_SETHQ_LORE = "claim.menu.sethq-lore";
-    public static final String MENU_SETBASE = "claim.menu.setbase";
-    public static final String MENU_SETBASE_LORE = "claim.menu.setbase-lore";
+
     public static final String LOCK_OFF = "claim.lock.unlocked";
     public static final String LOCK_NOT_NOW = "claim.lock.not-now";
     public static final String LOCK_ENTRY_DENIED = "claim.lock.entry-denied";

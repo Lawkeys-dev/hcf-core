@@ -55,7 +55,7 @@ The minimum role for each action: `leader`, `co-leader`, `officer` or `member`. 
 | `locked` | `[disband, transfer-leadership]` | Permissions no team may change. The keys are those of `required-roles` here and in `claims.yml`, and `open-subclaims` |
 | `description.max-length` | `100` | The longest description, in characters |
 | `discord.pattern` | `discord.gg/...` or `discord.com/invite/...` | What a Discord invitation link must look like (a regular expression) |
-| `icons` | `{}` | The window's items, by permission key or button: `profile`, `join-mode-closed`, `join-mode-invite`, `join-mode-open`, `permissions`, `members`, `invites`, `invite`, `back`, `lock-claim`, `sethq`, `setbase` |
+| `icons` | `{}` | The window's items, by permission key or button: `profile`, `join-mode-closed`, `join-mode-invite`, `join-mode-open`, `permissions`, `members`, `invites`, `invite`, `back`, `lock-claim`, `sethq` |
 
 A team's choices — permissions, joining, description, Discord link — are kept in the database (`hcf_team_settings`). One stored before the server locked the permission, or switched the settings off, is ignored, not erased: unlock it and it applies again.
 

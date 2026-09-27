@@ -46,7 +46,7 @@ Leader, co-leader (**2 at most**, `max-co-leaders`), **officer** (no limit, `max
 - **Permissions** — the lowest rank that may do each thing: every action above, and opening every subclaim. Left click raises it a rank, right click lowers it, shift-click gives it back to the server's setting. Whoever changes a permission must hold it, and cannot set it above their own rank; the leader changes everything. Some stay the server's for every team (`team-settings.locked`: disbanding and handing over leadership, as shipped).
 - **Members** — left click promotes, right click demotes, shift + right click kicks, with the same rules as the commands.
 - **Invitations** — **invite a player** by typing their name, and the pending invitations (a click takes one back).
-- **Claim lock** (during SOTW), **set the HQ here**, **set the base here**.
+- **Claim lock** (during SOTW) and **set the HQ here**. The second base stays a command, `/team setbase`.
 
 The profile, the joining and the permissions are the leader's to change, as shipped (`required-roles.settings`). `team-settings.enabled: false` keeps every team on the server's roles and joining.
 
@@ -76,6 +76,8 @@ A team has its own balance:
 ```text
 /team deposit 500      # every member
 /team withdraw 200     # the leader
+/team deposit all      # everything you have
+/team withdraw all     # the whole bank - as much as your balance can still hold
 ```
 
 Money moves between the player's balance and the team bank. Turning the economy off in `economy.yml`, or `bank.enabled: false`, disables both commands. The bank is never exposed to other plugins through Vault — see [Economy](economy.md).

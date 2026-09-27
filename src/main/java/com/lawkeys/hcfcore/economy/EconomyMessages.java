@@ -26,6 +26,7 @@ public final class EconomyMessages {
     // Team bank
     public static final String BANK_DEPOSITED = "economy.bank.deposited";
     public static final String BANK_WITHDRAWN = "economy.bank.withdrawn";
+    public static final String BANK_NOTHING_TO_MOVE = "economy.bank.nothing-to-move";
 
     // Shared failures
     public static final String INSUFFICIENT_FUNDS = "economy.error.insufficient-funds";

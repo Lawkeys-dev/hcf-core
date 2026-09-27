@@ -106,7 +106,7 @@ team-settings:
     pattern: "^(https?://)?(www\\.)?(discord\\.gg|discord(app)?\\.com/invite)/[A-Za-z0-9-]{2,32}/?$"
   # The window's items, by permission key or button: profile, join-mode-closed,
   # join-mode-invite, join-mode-open, permissions, members, invites, invite, back,
-  # lock-claim, sethq, setbase. A key left out keeps its default.
+  # lock-claim, sethq. A key left out keeps its default.
   icons: {}
 # --8<-- [end:team-settings]
 

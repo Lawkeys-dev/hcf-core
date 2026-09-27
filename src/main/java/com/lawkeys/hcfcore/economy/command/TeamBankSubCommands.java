@@ -45,7 +45,7 @@ public final class TeamBankSubCommands {
         protected final EconomyModule economy;
 
         BankSubCommand(EconomyModule economy, String name, String description) {
-            super(name, Set.of(), null, "<amount>", description, true, 1);
+            super(name, Set.of(), null, "<amount|all>", description, true, 1);
             this.economy = economy;
         }
 
@@ -62,13 +62,28 @@ public final class TeamBankSubCommands {
                 module.getLang().send(sender, EconomyMessages.NOT_IN_TEAM);
                 return;
             }
-            Optional<Double> amount = EconomyModule.parseAmount(args[0]);
+            Optional<Double> amount = BankAll.is(args[0])
+                    ? Optional.of(all(player, team.get(), manager))
+                    : EconomyModule.parseAmount(args[0]);
             if (amount.isEmpty()) {
                 module.getLang().send(sender, EconomyMessages.INVALID_AMOUNT);
                 return;
             }
+            if (BankAll.is(args[0]) && amount.get() <= 0) {
+                module.getLang().send(sender, EconomyMessages.BANK_NOTHING_TO_MOVE);
+                return;
+            }
             move(module, player, team.get(), manager, amount.get());
         }
+
+        @Override
+        public java.util.List<String> tabComplete(TeamModule module, CommandSender sender, String[] args) {
+            return args.length == 1 && BankAll.WORD.startsWith(args[0].toLowerCase(java.util.Locale.ROOT))
+                    ? java.util.List.of(BankAll.WORD) : java.util.List.of();
+        }
+
+        /** How much {@code all} moves. */
+        abstract double all(Player player, Team team, EconomyManager manager);
 
         abstract void move(TeamModule module, Player player, Team team,
                            EconomyManager manager, double amount);
@@ -86,7 +101,12 @@ public final class TeamBankSubCommands {
     private static final class Deposit extends BankSubCommand {
 
         Deposit(EconomyModule economy) {
-            super(economy, "deposit", "Put money into your team's bank");
+            super(economy, "deposit", "Put money into your team's bank - all: everything you have");
+        }
+
+        @Override
+        double all(Player player, Team team, EconomyManager manager) {
+            return BankAll.deposit(manager.getBalance(player.getUniqueId()));
         }
 
         @Override
@@ -119,7 +139,13 @@ public final class TeamBankSubCommands {
     private static final class Withdraw extends BankSubCommand {
 
         Withdraw(EconomyModule economy) {
-            super(economy, "withdraw", "Take money out of your team's bank");
+            super(economy, "withdraw", "Take money out of your team's bank - all: the whole bank");
+        }
+
+        @Override
+        double all(Player player, Team team, EconomyManager manager) {
+            return BankAll.withdraw(team.getBalance(), manager.getBalance(player.getUniqueId()),
+                    economy.getSettings().maximumBalance());
         }
 
         @Override

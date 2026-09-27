@@ -43,7 +43,7 @@ A kill pays the killer **10** (`kill-reward.amount`) — the unit the rest of th
 
 ## Team banks
 
-A team has a balance of its own: `/team deposit <amount>` (every member) and `/team withdraw <amount>` (the leader). See [Teams](teams.md#bank).
+A team has a balance of its own: `/team deposit <amount|all>` (every member) and `/team withdraw <amount|all>` (the leader). See [Teams](teams.md#bank).
 
 ## Staff
 

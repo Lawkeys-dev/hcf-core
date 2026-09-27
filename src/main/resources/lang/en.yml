@@ -261,6 +261,9 @@ team:
       profile: "{primary}%team%"
       join-mode: "{primary}Joining: {secondary}%mode%"
       join-mode-lore: "{muted}Click for the next."
+      # The list of join modes under the button: the team's own, then the others.
+      join-mode-current: "{primary}➥ {secondary}%mode%"
+      join-mode-other: "{muted}   %mode%"
       invite: "{success}Invite a player"
       invite-lore: "{muted}Click and type their name."
       # Under a button the viewer may not use.
@@ -427,8 +430,6 @@ claim:
     lock-not-now: "{muted}A claim can only be locked during SOTW."
     sethq: "{primary}Set the HQ here"
     sethq-lore: "{muted}Your HQ where you stand."
-    setbase: "{primary}Set the base here"
-    setbase-lore: "{muted}Your second base where you stand."
 
   protection:
     claimed: "{error}This land belongs to {secondary}%team%{error}."
@@ -660,6 +661,8 @@ economy:
 
   bank:
     deposited: "{success}Deposited {secondary}%amount% {success}into {secondary}%team%{success}'s bank ({secondary}%bank%{success}). Your balance: {secondary}%balance%{success}."
+    # /team deposit all with an empty wallet, /team withdraw all with an empty bank.
+    nothing-to-move: "{error}There is nothing to move."
     withdrawn: "{success}Withdrew {secondary}%amount% {success}from {secondary}%team%{success}'s bank ({secondary}%bank%{success}). Your balance: {secondary}%balance%{success}."
 
   error:

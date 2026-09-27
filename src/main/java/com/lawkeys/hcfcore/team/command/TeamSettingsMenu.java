@@ -195,7 +195,8 @@ public final class TeamSettingsMenu implements InventoryHolder {
                 List<String> lore = new ArrayList<>();
                 for (JoinMode each : JoinMode.values()) {
                     if (rules.allows(each)) {
-                        lore.add((each == mode ? "{primary}➥ " : "{muted}  ") + lang.get(TeamMessages.joinMode(each)));
+                        lore.add(lang.get(each == mode ? TeamMessages.SETTINGS_BUTTON_JOIN_MODE_CURRENT
+                                : TeamMessages.SETTINGS_BUTTON_JOIN_MODE_OTHER, "mode", lang.get(TeamMessages.joinMode(each))));
                     }
                 }
                 lore.add("");
