@@ -13,10 +13,13 @@ on:
   # Allows re-running the build by hand, e.g. after a Paper version bump.
   workflow_dispatch:
 
-# Only the latest run per branch matters; cancel superseded ones.
+# On main every commit is built to the end: each is a version, and one pushed a
+# minute after another - a release, then the next snapshot - left the first one
+# cancelled and red on the repository (27/09/2026). Elsewhere - pull requests -
+# only the latest run matters, and a superseded one is cancelled.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
