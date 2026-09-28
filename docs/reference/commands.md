@@ -71,7 +71,8 @@ The **role** column is the default minimum role in the player's team, set under 
 
 | Command | Aliases | Does | Permission |
 |---|---|---|---|
-| `/pvp` | `/deathban`, `/db` | Your combat tag and deathban | everyone |
+| `/pvp` | | Your combat tag | everyone |
+| `/deathban` | `/db` | How long dying now would ban you; staff: `/db <player>` checks someone, `/db lift` and `/db ban` as below | everyone |
 | `/pvp check <player>` · `lift <player>` · `ban <player> <seconds>` | | Someone's status; lift or set a deathban (works from the console) | `hcfcore.pvp.admin` |
 | `/lives` | | Your lives (HCF mode only) | everyone |
 | `/lives check <player>` · `send <player> <amount>` · `revive <player>` | | Someone's lives; give some of yours; spend one to lift a friend's deathban | everyone |

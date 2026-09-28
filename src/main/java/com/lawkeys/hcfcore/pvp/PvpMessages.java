@@ -38,6 +38,12 @@ public final class PvpMessages {
     public static final String DEATHBAN_STATUS = "pvp.deathban.status";
     public static final String DEATHBAN_SET = "pvp.deathban.set";
     public static final String DEATHBAN_INVALID_LENGTH = "pvp.deathban.invalid-length";
+    // /deathban (/db): your own deathban, and the staff commands
+    public static final String DEATHBAN_HEADER = "pvp.deathban.own.header";
+    public static final String DEATHBAN_OWN_LENGTH = "pvp.deathban.own.length";
+    public static final String DEATHBAN_OWN_MAP_END = "pvp.deathban.own.map-end";
+    public static final String DEATHBAN_OWN_NONE = "pvp.deathban.own.none";
+    public static final String DEATHBAN_STAFF_HELP = "pvp.deathban.own.staff-help";
     // A ban that lasts until the map ends (EOTW) has no time left to show
     public static final String DEATHBAN_MAP_END_APPLIED = "pvp.deathban.map-end.applied";
     public static final String DEATHBAN_MAP_END_LOGIN_DENIED = "pvp.deathban.map-end.login-denied";

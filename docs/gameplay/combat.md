@@ -7,7 +7,7 @@
 
 ## Combat tag
 
-A hit tags **both players for 30 seconds** (`combat-tag.duration-seconds`; `tag-attacker` decides whether the attacker is tagged too). `/pvp` shows your tag and deathban status.
+A hit tags **both players for 30 seconds** (`combat-tag.duration-seconds`; `tag-attacker` decides whether the attacker is tagged too). `/pvp` shows your tag; `/deathban` (`/db`), what dying would cost you.
 
 A *hit* is anything the damage is credited to a player for:
 

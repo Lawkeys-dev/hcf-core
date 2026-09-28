@@ -8,7 +8,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ### Added
 - **`/alleffect`** (`/alleffects`, `/effects`): Speed II, Fire Resistance, Invisibility, Haste II and Night Vision in one command, typed again to take them off. Any effect command may now give several effects at once (`effects:` in `effect-commands.yml`). *Existing servers: copy the `alleffect` entry from the jar's `effect-commands.yml`, and the `effect-commands.given-several` line of `lang/en.yml`.*
-- **`/deathban` and `/db`** for `/pvp`.
+- **`/deathban` (`/db`)**: how long dying now would ban you — `/pvp` stays your combat tag. For staff, `/db <player>` checks someone, and `/db lift`, `/db ban` work as under `/pvp`; Tab offers the deathbanned. *Copy the `pvp.deathban.own` lines of `lang/en.yml` from the jar.*
 - **`/schedule` colours each kind of event** — KOTH gold, Citadel purple, Kill the King red… — in the window and the chat alike (`weekly-schedule.menu.colors`, by kind or by event id).
 - **A refill sign asks before it wipes your inventory**: with `clear-before-giving`, a player holding anything clicks the sign a second time within 5 seconds (`refill-signs.confirm-seconds`, `0` never asks). *Add `confirm-seconds` under `refill-signs` in `kits.yml` to change it.*
 - **Pause or continue while contested** (`events.yml`, `when-contested`, for a KOTH, a Citadel and each Conquest zone): `pause`, as before, freezes the countdown; `continue` lets the holder keep counting down while it is still in the zone.

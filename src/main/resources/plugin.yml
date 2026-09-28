@@ -41,7 +41,7 @@ commands:
     usage: /<command> [note]
   pvp:
     aliases: [deathban, db]
-    description: Combat tag and deathban status, plus staff overrides.
+    description: Your combat tag (/pvp) or deathban (/deathban, /db), plus staff overrides.
     usage: /<command> [check|lift|ban]
   events:
     aliases: [event, koth]

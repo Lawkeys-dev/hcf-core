@@ -558,6 +558,13 @@ pvp:
     status: "{muted}Deathban: {error}%time% {muted}remaining."
     set: "{success}Deathbanned {secondary}%player% {success}for {secondary}%time%{success}."
     invalid-length: "{error}'%input%' is not a ban length: give a number of seconds above zero."
+    # /deathban (/db) with nothing after it: what dying now would cost you.
+    own:
+      header: "{muted}-------- {primary}Deathban - %player% {muted}--------"
+      length: "{muted}If you die now, you cannot rejoin for {error}%time%{muted}."
+      map-end: "{muted}If you die now, you cannot rejoin {error}until the end of the map{muted}."
+      none: "{muted}Dying now does not deathban you."
+      staff-help: "{muted}Staff: {secondary}/db <player>{muted}, {secondary}/db lift <player>{muted}, {secondary}/db ban <player> <seconds>{muted}."
     # EOTW: a death bans until the end of the map; staff lift it after the reset.
     map-end:
       applied: "{error}You died during EOTW. You cannot rejoin until the end of the map."

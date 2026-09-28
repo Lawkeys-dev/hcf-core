@@ -47,13 +47,27 @@ public final class PvpCommand implements TabExecutor {
             module.getLang().send(sender, PvpMessages.DISABLED);
             return true;
         }
+        // /deathban and /db are the deathban's command: your own, and staff's verbs.
+        boolean deathban = isDeathbanLabel(label);
         if (args.length == 0) {
-            showOwnStatus(sender);
+            if (deathban) {
+                showOwnDeathban(sender);
+            } else {
+                showOwnStatus(sender);
+            }
             return true;
         }
 
         if (!sender.hasPermission(ADMIN_PERMISSION)) {
             module.getLang().send(sender, "general.no-permission");
+            return true;
+        }
+        if (deathban && !ADMIN_SUBCOMMANDS.contains(args[0].toLowerCase(Locale.ROOT))) {
+            // /db <player>: that player's deathban, as /pvp check.
+            String[] checked = new String[args.length + 1];
+            checked[0] = "check";
+            System.arraycopy(args, 0, checked, 1, args.length);
+            check(sender, checked);
             return true;
         }
         switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -63,6 +77,30 @@ public final class PvpCommand implements TabExecutor {
             default -> module.getLang().send(sender, "general.unknown-command", "label", label);
         }
         return true;
+    }
+
+    /** @return whether the command was typed as {@code /deathban} or {@code /db}, namespaced or not */
+    private static boolean isDeathbanLabel(String label) {
+        String bare = label.substring(label.indexOf(':') + 1).toLowerCase(Locale.ROOT);
+        return bare.equals("deathban") || bare.equals("db");
+    }
+
+    /** {@code /deathban}: what dying now would cost you, and the staff commands for those allowed. */
+    private void showOwnDeathban(CommandSender sender) {
+        module.getLang().send(sender, PvpMessages.DEATHBAN_HEADER, "player", sender.getName());
+        if (sender instanceof Player player) {
+            long seconds = module.deathbanOnDeath(player);
+            if (seconds < 0) {
+                module.getLang().send(sender, PvpMessages.DEATHBAN_OWN_MAP_END);
+            } else if (seconds == 0) {
+                module.getLang().send(sender, PvpMessages.DEATHBAN_OWN_NONE);
+            } else {
+                module.getLang().send(sender, PvpMessages.DEATHBAN_OWN_LENGTH, "time", module.formatDuration(seconds));
+            }
+        }
+        if (sender.hasPermission(ADMIN_PERMISSION)) {
+            module.getLang().send(sender, PvpMessages.DEATHBAN_STAFF_HELP);
+        }
     }
 
     private void showOwnStatus(CommandSender sender) {
@@ -177,6 +215,19 @@ public final class PvpCommand implements TabExecutor {
         return id;
     }
 
+    /** @return the names of the players deathbanned now, sorted */
+    private List<String> bannedNames() {
+        List<String> names = new ArrayList<>();
+        for (UUID banned : module.getDeathbans().getBanned()) {
+            String name = Bukkit.getOfflinePlayer(banned).getName();
+            if (name != null) {
+                names.add(name);
+            }
+        }
+        names.sort(String.CASE_INSENSITIVE_ORDER);
+        return names;
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission(ADMIN_PERMISSION)) {
@@ -184,38 +235,26 @@ public final class PvpCommand implements TabExecutor {
         }
         if (args.length == 1) {
             String prefix = args[0].toLowerCase(Locale.ROOT);
-            List<String> options = new ArrayList<>();
-            for (String sub : ADMIN_SUBCOMMANDS) {
-                if (sub.startsWith(prefix)) {
-                    options.add(sub);
-                }
+            List<String> options = new ArrayList<>(ADMIN_SUBCOMMANDS);
+            if (isDeathbanLabel(label)) {
+                // /db <player> checks them: the banned are the ones worth checking.
+                options.addAll(bannedNames());
             }
-            return options;
+            return options.stream().filter(option -> option.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
         }
         if (args.length == 2) {
             String prefix = args[1].toLowerCase(Locale.ROOT);
             List<String> names = new ArrayList<>();
             if (args[0].equalsIgnoreCase("lift")) {
                 // Whoever a lift is for is deathbanned, so never online: the banned are offered.
-                for (UUID banned : module.getDeathbans().getBanned()) {
-                    String name = Bukkit.getOfflinePlayer(banned).getName();
-                    if (name != null) {
-                        names.add(name);
-                    }
-                }
-                names.sort(String.CASE_INSENSITIVE_ORDER);
-            } else {
+                names.addAll(bannedNames());
+            } else if (ADMIN_SUBCOMMANDS.contains(args[0].toLowerCase(Locale.ROOT))) {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     names.add(player.getName());
                 }
                 // Check also looks up the banned, who are offline.
                 if (args[0].equalsIgnoreCase("check")) {
-                    for (UUID banned : module.getDeathbans().getBanned()) {
-                        String name = Bukkit.getOfflinePlayer(banned).getName();
-                        if (name != null && !names.contains(name)) {
-                            names.add(name);
-                        }
-                    }
+                    bannedNames().stream().filter(name -> !names.contains(name)).forEach(names::add);
                 }
             }
             return names.stream().filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();

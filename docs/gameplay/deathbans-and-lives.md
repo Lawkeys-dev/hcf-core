@@ -6,7 +6,7 @@
 
 **A death bans the player for one hour** (`deathban.duration-seconds`). They are disconnected a moment after dying and refused at login until the ban ends. The ban is stored as an end time, so **it survives restarts** — a ban that paused while the server was down would be trivially bypassed.
 
-`/pvp` shows your own status.
+`/deathban` (`/db`) says how long dying now would ban you — your rank's length, until the end of the map during EOTW, or nothing. `/db <player>` is `/pvp check <player>`, and `/db lift`, `/db ban` are the staff commands below.
 
 ### Shorter bans by rank
 

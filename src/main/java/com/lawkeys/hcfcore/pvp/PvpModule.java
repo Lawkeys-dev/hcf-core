@@ -701,6 +701,21 @@ public final class PvpModule {
         }
     }
 
+    /**
+     * @return what dying now would cost this player: a ban of that many seconds,
+     *         {@code 0} for none, {@code -1} for a ban until the map ends
+     */
+    public long deathbanOnDeath(Player player) {
+        if (player.hasPermission(BYPASS_PERMISSION) || !settings.deathban().enabled()) {
+            return 0L;
+        }
+        return switch (deathbanPolicy.rule()) {
+            case NONE -> 0L;
+            case UNTIL_MAP_END -> -1L;
+            case USUAL -> settings.deathbanSecondsFor(heldTierPermissions(player));
+        };
+    }
+
     /** @return the deathban tier nodes this player holds, to judge them once they have left */
     public List<String> tierPermissionsOf(Player player) {
         return heldTierPermissions(player);
