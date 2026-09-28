@@ -135,7 +135,12 @@ public final class KingSettingsLoader {
                 section.getBoolean("lock-armour", defaults.lockArmour()),
                 section.getBoolean("drop-kit", defaults.dropKit()),
                 section.getBoolean("death-costs-dtr", defaults.deathCostsDtr()),
-                section.getBoolean("deathban", defaults.deathban()));
+                section.getBoolean("deathban", defaults.deathban()),
+                section.getLong("quit-ban-seconds", defaults.quitBanSeconds()),
+                section.getLong("afk-seconds", defaults.afkSeconds()),
+                section.getBoolean("wall.enabled", defaults.wall()),
+                section.getString("wall.material", defaults.wallMaterial()),
+                section.getInt("wall.radius-blocks", defaults.wallRadius()));
     }
 
     private static KingMode loadMode(String raw, String id, Consumer<String> warn) {
@@ -156,7 +161,10 @@ public final class KingSettingsLoader {
                     section.getDouble("damage-per-second", defaults.damagePerSecond()),
                     section.getInt("wither-start-level", defaults.witherStartLevel()),
                     Durations.capSeconds(section.getLong("wither-step-seconds", defaults.witherStepSeconds()), "wither-step-seconds", warn),
-                    section.getInt("wither-max-level", defaults.witherMaxLevel()));
+                    section.getInt("wither-max-level", defaults.witherMaxLevel()),
+                    // Off unless the file says so - a file written before the switch
+                    // included: the owner took the Wither out (28/09/2026).
+                    section.getBoolean("enabled", defaults.enabled()));
         } catch (IllegalArgumentException e) {
             warn.accept("kill-the-king '" + id + "': outside-penalty is unusable (" + e.getMessage()
                     + "); using the defaults.");

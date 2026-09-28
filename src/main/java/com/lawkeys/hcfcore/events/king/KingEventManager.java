@@ -182,7 +182,9 @@ public final class KingEventManager {
         }
 
         OutsidePenalty penalty = definition.penalty();
-        if (kingInsideZone) {
+        if (!penalty.enabled()) {
+            // Off as shipped: the King is kept in the warzone by a wall, not a Wither.
+        } else if (kingInsideZone) {
             if (run.getOutsideSince() != KingRun.INSIDE) {
                 run.setOutsideSince(KingRun.INSIDE);
                 updates.add(KingUpdate.of(KingUpdate.Type.RETURNED, definition.id(), king, null,

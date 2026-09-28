@@ -367,6 +367,21 @@ public final class HCFCore extends JavaPlugin {
         if (this.eventModule != null && this.pvpModule != null) {
             this.pvpModule.setAllyCombatZone(this.eventModule::coversAllyCombat);
             this.pvpModule.setOpenTarget(this.eventModule::isOpenTarget);
+            // A King who logs out is banned (events.yml, reign.quit-ban-seconds): a
+            // deathban, never shorter than one already running.
+            if (this.eventModule.getKing() != null) {
+                PvpModule pvp = this.pvpModule;
+                this.eventModule.getKing().setQuitBan((player, seconds) -> {
+                    var bans = pvp.getDeathbans();
+                    long left = bans.getActiveBan(player)
+                            .map(ban -> ban.isUntilMapEnd() ? Long.MAX_VALUE : ban.remainingSeconds(System.currentTimeMillis()))
+                            .orElse(0L);
+                    if (left < seconds) {
+                        bans.apply(player, seconds, "kill-the-king");
+                        pvp.flushSoon();
+                    }
+                });
+            }
         }
 
         // The scoreboard reads from every module above and is read by none, so it

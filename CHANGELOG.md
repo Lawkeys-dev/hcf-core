@@ -22,6 +22,9 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **The Purge opens enemy blocks, not raiding**: anybody may use the doors, chests and buttons of other teams' claims, but nobody builds or breaks there unless its DTR makes it raidable (`phases.yml`, `purge.use-enemy-blocks`).
 - **EOTW opens server land too**: roads, event territories and mountains are open to building and breaking like every claim, the safe zones — spawn — aside (`eotw.open-server-land`, `keep-safe-zones`, `protected-teams`).
 - **Kill the King is started by staff only**: a time in its schedule, daily or weekly, is shown in `/schedule` and announced, never acted on.
+- **The King cannot leave the warzone**: walking, a pearl, a teleport out are refused, and they see its edge as a wall within 15 blocks, as spawn's is shown in combat (`reign.wall`). **The Wither for a King outside is off** (`outside-penalty.enabled: false`). *To keep the Wither on an existing server, add `enabled: true` under `outside-penalty`.*
+- **A King who logs out is banned for 2 hours** (`reign.quit-ban-seconds`), the event ending with no winner as before.
+- **Only active players are drawn as King**: idle for 5 minutes — no move, look, chat, command or click — and a player is left out (`reign.afk-seconds`).
 
 ## [0.9.0] - 2026-09-27
 

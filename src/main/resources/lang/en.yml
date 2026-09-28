@@ -763,6 +763,8 @@ events:
     killed: "{prefix}{error}%player% {warning}killed the King {primary}%king% {warning}and wins {secondary}%event%{warning}!"
     died: "{prefix}{muted}The King {secondary}%king% {muted}died in {secondary}%event% {muted}- no winner."
     fled: "{prefix}{muted}The King {secondary}%king% {muted}left the server - {secondary}%event% {muted}ends with no winner."
+    # The King tried to leave the warzone: they are kept in it for the reign.
+    warzone-refused: "{error}The King cannot leave the warzone."
     stopped: "{prefix}{muted}%event% {muted}has been stopped."
     cancelled:
       not-enough-players: "{prefix}{muted}%event% {muted}is called off: it needs at least {secondary}%minimum% {muted}players."

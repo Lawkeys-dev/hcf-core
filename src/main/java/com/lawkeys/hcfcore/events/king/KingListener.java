@@ -89,13 +89,28 @@ final class KingListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onMove(PlayerMoveEvent event) {
+        // Moving or looking round is being at the keyboard: an idle player is never
+        // drawn as King.
+        if (event.hasChangedPosition() || event.hasChangedOrientation()) {
+            controller.active(event.getPlayer().getUniqueId());
+        }
         if (!event.hasChangedBlock() || !isKing(event.getPlayer())) {
             return;
         }
         if (entersSafeZone(event.getFrom(), event.getTo())) {
             event.setCancelled(true);
             controller.refuse(event.getPlayer(), KingMessages.SAFE_ZONE_REFUSED);
+            return;
         }
+        // The King stays in the warzone: its edge is a wall to them, as spawn is to a
+        // player in combat (the owner's choice of 28/09/2026, instead of a Wither).
+        if (controller.keptInside() && controller.insideWarzone(event.getFrom())
+                && !controller.insideWarzone(event.getTo())) {
+            event.setCancelled(true);
+            controller.refuse(event.getPlayer(), KingMessages.WARZONE_REFUSED);
+            return;
+        }
+        controller.drawWall(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -113,10 +128,39 @@ final class KingListener implements Listener {
     }
 
     private void refuseSafeDestination(PlayerTeleportEvent event) {
-        if (isKing(event.getPlayer()) && event.getTo() != null && controller.isSafeZone(event.getTo())) {
+        if (!isKing(event.getPlayer()) || event.getTo() == null) {
+            return;
+        }
+        if (controller.isSafeZone(event.getTo())) {
             event.setCancelled(true);
             controller.refuse(event.getPlayer(), KingMessages.SAFE_ZONE_REFUSED);
+            return;
         }
+        // A pearl, a chorus fruit, a command or a portal out of the warzone.
+        if (controller.keptInside() && controller.insideWarzone(event.getFrom())
+                && !controller.insideWarzone(event.getTo())) {
+            event.setCancelled(true);
+            controller.refuse(event.getPlayer(), KingMessages.WARZONE_REFUSED);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Who is at the keyboard
+    // ------------------------------------------------------------------
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChat(io.papermc.paper.event.player.AsyncChatEvent event) {
+        controller.active(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onCommand(org.bukkit.event.player.PlayerCommandPreprocessEvent event) {
+        controller.active(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onClick(PlayerInteractEvent event) {
+        controller.active(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -309,14 +353,22 @@ final class KingListener implements Listener {
     // the reign with no winner, whatever happens to the player after.
     @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent event) {
+        UUID id = event.getPlayer().getUniqueId();
         if (isKing(event.getPlayer())) {
-            controller.getManager().kingQuit().ifPresent(controller::handle);
+            // Read before the reign ends: the rules the King fled from.
+            ReignRules reign = controller.reignOf(id);
+            controller.getManager().kingQuit().ifPresent(update -> {
+                controller.handle(update);
+                controller.banFled(id, reign);
+            });
         }
+        controller.forgetActivity(id);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        controller.active(player.getUniqueId());
         if (controller.isOwed(player.getUniqueId())) {
             // A tick later, once the join has finished loading their inventory.
             Bukkit.getScheduler().runTask(controller.getPlugin(), () -> {

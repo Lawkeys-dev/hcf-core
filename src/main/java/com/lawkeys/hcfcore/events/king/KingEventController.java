@@ -382,12 +382,115 @@ public final class KingEventController {
                 })));
     }
 
+    // ------------------------------------------------------------------
+    // Who is active, who fled, and the wall at the warzone's edge
+    // ------------------------------------------------------------------
+
+    /** When each online player last did anything: moved, looked, chatted, typed a command, clicked. */
+    private final Map<UUID, Long> lastActive = new java.util.concurrent.ConcurrentHashMap<>();
+    /** Bans a King who logged out, from {@code pvp/}: nothing until installed. */
+    private volatile java.util.function.BiConsumer<UUID, Long> quitBan = (player, seconds) -> {
+    };
+    /** The warzone's edge as the King sees it: blocks shown to them alone. */
+    private final com.lawkeys.hcfcore.claim.view.ClientBlocks wallView = new com.lawkeys.hcfcore.claim.view.ClientBlocks();
+
+    /** The player did something: they are not idle. */
+    void active(UUID playerId) {
+        lastActive.put(playerId, System.currentTimeMillis());
+    }
+
+    void forgetActivity(UUID playerId) {
+        lastActive.remove(playerId);
+        wallView.forget(playerId);
+    }
+
+    /** @return whether this player did something within {@code afkSeconds}; {@code 0} counts everybody */
+    boolean isActive(UUID playerId, long afkSeconds) {
+        if (afkSeconds <= 0) {
+            return true;
+        }
+        Long last = lastActive.get(playerId);
+        return last != null && System.currentTimeMillis() - last <= afkSeconds * 1000L;
+    }
+
+    public void setQuitBan(java.util.function.BiConsumer<UUID, Long> ban) {
+        this.quitBan = Objects.requireNonNull(ban, "ban");
+    }
+
+    /**
+     * A King who logged out: the event is over with no winner (the quit update), and
+     * - a tick later, after {@code pvp/} has dealt with a combat log - they are banned.
+     */
+    void banFled(UUID kingId, ReignRules reign) {
+        if (reign.quitBanSeconds() <= 0) {
+            return;
+        }
+        Bukkit.getScheduler().runTask(plugin, () -> quitBan.accept(kingId, reign.quitBanSeconds()));
+    }
+
+    /** @return whether that spot is inside the warzone of the King's event */
+    boolean insideWarzone(Location location) {
+        return location.getWorld() != null && claims != null
+                && claims.getSettings().warzone().covers(location.getWorld().getName(),
+                        location.getBlockX(), location.getBlockZ());
+    }
+
+    /** @return whether the King's reign keeps them inside the warzone right now */
+    boolean keptInside() {
+        return !arriving && manager.getCurrent().filter(KingRun::isReigning).isPresent();
+    }
+
+    /**
+     * Shows the King the warzone's edge within their wall radius, all round - the air
+     * blocks of the border near them - or nothing when they are far from it.
+     */
+    void drawWall(Player king) {
+        Optional<KingRun> run = manager.getCurrent().filter(KingRun::isReigning);
+        if (run.isEmpty() || !run.get().getKingId().equals(king.getUniqueId())) {
+            wallView.clear(king);
+            return;
+        }
+        ReignRules reign = run.get().getDefinition().reign();
+        Area area = warzoneOf(king.getWorld().getName());
+        if (!reign.wall() || area == null) {
+            wallView.clear(king);
+            return;
+        }
+        Material material = Material.matchMaterial(reign.wallMaterial());
+        org.bukkit.block.data.BlockData glass = (material == null || !material.isBlock()
+                ? Material.RED_STAINED_GLASS : material).createBlockData();
+        Location at = king.getLocation();
+        int r = reign.wallRadius();
+        int bottom = Math.max(king.getWorld().getMinHeight(), at.getBlockY() - r);
+        int top = Math.min(king.getWorld().getMaxHeight() - 1, at.getBlockY() + r);
+        Map<Location, org.bukkit.block.data.BlockData> blocks = new java.util.HashMap<>();
+        for (int[] column : WarzoneBorder.columnsNear(area.centerX(), area.centerZ(), area.radius(),
+                at.getBlockX(), at.getBlockZ(), r)) {
+            int dx = column[0] - at.getBlockX();
+            int dz = column[1] - at.getBlockZ();
+            for (int y = bottom; y <= top; y++) {
+                int dy = y - at.getBlockY();
+                if (dx * dx + dy * dy + dz * dz > r * r) {
+                    continue;
+                }
+                Location block = new Location(king.getWorld(), column[0], y, column[1]);
+                if (block.getBlock().getType().isAir()) {
+                    blocks.put(block, glass);
+                }
+            }
+        }
+        wallView.show(king, blocks);
+    }
+
     /** @return the players who may be drawn right now */
     private List<Candidate> candidates() {
+        long afk = manager.getCurrent().map(run -> run.getDefinition().reign().afkSeconds()).orElse(0L);
         List<Candidate> candidates = new ArrayList<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
             GameMode mode = player.getGameMode();
             if (player.isDead()
+                    // Idle - away from the keyboard: never the King (the owner's rule of 28/09/2026).
+                    || !isActive(player.getUniqueId(), afk)
                     || (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE)
                     || player.hasPermission(EXEMPT_PERMISSION)
                     // Still owed items from an earlier reign: a second stash would
@@ -537,6 +640,9 @@ public final class KingEventController {
 
     private void finish(KingUpdate update, Player king) {
         arriving = false;
+        if (king != null) {
+            wallView.clear(king);
+        }
         if (update.kingId() != null) {
             settings.find(update.eventId()).ifPresent(definition ->
                     formerReigns.put(update.kingId(), definition.reign()));

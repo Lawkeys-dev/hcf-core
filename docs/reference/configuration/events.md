@@ -135,7 +135,7 @@ Under `kill-the-king:`. The arena is the warzone of `world`, set in `claims.yml`
 | `schedule`, `reward-commands` | `[]` | As for a KOTH; rewards get `%player%` (the King or the killer) and `%event%` |
 | `mode` | `team` | `team`: the King's team defends them, the winner's team scores. `solo`: everybody against the King, teammates included, and the reward commands are the whole prize — no team scores |
 
-**Leaving the warzone:**
+**Leaving the warzone** — a Wither and damage, **off as shipped**: the King cannot leave the warzone at all (`reign.wall` below), and a Wither could be abused.
 
 ```yaml title="events.yml"
 --8<-- "src/main/resources/events.yml:ktk-penalty"
@@ -143,6 +143,7 @@ Under `kill-the-king:`. The arena is the warzone of `world`, set in `claims.yml`
 
 | Key | As shipped | What it does |
 |---|---|---|
+| `enabled` | `false` | Whether being outside costs the King anything. *Missing from a file written before, it is off: add `enabled: true` to keep the Wither* |
 | `grace-seconds` | `3` | Seconds outside before anything happens |
 | `damage-per-second` | `1.0` | Damage each second outside after the grace; 2.0 is a heart |
 | `wither-start-level` | `1` | Wither level once the grace is over |
@@ -169,6 +170,9 @@ Under `kill-the-king:`. The arena is the warzone of `world`, set in `claims.yml`
 | `drop-kit` | `false` | `true`: the kit falls at the King's death, loot for the killer; `false`: it vanishes |
 | `death-costs-dtr` | `false` | The King's death takes DTR from their team |
 | `deathban` | `false` | The King's death deathbans them |
+| `quit-ban-seconds` | `7200` | A King who logs out ends the event with no winner and is banned this long — 2 hours; `0` for no ban. Never shortens a ban already running |
+| `afk-seconds` | `300` | A player idle this long — no move, look, chat, command or click — is never drawn as King; `0` draws anybody |
+| `wall.enabled` · `material` · `radius-blocks` | `true` · `RED_STAINED_GLASS` · `15` | The King sees the warzone's edge as a wall within that many blocks, all round. Leaving is refused either way: walking, a pearl, a teleport |
 
 *Existing servers: without a `reign` section, these values apply — copy it from the jar to change them.*
 

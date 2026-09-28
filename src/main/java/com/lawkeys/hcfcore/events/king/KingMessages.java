@@ -20,6 +20,7 @@ public final class KingMessages {
     public static final String KILLED = "events.king.killed";
     public static final String DIED = "events.king.died";
     public static final String FLED = "events.king.fled";
+    public static final String WARZONE_REFUSED = "events.king.warzone-refused";
     public static final String STOPPED = "events.king.stopped";
 
     // Called off before anyone was crowned

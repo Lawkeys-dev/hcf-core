@@ -99,7 +99,7 @@ The scoreboard shows `%conquest_line%` (the leading team and its points) and `%c
 
 A random player becomes the King. Everyone else hunts them.
 
-1. **The draw.** A random online player in survival or adventure mode becomes the King — at least **2** such players must be online (`minimum-players`), and players with `hcfcore.events.king.exempt` are never drawn.
+1. **The draw.** A random online player in survival or adventure mode becomes the King — **only among the active ones**: a player idle for 5 minutes (no move, look, chat, command or click, `reign.afk-seconds`) is never drawn. At least **2** such players must be online (`minimum-players`), and players with `hcfcore.events.king.exempt` are never drawn. **Staff start it** (`/events start <id>`): its times in a schedule are shown and announced, never acted on.
 2. **The crowning.** The King's items are **put aside in the database** and given back at the end. They receive the King's kit and effects (configurable: diamond armour, a sword, golden apples, pearls, Speed II and Resistance I in the example).
 3. **The hunt.** They are sent to a random spot in the **warzone** of the event's world, on the surface, off claimed land. **Everybody can find them**: their position is on every scoreboard, redrawn every second (`%king_location_line%`), Lunar Client players see a waypoint on them, and **once a minute** the chat says where the King is and **how much health they have left**, as a percentage (`announce-interval-seconds`, `60`; `0` turns the chat line off).
 
@@ -116,7 +116,7 @@ A random player becomes the King. Everyone else hunts them.
 
 While King, a player:
 
-- **cannot leave the warzone** without penalty: after a 3-second grace, damage every second, then a Wither whose level rises every 10 seconds up to V (`outside-penalty`). The count starts over each time they come back in. A safe zone counts as outside;
+- **cannot leave the warzone** — walking, a pearl, a chorus fruit, a teleport are refused — and sees its edge as a **wall of red glass** within 15 blocks, all round, as a player in combat sees spawn's (`reign.wall`). The old Wither for a King outside (`outside-penalty`) is off as shipped;
 - **cannot enter spawn by any means** — walking, pearls, chorus fruit, commands, portals;
 - cannot mount anything, drop items, open containers, use item frames and armour stands, or put an item in a block that holds one (a decorated pot, a shelf, a lectern, a campfire...) — the kit stays on the King;
 - **cannot take off their armour** — no click, drag or key swap on an armour slot, no right-click swap with another piece (`reign.lock-armour`);
@@ -126,7 +126,8 @@ While King, a player:
 
 - **The King**, if alive when the time runs out (**30 minutes**, `duration-seconds`).
 - Otherwise, **whoever kills the King** — in `team` mode, unless that player was on the King's team when the King was crowned or killed (the King's allies are not excluded: the rule is strictly per team). In `solo` mode, anybody, teammates included.
-- Any other death — withered, fall, lava — or a logout ends the event with **no winner**.
+- Any other death — a fall, lava — ends the event with **no winner**.
+- **A King who logs out** ends the event with **no winner** and is **banned for 2 hours** (`reign.quit-ban-seconds`).
 
 Reward commands run with `%player%` (the King or the killer) and `%event%`. Their own items come back: at once if they survive or the event is stopped, at respawn if they die, at their next login if they leave or the server goes down.
 

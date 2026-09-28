@@ -234,6 +234,20 @@ class KingEventManagerTest {
             assertEquals(1, penalty(manager.tick(false)).witherLevel(), "one excursion, not a running total");
         }
 
+        @Test
+        void aPenaltySwitchedOffCostsNothingOutside() {
+            settings = new KingSettings(true, UTC, List.of(new KingEventDefinition("ktk", "&4Kill the King", "world",
+                    600, 2, List.of(), List.of(), 60L, new OutsidePenalty(3L, 2.0, 1, 10L, 3, false), KingKit.empty(),
+                    List.of())));
+            crownAlice();
+            for (int second = 0; second < 30; second++) {
+                assertTrue(manager.tick(false).stream().noneMatch(update -> update.type() == Type.PENALTY
+                        || update.type() == Type.LEFT_ZONE), "no warning, no Wither: the wall keeps the King in");
+                advanceSeconds(1);
+            }
+            assertTrue(!OutsidePenalty.defaults().enabled(), "off as shipped");
+        }
+
         private KingUpdate penalty(List<KingUpdate> updates) {
             return updates.stream().filter(update -> update.type() == Type.PENALTY).findFirst().orElseThrow();
         }

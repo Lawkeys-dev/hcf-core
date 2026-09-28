@@ -341,9 +341,11 @@ kill-the-king:
     announce-at-seconds: [900, 300, 60, 10]
 
     # --8<-- [start:ktk-penalty]
-    # What leaving the warzone costs. The count starts over each time the King
-    # comes back in.
+    # A Wither and damage for a King outside the warzone - off as shipped: the
+    # King is kept in by a wall (reign.wall below), and a Wither could be abused.
+    # The count starts over each time the King comes back in.
     outside-penalty:
+      enabled: false
       # Seconds outside before anything happens: a King knocked over the border
       # by a hit is not punished for it.
       grace-seconds: 3
@@ -421,6 +423,18 @@ kill-the-king:
       death-costs-dtr: false
       # The King's death deathbans them, as any death would.
       deathban: false
+      # A King who logs out ends the event with no winner and is banned for this
+      # long, in seconds (2 hours). 0: no ban.
+      quit-ban-seconds: 7200
+      # A player idle this long - no move, look, chat, command or click - is never
+      # drawn as King. 0 draws anybody online.
+      afk-seconds: 300
+      # The King cannot leave the warzone - walking, a pearl, a teleport - and sees
+      # its edge as a wall when near it, as a player in combat sees spawn's.
+      wall:
+        enabled: true
+        material: RED_STAINED_GLASS
+        radius-blocks: 15
     # --8<-- [end:ktk-reign]
 
     # Console commands run for the winner - the killer, or the King.

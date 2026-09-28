@@ -57,6 +57,11 @@ class EventsYamlTest {
         assertEquals(Boolean.FALSE, reign.get("drop-kit"));
         assertEquals(Boolean.FALSE, reign.get("death-costs-dtr"));
         assertEquals(Boolean.FALSE, reign.get("deathban"));
+        assertEquals(7200, ((Number) reign.get("quit-ban-seconds")).intValue(), "two hours");
+        assertEquals(300, ((Number) reign.get("afk-seconds")).intValue());
+        assertEquals(Boolean.TRUE, ((Map<String, Object>) reign.get("wall")).get("enabled"));
+        Map<String, Object> penalty = (Map<String, Object>) section("kill-the-king", "ktk").get("outside-penalty");
+        assertEquals(Boolean.FALSE, penalty.get("enabled"), "no Wither: the wall keeps the King in");
     }
 
     @Test

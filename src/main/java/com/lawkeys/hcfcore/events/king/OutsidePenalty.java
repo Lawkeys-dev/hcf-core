@@ -16,12 +16,21 @@ package com.lawkeys.hcfcore.events.king;
  *                          (1 is Wither I)
  * @param witherStepSeconds every this many further seconds outside, one level more
  * @param witherMaxLevel    the level it stops growing at
+ * @param enabled           off as shipped (the owner's choice of 28/09/2026: a Wither
+ *                          can be abused): the King is kept in by a wall instead
  */
 public record OutsidePenalty(long graceSeconds,
                              double damagePerSecond,
                              int witherStartLevel,
                              long witherStepSeconds,
-                             int witherMaxLevel) {
+                             int witherMaxLevel,
+                             boolean enabled) {
+
+    /** A penalty that applies. */
+    public OutsidePenalty(long graceSeconds, double damagePerSecond, int witherStartLevel, long witherStepSeconds,
+                          int witherMaxLevel) {
+        this(graceSeconds, damagePerSecond, witherStartLevel, witherStepSeconds, witherMaxLevel, true);
+    }
 
     public OutsidePenalty {
         if (graceSeconds < 0) {
@@ -43,7 +52,7 @@ public record OutsidePenalty(long graceSeconds,
     }
 
     public static OutsidePenalty defaults() {
-        return new OutsidePenalty(3L, 1.0, 1, 10L, 5);
+        return new OutsidePenalty(3L, 1.0, 1, 10L, 5, false);
     }
 
     /** @return whether the King is being punished after this many seconds outside */
