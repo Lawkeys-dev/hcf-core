@@ -19,4 +19,13 @@ public final class StatsMessages {
     public static final String TOP_ENTRY = "stats.top.entry";
     public static final String TOP_EMPTY = "stats.top.empty";
     public static final String TOP_USAGE = "stats.top.usage";
+    public static final String MENU_TITLE = "stats.top.menu-title";
+    public static final String MENU_BOARD = "stats.top.menu-board";
+    public static final String MENU_LINE = "stats.top.menu-line";
+    public static final String MENU_EMPTY = "stats.top.menu-empty";
+
+    /** A board's name: {@code stats.top.board.<kind>}. */
+    public static String board(String kind) {
+        return "stats.top.board." + kind;
+    }
 }

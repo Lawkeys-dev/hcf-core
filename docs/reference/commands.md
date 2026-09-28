@@ -87,7 +87,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/class` · `/class list` · `/class info <class>` | `/classes`, `/pvpclass` | Your class, energy and warmup; every class; what one does | everyone |
 | `/dyes` | `/dyecolors` | A menu of the effects each dye colour gives a class's arrows | everyone |
 | `/stats [player]` | | Kills, deaths, killstreak, playtime | everyone |
-| `/leaderboard [kills\|deaths\|kdr\|killstreak\|playtime]` | `/lb`, `/top10` | The leaderboards | everyone |
+| `/leaderboard [kills\|deaths\|kdr\|killstreak\|playtime\|team-kills\|team-points]` | `/lb`, `/top10` | Every board in a window, or one in the chat | everyone |
 
 ## Events and map phases
 

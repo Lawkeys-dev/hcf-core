@@ -259,6 +259,43 @@ public final class HCFCore extends JavaPlugin {
         // so the two share nothing but an integer.
         this.killstreakModule = new KillstreakModule(this, this.langManager, this.statsModule);
         this.killstreakModule.enable();
+        // /leaderboard's team boards: the team module knows the teams, stats their kills.
+        if (this.teamModule != null && this.statsModule != null) {
+            TeamModule teams = this.teamModule;
+            StatsModule stats = this.statsModule;
+            this.statsModule.setTeamBoards(new com.lawkeys.hcfcore.stats.TeamBoards() {
+                @Override
+                public java.util.List<Row> byPoints(int limit) {
+                    java.util.List<Row> rows = new java.util.ArrayList<>();
+                    for (com.lawkeys.hcfcore.team.Team team : teams.getManager().getTopTeamsByPoints(limit)) {
+                        rows.add(new Row(team.getName(), String.valueOf(team.getPoints())));
+                    }
+                    return rows;
+                }
+
+                @Override
+                public java.util.List<Row> byKills(int limit) {
+                    java.util.List<java.util.Map.Entry<String, Integer>> totals = new java.util.ArrayList<>();
+                    for (com.lawkeys.hcfcore.team.Team team : teams.getManager().getTeams()) {
+                        if (team.getType().isSystem()) {
+                            continue;
+                        }
+                        int kills = 0;
+                        for (java.util.UUID member : team.getMemberIds()) {
+                            kills += stats.getManager().find(member).map(p -> p.getKills()).orElse(0);
+                        }
+                        totals.add(java.util.Map.entry(team.getName(), kills));
+                    }
+                    totals.sort(java.util.Map.Entry.<String, Integer>comparingByValue().reversed()
+                            .thenComparing(java.util.Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)));
+                    java.util.List<Row> rows = new java.util.ArrayList<>();
+                    for (var entry : totals.subList(0, Math.min(limit, totals.size()))) {
+                        rows.add(new Row(entry.getKey(), String.valueOf(entry.getValue())));
+                    }
+                    return rows;
+                }
+            });
+        }
 
         // Enchantment and potion caps, and blocks per claim - all idle until an
         // operator writes a limit: the file ships with none. Reads territory.
@@ -576,6 +613,9 @@ public final class HCFCore extends JavaPlugin {
         }
         if (uiModule != null) {
             uiModule.reloadSettings();
+            if (statsModule != null) {
+                statsModule.reloadLeaderboardMenu();
+            }
         }
         if (generalModule != null) {
             generalModule.reloadSettings();

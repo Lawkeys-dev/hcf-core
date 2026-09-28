@@ -1250,6 +1250,19 @@ stats:
     entry: "{muted}%rank%. {secondary}%player% {muted}- {secondary}%value%"
     empty: "{muted}Nobody has any statistics yet."
     usage: "{error}Unknown leaderboard. {muted}Try: {secondary}%kinds%"
+    # /leaderboard with no argument: a window, one item per board.
+    menu-title: "Leaderboards"
+    menu-board: "{primary}%board%"
+    menu-line: "{muted}%rank%. {secondary}%name% {dark}- {primary}%value%"
+    menu-empty: "{muted}Nobody yet"
+    board:
+      kills: "Kills"
+      deaths: "Deaths"
+      kdr: "K/D"
+      killstreak: "Best killstreak"
+      playtime: "Playtime"
+      team-kills: "Team kills"
+      team-points: "Team points"
 
 # ---------------------------------------------------------------------------
 # Scoreboard wording

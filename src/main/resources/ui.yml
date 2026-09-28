@@ -267,3 +267,23 @@ tablist:
     sort: rank
   # --8<-- [end:tablist-classic]
 # --8<-- [end:tablist]
+
+# --8<-- [start:leaderboard-menu]
+# /leaderboard with no argument opens a window: one item per board - kills,
+# deaths, K/D, best killstreak, playtime, and the teams' kills and points - each
+# listing its top in its lines. /leaderboard <board> still lists one in the chat.
+leaderboard-menu:
+  # false: /leaderboard with no argument lists the kills in the chat.
+  enabled: true
+  # How many places each board shows.
+  rows: 10
+  # Each board's item.
+  icons:
+    kills: DIAMOND_SWORD
+    deaths: SKELETON_SKULL
+    kdr: IRON_SWORD
+    killstreak: BLAZE_POWDER
+    playtime: CLOCK
+    team-kills: RED_BANNER
+    team-points: GOLD_INGOT
+# --8<-- [end:leaderboard-menu]

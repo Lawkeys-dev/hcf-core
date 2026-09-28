@@ -83,8 +83,11 @@ Each style has its own header and footer. Only what changed is sent again, once 
 
 ```text
 /stats [player]                                            # kills, deaths, K/D, killstreak, playtime
-/leaderboard [kills|deaths|kdr|killstreak|playtime]        # aliases /lb, /top10
+/leaderboard                                               # a window with every board; aliases /lb, /top10
+/leaderboard [kills|deaths|kdr|killstreak|playtime|team-kills|team-points]   # one board in the chat
 ```
+
+`/leaderboard` alone opens a **window with every board at once** — kills, deaths, K/D, best killstreak, playtime, and the teams' kills (their members' kills added up) and points — each item listing its top 10 (`ui.yml`, `leaderboard-menu`).
 
 - **K/D** of a player with no death is their number of kills, not infinity.
 - **Playtime** is accumulated session by session, and a shutdown closes every session before the final save.

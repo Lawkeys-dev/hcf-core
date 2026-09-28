@@ -16,6 +16,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **Making subclaims is a permission** like the others (`claims.yml`, `subclaims.create-role`, every member as shipped), which each team may raise in `/team settings` (`create-subclaims`).
 - **A won event leaves a sign**, as a kill does: the event, who won it and the date, to the King's winner or every online member of the winning team (`events.yml`, `capture-signs`; lines in `events.capture-sign`). *Existing servers: copy the `capture-signs` section and the `events.capture-sign` lines from the jar.*
 - **`EventWonEvent`** in the API: fired when any event is won, with its kind, the winning team and, for Kill the King, the player.
+- **`/leaderboard` opens a window with every board**: kills, deaths, K/D, killstreak, playtime, and two new ones — the teams' kills and points — each item listing its top 10 (`ui.yml`, `leaderboard-menu`). `/leaderboard <board>` still lists one in the chat. *Existing servers: copy the `leaderboard-menu` section of `ui.yml` and the `stats.top` lines of `lang/en.yml` from the jar.*
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
 ### Changed

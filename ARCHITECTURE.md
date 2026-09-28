@@ -277,6 +277,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `BuildOverride` | `claim/` | `NONE` (no bypass) | `staff/` (`/staffbuild`) |
 | `BreakAllowance` | `claim/` | `NONE` (no bypass) | `events/` (a DTC/Last Break run's core, that one block, while it runs) |
 | `KillstreakObserver` | `stats/` | `NONE` (the streak is counted, nobody is told) | `killstreak/` |
+| `TeamBoards` | `stats/` | `NONE` (no team board) | the plugin, from `team/` (`/leaderboard`'s team kills and points) |
 | `HologramSource` | `hologram/` | no source (only stored holograms) | `events/` (one hologram per capture zone) |
 | `SpawnGuard` | `general/` | `ALLOW` (nobody refused) | `events/` (the King of Kill the King never enters spawn, `/spawn` included) |
 | `LogoutGuard` | `general/` | `ALLOW` (nobody refused) | `pvp/` (a tagged player cannot leave through `/logout`: that would be a combat log) |

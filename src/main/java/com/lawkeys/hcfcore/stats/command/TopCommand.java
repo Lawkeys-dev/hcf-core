@@ -30,8 +30,9 @@ public final class TopCommand implements TabExecutor {
     /** How many rows a leaderboard shows. */
     private static final int ROWS = 10;
 
-    private static final List<String> KINDS =
-            List.of("kills", "deaths", "kdr", "killstreak", "playtime");
+    /** Every board, in the window's order: the players', then the teams'. */
+    static final List<String> KINDS =
+            List.of("kills", "deaths", "kdr", "killstreak", "playtime", "team-kills", "team-points");
 
     private final StatsModule module;
 
@@ -44,35 +45,70 @@ public final class TopCommand implements TabExecutor {
         if (module.getStartup().refuseCommand(sender)) {
             return true;
         }
-        String kind = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "kills";
-        Ranking ranking = switch (kind) {
-            case "kills" -> Ranking.KILLS;
-            case "deaths" -> Ranking.DEATHS;
-            case "kdr", "ratio" -> Ranking.KILL_DEATH_RATIO;
-            case "killstreak", "streak" -> Ranking.HIGHEST_KILLSTREAK;
-            case "playtime", "time" -> Ranking.PLAYTIME;
-            default -> null;
-        };
-        if (ranking == null) {
+        // No argument: the window, every board at once - or the kills in the chat.
+        if (args.length == 0 && sender instanceof org.bukkit.entity.Player player
+                && module.getLeaderboardMenu().enabled()) {
+            LeaderboardMenu.open(module, player);
+            return true;
+        }
+        String kind = args.length > 0 ? canonical(args[0].toLowerCase(Locale.ROOT)) : "kills";
+        if (kind == null) {
             module.getLang().send(sender, StatsMessages.TOP_USAGE,
                     "kinds", String.join(", ", KINDS));
             return true;
         }
 
-        List<PlayerStats> top = module.getManager().top(ranking, ROWS);
+        List<String[]> top = rows(module, kind, ROWS);
         if (top.isEmpty()) {
             module.getLang().send(sender, StatsMessages.TOP_EMPTY);
             return true;
         }
-        long now = System.currentTimeMillis();
-        module.getLang().send(sender, StatsMessages.TOP_HEADER, "kind", kind);
+        module.getLang().send(sender, StatsMessages.TOP_HEADER, "kind", module.getLang().get(StatsMessages.board(kind)));
         for (int i = 0; i < top.size(); i++) {
             module.getLang().send(sender, StatsMessages.TOP_ENTRY,
                     "rank", String.valueOf(i + 1),
-                    "player", top.get(i).getName(),
-                    "value", render(ranking, top.get(i), now));
+                    "player", top.get(i)[0],
+                    "value", top.get(i)[1]);
         }
         return true;
+    }
+
+    /** @return the board's name as the window lists it, from any of its spellings; null if none */
+    private static String canonical(String typed) {
+        return switch (typed) {
+            case "kills" -> "kills";
+            case "deaths" -> "deaths";
+            case "kdr", "ratio" -> "kdr";
+            case "killstreak", "streak" -> "killstreak";
+            case "playtime", "time" -> "playtime";
+            case "team-kills", "teamkills", "fkills", "faction-kills" -> "team-kills";
+            case "team-points", "teampoints", "points", "faction-points" -> "team-points";
+            default -> null;
+        };
+    }
+
+    /** @return a board's top rows, each a name and its value as shown */
+    static List<String[]> rows(StatsModule module, String kind, int limit) {
+        List<String[]> rows = new ArrayList<>();
+        if (kind.equals("team-kills") || kind.equals("team-points")) {
+            var boards = module.getTeamBoards();
+            for (var row : kind.equals("team-kills") ? boards.byKills(limit) : boards.byPoints(limit)) {
+                rows.add(new String[] {row.name(), row.value()});
+            }
+            return rows;
+        }
+        Ranking ranking = switch (kind) {
+            case "deaths" -> Ranking.DEATHS;
+            case "kdr" -> Ranking.KILL_DEATH_RATIO;
+            case "killstreak" -> Ranking.HIGHEST_KILLSTREAK;
+            case "playtime" -> Ranking.PLAYTIME;
+            default -> Ranking.KILLS;
+        };
+        long now = System.currentTimeMillis();
+        for (PlayerStats stats : module.getManager().top(ranking, limit)) {
+            rows.add(new String[] {stats.getName(), render(ranking, stats, now)});
+        }
+        return rows;
     }
 
     private static String render(Ranking ranking, PlayerStats stats, long now) {

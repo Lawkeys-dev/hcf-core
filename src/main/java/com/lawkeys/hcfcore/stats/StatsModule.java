@@ -84,6 +84,72 @@ public final class StatsModule {
         return manager;
     }
 
+    /** The teams' boards, from the team module: none until installed. */
+    private volatile TeamBoards teamBoards = TeamBoards.NONE;
+
+    public void setTeamBoards(TeamBoards boards) {
+        this.teamBoards = Objects.requireNonNull(boards, "boards");
+    }
+
+    public TeamBoards getTeamBoards() {
+        return teamBoards;
+    }
+
+    /**
+     * {@code leaderboard-menu} in {@code ui.yml}.
+     *
+     * @param enabled {@code /leaderboard} with no argument opens the window; {@code false}
+     *                lists the kills in the chat
+     * @param rows    how many places each board shows
+     * @param icons   each board's item, by its name
+     */
+    public record LeaderboardMenuRules(boolean enabled, int rows, java.util.Map<String, String> icons) {
+
+        public LeaderboardMenuRules {
+            rows = Math.max(1, Math.min(25, rows));
+            icons = java.util.Map.copyOf(icons);
+        }
+
+        static final java.util.Map<String, String> DEFAULT_ICONS = java.util.Map.of(
+                "kills", "DIAMOND_SWORD", "deaths", "SKELETON_SKULL", "kdr", "IRON_SWORD",
+                "killstreak", "BLAZE_POWDER", "playtime", "CLOCK", "team-kills", "RED_BANNER",
+                "team-points", "GOLD_INGOT");
+
+        public static LeaderboardMenuRules defaults() {
+            return new LeaderboardMenuRules(true, 10, DEFAULT_ICONS);
+        }
+
+        public String icon(String board) {
+            return icons.getOrDefault(board, "PAPER");
+        }
+    }
+
+    private volatile LeaderboardMenuRules leaderboardMenu = LeaderboardMenuRules.defaults();
+
+    public LeaderboardMenuRules getLeaderboardMenu() {
+        return leaderboardMenu;
+    }
+
+    /** Reads {@code leaderboard-menu} from {@code ui.yml}. */
+    public void reloadLeaderboardMenu() {
+        var file = com.lawkeys.hcfcore.config.ConfigManager.loadFile(plugin, "ui.yml");
+        var section = file == null ? null : file.getConfigurationSection("leaderboard-menu");
+        LeaderboardMenuRules d = LeaderboardMenuRules.defaults();
+        if (section == null) {
+            this.leaderboardMenu = d;
+            return;
+        }
+        java.util.Map<String, String> icons = new java.util.HashMap<>(LeaderboardMenuRules.DEFAULT_ICONS);
+        var iconSection = section.getConfigurationSection("icons");
+        if (iconSection != null) {
+            for (String board : iconSection.getKeys(false)) {
+                icons.put(board, iconSection.getString(board, "PAPER"));
+            }
+        }
+        this.leaderboardMenu = new LeaderboardMenuRules(section.getBoolean("enabled", d.enabled()),
+                section.getInt("rows", d.rows()), icons);
+    }
+
     /** Installs the killstreak observer. Called by {@code killstreak/} at startup. */
     public void setKillstreakObserver(KillstreakObserver observer) {
         this.killstreakObserver = Objects.requireNonNull(observer, "observer");
@@ -122,6 +188,9 @@ public final class StatsModule {
         plugin.getServer().getPluginManager().registerEvents(new StatsListener(this), plugin);
         register("stats", new StatsCommand(this));
         register("leaderboard", new TopCommand(this));
+        reloadLeaderboardMenu();
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.stats.command.LeaderboardMenu.Clicks(), plugin);
     }
 
     private void register(String name, TabExecutor executor) {

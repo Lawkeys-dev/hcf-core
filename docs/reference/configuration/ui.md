@@ -78,6 +78,18 @@ The [Theme Builder](../../getting-started/theme-builder.md) lists every head of 
 
 The words of the ready-made rows — the wilderness, a member, a top team, the team tag, the eight directions — are in `lang/en.yml` under `ui.tab`.
 
+## Leaderboard window
+
+```yaml title="ui.yml"
+--8<-- "src/main/resources/ui.yml:leaderboard-menu"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | `/leaderboard` with no argument opens the window; `false` lists the kills in the chat |
+| `rows` | `10` | How many places each board shows, 1 to 25 |
+| `icons.<board>` | one each | The item of each board: `kills`, `deaths`, `kdr`, `killstreak`, `playtime`, `team-kills`, `team-points` |
+
 ## The whole shipped file
 
 [View it on GitHub](https://github.com/Lawkeys-dev/hcf-core/blob/main/src/main/resources/ui.yml).
