@@ -111,15 +111,16 @@ public record PvpSettings(
     /**
      * The wall a player in combat sees around a safe zone they may not enter.
      *
-     * @param widthBlocks how far along the border it is drawn, each way from the
-     *                    player: the rest of spawn's border is not in front of them
+     * @param radiusBlocks the border is drawn within this distance of the player, all
+     *                     round - a ball of wall where they stand, rather than a
+     *                     sheet up to the sky (the owner's choice of 28/09/2026: far
+     *                     fewer blocks read and sent)
      */
-    public record WallRules(boolean enabled, String material, int widthBlocks, int topY, int minimumHeight) {
+    public record WallRules(boolean enabled, String material, int radiusBlocks) {
 
         public WallRules {
             Objects.requireNonNull(material, "material");
-            widthBlocks = Math.max(1, Math.min(128, widthBlocks));
-            minimumHeight = Math.max(1, Math.min(64, minimumHeight));
+            radiusBlocks = Math.max(1, Math.min(32, radiusBlocks));
         }
     }
 
@@ -213,7 +214,7 @@ public record PvpSettings(
                 new KnockbackRules(false, 1.0, 1.0),
                 new AttackSpeedRules(false, 4.0),
                 new SafeZoneRules(true, true, true, true, true,
-                        new WallRules(true, "RED_STAINED_GLASS", 15, 128, 3)),
+                        new WallRules(true, "RED_STAINED_GLASS", 15)),
                 new LootProtectionRules(true, 10L, true),
                 new FriendlyFireRules(false, FriendlyFire.AllyRule.EVENT_AREAS),
                 new EnderPearlRules(true, 15L, true, true, true),

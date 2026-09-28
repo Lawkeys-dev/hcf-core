@@ -75,7 +75,8 @@ public final class ScheduleCommand implements TabExecutor {
                         "day", module.getLang().get(day), "date", dates.format(date));
             }
             module.getLang().send(sender, PlanningMessages.ENTRY, "time", TIME.format(entry.at()),
-                    "event", module.getLauncher().displayName(entry.eventId()).orElse(entry.eventId()));
+                    "color", ScheduleMenu.color(module, module.getPlanning().getSettings().menu(), entry.eventId()),
+                    "event", ScheduleMenu.plainName(module, entry.eventId()));
         }
         if (!planning.getSettings().enabled()) {
             module.getLang().send(sender, PlanningMessages.DISABLED);

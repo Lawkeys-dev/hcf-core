@@ -35,7 +35,7 @@ public final class PvpSettingsLoader {
                 loadStrength(section.getConfigurationSection("strength-nerf"), defaults.strength(), warn),
                 loadKnockback(section.getConfigurationSection("knockback"), defaults.knockback()),
                 loadAttackSpeed(section.getConfigurationSection("attack-speed"), defaults.attackSpeed(), warn),
-                loadSafeZones(section.getConfigurationSection("safe-zones"), defaults.safeZones()),
+                loadSafeZones(section.getConfigurationSection("safe-zones"), defaults.safeZones(), warn),
                 loadLootProtection(section.getConfigurationSection("loot-protection"), defaults.lootProtection()),
                 loadFriendlyFire(section.getConfigurationSection("friendly-fire"), defaults.friendlyFire(), warn),
                 loadEnderPearl(section.getConfigurationSection("ender-pearl-cooldown"), defaults.enderPearl(), warn),
@@ -214,17 +214,21 @@ public final class PvpSettingsLoader {
     }
 
     private static PvpSettings.SafeZoneRules loadSafeZones(ConfigurationSection section,
-                                                          PvpSettings.SafeZoneRules defaults) {
+                                                          PvpSettings.SafeZoneRules defaults,
+                                                          Consumer<String> warn) {
         if (section == null) {
             return defaults;
         }
         ConfigurationSection wall = section.getConfigurationSection("wall");
+        if (wall != null && (wall.contains("width-blocks") || wall.contains("top-y") || wall.contains("minimum-height"))) {
+            // Files written before the wall became a ball around the player.
+            warn.accept("safe-zones.wall: width-blocks, top-y and minimum-height are no longer used - the wall "
+                    + "is drawn within radius-blocks of the player (15 by default). They can be deleted.");
+        }
         PvpSettings.WallRules wallRules = wall == null ? defaults.wall() : new PvpSettings.WallRules(
                 wall.getBoolean("enabled", defaults.wall().enabled()),
                 wall.getString("material", defaults.wall().material()),
-                wall.getInt("width-blocks", defaults.wall().widthBlocks()),
-                wall.getInt("top-y", defaults.wall().topY()),
-                wall.getInt("minimum-height", defaults.wall().minimumHeight()));
+                wall.getInt("radius-blocks", defaults.wall().radiusBlocks()));
         return new PvpSettings.SafeZoneRules(
                 section.getBoolean("enabled", defaults.enabled()),
                 section.getBoolean("no-damage", defaults.noDamage()),

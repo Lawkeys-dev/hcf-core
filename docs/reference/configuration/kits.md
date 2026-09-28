@@ -34,6 +34,7 @@ Every example on this page is **taken from the shipped `kits.yml`**. Changes app
 | `enabled` | `true` | Signs whose first line is `[Kit]` hand out the kit named on the second |
 | `line` | `Kit` | The word in the brackets |
 | `cooldown-seconds` | `3` | Anti-spam wait, separate from the kit's cooldown |
+| `confirm-seconds` | `5` | With `clear-before-giving`, a player holding anything clicks the sign twice within this time before their inventory is replaced; `0` never asks |
 
 Partner items are in [`abilities.yml`](abilities.md).
 

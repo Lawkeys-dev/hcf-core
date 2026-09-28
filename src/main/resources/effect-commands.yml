@@ -29,6 +29,13 @@ enabled: true
 #     level: 1 is level I
 #     aliases: other names it answers to
 #     permission: optional; hcfcore.effect.<command> by default
+#
+# Or several effects at once, each with its level, in place of effect and level:
+#
+#     effects: {speed: 2, fire_resistance: 1}
+#
+# Typed again, such a command takes them all off when the player has every one
+# of them from these commands; otherwise it gives them.
 commands:
   speed:
     effect: speed
@@ -66,4 +73,13 @@ commands:
     effect: night_vision
     level: 1
     aliases: [nv]
+  # Every effect a fight uses, at once.
+  alleffect:
+    effects:
+      speed: 2
+      fire_resistance: 1
+      invisibility: 1
+      haste: 2
+      night_vision: 1
+    aliases: [alleffects, effects]
 # --8<-- [end:commands]

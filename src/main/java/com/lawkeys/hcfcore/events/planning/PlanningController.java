@@ -30,32 +30,86 @@ public final class PlanningController {
      *
      * @param todayMaterial the item standing for today, then a day with events, then
      *                      a day with none
+     * @param colors        the colour each event is written in, by event id or by kind
+     *                      ({@code koth}, {@code citadel}, {@code ktk}, {@code conquest},
+     *                      {@code dtc}, {@code lastbreak}, {@code slide}, {@code totem},
+     *                      {@code minitotem}) - an id wins over its kind - so the week
+     *                      reads at a glance (the owner's request of 28/09/2026)
      */
-    public record MenuRules(boolean enabled, String todayMaterial, String dayMaterial, String emptyMaterial) {
+    public record MenuRules(boolean enabled, String todayMaterial, String dayMaterial, String emptyMaterial,
+                            Map<String, String> colors) {
 
         public MenuRules {
             Objects.requireNonNull(todayMaterial, "todayMaterial");
             Objects.requireNonNull(dayMaterial, "dayMaterial");
             Objects.requireNonNull(emptyMaterial, "emptyMaterial");
+            colors = Map.copyOf(Objects.requireNonNull(colors, "colors"));
         }
 
+        public MenuRules(boolean enabled, String todayMaterial, String dayMaterial, String emptyMaterial) {
+            this(enabled, todayMaterial, dayMaterial, emptyMaterial, DEFAULT_COLORS);
+        }
+
+        /** One colour per kind of event, as shipped. */
+        public static final Map<String, String> DEFAULT_COLORS = Map.of(
+                "koth", "&6", "citadel", "&5", "ktk", "&c", "conquest", "&b", "dtc", "&9",
+                "lastbreak", "&4", "slide", "&a", "totem", "&e", "minitotem", "&3");
+
         public static MenuRules defaults() {
-            return new MenuRules(true, "CLOCK", "PAPER", "GRAY_DYE");
+            return new MenuRules(true, "CLOCK", "PAPER", "GRAY_DYE", DEFAULT_COLORS);
+        }
+
+        /** @return the colour codes to write this event in; empty for its own name's colours */
+        public String colorOf(String eventId, String kind) {
+            String byId = eventId == null ? null : colors.get(eventId.toLowerCase(java.util.Locale.ROOT));
+            if (byId != null) {
+                return byId;
+            }
+            return kind == null ? "" : colors.getOrDefault(kind, "");
+        }
+    }
+
+    /**
+     * What a planned start does to an event still running when it comes (the owner's
+     * request of 28/09/2026: the 14:00 KOTH not over at 15:00, when a Citadel is due).
+     */
+    public enum Overlap {
+        /** The running event is stopped with no winner, and the planned one starts. */
+        REPLACE,
+        /** The running event goes on, and the planned one is not started. */
+        SKIP,
+        /** Both run - different events only; one cannot run twice. */
+        BOTH;
+
+        static java.util.Optional<Overlap> of(String raw) {
+            if (raw == null || raw.isBlank()) {
+                return java.util.Optional.empty();
+            }
+            try {
+                return java.util.Optional.of(valueOf(raw.trim().toUpperCase(java.util.Locale.ROOT)));
+            } catch (IllegalArgumentException e) {
+                return java.util.Optional.empty();
+            }
         }
     }
 
     /** {@code weekly-schedule:} in {@code events.yml}. */
     public record Settings(boolean enabled, List<Integer> announceBeforeMinutes, WeeklySchedule schedule,
-                           MenuRules menu) {
+                           MenuRules menu, Overlap overlap) {
 
         public Settings {
             announceBeforeMinutes = List.copyOf(announceBeforeMinutes);
             Objects.requireNonNull(schedule, "schedule");
             Objects.requireNonNull(menu, "menu");
+            Objects.requireNonNull(overlap, "overlap");
+        }
+
+        public Settings(boolean enabled, List<Integer> announceBeforeMinutes, WeeklySchedule schedule, MenuRules menu) {
+            this(enabled, announceBeforeMinutes, schedule, menu, Overlap.REPLACE);
         }
 
         public static Settings defaults() {
-            return new Settings(true, List.of(15, 5, 1), WeeklySchedule.empty(), MenuRules.defaults());
+            return new Settings(true, List.of(15, 5, 1), WeeklySchedule.empty(), MenuRules.defaults(), Overlap.REPLACE);
         }
     }
 
@@ -93,14 +147,27 @@ public final class PlanningController {
             }
         }
         ConfigurationSection menu = section.getConfigurationSection("menu");
+        Map<String, String> colors = new LinkedHashMap<>(MenuRules.DEFAULT_COLORS);
+        ConfigurationSection colorSection = menu == null ? null : menu.getConfigurationSection("colors");
+        if (colorSection != null) {
+            for (String key : colorSection.getKeys(false)) {
+                colors.put(key.toLowerCase(java.util.Locale.ROOT), colorSection.getString(key, ""));
+            }
+        }
         MenuRules menuRules = menu == null ? MenuRules.defaults() : new MenuRules(
                 menu.getBoolean("enabled", MenuRules.defaults().enabled()),
                 menu.getString("today-material", MenuRules.defaults().todayMaterial()),
                 menu.getString("day-material", MenuRules.defaults().dayMaterial()),
-                menu.getString("empty-material", MenuRules.defaults().emptyMaterial()));
+                menu.getString("empty-material", MenuRules.defaults().emptyMaterial()),
+                colors);
+        String rawOverlap = section.getString("overlap");
+        Overlap overlap = rawOverlap == null ? Overlap.REPLACE : Overlap.of(rawOverlap).orElseGet(() -> {
+            warn.accept("weekly-schedule: overlap '" + rawOverlap + "' is not replace, skip or both; replace is used.");
+            return Overlap.REPLACE;
+        });
         return new Settings(section.getBoolean("enabled", true),
                 section.contains("announce-before-minutes") ? before : Settings.defaults().announceBeforeMinutes(),
-                WeeklySchedule.parse(days, warn), menuRules);
+                WeeklySchedule.parse(days, warn), menuRules, overlap);
     }
 
     /** Takes new settings and warns about planned events that do not exist. */
@@ -138,6 +205,31 @@ public final class PlanningController {
                 module.getPlugin().getLogger().warning("Weekly schedule: '" + entry.eventId()
                         + "' not started - the plugin is still loading its data.");
                 continue;
+            }
+            // Kill the King is started by staff only: its time is shown, never acted on.
+            if (module.getLauncher().kindOf(entry.eventId())
+                    .filter(kind -> kind == com.lawkeys.hcfcore.events.setup.EventKind.KING).isPresent()) {
+                module.getPlugin().getLogger().info("Weekly schedule: '" + entry.eventId()
+                        + "' is due - Kill the King is started by staff, with /events start " + entry.eventId() + ".");
+                continue;
+            }
+            List<String> running = new ArrayList<>();
+            for (String id : module.getEventIds()) {
+                if (!id.equalsIgnoreCase(entry.eventId()) && module.isRunning(id)) {
+                    running.add(id);
+                }
+            }
+            if (!running.isEmpty() && current.overlap() == Overlap.SKIP) {
+                module.getPlugin().getLogger().info("Weekly schedule: '" + entry.eventId() + "' not started - "
+                        + String.join(", ", running) + " still running (overlap: skip).");
+                continue;
+            }
+            if (!running.isEmpty() && current.overlap() == Overlap.REPLACE) {
+                for (String id : running) {
+                    module.getLauncher().stop(id);
+                    module.getPlugin().getLogger().info("Weekly schedule: '" + id + "' stopped for '"
+                            + entry.eventId() + "' (overlap: replace).");
+                }
             }
             EventLauncher.Result result = module.getLauncher().start(entry.eventId());
             if (!result.done()) {

@@ -202,7 +202,19 @@ public final class EventSettingsLoader {
                 maxDuration,
                 loadMarks(entry.getLongList("announce-at-seconds"), id, warn),
                 loadSchedule(entry.getStringList("schedule"), id, warn),
-                nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn));
+                nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn),
+                loadWhenContested(entry.getString("when-contested"), id, warn));
+    }
+
+    /** {@code when-contested}: {@code pause} (as shipped) or {@code continue}. */
+    public static WhenContested loadWhenContested(String raw, String id, Consumer<String> warn) {
+        if (raw == null || raw.isBlank()) {
+            return WhenContested.PAUSE;
+        }
+        return WhenContested.of(raw).orElseGet(() -> {
+            warn.accept("event '" + id + "': when-contested '" + raw + "' is not pause or continue; using pause.");
+            return WhenContested.PAUSE;
+        });
     }
 
     private static ContestPolicy loadPolicy(String raw, String id, Consumer<String> warn) {

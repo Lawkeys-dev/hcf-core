@@ -187,15 +187,12 @@ safe-zones:
   block-combat-tagged: true
   # What they see of the border they may not cross: a wall, drawn like the
   # claiming wand's columns - sent to that player alone, never placed. Only the
-  # part in front of them is drawn: width-blocks each way along the border.
+  # part of the border within radius-blocks of them is drawn, all round: a ball of
+  # wall where they stand, not a sheet up to the sky.
   wall:
     enabled: true
     material: RED_STAINED_GLASS
-    width-blocks: 15
-    # It runs from the ground to this layer; ground already higher than it gets
-    # minimum-height blocks instead.
-    top-y: 128
-    minimum-height: 3
+    radius-blocks: 15
 # --8<-- [end:safe-zones]
 
 # --8<-- [start:death-signs]

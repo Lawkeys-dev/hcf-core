@@ -926,14 +926,15 @@ events:
     today: "Today"
     tomorrow: "Tomorrow"
     date-format: "dd/MM"
-    entry: "  {muted}%time% {dark}- %event%"
+    # %color% is the event's colour (weekly-schedule.menu.colors in events.yml).
+    entry: "  {muted}%time% {dark}- %color%%event%"
     empty: "{muted}No event is planned in the next seven days."
     disabled: "{warning}The weekly schedule is off {muted}(events.yml, weekly-schedule) - only the events' daily times run."
     soon: "{prefix}%event% {muted}starts in {secondary}%time%{muted}."
     # /schedule as a window (events.yml, weekly-schedule.menu): one item per day.
     menu-title: "Event schedule"
     menu-day: "%day% {muted}%date% {dark}(%count%)"
-    menu-entry: "{muted}%time% {dark}{bullet} %event%"
+    menu-entry: "{muted}%time% {dark}{bullet} %color%%event%"
     menu-day-empty: "{dark}Nothing planned"
     usage: "{error}Usage: {secondary}/schedule {muted}| {secondary}/schedule add <day> <HH:mm> <event> {muted}| {secondary}/schedule remove <day> <HH:mm> [event]"
     invalid-day: "{error}'%day%' is not a day of the week."
@@ -1424,6 +1425,8 @@ kit:
     created: "{success}Refill sign created for the {secondary}%kit% {success}kit."
     unknown-kit: "{error}There is no kit called '%kit%'."
     too-fast: "{error}Slow down."
+    # A kit that replaces the whole inventory, clicked while holding items.
+    confirm: "{warning}%kit% replaces your whole inventory. {muted}Click the sign again within {secondary}%seconds%s {muted}to confirm."
 
 
   # The kit layout editor, /kit layout <kit>.
@@ -1771,6 +1774,8 @@ cooldown:
 # ---------------------------------------------------------------------------
 effect-commands:
   given: "{success}%effect% %level% {success}until you die. {muted}Type {secondary}/%command% {muted}again to take it off."
+  # A command of several effects, /alleffect: %effects% lists them with their levels.
+  given-several: "{success}%effects% {success}until you die. {muted}Type {secondary}/%command% {muted}again to take them off."
   taken: "{muted}%effect% taken off."
   forbidden: "{error}%effect% is forbidden on this server."
   switched-off: "{error}This command is switched off."

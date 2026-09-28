@@ -21,6 +21,7 @@ import java.util.Objects;
  *                           the Conquest runs; never below zero
  * @param contestPolicy      what losing a zone does to its countdown, as for a KOTH
  * @param maxDurationSeconds a hard stop with no winner; {@code 0} for none
+ * @param whenContested      whether a zone's countdown pauses or goes on while contested
  */
 public record ConquestDefinition(String id,
                                  String displayName,
@@ -32,9 +33,19 @@ public record ConquestDefinition(String id,
                                  ContestPolicy contestPolicy,
                                  List<LocalTime> schedule,
                                  long maxDurationSeconds,
-                                 List<String> rewardCommands) {
+                                 List<String> rewardCommands,
+                                 com.lawkeys.hcfcore.events.WhenContested whenContested) {
+
+    /** A Conquest whose zones pause while contested, as they all did before the choice existed. */
+    public ConquestDefinition(String id, String displayName, List<ConquestZone> zones, long captureSeconds,
+                              int pointsPerCapture, int pointsToWin, int deathPenalty, ContestPolicy contestPolicy,
+                              List<LocalTime> schedule, long maxDurationSeconds, List<String> rewardCommands) {
+        this(id, displayName, zones, captureSeconds, pointsPerCapture, pointsToWin, deathPenalty, contestPolicy,
+                schedule, maxDurationSeconds, rewardCommands, com.lawkeys.hcfcore.events.WhenContested.PAUSE);
+    }
 
     public ConquestDefinition {
+        Objects.requireNonNull(whenContested, "whenContested");
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(displayName, "displayName");
         zones = List.copyOf(zones);

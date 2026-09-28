@@ -121,6 +121,7 @@ public final class ConquestSettingsLoader {
                 zones, capture, perCapture, toWin, penalty, policy,
                 EventSettingsLoader.loadSchedule(entry.getStringList("schedule"), id, warn),
                 maxDuration,
-                EventSettingsLoader.nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn));
+                EventSettingsLoader.nonEmpty(entry.getStringList("reward-commands"), id, "reward-commands", warn),
+                EventSettingsLoader.loadWhenContested(entry.getString("when-contested"), id, warn));
     }
 }

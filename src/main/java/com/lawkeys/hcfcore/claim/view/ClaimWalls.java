@@ -134,27 +134,28 @@ public final class ClaimWalls {
         World world = player.getWorld();
         Location at = player.getLocation();
         java.util.Optional<SafeZoneWallPolicy.Wall> safeZone = module.getSafeZoneWallPolicy().wallFor(player);
-        int look = Math.max(rules.showWithinBlocks(), safeZone.map(SafeZoneWallPolicy.Wall::widthBlocks).orElse(0));
+        int look = Math.max(rules.showWithinBlocks(), safeZone.map(SafeZoneWallPolicy.Wall::radiusBlocks).orElse(0));
         for (ClaimArea claim : nearbyClaims(manager, world.getName(), at.getBlockX(), at.getBlockZ(), look)) {
             int distance = BorderColumns.distanceTo(claim, at.getBlockX(), at.getBlockZ());
             boolean locked = rules.wallEnabled() && distance <= rules.showWithinBlocks()
                     && manager.lockedAgainst(world.getName(), claim.minX(), claim.minZ(),
                             player.getUniqueId()).isPresent();
-            boolean safe = safeZone.isPresent() && distance <= safeZone.get().widthBlocks()
+            boolean safe = safeZone.isPresent() && distance <= safeZone.get().radiusBlocks()
                     && module.getTeams().getManager().getTeam(claim.teamId())
                             .map(team -> team.isSafeZone()).orElse(false);
             if (!locked && !safe) {
                 continue;
             }
             // A claim that is both keeps the lock's look: it is the stricter refusal.
-            String material = locked ? rules.material() : safeZone.get().material();
-            int topY = locked ? rules.topY() : safeZone.get().topY();
-            int minimum = locked ? rules.minimumHeight() : safeZone.get().minimumHeight();
-            int radius = locked ? rules.radiusBlocks() : safeZone.get().widthBlocks();
-            // Only the border near the player is read from the world, column by column:
-            // the far side of a large spawn is never touched, nor its chunks loaded.
-            for (int[] column : BorderColumns.outline(claim, at.getBlockX(), at.getBlockZ(), radius)) {
-                wall.putAll(columnOf(world, column[0], column[1], material, topY, minimum));
+            if (locked) {
+                // Only the border near the player is read from the world, column by
+                // column: the far side of a large claim is never touched.
+                for (int[] column : BorderColumns.outline(claim, at.getBlockX(), at.getBlockZ(), rules.radiusBlocks())) {
+                    wall.putAll(columnOf(world, column[0], column[1], rules.material(), rules.topY(),
+                            rules.minimumHeight()));
+                }
+            } else {
+                wall.putAll(ballOf(world, claim, at, safeZone.get()));
             }
         }
         return wall;
@@ -187,6 +188,39 @@ public final class ClaimWalls {
             }
         }
         columns.put(key, new Column(blocks, now));
+        return blocks;
+    }
+
+    /**
+     * @return a safe zone's wall around a player: the air blocks of its border within
+     *         the wall's radius of them, all round - read fresh, a few hundred blocks at
+     *         most, rather than the sheet to the sky a column would be
+     */
+    private static Map<Location, BlockData> ballOf(World world, ClaimArea claim, Location at, SafeZoneWallPolicy.Wall rules) {
+        Material material = Material.matchMaterial(rules.material());
+        BlockData glass = (material == null || !material.isBlock() ? Material.RED_STAINED_GLASS : material)
+                .createBlockData();
+        int radius = rules.radiusBlocks();
+        int px = at.getBlockX();
+        int py = at.getBlockY();
+        int pz = at.getBlockZ();
+        int bottom = Math.max(world.getMinHeight(), py - radius);
+        int top = Math.min(world.getMaxHeight() - 1, py + radius);
+        Map<Location, BlockData> blocks = new HashMap<>();
+        for (int[] column : BorderColumns.outline(claim, px, pz, radius)) {
+            int dx = column[0] - px;
+            int dz = column[1] - pz;
+            for (int y = bottom; y <= top; y++) {
+                int dy = y - py;
+                if (dx * dx + dy * dy + dz * dz > radius * radius) {
+                    continue;
+                }
+                Location block = new Location(world, column[0], y, column[1]);
+                if (block.getBlock().getType().isAir()) {
+                    blocks.put(block, glass);
+                }
+            }
+        }
         return blocks;
     }
 

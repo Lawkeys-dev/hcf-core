@@ -21,10 +21,13 @@
 | `/invisibility` | `/invis`, `/invi` | Invisibility I |
 | `/haste` | `/hst` | Haste II |
 | `/nightvision` | `/nv` | Night Vision I |
+| `/alleffect` | `/alleffects`, `/effects` | Speed II, Fire Resistance I, Invisibility I, Haste II and Night Vision I at once |
+
+`/alleffect` gives every one of them in a single command; typed again, it takes them all off (when the player has them all from these commands — otherwise it gives the missing ones).
 
 ## Your own commands
 
-Every command is a block: its name, the `effect`, its `level` (`1` is level I), `aliases`, and optionally a `permission`. Add, remove or rename freely:
+Every command is a block: its name, the `effect`, its `level` (`1` is level I) — or `effects`, several at once, each with its level —, `aliases`, and optionally a `permission`. Add, remove or rename freely:
 
 ```yaml title="effect-commands.yml — your own"
 commands:
@@ -37,6 +40,9 @@ commands:
     level: 1
     aliases: [glow]
     permission: myserver.rank.vip
+  fighter:
+    effects: {speed: 2, strength: 1}   # several at once, each with its level
+    aliases: [fight]
 ```
 
 - **Permission**: `hcfcore.effect.<command>` unless the block names another — **operators only by default**. Give the node to the ranks that should have the command; a player without it does not see the command at all.

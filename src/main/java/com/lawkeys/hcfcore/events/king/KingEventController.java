@@ -410,11 +410,11 @@ public final class KingEventController {
             if (!startup.isReady()) {
                 return;
             }
+            // Kill the King is started by staff only (the owner's rule of 28/09/2026): a
+            // time in its schedule is shown in /schedule and announced, never acted on.
             for (KingEventDefinition due : manager.dueDefinitions()) {
-                if (!start(due)) {
-                    plugin.getLogger().info("Kill the King '" + due.id()
-                            + "' was due but another one is running; skipped.");
-                }
+                plugin.getLogger().info("Kill the King '" + due.id() + "' is due - it is started by staff, with "
+                        + "/events start " + due.id() + ".");
             }
             Optional<KingRun> run = manager.getCurrent().filter(KingRun::isReigning);
             if (run.isEmpty()) {

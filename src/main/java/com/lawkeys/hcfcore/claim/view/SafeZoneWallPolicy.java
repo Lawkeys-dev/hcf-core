@@ -17,17 +17,15 @@ import java.util.Optional;
 public interface SafeZoneWallPolicy {
 
     /**
-     * @param material      the block it is drawn in
-     * @param widthBlocks   how far along the border to draw, each way from the player
-     * @param topY          the level it rises to from the ground
-     * @param minimumHeight what it gets where the ground is already above {@code topY}
+     * @param material     the block it is drawn in
+     * @param radiusBlocks the border's air blocks within this distance of the player
+     *                     are drawn - a ball around them, not a sheet to the sky
      */
-    record Wall(String material, int widthBlocks, int topY, int minimumHeight) {
+    record Wall(String material, int radiusBlocks) {
 
         public Wall {
             Objects.requireNonNull(material, "material");
-            widthBlocks = Math.max(1, Math.min(128, widthBlocks));
-            minimumHeight = Math.max(1, Math.min(64, minimumHeight));
+            radiusBlocks = Math.max(1, Math.min(32, radiusBlocks));
         }
     }
 

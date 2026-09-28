@@ -18,17 +18,25 @@ import java.util.Optional;
  *                             kit's own cooldown: a kitmap kit usually has none, and
  *                             the sign still should not be clickable sixty times a
  *                             second
+ * @param signConfirmSeconds   a sign that would wipe a player's inventory asks for a
+ *                             second click within this time; {@code 0} never asks
  */
 public record KitSettings(boolean enabled, boolean signsEnabled, String signLine,
                           long signCooldownSeconds, boolean clearBeforeGiving,
-                          boolean layoutEditor) {
+                          boolean layoutEditor, long signConfirmSeconds) {
 
     public KitSettings {
         Objects.requireNonNull(signLine, "signLine");
+        signConfirmSeconds = Math.max(0L, signConfirmSeconds);
+    }
+
+    public KitSettings(boolean enabled, boolean signsEnabled, String signLine, long signCooldownSeconds,
+                       boolean clearBeforeGiving, boolean layoutEditor) {
+        this(enabled, signsEnabled, signLine, signCooldownSeconds, clearBeforeGiving, layoutEditor, 5L);
     }
 
     /** Built-in fallback, mirroring {@code resources/kits.yml}. */
     public static KitSettings defaults() {
-        return new KitSettings(true, true, "Kit", 3L, true, true);
+        return new KitSettings(true, true, "Kit", 3L, true, true, 5L);
     }
 }

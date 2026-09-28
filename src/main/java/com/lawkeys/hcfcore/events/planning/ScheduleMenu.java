@@ -66,6 +66,18 @@ public final class ScheduleMenu implements InventoryHolder {
         new ScheduleMenu(module, viewer, module.getPlanning().weekAhead(System.currentTimeMillis()));
     }
 
+    /** The event's colour in this menu: the file's, by id or by kind. */
+    static String color(EventModule module, PlanningController.MenuRules rules, String eventId) {
+        String kind = module.getLauncher().kindOf(eventId).map(k -> k.typeName()).orElse(null);
+        return rules.colorOf(eventId, kind);
+    }
+
+    /** The event's name without its own colours: the menu gives it one per event. */
+    static String plainName(EventModule module, String eventId) {
+        String name = module.getLauncher().displayName(eventId).orElse(eventId);
+        return com.lawkeys.hcfcore.util.ColorCodes.strip(LangManager.colorize(name));
+    }
+
     private static ItemStack icon(EventModule module, LocalDate date, LocalDate today, DateTimeFormatter dates,
                                   List<WeekAgenda.Entry> entries, PlanningController.Settings planning) {
         LangManager lang = module.getLang();
@@ -88,7 +100,8 @@ public final class ScheduleMenu implements InventoryHolder {
             for (WeekAgenda.Entry entry : entries) {
                 lore.add(ItemText.line(lang.get(PlanningMessages.MENU_ENTRY,
                         "time", TIME.format(entry.at()),
-                        "event", module.getLauncher().displayName(entry.eventId()).orElse(entry.eventId()))));
+                        "color", color(module, rules, entry.eventId()),
+                        "event", plainName(module, entry.eventId()))));
             }
         }
         item.editMeta(meta -> {

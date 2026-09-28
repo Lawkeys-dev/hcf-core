@@ -187,26 +187,20 @@ public final class ConquestManager {
             if (!run.isCaptured(state)) {
                 return Optional.empty();
             }
-            int points = run.addPoints(holder, definition.pointsPerCapture());
-            run.resetCountdown(state);
-            if (points >= definition.pointsToWin()) {
-                return Optional.of(ConquestUpdate.of(ConquestUpdate.Type.WON, ConquestMessages.WON, holder,
-                        "event", definition.displayName(),
-                        "points", String.valueOf(points),
-                        "id", definition.id()));
-            }
-            updates.add(ConquestUpdate.of(ConquestUpdate.Type.ZONE_CAPTURED, ConquestMessages.ZONE_CAPTURED, holder,
-                    "zone", state.zone().displayName(),
-                    "gained", String.valueOf(definition.pointsPerCapture()),
-                    "points", String.valueOf(points),
-                    "target", String.valueOf(definition.pointsToWin()),
-                    "event", definition.displayName()));
-            return Optional.empty();
+            return scored(run, state, holder, updates);
         }
 
         if (isContested(occupants, teamlessContest)) {
-            // Frozen: no countdown, no reset, the holder kept.
+            // PAUSE: frozen - no countdown, no reset, the holder kept. CONTINUE: the
+            // holder still in the zone keeps counting down.
             run.hold(state, lastHolder, true);
+            if (definition.whenContested() == com.lawkeys.hcfcore.events.WhenContested.CONTINUE && lastHolder != null
+                    && occupants.stream().anyMatch(o -> lastHolder.equals(o.teamId()))) {
+                run.countDown(state, elapsed);
+                if (run.isCaptured(state)) {
+                    return scored(run, state, lastHolder, updates);
+                }
+            }
             return Optional.empty();
         }
         // Empty: losing the zone outright is what costs the progress under RESET.
@@ -214,6 +208,27 @@ public final class ConquestManager {
             run.resetCountdown(state);
         }
         run.hold(state, null, false);
+        return Optional.empty();
+    }
+
+    /** A zone captured: its points to the team, and the Conquest won if they reach the target. */
+    private Optional<ConquestUpdate> scored(ConquestRun run, ConquestRun.ZoneState state, UUID holder,
+                                            List<ConquestUpdate> updates) {
+        ConquestDefinition definition = run.getDefinition();
+        int points = run.addPoints(holder, definition.pointsPerCapture());
+        run.resetCountdown(state);
+        if (points >= definition.pointsToWin()) {
+            return Optional.of(ConquestUpdate.of(ConquestUpdate.Type.WON, ConquestMessages.WON, holder,
+                    "event", definition.displayName(),
+                    "points", String.valueOf(points),
+                    "id", definition.id()));
+        }
+        updates.add(ConquestUpdate.of(ConquestUpdate.Type.ZONE_CAPTURED, ConquestMessages.ZONE_CAPTURED, holder,
+                "zone", state.zone().displayName(),
+                "gained", String.valueOf(definition.pointsPerCapture()),
+                "points", String.valueOf(points),
+                "target", String.valueOf(definition.pointsToWin()),
+                "event", definition.displayName()));
         return Optional.empty();
     }
 

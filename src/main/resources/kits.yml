@@ -48,6 +48,10 @@ refill-signs:
   # has no cooldown, and the sign still must not be clickable sixty times a
   # second.
   cooldown-seconds: 3
+  # With clear-before-giving, a kit replaces the whole inventory: a player who
+  # holds anything is asked to click the sign a second time, within this many
+  # seconds, before it is wiped. 0 never asks.
+  confirm-seconds: 5
 # --8<-- [end:refill-signs]
 
 # ---------------------------------------------------------------------------

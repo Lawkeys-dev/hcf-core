@@ -434,7 +434,7 @@ public final class PvpModule {
                     return java.util.Optional.empty();
                 }
                 return java.util.Optional.of(new com.lawkeys.hcfcore.claim.view.SafeZoneWallPolicy.Wall(
-                        wall.material(), wall.widthBlocks(), wall.topY(), wall.minimumHeight()));
+                        wall.material(), wall.radiusBlocks()));
             });
         }
         plugin.getServer().getPluginManager().registerEvents(new DeathbanListener(this), plugin);

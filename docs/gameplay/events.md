@@ -28,7 +28,7 @@ Starting and stopping needs `hcfcore.events.admin`. Ids are shared by every kind
 The zone is the box between the two corners, bounds included, written in any order.
 
 - **Holding**: one team alone in the zone runs its countdown down.
-- **Contesting**: an enemy in the zone — or a player with no team, by default (`teamless-players-contest`) — **freezes** the countdown without costing the holder anything. A teamless player can never hold a zone: capturing is a team act.
+- **Contesting**: an enemy in the zone — or a player with no team, by default (`teamless-players-contest`) — **freezes** the countdown without costing the holder anything (`when-contested: pause`, as shipped). With `when-contested: continue`, the holder **keeps counting down** as long as it is still in the zone: a challenger has to push it out, not merely step in. A teamless player can never hold a zone: capturing is a team act.
 - **Allies contest each other**: a capture belongs to one team.
 - **Losing the zone** — it empties, or another team takes sole control — is governed by `contest-policy`:
 
@@ -87,7 +87,7 @@ The classic HCF Conquest: several zones — four in the example, *Red*, *Blue*, 
 --8<-- "src/main/resources/events.yml:conquest"
 ```
 
-- Each zone is captured like a small KOTH: held alone by one team, frozen while contested, reset or paused when lost — on a short timer (**30 seconds**).
+- Each zone is captured like a small KOTH: held alone by one team, frozen while contested (or, with `when-contested: continue`, still counting for the holder), reset or paused when lost — on a short timer (**30 seconds**).
 - **A capture ends nothing**: it gives the holding team points (`points-per-capture`) and that zone's countdown starts again, so a team keeps scoring as long as it holds.
 - **A member's death, anywhere, costs the team `death-penalty` points** (20; never below zero).
 - **The first team to `points-to-win` (250) wins**, and its reward commands run with `%team%` and `%event%`.
@@ -211,10 +211,14 @@ The scoreboard shows `%totem_line%`: the team on its way and how many blocks it 
 
 ## The weekly schedule
 
-`/schedule` (`/planning`) shows every event start of the next seven days — for everybody — as a **window**: one item per day, holding that day's events hour by hour. `/schedule chat` prints the same as a list, and `weekly-schedule.menu.enabled: false` makes the list the default. It merges two sources:
+`/schedule` (`/planning`) shows every event start of the next seven days — for everybody — as a **window**: one item per day, holding that day's events hour by hour. `/schedule chat` prints the same as a list, and `weekly-schedule.menu.enabled: false` makes the list the default. Each kind of event has its own colour — KOTH gold, Citadel purple, Kill the King red… (`weekly-schedule.menu.colors`) — so the week reads at a glance. It merges two sources:
 
 - each event's own **daily** times, its `schedule` key — the same every day;
 - the **weekly schedule**, `weekly-schedule` in `events.yml`: which event starts at what time on which day of the week. The plugin starts them itself, exactly as `/events start` would.
+
+**Kill the King is never started by the plugin**: its times — daily or weekly — are shown in `/schedule` and announced, and staff start it with `/events start <id>`.
+
+**An event still running when a planned one starts** — the 14:00 KOTH not over at 15:00 — is stopped with no winner and the planned one starts (`weekly-schedule.overlap: replace`, as shipped). `skip` does the opposite: the running event goes on and the planned one is not started. `both` lets them run together.
 
 Staff edit the weekly schedule in game (`hcfcore.events.admin`), and the change applies at once:
 
@@ -224,7 +228,7 @@ Staff edit the weekly schedule in game (`hcfcore.events.admin`), and the change 
 /schedule remove friday 20:00 [koth]     # everything at that time, or only that event
 ```
 
-Every start — weekly or daily — is announced `announce-before-minutes` ahead (15, 5 and 1 minute as shipped). A start that is refused — the event already running, another of its kind running, too few players for Kill the King — is reported in the console and skipped. Nothing is caught up: a time that passes while the server is down is missed.
+Every start — weekly or daily — is announced `announce-before-minutes` ahead (15, 5 and 1 minute as shipped). A start that is refused — the event already running, another of its kind running — is reported in the console and skipped. Nothing is caught up: a time that passes while the server is down is missed.
 
 ## Setting up an event in game
 

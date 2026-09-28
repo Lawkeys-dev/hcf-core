@@ -40,6 +40,7 @@ commands:
     description: Tell everybody you are looking for a team.
     usage: /<command> [note]
   pvp:
+    aliases: [deathban, db]
     description: Combat tag and deathban status, plus staff overrides.
     usage: /<command> [check|lift|ban]
   events:

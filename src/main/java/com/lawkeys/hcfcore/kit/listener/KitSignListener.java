@@ -47,6 +47,7 @@ public final class KitSignListener implements Listener {
     private static final String COOLDOWN_KEY = "refill-sign";
 
     private final Cooldowns signCooldowns = new Cooldowns();
+    private final com.lawkeys.hcfcore.kit.KitConfirmations confirmations = new com.lawkeys.hcfcore.kit.KitConfirmations();
 
     public KitSignListener(KitModule module) {
         this.module = Objects.requireNonNull(module, "module");
@@ -126,6 +127,16 @@ public final class KitSignListener implements Listener {
                     "time", com.lawkeys.hcfcore.util.Durations.format(kitWait));
             return;
         }
+        // A kit that replaces the whole inventory asks before it wipes anything held.
+        if (module.getSettings().clearBeforeGiving() && !isEmpty(player.getInventory())) {
+            String signKey = clicked.getWorld().getName() + ":" + clicked.getX() + ":" + clicked.getY() + ":"
+                    + clicked.getZ() + ":" + kit.id();
+            if (!confirmations.confirm(player.getUniqueId(), signKey, now, module.getSettings().signConfirmSeconds())) {
+                module.getLang().send(player, KitMessages.SIGN_CONFIRM, "kit", kit.displayName(),
+                        "seconds", String.valueOf(module.getSettings().signConfirmSeconds()));
+                return;
+            }
+        }
         signCooldowns.start(player.getUniqueId(), COOLDOWN_KEY, module.getSettings().signCooldownSeconds(), now);
         module.give(player, kit);
         module.getManager().markUsed(player.getUniqueId(), kit);
@@ -136,6 +147,17 @@ public final class KitSignListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         signCooldowns.forget(event.getPlayer().getUniqueId());
+        confirmations.forget(event.getPlayer().getUniqueId());
+    }
+
+    /** Nothing held anywhere: main inventory, armour, off hand. */
+    private static boolean isEmpty(org.bukkit.inventory.PlayerInventory inventory) {
+        for (org.bukkit.inventory.ItemStack item : inventory.getContents()) {
+            if (item != null && !item.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static String plain(net.kyori.adventure.text.Component component) {

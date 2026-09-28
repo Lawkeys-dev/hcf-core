@@ -50,7 +50,7 @@ public final class EffectCommandModule {
     private volatile boolean enabled = true;
     private volatile EffectCommandSet commands = EffectCommandSet.empty();
     /** Each command's effect, resolved against the server's registry; absent when it has none such. */
-    private volatile Map<String, PotionEffectType> types = Map.of();
+    private volatile Map<String, Map<PotionEffectType, Integer>> types = Map.of();
 
     public EffectCommandModule(JavaPlugin plugin, LangManager lang, EffectCaps effectCaps) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
@@ -67,7 +67,7 @@ public final class EffectCommandModule {
         plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             for (EffectCommand command : atStartup.all()) {
                 Set<String> labels = event.registrar().register(command.name(),
-                        "Toggles " + command.effect() + " " + command.level(), command.aliases(),
+                        "Toggles " + String.join(", ", command.effects().keySet()), command.aliases(),
                         new Executor(command));
                 for (String alias : command.aliases()) {
                     if (!labels.contains(alias)) {
@@ -90,21 +90,37 @@ public final class EffectCommandModule {
                 if (entry == null) {
                     continue;
                 }
+                Map<String, Integer> several = new java.util.LinkedHashMap<>();
+                ConfigurationSection effects = entry.getConfigurationSection("effects");
+                if (effects != null) {
+                    for (String effect : effects.getKeys(false)) {
+                        several.put(effect, effects.getInt(effect, 1));
+                    }
+                }
                 entries.add(new EffectCommandSet.Entry(name, entry.getString("effect"), entry.getInt("level", 1),
-                        entry.getStringList("aliases"), entry.getString("permission")));
+                        entry.getStringList("aliases"), entry.getString("permission"), several));
             }
         }
         EffectCommandSet loaded = EffectCommandSet.of(entries,
                 warning -> plugin.getLogger().warning("effect-commands.yml: " + warning));
-        Map<String, PotionEffectType> resolved = new HashMap<>();
+        Map<String, Map<PotionEffectType, Integer>> resolved = new HashMap<>();
         for (EffectCommand command : loaded.all()) {
-            NamespacedKey key = NamespacedKey.fromString(command.effect());
-            PotionEffectType type = key == null ? null : Registry.MOB_EFFECT.get(key);
-            if (type == null) {
-                plugin.getLogger().warning("effect-commands.yml: /" + command.name() + ": this server has no effect '"
-                        + command.effect() + "'; the command does nothing.");
+            Map<PotionEffectType, Integer> known = new java.util.LinkedHashMap<>();
+            for (Map.Entry<String, Integer> effect : command.effects().entrySet()) {
+                NamespacedKey key = NamespacedKey.fromString(effect.getKey());
+                PotionEffectType type = key == null ? null : Registry.MOB_EFFECT.get(key);
+                if (type == null) {
+                    plugin.getLogger().warning("effect-commands.yml: /" + command.name() + ": this server has no effect '"
+                            + effect.getKey() + "'; left out of the command.");
+                } else {
+                    known.put(type, effect.getValue());
+                }
+            }
+            if (known.isEmpty()) {
+                plugin.getLogger().warning("effect-commands.yml: /" + command.name() + " gives nothing this server "
+                        + "knows; the command does nothing.");
             } else {
-                resolved.put(command.name(), type);
+                resolved.put(command.name(), java.util.Collections.unmodifiableMap(known));
             }
             if (plugin.getServer().getPluginManager().getPermission(command.permission()) == null) {
                 plugin.getServer().getPluginManager().addPermission(new Permission(command.permission(),
@@ -116,16 +132,50 @@ public final class EffectCommandModule {
     }
 
     /**
-     * Gives the effect, or takes it off when the player already has it from this
-     * command. At its level, within the effect caps of {@code limiters.yml}.
+     * Gives the effects, or takes them off when the player already has every one of
+     * them from these commands. At their levels, within the effect caps of
+     * {@code limiters.yml}.
      */
     void toggle(Player player, String name) {
         EffectCommand command = enabled ? commands.get(name).orElse(null) : null;
-        PotionEffectType type = types.get(name);
-        if (command == null || type == null) {
+        Map<PotionEffectType, Integer> effects = types.get(name);
+        if (command == null || effects == null) {
             lang.send(player, EffectCommandMessages.SWITCHED_OFF);
             return;
         }
+        if (effects.size() == 1) {
+            Map.Entry<PotionEffectType, Integer> only = effects.entrySet().iterator().next();
+            toggleOne(player, name, only.getKey(), only.getValue());
+            return;
+        }
+        boolean allOurs = effects.keySet().stream().allMatch(type -> {
+            PotionEffect current = player.getPotionEffect(type);
+            return current != null && isOurs(current);
+        });
+        List<String> names = new ArrayList<>();
+        if (allOurs) {
+            effects.keySet().forEach(player::removePotionEffect);
+            effects.keySet().forEach(type -> names.add(displayName(type)));
+            lang.send(player, EffectCommandMessages.TAKEN, "effect", String.join(", ", names));
+            return;
+        }
+        for (Map.Entry<PotionEffectType, Integer> effect : effects.entrySet()) {
+            int amplifier = effectCaps.allowed(effect.getKey(), effect.getValue() - 1);
+            if (amplifier < 0) {
+                lang.send(player, EffectCommandMessages.FORBIDDEN, "effect", displayName(effect.getKey()));
+                continue;
+            }
+            player.addPotionEffect(new PotionEffect(effect.getKey(), PotionEffect.INFINITE_DURATION, amplifier,
+                    false, false, true));
+            names.add(displayName(effect.getKey()) + " " + EffectCommandSet.roman(amplifier + 1));
+        }
+        if (!names.isEmpty()) {
+            lang.send(player, EffectCommandMessages.GIVEN_SEVERAL, "effects", String.join(", ", names),
+                    "command", name);
+        }
+    }
+
+    private void toggleOne(Player player, String name, PotionEffectType type, int level) {
         PotionEffect current = player.getPotionEffect(type);
         String effectName = displayName(type);
         if (current != null && isOurs(current)) {
@@ -133,7 +183,7 @@ public final class EffectCommandModule {
             lang.send(player, EffectCommandMessages.TAKEN, "effect", effectName);
             return;
         }
-        int amplifier = effectCaps.allowed(type, command.level() - 1);
+        int amplifier = effectCaps.allowed(type, level - 1);
         if (amplifier < 0) {
             lang.send(player, EffectCommandMessages.FORBIDDEN, "effect", effectName);
             return;

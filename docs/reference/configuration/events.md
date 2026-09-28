@@ -38,9 +38,11 @@ Which event starts at what time on which day, every week — see the [guide](../
 |---|---|---|
 | `enabled` | `true` | Whether the plugin starts the weekly starts; `/schedule` lists them either way |
 | `announce-before-minutes` | `[15, 5, 1]` | Minutes before every start, weekly or daily, to announce it |
+| `overlap` | `replace` | An event still running when a planned one starts: `replace` stops it (no winner) for the planned one, `skip` keeps it and skips the planned one, `both` runs them together. Kill the King is never started by the schedule |
 | `days.<day>` | `[]` | `"HH:mm <event id>"` entries, read in `time-zone`. A day is `monday`...`sunday`, or its first three letters |
 | `menu.enabled` | `true` | `/schedule` opens a window, one item per day of the week ahead; `false` prints the list in the chat, as `/schedule chat` always does |
 | `menu.today-material` · `day-material` · `empty-material` | `CLOCK` · `PAPER` · `GRAY_DYE` | The item standing for today, for a day with events, and for a day with none |
+| `menu.colors` | one per kind | The colour each event is written in, window and chat alike: by kind (`koth`, `citadel`, `ktk`, `conquest`, `dtc`, `lastbreak`, `slide`, `totem`, `minitotem`) or by an event's id, which wins |
 
 ## Zone holograms
 
@@ -84,6 +86,7 @@ Under `events:`, one entry per KOTH.
 | `world`, `corner-1`, `corner-2` | an example | The zone to hold: the box between the corners, bounds included, in any order |
 | `capture-seconds` | `600` | Seconds of holding alone needed to win |
 | `contest-policy` | `RESET` | What losing the zone does: `RESET` back to full, `PAUSE` frozen for the next holder |
+| `when-contested` | `pause` | While another team stands in the zone with the holder: `pause` freezes the countdown; `continue` lets the holder keep counting down as long as it is still in the zone |
 | `max-duration-seconds` | `0` | A hard stop with no winner; `0` runs until someone wins. At least `capture-seconds` |
 | `announce-at-seconds` | `[300, 120, 60, 30, 10]` | Remaining-time marks to broadcast |
 | `schedule` | `[]` | Local times it opens by itself, e.g. `["18:00", "21:00"]` |
@@ -184,7 +187,7 @@ Under `conquest:`.
 | `points-per-capture` | `1` | Points one capture is worth |
 | `points-to-win` | `250` | The target |
 | `death-penalty` | `20` | Points a team loses when one of its members dies |
-| `contest-policy`, `max-duration-seconds`, `schedule` | `RESET`, `0`, `[]` | As for a KOTH |
+| `contest-policy`, `when-contested`, `max-duration-seconds`, `schedule` | `RESET`, `pause`, `0`, `[]` | As for a KOTH, zone by zone |
 | `reward-commands` | `[]` | For the winner, with `%team%` and `%event%` |
 | `zones` | four examples | Each with a `display-name` and two corners |
 

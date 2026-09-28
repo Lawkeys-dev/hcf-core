@@ -63,6 +63,30 @@ public final class EventLauncher {
                 .or(() -> totem(id).map(TotemDefinition::displayName));
     }
 
+    /** @return which kind of event this id is, whatever its engine */
+    public Optional<com.lawkeys.hcfcore.events.setup.EventKind> kindOf(String id) {
+        if (module.getSettings().find(id).isPresent()) {
+            return Optional.of(module.getSettings().citadel(id).isPresent()
+                    ? com.lawkeys.hcfcore.events.setup.EventKind.CITADEL : com.lawkeys.hcfcore.events.setup.EventKind.KOTH);
+        }
+        if (king(id).isPresent()) {
+            return Optional.of(com.lawkeys.hcfcore.events.setup.EventKind.KING);
+        }
+        if (conquest(id).isPresent()) {
+            return Optional.of(com.lawkeys.hcfcore.events.setup.EventKind.CONQUEST);
+        }
+        Optional<CoreEventDefinition> core = core(id);
+        if (core.isPresent()) {
+            return Optional.of(core.get().kind() == com.lawkeys.hcfcore.events.core.CoreEventKind.LAST_BREAK
+                    ? com.lawkeys.hcfcore.events.setup.EventKind.LAST_BREAK : com.lawkeys.hcfcore.events.setup.EventKind.DTC);
+        }
+        if (slide(id).isPresent()) {
+            return Optional.of(com.lawkeys.hcfcore.events.setup.EventKind.SLIDE);
+        }
+        return totem(id).map(totem -> totem.height() <= com.lawkeys.hcfcore.team.TeamSettings.PointsRules.MINI_TOTEM_HEIGHT
+                ? com.lawkeys.hcfcore.events.setup.EventKind.MINI_TOTEM : com.lawkeys.hcfcore.events.setup.EventKind.TOTEM);
+    }
+
     public Result start(String id) {
         return run(id, true);
     }

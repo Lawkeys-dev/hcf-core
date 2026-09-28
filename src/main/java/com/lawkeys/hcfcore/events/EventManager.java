@@ -263,13 +263,26 @@ public final class EventManager {
                 announceMilestones(definition, running, holder, updates);
             }
             case CONTESTED -> {
-                // Frozen, and only frozen: no decrement and no reset. The holder is
+                // Frozen (PAUSE): no decrement and no reset. The holder is
                 // remembered, so the same team retaking the zone resumes silently
                 // instead of being announced as a fresh capture every time an enemy
                 // steps in and out.
                 if (previousPhase != RunningEvent.Phase.CONTESTED && config.announceContests()) {
                     updates.add(EventUpdate.of(EventUpdate.Type.CONTESTED, definition.id(), lastHolder,
                             EventMessages.CONTESTED, "event", definition.displayName()));
+                }
+                // CONTINUE: the holder still in the zone keeps counting down - the
+                // challenger has to push it out, not merely step in.
+                if (definition.whenContested() == WhenContested.CONTINUE && lastHolder != null
+                        && occupants.stream().anyMatch(o -> lastHolder.equals(o.teamId()))) {
+                    running.decrease(elapsed);
+                    if (running.getRemainingMillis() <= 0L) {
+                        active.remove(key(definition.id()));
+                        updates.add(EventUpdate.of(EventUpdate.Type.CAPTURED, definition.id(), lastHolder,
+                                EventMessages.CAPTURED, "event", definition.displayName()));
+                        return;
+                    }
+                    announceMilestones(definition, running, lastHolder, updates);
                 }
             }
             case EMPTY -> {

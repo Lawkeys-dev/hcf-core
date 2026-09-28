@@ -30,6 +30,9 @@ public final class KitSettingsLoader {
                 signs == null ? defaults.signCooldownSeconds()
                         : Math.max(0L, Durations.capSeconds(signs.getLong("cooldown-seconds", defaults.signCooldownSeconds()), "cooldown-seconds", warn)),
                 section.getBoolean("clear-before-giving", defaults.clearBeforeGiving()),
-                section.getBoolean("layout-editor", defaults.layoutEditor()));
+                section.getBoolean("layout-editor", defaults.layoutEditor()),
+                signs == null ? defaults.signConfirmSeconds()
+                        : Durations.capSeconds(signs.getLong("confirm-seconds", defaults.signConfirmSeconds()),
+                                "confirm-seconds", warn));
     }
 }

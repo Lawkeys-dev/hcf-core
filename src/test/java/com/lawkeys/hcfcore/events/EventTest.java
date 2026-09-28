@@ -285,6 +285,48 @@ class EventTest {
     }
 
     @Nested
+    class GoingOnWhileContested {
+
+        private void continueWhenContested() {
+            settings = withDefinitions(new CaptureEventDefinition("koth", "&6KOTH", ZONE, 60, ContestPolicy.RESET,
+                    0L, List.of(), List.of(), List.of(), WhenContested.CONTINUE));
+        }
+
+        @Test
+        void theHolderStillInTheZoneKeepsCountingDown() {
+            continueWhenContested();
+            startKoth();
+            tickFor(30, Occupant.of(player, alpha));
+            tickFor(20, Occupant.of(player, alpha), Occupant.of(UUID.randomUUID(), bravo));
+            assertEquals(10, events.getActiveEvent("koth").orElseThrow().getRemainingSeconds(),
+                    "contested seconds count for the team that held the zone");
+        }
+
+        @Test
+        void theHolderWinsWhileContested() {
+            continueWhenContested();
+            startKoth();
+            tickFor(30, Occupant.of(player, alpha));
+            List<EventUpdate> updates = tickFor(40, Occupant.of(player, alpha), Occupant.of(UUID.randomUUID(), bravo));
+            EventUpdate captured = updates.stream().filter(u -> u.type() == EventUpdate.Type.CAPTURED)
+                    .findFirst().orElseThrow();
+            assertEquals(alpha, captured.teamId());
+            assertFalse(events.isActive("koth"));
+        }
+
+        @Test
+        void aHolderPushedOutDoesNotCountDown() {
+            continueWhenContested();
+            startKoth();
+            tickFor(30, Occupant.of(player, alpha));
+            UUID charlie = UUID.randomUUID();
+            tickFor(20, Occupant.of(UUID.randomUUID(), bravo), Occupant.of(UUID.randomUUID(), charlie));
+            assertEquals(30, events.getActiveEvent("koth").orElseThrow().getRemainingSeconds(),
+                    "two other teams fighting over it: alpha is not in it, nothing counts");
+        }
+    }
+
+    @Nested
     class LosingControl {
 
         @Test

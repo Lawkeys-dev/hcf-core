@@ -108,11 +108,31 @@ weekly-schedule:
   # /schedule as a window rather than a list in the chat: one item per day of the
   # week ahead. /schedule chat asks for the list either way, and the console
   # always gets it.
+  # An event still running when a planned one starts (the 14:00 KOTH not over at
+  # 15:00): replace - it is stopped, with no winner, and the planned one starts;
+  # skip - it goes on and the planned one is not started; both - both run.
+  # Kill the King is never started by the schedule: staff start it (its time is
+  # shown in /schedule and announced).
+  overlap: replace
+
   menu:
     enabled: true
     today-material: CLOCK
     day-material: PAPER
     empty-material: GRAY_DYE
+    # The colour each event is written in, in the window and in /schedule chat:
+    # by kind, or by an event's id (an id wins over its kind). Colour codes (&6)
+    # or a hex colour (&#ffaa00).
+    colors:
+      koth: "&6"
+      citadel: "&5"
+      ktk: "&c"
+      conquest: "&b"
+      dtc: "&9"
+      lastbreak: "&4"
+      slide: "&a"
+      totem: "&e"
+      minitotem: "&3"
 
   # Shipped empty: the example events are not on your map yet. For instance:
   #   friday: ["20:00 koth"]
@@ -163,6 +183,12 @@ events:
     # Otherwise one player touching the zone for a single tick would erase nine
     # minutes of work.
     contest-policy: RESET
+
+    # While the zone is contested - another team in it with the holder:
+    #   pause    - the countdown freezes until one team holds it alone again.
+    #   continue - the team that held it keeps counting down as long as it is
+    #              still in the zone: a challenger has to push it out.
+    when-contested: pause
 
     # Hard stop for an event nobody manages to win. 0 = runs until someone does.
     # Must be at least capture-seconds, or the event could never be won; a
@@ -234,6 +260,7 @@ citadels:
       z: -185
     capture-seconds: 1800
     contest-policy: RESET
+    when-contested: pause
     max-duration-seconds: 0
     announce-at-seconds: [900, 600, 300, 60, 30, 10]
     # No schedule: staff open it with /events start citadel until you decide
@@ -443,6 +470,7 @@ conquest:
 
     # What losing a zone does to its countdown: RESET or PAUSE, as for a KOTH.
     contest-policy: RESET
+    when-contested: pause
 
     # Hard stop with no winner, in seconds. 0 = runs until somebody wins.
     max-duration-seconds: 0

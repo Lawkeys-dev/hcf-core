@@ -6,6 +6,18 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+### Added
+- **`/alleffect`** (`/alleffects`, `/effects`): Speed II, Fire Resistance, Invisibility, Haste II and Night Vision in one command, typed again to take them off. Any effect command may now give several effects at once (`effects:` in `effect-commands.yml`). *Existing servers: copy the `alleffect` entry from the jar's `effect-commands.yml`, and the `effect-commands.given-several` line of `lang/en.yml`.*
+- **`/deathban` and `/db`** for `/pvp`.
+- **`/schedule` colours each kind of event** — KOTH gold, Citadel purple, Kill the King red… — in the window and the chat alike (`weekly-schedule.menu.colors`, by kind or by event id).
+- **A refill sign asks before it wipes your inventory**: with `clear-before-giving`, a player holding anything clicks the sign a second time within 5 seconds (`refill-signs.confirm-seconds`, `0` never asks). *Add `confirm-seconds` under `refill-signs` in `kits.yml` to change it.*
+- **Pause or continue while contested** (`events.yml`, `when-contested`, for a KOTH, a Citadel and each Conquest zone): `pause`, as before, freezes the countdown; `continue` lets the holder keep counting down while it is still in the zone.
+- **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
+
+### Changed
+- **The wall around spawn is a ball around the player**: the safe zone's border within 15 blocks of a player in combat, all round (`safe-zones.wall.radius-blocks`), instead of 15 blocks each way up to layer 128 — far fewer blocks read and sent. *`width-blocks`, `top-y` and `minimum-height` are no longer read.*
+- **Kill the King is started by staff only**: a time in its schedule, daily or weekly, is shown in `/schedule` and announced, never acted on.
+
 ## [0.9.0] - 2026-09-27
 
 Teams set up without a single command: `/team settings` holds the team's profile — its description and Discord invitation —, who may join (closed, on invitation, open), each rank's permissions, its members and invitations, the claim lock and the HQ. A new rank, the officer. Shortcuts: `/hq`, `/fc`, `/f i`. `deposit all` and `withdraw all` for the team bank.

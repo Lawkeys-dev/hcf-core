@@ -26,8 +26,22 @@ public final class EffectCommandSet {
 
     private static final Pattern LABEL = Pattern.compile("[a-z0-9_-]+");
 
-    /** A command as written in the file, before any check. */
-    public record Entry(String name, String effect, int level, List<String> aliases, String permission) {
+    /**
+     * A command as written in the file, before any check.
+     *
+     * @param effects several effects at once ({@code effects:}), each to its level;
+     *                empty for a command of one ({@code effect:} and {@code level:})
+     */
+    public record Entry(String name, String effect, int level, List<String> aliases, String permission,
+                        Map<String, Integer> effects) {
+
+        public Entry {
+            effects = effects == null ? Map.of() : java.util.Collections.unmodifiableMap(new LinkedHashMap<>(effects));
+        }
+
+        public Entry(String name, String effect, int level, List<String> aliases, String permission) {
+            this(name, effect, level, aliases, permission, Map.of());
+        }
     }
 
     private final Map<String, EffectCommand> byName;
@@ -53,13 +67,26 @@ public final class EffectCommandSet {
                 warn.accept("/" + name + " is already taken by another effect command; left out.");
                 continue;
             }
-            String effect = effectKey(entry.effect());
-            if (effect == null) {
-                warn.accept("/" + name + " names no effect; left out.");
-                continue;
+            Map<String, Integer> wanted = entry.effects().isEmpty()
+                    ? java.util.Collections.singletonMap(entry.effect(), entry.level()) : entry.effects();
+            Map<String, Integer> effects = new LinkedHashMap<>();
+            boolean usable = true;
+            for (Map.Entry<String, Integer> each : wanted.entrySet()) {
+                String effect = effectKey(each.getKey());
+                if (effect == null) {
+                    warn.accept("/" + name + " names no effect; left out.");
+                    usable = false;
+                    break;
+                }
+                int level = each.getValue() == null ? 1 : each.getValue();
+                if (level < 1 || level > MAX_LEVEL) {
+                    warn.accept("/" + name + ": level must be 1 to " + MAX_LEVEL + "; left out.");
+                    usable = false;
+                    break;
+                }
+                effects.put(effect, level);
             }
-            if (entry.level() < 1 || entry.level() > MAX_LEVEL) {
-                warn.accept("/" + name + ": level must be 1 to " + MAX_LEVEL + "; left out.");
+            if (!usable) {
                 continue;
             }
             List<String> aliases = new ArrayList<>();
@@ -75,7 +102,7 @@ public final class EffectCommandSet {
             }
             String permission = entry.permission() == null || entry.permission().isBlank()
                     ? PERMISSION_PREFIX + name : entry.permission().trim();
-            commands.put(name, new EffectCommand(name, effect, entry.level(), aliases, permission));
+            commands.put(name, new EffectCommand(name, effects, aliases, permission));
         }
         return new EffectCommandSet(Map.copyOf(commands));
     }

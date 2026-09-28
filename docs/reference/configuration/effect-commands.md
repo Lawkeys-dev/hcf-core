@@ -22,9 +22,10 @@ Every example on this page is **taken from the shipped `effect-commands.yml`**. 
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `commands.<name>` | nine commands | The command, without its slash: letters, digits, `_` and `-` |
+| `commands.<name>` | ten commands | The command, without its slash: letters, digits, `_` and `-` |
 | `effect` | — | The effect: `speed`, `strength`, `jump_boost`, `fire_resistance`… (another namespace is written in full, `mypack:glow`) |
 | `level` | — | `1` is level I, up to 255 |
+| `effects` | `/alleffect` only | Several effects at once, each to its level — `{speed: 2, fire_resistance: 1}` — in place of `effect` and `level` |
 | `aliases` | one or two each | Other names; a name or alias belongs to the first command that claims it, and never takes over another plugin's command |
 | `permission` | `hcfcore.effect.<name>` | Who may use it; operators by default |
 

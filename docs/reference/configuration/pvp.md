@@ -116,8 +116,7 @@ An item is used when it is eaten, or — a totem — when it saves its holder. T
 | `block-combat-tagged` | `true` | A player in combat cannot enter a safe zone until their tag runs out |
 | `wall.enabled` | `true` | Whether they see the border they may not cross, drawn like the claiming wand's columns — sent to that player alone, never placed |
 | `wall.material` | `RED_STAINED_GLASS` | The block it is drawn in |
-| `wall.width-blocks` | `15` | How far along the border it is drawn, each way from the player |
-| `wall.top-y` · `minimum-height` | `128` · `3` | It runs from the ground to that layer; ground already higher gets the minimum |
+| `wall.radius-blocks` | `15` | The border's air blocks within this distance of the player are drawn, all round — a ball of wall where they stand. *The older `width-blocks`, `top-y` and `minimum-height` are no longer read.* |
 
 ## Death signs
 

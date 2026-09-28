@@ -31,6 +31,8 @@ import java.util.Objects;
  *                        {@code %player%}: a capture is credited to a team, not to
  *                        whoever happened to be standing in the zone on the winning
  *                        tick, so no player context exists to substitute
+ * @param whenContested    whether the countdown pauses or goes on while the zone is
+ *                         contested - see {@link WhenContested}
  */
 public record CaptureEventDefinition(String id,
                                      String displayName,
@@ -40,9 +42,19 @@ public record CaptureEventDefinition(String id,
                                      long maxDurationSeconds,
                                      List<Long> announceAtSeconds,
                                      List<LocalTime> schedule,
-                                     List<String> rewardCommands) {
+                                     List<String> rewardCommands,
+                                     WhenContested whenContested) {
+
+    /** An event that pauses while contested, as every event did before the choice existed. */
+    public CaptureEventDefinition(String id, String displayName, Cuboid zone, long captureSeconds,
+                                  ContestPolicy contestPolicy, long maxDurationSeconds, List<Long> announceAtSeconds,
+                                  List<LocalTime> schedule, List<String> rewardCommands) {
+        this(id, displayName, zone, captureSeconds, contestPolicy, maxDurationSeconds, announceAtSeconds, schedule,
+                rewardCommands, WhenContested.PAUSE);
+    }
 
     public CaptureEventDefinition {
+        Objects.requireNonNull(whenContested, "whenContested");
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(displayName, "displayName");
         Objects.requireNonNull(zone, "zone");

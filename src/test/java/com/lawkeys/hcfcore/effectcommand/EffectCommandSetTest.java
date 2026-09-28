@@ -57,6 +57,28 @@ class EffectCommandSetTest {
     }
 
     @Test
+    void aCommandMayGiveSeveralEffectsInTheFilesOrder() {
+        java.util.Map<String, Integer> effects = new java.util.LinkedHashMap<>();
+        effects.put("speed", 2);
+        effects.put("fire_resistance", 1);
+        effects.put("night_vision", 1);
+        EffectCommand all = EffectCommandSet.of(List.of(new EffectCommandSet.Entry("alleffect", null, 1, List.of(),
+                null, effects)), warnings::add).get("alleffect").orElseThrow();
+        assertEquals(List.of("minecraft:speed", "minecraft:fire_resistance", "minecraft:night_vision"),
+                List.copyOf(all.effects().keySet()));
+        assertEquals(2, all.effects().get("minecraft:speed"));
+        assertTrue(warnings.isEmpty());
+    }
+
+    @Test
+    void oneBadEffectLeavesTheWholeCommandOut() {
+        EffectCommandSet set = EffectCommandSet.of(List.of(new EffectCommandSet.Entry("broken", null, 1, List.of(),
+                null, java.util.Map.of("speed", 0))), warnings::add);
+        assertTrue(set.isEmpty());
+        assertEquals(1, warnings.size());
+    }
+
+    @Test
     void levelsReadAsRomanNumerals() {
         assertEquals("II", EffectCommandSet.roman(2));
         assertEquals("X", EffectCommandSet.roman(10));
