@@ -195,12 +195,30 @@ public final class PvpCommand implements TabExecutor {
         if (args.length == 2) {
             String prefix = args[1].toLowerCase(Locale.ROOT);
             List<String> names = new ArrayList<>();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player.getName().toLowerCase(Locale.ROOT).startsWith(prefix)) {
+            if (args[0].equalsIgnoreCase("lift")) {
+                // Whoever a lift is for is deathbanned, so never online: the banned are offered.
+                for (UUID banned : module.getDeathbans().getBanned()) {
+                    String name = Bukkit.getOfflinePlayer(banned).getName();
+                    if (name != null) {
+                        names.add(name);
+                    }
+                }
+                names.sort(String.CASE_INSENSITIVE_ORDER);
+            } else {
+                for (Player player : Bukkit.getOnlinePlayers()) {
                     names.add(player.getName());
                 }
+                // Check also looks up the banned, who are offline.
+                if (args[0].equalsIgnoreCase("check")) {
+                    for (UUID banned : module.getDeathbans().getBanned()) {
+                        String name = Bukkit.getOfflinePlayer(banned).getName();
+                        if (name != null && !names.contains(name)) {
+                            names.add(name);
+                        }
+                    }
+                }
             }
-            return names;
+            return names.stream().filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
         }
         return List.of();
     }

@@ -34,6 +34,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **Only active players are drawn as King**: idle for 5 minutes — no move, look, chat, command or click — and a player is left out (`reign.afk-seconds`).
 
 ### Fixed
+- **`/pvp lift` completed the online players**, who are never the ones banned: Tab now offers the deathbanned, as `/revive` does — a ban until the map ends included, which staff can lift. `/pvp check` offers both.
 - **A death sign placed by a player who is not an operator was blank**, and opened the sign editor: the game copies a block's data from its item for operators only. The plugin now writes the sign and waxes it when placed, for everybody, and refuses the editor and any rewriting.
 
 ## [0.9.0] - 2026-09-27

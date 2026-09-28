@@ -126,6 +126,18 @@ public final class DeathbanManager {
                 .toList();
     }
 
+    /**
+     * @return who is banned now, a ban until the map ends included - what staff can
+     *         lift, and so what {@code /pvp lift} offers to complete
+     */
+    public java.util.List<UUID> getBanned() {
+        long now = clock.getAsLong();
+        return bans.values().stream()
+                .filter(ban -> ban.isActiveAt(now))
+                .map(Deathban::playerId)
+                .toList();
+    }
+
     public int getActiveBanCount() {
         long now = clock.getAsLong();
         int count = 0;
