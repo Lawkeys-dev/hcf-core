@@ -44,6 +44,14 @@ public final class PvpMessages {
     public static final String DEATHBAN_OWN_MAP_END = "pvp.deathban.own.map-end";
     public static final String DEATHBAN_OWN_NONE = "pvp.deathban.own.none";
     public static final String DEATHBAN_STAFF_HELP = "pvp.deathban.own.staff-help";
+    // /pvp help, /db help, and a subcommand typed short
+    public static final String HELP_HEADER = "pvp.help.header";
+    public static final String HELP_OWN_TAG = "pvp.help.own-tag";
+    public static final String HELP_OWN_DEATHBAN = "pvp.help.own-deathban";
+    public static final String HELP_CHECK = "pvp.help.check";
+    public static final String HELP_LIFT = "pvp.help.lift";
+    public static final String HELP_BAN = "pvp.help.ban";
+    public static final String USAGE = "pvp.help.usage";
     // A ban that lasts until the map ends (EOTW) has no time left to show
     public static final String DEATHBAN_MAP_END_APPLIED = "pvp.deathban.map-end.applied";
     public static final String DEATHBAN_MAP_END_LOGIN_DENIED = "pvp.deathban.map-end.login-denied";

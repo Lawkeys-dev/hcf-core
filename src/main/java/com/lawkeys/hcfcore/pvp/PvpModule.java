@@ -716,6 +716,15 @@ public final class PvpModule {
         };
     }
 
+    /**
+     * @return how long a death bans that player: by their rank when they are online,
+     *         else the base length - what staff give when they name no length
+     */
+    public long deathbanSecondsOf(UUID playerId) {
+        Player online = Bukkit.getPlayer(playerId);
+        return settings.deathbanSecondsFor(online == null ? List.of() : heldTierPermissions(online));
+    }
+
     /** @return the deathban tier nodes this player holds, to judge them once they have left */
     public List<String> tierPermissionsOf(Player player) {
         return heldTierPermissions(player);

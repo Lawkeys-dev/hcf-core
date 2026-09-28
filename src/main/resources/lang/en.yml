@@ -564,12 +564,22 @@ pvp:
       length: "{muted}If you die now, you cannot rejoin for {error}%time%{muted}."
       map-end: "{muted}If you die now, you cannot rejoin {error}until the end of the map{muted}."
       none: "{muted}Dying now does not deathban you."
-      staff-help: "{muted}Staff: {secondary}/db <player>{muted}, {secondary}/db lift <player>{muted}, {secondary}/db ban <player> <seconds>{muted}."
+      staff-help: "{muted}Staff: {secondary}/db <player>{muted}, {secondary}/db lift <player>{muted}, {secondary}/db ban <player> [seconds]{muted} - {secondary}/db help{muted}."
     # EOTW: a death bans until the end of the map; staff lift it after the reset.
     map-end:
       applied: "{error}You died during EOTW. You cannot rejoin until the end of the map."
       login-denied: "{error}You died during EOTW and are deathbanned until the end of the map."
       status: "{muted}Deathban: {error}until the end of the map{muted}."
+
+  # /pvp help, /db help (%label% is the command as typed), and a staff command typed short.
+  help:
+    header: "{muted}-------- {primary}/%label% {muted}--------"
+    own-tag: "{secondary}/%label% {muted}- your combat tag ({secondary}/ct{muted}); {secondary}/db{muted} for your deathban."
+    own-deathban: "{secondary}/%label% {muted}- how long dying now would ban you; {secondary}/ct{muted} for your combat tag."
+    check: "{secondary}/%label% check <player> {muted}- their combat tag and deathban."
+    lift: "{secondary}/%label% lift <player> {muted}- end their deathban."
+    ban: "{secondary}/%label% ban <player> [seconds] {muted}- deathban them; with no length, as long as a death would."
+    usage: "{error}Usage: {secondary}/%label% %usage%"
 
   # pvp.yml, death-signs: the sign a kill leaves. Its four lines, and its name as
   # an item. Placeholders: %victim%, %killer%, %date%.

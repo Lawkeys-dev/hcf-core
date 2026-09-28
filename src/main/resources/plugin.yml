@@ -40,9 +40,9 @@ commands:
     description: Tell everybody you are looking for a team.
     usage: /<command> [note]
   pvp:
-    aliases: [deathban, db]
+    aliases: [deathban, db, ct, combattag]
     description: Your combat tag (/pvp) or deathban (/deathban, /db), plus staff overrides.
-    usage: /<command> [check|lift|ban]
+    usage: /<command> [help|check|lift|ban]
   events:
     aliases: [event, koth]
     description: Shows running and upcoming events; staff can start, stop, create, set up and delete them.

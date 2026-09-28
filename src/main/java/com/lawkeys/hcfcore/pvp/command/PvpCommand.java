@@ -19,7 +19,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * {@code /pvp} - combat tag and deathban status, plus the staff overrides.
+ * {@code /pvp} ({@code /ct}, {@code /combattag}) - your combat tag - and
+ * {@code /deathban} ({@code /db}) - your deathban - with the staff overrides under both.
  *
  * <p>Its own command rather than a {@code /team} subcommand: combat state belongs
  * to a player, not to their team, and a player without a team still needs it.
@@ -58,6 +59,11 @@ public final class PvpCommand implements TabExecutor {
             return true;
         }
 
+        String bare = bareLabel(label);
+        if (args[0].equalsIgnoreCase("help")) {
+            help(sender, bare, deathban);
+            return true;
+        }
         if (!sender.hasPermission(ADMIN_PERMISSION)) {
             module.getLang().send(sender, "general.no-permission");
             return true;
@@ -67,22 +73,43 @@ public final class PvpCommand implements TabExecutor {
             String[] checked = new String[args.length + 1];
             checked[0] = "check";
             System.arraycopy(args, 0, checked, 1, args.length);
-            check(sender, checked);
+            check(sender, bare, checked);
             return true;
         }
         switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "check" -> check(sender, args);
-            case "lift" -> lift(sender, args);
-            case "ban" -> ban(sender, args);
-            default -> module.getLang().send(sender, "general.unknown-command", "label", label);
+            case "check" -> check(sender, bare, args);
+            case "lift" -> lift(sender, bare, args);
+            case "ban" -> ban(sender, bare, args);
+            default -> module.getLang().send(sender, "general.unknown-command", "label", bare);
         }
         return true;
     }
 
+    /** @return the label as typed, without a {@code hcfcore:} namespace */
+    private static String bareLabel(String label) {
+        return label.substring(label.indexOf(':') + 1).toLowerCase(Locale.ROOT);
+    }
+
     /** @return whether the command was typed as {@code /deathban} or {@code /db}, namespaced or not */
     private static boolean isDeathbanLabel(String label) {
-        String bare = label.substring(label.indexOf(':') + 1).toLowerCase(Locale.ROOT);
+        String bare = bareLabel(label);
         return bare.equals("deathban") || bare.equals("db");
+    }
+
+    /** {@code help}: what this command does for you, and for staff its overrides - under the label typed. */
+    private void help(CommandSender sender, String label, boolean deathban) {
+        module.getLang().send(sender, PvpMessages.HELP_HEADER, "label", label);
+        module.getLang().send(sender, deathban ? PvpMessages.HELP_OWN_DEATHBAN : PvpMessages.HELP_OWN_TAG,
+                "label", label);
+        if (sender.hasPermission(ADMIN_PERMISSION)) {
+            module.getLang().send(sender, PvpMessages.HELP_CHECK, "label", label);
+            module.getLang().send(sender, PvpMessages.HELP_LIFT, "label", label);
+            module.getLang().send(sender, PvpMessages.HELP_BAN, "label", label);
+        }
+    }
+
+    private void usage(CommandSender sender, String label, String usage) {
+        module.getLang().send(sender, PvpMessages.USAGE, "label", label, "usage", usage);
     }
 
     /** {@code /deathban}: what dying now would cost you, and the staff commands for those allowed. */
@@ -123,9 +150,9 @@ public final class PvpCommand implements TabExecutor {
     }
 
     /** {@code /pvp check <player>} - combat tag and deathban of someone else. */
-    private void check(CommandSender sender, String[] args) {
+    private void check(CommandSender sender, String label, String[] args) {
         if (args.length < 2) {
-            module.getLang().send(sender, "general.unknown-command", "label", "pvp");
+            usage(sender, label, "check <player>");
             return;
         }
         Optional<UUID> target = resolve(sender, args[1]);
@@ -149,9 +176,9 @@ public final class PvpCommand implements TabExecutor {
     }
 
     /** {@code /pvp lift <player>} - ends a deathban early. */
-    private void lift(CommandSender sender, String[] args) {
+    private void lift(CommandSender sender, String label, String[] args) {
         if (args.length < 2) {
-            module.getLang().send(sender, "general.unknown-command", "label", "pvp");
+            usage(sender, label, "lift <player>");
             return;
         }
         Optional<UUID> target = resolve(sender, args[1]);
@@ -165,10 +192,13 @@ public final class PvpCommand implements TabExecutor {
         }
     }
 
-    /** {@code /pvp ban <player> <seconds>} - deathbans somebody by hand. */
-    private void ban(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            module.getLang().send(sender, "general.unknown-command", "label", "pvp");
+    /**
+     * {@code /pvp ban <player> [seconds]} - deathbans somebody by hand; with no length,
+     * for as long as a death would ban them.
+     */
+    private void ban(CommandSender sender, String label, String[] args) {
+        if (args.length < 2) {
+            usage(sender, label, "ban <player> [seconds]");
             return;
         }
         Optional<UUID> target = resolve(sender, args[1]);
@@ -176,11 +206,15 @@ public final class PvpCommand implements TabExecutor {
             return;
         }
         long seconds;
-        try {
-            seconds = Long.parseLong(args[2]);
-        } catch (NumberFormatException e) {
-            module.getLang().send(sender, PvpMessages.INVALID_NUMBER, "input", args[2]);
-            return;
+        if (args.length < 3) {
+            seconds = module.deathbanSecondsOf(target.get());
+        } else {
+            try {
+                seconds = Long.parseLong(args[2]);
+            } catch (NumberFormatException e) {
+                module.getLang().send(sender, PvpMessages.INVALID_NUMBER, "input", args[2]);
+                return;
+            }
         }
         // Zero or less answered "deathbans are disabled", and a length past a century
         // overflowed into the past and banned nobody (found in the command review).
@@ -231,11 +265,12 @@ public final class PvpCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission(ADMIN_PERMISSION)) {
-            return List.of();
+            return args.length == 1 && "help".startsWith(args[0].toLowerCase(Locale.ROOT)) ? List.of("help") : List.of();
         }
         if (args.length == 1) {
             String prefix = args[0].toLowerCase(Locale.ROOT);
-            List<String> options = new ArrayList<>(ADMIN_SUBCOMMANDS);
+            List<String> options = new ArrayList<>(List.of("help"));
+            options.addAll(ADMIN_SUBCOMMANDS);
             if (isDeathbanLabel(label)) {
                 // /db <player> checks them: the banned are the ones worth checking.
                 options.addAll(bannedNames());

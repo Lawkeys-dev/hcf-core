@@ -80,7 +80,7 @@ public final class DtrSettingsLoader {
         }
         if (section.contains("freeze-seconds")) {
             warn.accept("regeneration.freeze-seconds is no longer used: DTR regenerates from the moment of a "
-                    + "death, and a team is raidable while it is at or below zero. It can be deleted.");
+                    + "death, and a team is raidable while it is below zero. It can be deleted.");
         }
         double amount = Math.max(0.0, section.getDouble("amount", defaults.amount()));
         long interval = Durations.capSeconds(section.getLong("interval-seconds", defaults.intervalSeconds()), "interval-seconds", warn);

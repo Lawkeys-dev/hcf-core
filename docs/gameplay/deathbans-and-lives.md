@@ -39,7 +39,7 @@ deathban:
 |---|---|
 | `/pvp check <player>` | Someone's combat tag and deathban |
 | `/pvp lift <player>` | Lift a deathban |
-| `/pvp ban <player> <seconds>` | Set a deathban — this one applies even to a bypass holder |
+| `/pvp ban <player> [seconds]` | Set a deathban — with no length, as long as a death would ban them; this one applies even to a bypass holder |
 
 All need `hcfcore.pvp.admin` and work from the console.
 
