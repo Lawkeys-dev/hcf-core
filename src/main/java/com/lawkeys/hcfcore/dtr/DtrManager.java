@@ -123,7 +123,7 @@ public final class DtrManager implements RaidabilityPolicy {
      * Whether the team's territory is currently open to raiding.
      *
      * <p>This is the method {@code claim/} calls on every protection check
-     * (FEATURES.md section 3): raidable exactly while DTR has run out.
+     * (FEATURES.md section 3): raidable exactly while DTR is below zero.
      */
     @Override
     public boolean isRaidable(UUID teamId) {
@@ -135,8 +135,13 @@ public final class DtrManager implements RaidabilityPolicy {
             // Server-owned territory is never raidable, whatever its DTR row says.
             return false;
         }
-        return getDtr(team) <= 0.0;
+        // Below zero - "in the negative" (the owner's rule of 28/09/2026); a team
+        // back at 0.00 is protected. The margin absorbs the float sum of 0.1 steps.
+        return getDtr(team) < -EPSILON;
     }
+
+    /** What a sum of regeneration steps may be off by, in floating point. */
+    private static final double EPSILON = 1e-9;
 
     /** @return {@code true} while regeneration is frozen after a recent death. */
     public boolean isFrozen(Team team) {
@@ -168,9 +173,8 @@ public final class DtrManager implements RaidabilityPolicy {
         }
 
         double current = getDtr(team);
-        // Strictly above zero is what lifts raidability, so a team sitting exactly
-        // at 0 still needs one more step.
-        int stepsNeeded = (int) Math.floor(-current / rules.amount()) + 1;
+        // Back to zero is what lifts raidability.
+        int stepsNeeded = (int) Math.ceil(-current / rules.amount() - EPSILON);
         long fromFreeze = Math.max(0L, getFreezeRemainingSeconds(team));
         return Optional.of(fromFreeze + (long) stepsNeeded * rules.intervalSeconds());
     }
@@ -180,7 +184,9 @@ public final class DtrManager implements RaidabilityPolicy {
     // ------------------------------------------------------------------
 
     /**
-     * Applies the cost of one member death: DTR drops and regeneration freezes.
+     * Applies the cost of one member death: DTR drops, and regenerates from now on -
+     * there is no freeze after a death any more. A pause staff set with
+     * {@code setregen} still holds.
      *
      * @return the DTR after the death, or empty if the module is disabled or the
      *         team is server-owned
@@ -195,9 +201,10 @@ public final class DtrManager implements RaidabilityPolicy {
         long now = clock.getAsLong();
         double current = getDtr(team);
         double updated = Math.max(config.minimum(), current - config.lossPerDeath());
+        DtrState existing = states.get(team.getId());
+        long regenAt = existing == null ? now : Math.max(existing.regenAt(), now);
 
-        states.put(team.getId(), new DtrState(team.getId(), updated,
-                now + config.regeneration().freezeSeconds() * 1000L));
+        states.put(team.getId(), new DtrState(team.getId(), updated, regenAt));
         markDirty(team.getId());
         return Optional.of(updated);
     }
@@ -209,9 +216,7 @@ public final class DtrManager implements RaidabilityPolicy {
     /**
      * Staff override of a team's DTR ({@code setdtr} in FEATURES.md section 3).
      *
-     * <p>Does not touch the freeze: a staff member raising DTR to end a raid
-     * expects it to stay there and then regenerate normally, not to restart a
-     * 45-minute timer.
+     * <p>Does not touch a pause staff set with {@code setregen}.
      *
      * <p>But regeneration counts from the value set, never from before it: the
      * stored value is where regeneration starts, so keeping a resume instant long

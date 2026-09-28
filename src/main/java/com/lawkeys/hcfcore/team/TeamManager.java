@@ -1274,11 +1274,29 @@ public final class TeamManager {
      * its points, or {@code per-raidable} when no share is set.
      */
     public void recordRaidable(Team team) {
+        recordRaidable(team, null);
+    }
+
+    /**
+     * A team made raidable: it loses its share ({@code raidable-loss-percent}), and
+     * with {@code raidable-steal} the team whose kill did it takes exactly what it lost
+     * - never more than the floor let it lose, never from an ally or itself.
+     *
+     * @param raider the killer's team, or {@code null} when no team caused it
+     */
+    public void recordRaidable(Team team, Team raider) {
         if (team == null) {
             return;
         }
+        long lost;
         synchronized (team) {
-            award(team, config().points().raidableDelta(team.getPoints()));
+            long before = team.getPoints();
+            award(team, config().points().raidableDelta(before));
+            lost = before - team.getPoints();
+        }
+        if (lost > 0 && raider != null && config().points().raidableSteal()
+                && !raider.getId().equals(team.getId()) && !raider.isAlliedWith(team.getId())) {
+            award(raider, lost);
         }
     }
 

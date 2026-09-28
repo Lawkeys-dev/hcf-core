@@ -161,7 +161,38 @@ public final class PhaseManager {
      */
     public RaidabilityPolicy raidability(RaidabilityPolicy base) {
         Objects.requireNonNull(base, "base");
-        return teamId -> isEotw() || isPurge() || base.isRaidable(teamId);
+        // EOTW makes every team raidable. The Purge no longer does: it only opens
+        // using enemy blocks, never building (the owner's rule of 28/09/2026).
+        return teamId -> isEotw() || base.isRaidable(teamId);
+    }
+
+    /**
+     * @return what EOTW and the Purge open on somebody else's land - the claim
+     *         module's {@code PhaseAccess}
+     */
+    public com.lawkeys.hcfcore.claim.PhaseAccess access() {
+        return new com.lawkeys.hcfcore.claim.PhaseAccess() {
+            @Override
+            public boolean openToBuilding(com.lawkeys.hcfcore.team.Team owner) {
+                if (!isEotw()) {
+                    return false;
+                }
+                if (!owner.getType().isSystem()) {
+                    return true;
+                }
+                PhaseSettings.LandRules land = settings.get().land();
+                return land.eotwOpenServerLand() && !(land.eotwKeepSafeZones() && owner.isSafeZone())
+                        && !land.eotwProtectedTeams().contains(owner.getName().toLowerCase(java.util.Locale.ROOT));
+            }
+
+            @Override
+            public boolean openToUse(com.lawkeys.hcfcore.team.Team owner) {
+                if (openToBuilding(owner)) {
+                    return true;
+                }
+                return isPurge() && !owner.getType().isSystem() && settings.get().land().purgeUseEnemyBlocks();
+            }
+        };
     }
 
     // ------------------------------------------------------------------

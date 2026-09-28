@@ -78,7 +78,10 @@ public final class DtrSettingsLoader {
         if (section == null) {
             return defaults;
         }
-        long freeze = Math.max(0L, Durations.capSeconds(section.getLong("freeze-seconds", defaults.freezeSeconds()), "freeze-seconds", warn));
+        if (section.contains("freeze-seconds")) {
+            warn.accept("regeneration.freeze-seconds is no longer used: DTR regenerates from the moment of a "
+                    + "death, and a team is raidable while it is at or below zero. It can be deleted.");
+        }
         double amount = Math.max(0.0, section.getDouble("amount", defaults.amount()));
         long interval = Durations.capSeconds(section.getLong("interval-seconds", defaults.intervalSeconds()), "interval-seconds", warn);
 
@@ -87,7 +90,7 @@ public final class DtrSettingsLoader {
                     + defaults.intervalSeconds() + ".");
             interval = defaults.intervalSeconds();
         }
-        return new DtrSettings.RegenerationRules(freeze, amount, Math.max(0L, interval));
+        return new DtrSettings.RegenerationRules(amount, Math.max(0L, interval));
     }
 
     private static DtrSettings.AnnouncementRules loadAnnouncements(ConfigurationSection section,

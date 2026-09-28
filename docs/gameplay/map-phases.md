@@ -11,7 +11,7 @@ Three phases shape a map's life. Each starts by command or by itself at a date o
 | **PvP** | none, except players who opted in | normal | normal |
 | **Deathbans** | none | **until the end of the map** | normal |
 | **DTR lost on death** | none | normal | normal |
-| **Raidable** | by DTR | **every team** | **every team** |
+| **Enemy claims** | by DTR | **every team's open to building and breaking** — server land too, spawn aside | **blocks usable** — doors, chests, buttons — **no building or breaking** (a team raidable by its DTR is open as ever) |
 | **New player claims** | yes, and teams can lock their land | **no** | yes |
 | **Spawn** | safe | safe | safe |
 
@@ -46,7 +46,8 @@ Remaining-time marks are broadcast (`sotw.announce-at-seconds`: 1 h, 30 min, 10 
 
 Until staff stop it:
 
-- **every team is raidable** whatever its DTR;
+- **every team is raidable** whatever its DTR: anybody builds and breaks in every claim;
+- **server land too** — roads, event territories, mountains — except the safe zones (`eotw.keep-safe-zones`) and the server teams listed in `eotw.protected-teams`; `eotw.open-server-land: false` keeps all server land shut;
 - players cannot claim new land (staff still can, for server land);
 - **a death bans until the end of the map** — no life can lift it; staff lift those bans with `/pvp lift` after the reset.
 
@@ -62,12 +63,12 @@ Spawn stays a safe zone.
 /purge             # status
 ```
 
-A window during which **every team is raidable**, whatever its DTR — a temporary EOTW, without EOTW's closed claims or its bans until the end of the map. Deathbans and DTR work as usual. Spawn stays safe.
+A window during which anybody may **use the blocks of every other team's claims** — doors, fence gates, chests, buttons, levers — whatever its DTR, **but not build or break there**: that stays for a team raidable by its DTR, and for EOTW (`purge.use-enemy-blocks`). Deathbans and DTR work as usual; server land stays shut and spawn safe.
 
 - **30 minutes** by default (`purge.duration-seconds`).
 - Optional daily times: `purge.schedule: ["20:00"]` — empty by default, since when a server purges is its own call. A time passed while the server was off is not replayed.
 - **Never during SOTW**: a SOTW that begins ends a running Purge.
-- **Refused during EOTW**, when every team is raidable already.
+- **Refused during EOTW**, when every claim is open already.
 
 ## Together
 
@@ -78,6 +79,6 @@ SOTW and EOTW never run at the same time: one refuses to start during the other,
 - `/sotw`, `/eotw`, `/purge` — each phase's status.
 - `/events` — the agenda lists running and scheduled phases.
 - The scoreboard — `%phase_line%` shows SOTW with its time left, EOTW, or the Purge with its time left.
-- `/team dtr`, the scoreboard and raid announcements say a team is raidable during EOTW and the Purge — never "no longer raidable" while one runs.
+- `/team dtr`, the scoreboard and raid announcements say a team is raidable during EOTW — never "no longer raidable" while it runs. The Purge raids nobody: they follow the DTR.
 
 Starting and stopping any phase needs `hcfcore.phase.admin`.

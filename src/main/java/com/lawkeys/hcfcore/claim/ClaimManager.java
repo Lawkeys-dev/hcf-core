@@ -113,6 +113,13 @@ public final class ClaimManager {
      * Installs the raid policy. Called by the {@code dtr/} module at startup;
      * until then {@link RaidabilityPolicy#NEVER} keeps every claim protected.
      */
+    /** What EOTW and the Purge open, from {@code phase/}; {@link PhaseAccess#NONE} until then. */
+    private volatile PhaseAccess phaseAccess = PhaseAccess.NONE;
+
+    public void setPhaseAccess(PhaseAccess access) {
+        this.phaseAccess = Objects.requireNonNull(access, "access");
+    }
+
     public void setRaidabilityPolicy(RaidabilityPolicy policy) {
         this.raidability = Objects.requireNonNull(policy, "policy");
     }
@@ -303,10 +310,14 @@ public final class ClaimManager {
         if (!isEnforced()) {
             return ProtectionResult.ALLOWED;
         }
-        return protectionOf(actorTeam, ownerAt(world, x, z));
+        return protectionOf(actorTeam, ownerAt(world, x, z), false);
     }
 
-    private ProtectionResult protectionOf(Team actorTeam, UUID ownerId) {
+    /**
+     * @param building placing or breaking, rather than using a block - what EOTW
+     *                 opens, where the Purge only opens using
+     */
+    private ProtectionResult protectionOf(Team actorTeam, UUID ownerId, boolean building) {
         if (ownerId == null) {
             return ProtectionResult.ALLOWED;
         }
@@ -320,15 +331,16 @@ public final class ClaimManager {
             releaseAll(ownerId);
             return ProtectionResult.ALLOWED;
         }
+        boolean phaseOpen = building ? phaseAccess.openToBuilding(owner) : phaseAccess.openToUse(owner);
         if (owner.getType().isSystem()) {
-            return ProtectionResult.DENIED_SYSTEM;
+            return phaseOpen ? ProtectionResult.ALLOWED_RAID : ProtectionResult.DENIED_SYSTEM;
         }
         if (actorTeam != null && actorTeam.isAlliedWith(ownerId)) {
             return config().protection().allowAllyBuild()
                     ? ProtectionResult.ALLOWED
                     : ProtectionResult.DENIED_ALLY;
         }
-        if (config().protection().allowRaidBuilding() && raidability.isRaidable(ownerId)) {
+        if (config().protection().allowRaidBuilding() && (raidability.isRaidable(ownerId) || phaseOpen)) {
             return ProtectionResult.ALLOWED_RAID;
         }
         return ProtectionResult.DENIED_CLAIMED;
@@ -358,7 +370,7 @@ public final class ClaimManager {
         }
         UUID owner = ownerAt(world, x, z);
         if (owner != null) {
-            ProtectionResult owned = protectionOf(actorTeam, owner);
+            ProtectionResult owned = protectionOf(actorTeam, owner, true);
             // protectionOf drops an owner whose team no longer exists; what is left
             // is unclaimed land, which falls through to the warzone below.
             if (ownerAt(world, x, z) != null) {
@@ -428,7 +440,7 @@ public final class ClaimManager {
             return !warzone.allowBuilding() && warzone.covers(world, x, z)
                     && !reservedRegions.isInReservedRegion(world, x, y, z);
         }
-        return !protectionOf(null, owner).isAllowed();
+        return !protectionOf(null, owner, true).isAllowed();
     }
 
     /**

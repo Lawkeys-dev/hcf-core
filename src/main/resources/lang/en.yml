@@ -321,6 +321,7 @@ team:
       set-home: "Set the HQ and base"
       lock-claim: "Lock the claim"
       open-subclaims: "Open every subclaim"
+      create-subclaims: "Make subclaims"
 
   list:
     header: "{muted}&m--------&r {secondary}Top teams {muted}&m--------"
@@ -347,6 +348,7 @@ claim:
     header: "{primary}%header%"
     created: "{success}Subclaim made {muted}- only the names on it (and your co-leaders and leader) can open it."
     denied: "{error}This is somebody else's subclaim."
+    create-rank: "{error}Making a subclaim takes the rank {secondary}%role% {error}or above in your team."
     not-container: "{error}A subclaim sign goes on the side of a chest, a barrel or another container."
     not-own-land: "{error}You can only make a subclaim on your own team's land."
 
@@ -492,7 +494,7 @@ dtr:
     regenerating: "{muted}Protected again in {secondary}%time%{muted}."
     at-maximum: "{muted}At full DTR."
     # Its DTR would protect it, but EOTW or the Purge opens every team's claims.
-    map-wide-raid: "{muted}Every team is raidable until EOTW or the Purge ends, whatever its DTR."
+    map-wide-raid: "{muted}Every team is raidable until EOTW ends, whatever its DTR."
 
   death:
     lost: "{prefix}{error}%player% died. {muted}-%loss% DTR {muted}(now {secondary}%dtr%{muted})."

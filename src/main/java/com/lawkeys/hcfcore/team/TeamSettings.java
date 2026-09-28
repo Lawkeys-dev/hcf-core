@@ -188,11 +188,23 @@ public record TeamSettings(
      *                       it raidable, 0 to 100 - rather than {@code perRaidable}'s fixed
      *                       number, which it replaces when above 0 (the project owner's
      *                       choice of 23/09/2026: half, as shipped)
+     * @param raidableSteal  what a team loses at becoming raidable goes to the team whose
+     *                       kill made it so (the owner's rule of 28/09/2026)
      */
     public record PointsRules(long starting, long minimum, long perKill, long perDeath, long perRaidable,
                               long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
                               long perSlideWin, long perTotemWin, long perCitadelCapture, long perMiniTotemWin,
-                              double raidableLossPercent) {
+                              double raidableLossPercent, boolean raidableSteal) {
+
+        /** The scale before the raider took what the raided loses: nobody took it. */
+        public PointsRules(long starting, long minimum, long perKill, long perDeath, long perRaidable,
+                           long perConquestWin, long perKingWin, long perDtcWin, long perLastBreakWin,
+                           long perSlideWin, long perTotemWin, long perCitadelCapture, long perMiniTotemWin,
+                           double raidableLossPercent) {
+            this(starting, minimum, perKill, perDeath, perRaidable, perConquestWin, perKingWin, perDtcWin,
+                    perLastBreakWin, perSlideWin, perTotemWin, perCitadelCapture, perMiniTotemWin,
+                    raidableLossPercent, false);
+        }
 
         public PointsRules {
             raidableLossPercent = Double.isFinite(raidableLossPercent)
@@ -278,7 +290,7 @@ public record TeamSettings(
                 // The owner's scale of 23/09/2026: a kill +1, a death -2, and an event
                 // worth far more than the kills fought for it along the way - a KOTH
                 // 100, a Citadel 300 - so the event, not the farm, decides the ranking.
-                new PointsRules(0L, 0L, 1L, -2L, 0L, 250L, 150L, 200L, 150L, 200L, 150L, 300L, 80L, 50.0),
+                new PointsRules(0L, 0L, 1L, -2L, 0L, 250L, 150L, 200L, 150L, 200L, 150L, 300L, 80L, 50.0, true),
                 new KothRules(0, 100L),
                 0,
                 CustomRules.defaults(),

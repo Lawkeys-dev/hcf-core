@@ -36,13 +36,14 @@ public record DtrSettings(
     }
 
     /**
-     * How DTR comes back.
+     * How DTR comes back: from the moment of a death, with no pause - a team stays
+     * raidable exactly as long as it takes to climb back above zero (the owner's
+     * choice of 28/09/2026, instead of a 45-minute freeze after every death).
      *
-     * @param freezeSeconds  how long regeneration is frozen after a death
-     * @param amount         DTR granted per interval
+     * @param amount          DTR granted per interval
      * @param intervalSeconds length of one regeneration step
      */
-    public record RegenerationRules(long freezeSeconds, double amount, long intervalSeconds) {
+    public record RegenerationRules(double amount, long intervalSeconds) {
     }
 
     /**
@@ -81,7 +82,8 @@ public record DtrSettings(
                 new MaximumRules(0.0, 1.1, 6.6),
                 1.0,
                 -5.0,
-                new RegenerationRules(2700L, 0.1, 180L),
+                // +0.1 every 90 s: a team at -1 is raidable for 15 minutes.
+                new RegenerationRules(0.1, 90L),
                 new AnnouncementRules(true, true, 60L));
     }
 }

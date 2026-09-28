@@ -12,10 +12,15 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **`/schedule` colours each kind of event** — KOTH gold, Citadel purple, Kill the King red… — in the window and the chat alike (`weekly-schedule.menu.colors`, by kind or by event id).
 - **A refill sign asks before it wipes your inventory**: with `clear-before-giving`, a player holding anything clicks the sign a second time within 5 seconds (`refill-signs.confirm-seconds`, `0` never asks). *Add `confirm-seconds` under `refill-signs` in `kits.yml` to change it.*
 - **Pause or continue while contested** (`events.yml`, `when-contested`, for a KOTH, a Citadel and each Conquest zone): `pause`, as before, freezes the countdown; `continue` lets the holder keep counting down while it is still in the zone.
+- **A raid pays**: what a team loses at becoming raidable goes to the team whose kill made it so (`teams.yml`, `points.raidable-steal`) — never to an ally, to nobody when no team caused the death. `TeamRaidableEvent#getRaider()` names that team.
+- **Making subclaims is a permission** like the others (`claims.yml`, `subclaims.create-role`, every member as shipped), which each team may raise in `/team settings` (`create-subclaims`).
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
 ### Changed
 - **The wall around spawn is a ball around the player**: the safe zone's border within 15 blocks of a player in combat, all round (`safe-zones.wall.radius-blocks`), instead of 15 blocks each way up to layer 128 — far fewer blocks read and sent. *`width-blocks`, `top-y` and `minimum-height` are no longer read.*
+- **No pause in DTR regeneration after a death**: a team is raidable while its DTR is **below zero** — back at 0.00 it is protected — and regenerates from the moment of the death, **+0.1 every 90 seconds** (`regeneration.interval-seconds`): the raid lasts the climb back to zero, 15 minutes from -1. `/team setregen` is the one way left to pause it. *`regeneration.freeze-seconds` is no longer read; take `interval-seconds: 90` from the jar to have the new pace.*
+- **The Purge opens enemy blocks, not raiding**: anybody may use the doors, chests and buttons of other teams' claims, but nobody builds or breaks there unless its DTR makes it raidable (`phases.yml`, `purge.use-enemy-blocks`).
+- **EOTW opens server land too**: roads, event territories and mountains are open to building and breaking like every claim, the safe zones — spawn — aside (`eotw.open-server-land`, `keep-safe-zones`, `protected-teams`).
 - **Kill the King is started by staff only**: a time in its schedule, daily or weekly, is shown in `/schedule` and announced, never acted on.
 
 ## [0.9.0] - 2026-09-27

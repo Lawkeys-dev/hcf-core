@@ -263,7 +263,8 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 |---|---|---|---|
 | `TeamStore` | `team/` | `NO_OP` (everything in memory) | `database/dao/JdbcTeamStore` |
 | `TeamEventDispatcher` | `team/` | `NO_OP` (no Bukkit event) | `TeamModule` |
-| `RaidabilityPolicy` | `claim/` | `NEVER` (claims always protected) | `dtr/`, **wrapped** by `phase/` (EOTW, Purge) |
+| `RaidabilityPolicy` | `claim/` | `NEVER` (claims always protected) | `dtr/`, **wrapped** by `phase/` (EOTW) |
+| `PhaseAccess` | `claim/` | `NONE` (no phase opens anything) | `phase/` (EOTW opens building everywhere, server land but safe zones too; the Purge opens using enemy blocks, never building) |
 | `TeleportGuard` | `claim/` | `ALLOW` (no teleport blocked) | `pvp/` (a combat tag, an ender pearl cooldown) |
 | `ReservedRegionPolicy` | `claim/` | `NONE` (no reserved land) | `resourcenode/` |
 | `ClaimingPolicy` | `claim/` | `OPEN` (player claims open) | `phase/` (EOTW) |
@@ -282,7 +283,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `ability/` (`abilities.yml`) |
 | Partner items | `pvp/` | none recognised (every pearl and listed item counted) | `ability/` (a Fake Pearl, a Golden Head: their own cooldowns) |
 | `AllyCombatZone` | `pvp/` | `NOWHERE` (allies hurt each other nowhere) | `events/` (a running KOTH, Citadel, Conquest, DTC, Last Break, Slide or Totem zone, and the King during Kill the King) |
-| `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW and the Purge make everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
+| `RaidOverride` | `dtr/` | `NONE` (DTR alone decides) | `phase/` (EOTW makes everything raidable: `/team dtr`, the scoreboard and raid announcements say so) |
 | Scoreboard filter | `ui/` | everybody has a board | `settings/` |
 | Scoreboard row filter | `ui/` | every tagged row shows | `settings/` (a section switched off in `/settings`) |
 | Scoreboard placeholder sources | `ui/` | only `ui/`'s own placeholders | `pvpclass/` (`%class_line%`, `%class_energy_line%`, `%archer_tag_line%`) |
@@ -293,7 +294,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | Team settings buttons (`TeamMenuButton`) | `team/` | only the window's own buttons | `claim/` (the claim lock, set HQ: each runs its `/team` command as the player) |
 | `ForgivenDeaths` (`util/`) | read by `dtr/` and `pvp/` at `MONITOR` | nothing forgiven (every death costs DTR and a deathban) | `events/` (the King's death, per `reign` in `events.yml`: set at `HIGHEST`, cleared a tick later) |
 
-**Wrapping a seam rather than replacing it.** EOTW makes every team raidable, but outside EOTW the DTR still decides: `phase/` therefore does not replace the `RaidabilityPolicy` installed by `dtr/`, it **wraps** it (`raidable = EOTW running OR Purge running OR what the DTR says`). Hence the startup order: `phase/` after `dtr/`, to wrap the real policy and not the `NEVER` default. A module that needs to *modify* another's answer, without knowing it, does it this way.
+**Wrapping a seam rather than replacing it.** EOTW makes every team raidable, but outside EOTW the DTR still decides: `phase/` therefore does not replace the `RaidabilityPolicy` installed by `dtr/`, it **wraps** it (`raidable = EOTW running OR what the DTR says`; the Purge, which opens using but not building, goes through its own seam, `PhaseAccess`). Hence the startup order: `phase/` after `dtr/`, to wrap the real policy and not the `NEVER` default. A module that needs to *modify* another's answer, without knowing it, does it this way.
 
 The table reads in one direction only: the "declared in" column never depends on the "filled by" column. And every default is a complete behaviour, not a `null` — a server running only `team/` and `claim/` would work, with claims simply always protected.
 

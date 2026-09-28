@@ -11,9 +11,9 @@ A team's **DTR** — *Deaths Till Raidable* — is how many more deaths it can t
 | Maximum | **1.1 per member**, capped at **6.6** (six members' worth) | `maximum.per-member`, `maximum.cap`, `maximum.base` |
 | Cost of a death | **1.0** | `loss-per-death` |
 | Floor | **−5.0** | `minimum` |
-| Regeneration | frozen **45 minutes** after a death, then **+0.1 every 3 minutes** | `regeneration.*` |
+| Regeneration | **+0.1 every 90 seconds**, from the moment of a death | `regeneration.*` |
 
-**At 0 or below, the team is raidable.**
+**Below 0 — in the negative — the team is raidable.** Back at 0, it is protected again.
 
 A solo team holds 1.1, so its first death leaves it at 0.1 — still protected — and the second one opens it. That asymmetry is the classic HCF scale. A deeper floor means a heavily farmed team takes proportionally longer to close its base.
 
@@ -22,9 +22,9 @@ A solo team holds 1.1, so its first death leaves it at 0.1 — still protected �
 ```mermaid
 flowchart LR
     P(["🛡️ Protected<br/>DTR above 0"])
-    R(["⚔️ Raidable<br/>DTR at 0 or below"])
+    R(["⚔️ Raidable<br/>DTR below 0"])
     P -- "a member dies and<br/>DTR reaches 0" --> R
-    R -- "DTR regenerates<br/>above 0" --> P
+    R -- "DTR regenerates<br/>back to 0" --> P
 ```
 
 - **While raidable**, anyone but the team's allies can build, break and open things in its land, and explosions go through: the *pillage window*.
@@ -35,7 +35,7 @@ EOTW and the Purge make every team raidable whatever its DTR — see [Map phases
 
 ## Regeneration
 
-After a death, regeneration is **frozen for 45 minutes** (`freeze-seconds`) — long enough for a raid to happen — then gives **0.1 every 3 minutes**: a full point every half hour.
+DTR comes back **from the moment of a death — there is no pause after it** — at **0.1 every 90 seconds**: a full point every 15 minutes. **The raid lasts as long as the climb back to zero**: 15 minutes for a team at -1, 30 at -2. The deeper a team is farmed, the longer its base stays open.
 
 It is **stepwise, not continuous**: a partial interval gives nothing, so what players see matches what the server announces.
 
@@ -44,7 +44,7 @@ It is **stepwise, not continuous**: a partial interval gives nothing, so what pl
 
 ## Seeing it
 
-- `/team dtr [team]` — the value, the maximum, the freeze left, and how long until protection returns.
+- `/team dtr [team]` — the value, the maximum, and how long until protection returns (and a pause staff set, if any).
 - `/team here` — whether the land you stand on is protected or raidable.
 - The scoreboard — `%dtr%`, `%dtr_coloured%` (dark red with "(raidable)" when open) and `%dtr_max%`.
 - Lunar Client nametags show each player's team and DTR.
@@ -59,10 +59,11 @@ It is **stepwise, not continuous**: a partial interval gives nothing, so what pl
 
 ```text
 /team setdtr Vikings 3.3        # set a team's DTR
+/team setregen Vikings 600      # regeneration pauses for 10 minutes
 /team setregen Vikings 0        # regeneration resumes now
 ```
 
-`setdtr` does not restart the freeze: staff raising DTR to close a raid do not restart a 45-minute counter. Both need `hcfcore.team.admin`.
+`setregen` is the one way to pause regeneration: a death never does. `setdtr` leaves such a pause as it is. Both need `hcfcore.team.admin`.
 
 ## Switching DTR off
 
@@ -70,7 +71,7 @@ It is **stepwise, not continuous**: a partial interval gives nothing, so what pl
 
 ## Points
 
-A team whose DTR makes it raidable **loses half its [points](teams.md#points-and-ranking)** (`teams.yml`, `points.raidable-loss-percent`, `50`), or a fixed number with the share at `0` (`points.per-raidable`).
+A team whose DTR makes it raidable **loses half its [points](teams.md#points-and-ranking)** (`teams.yml`, `points.raidable-loss-percent`, `50`), or a fixed number with the share at `0` (`points.per-raidable`) — and **the team whose kill made it raidable takes exactly what it lost** (`points.raidable-steal`): the raid pays. Never an ally; nobody takes it when no team caused the death — a fall, a mob, a player with no team.
 
 ## For developers
 

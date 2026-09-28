@@ -122,8 +122,9 @@ public final class PhaseModule {
         }
         if (dtr != null) {
             dtr.setDeathCostPolicy(manager::deathsCostDtr);
-            // What EOTW and the Purge open, /team dtr and the DTR announcements say so.
-            dtr.setRaidOverride(() -> manager.isEotw() || manager.isPurge());
+            // What EOTW opens, /team dtr and the DTR announcements say so. The Purge
+            // opens only using enemy blocks, not raiding.
+            dtr.setRaidOverride(manager::isEotw);
         }
         if (claims != null && claims.getManager() != null) {
             ClaimManager claimManager = claims.getManager();
@@ -133,6 +134,7 @@ public final class PhaseModule {
             // Wrapped around whatever is installed - the DTR's policy - so that
             // outside EOTW and the Purge nothing about raids changes.
             claimManager.setRaidabilityPolicy(manager.raidability(claimManager.getRaidabilityPolicy()));
+            claimManager.setPhaseAccess(manager.access());
         }
         if (events != null) {
             events.addAgendaContributor(this::agenda);

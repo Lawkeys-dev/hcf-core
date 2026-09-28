@@ -28,15 +28,26 @@ public record Subclaim(Set<String> names) {
         names = Set.copyOf(Objects.requireNonNull(names, "names"));
     }
 
-    /** {@code claims.yml}, {@code subclaims}. */
-    public record Rules(boolean enabled, String header, TeamRole openAny) {
+    /**
+     * {@code claims.yml}, {@code subclaims}.
+     *
+     * @param createRole the lowest role that may write a subclaim sign - every member,
+     *                   as shipped; each team may choose its own in {@code /team settings}
+     *                   ({@code create-subclaims})
+     */
+    public record Rules(boolean enabled, String header, TeamRole openAny, TeamRole createRole) {
 
         public Rules {
             Objects.requireNonNull(header, "header");
+            Objects.requireNonNull(createRole, "createRole");
+        }
+
+        public Rules(boolean enabled, String header, TeamRole openAny) {
+            this(enabled, header, openAny, TeamRole.MEMBER);
         }
 
         public static Rules defaults() {
-            return new Rules(true, "[Subclaim]", TeamRole.CO_LEADER);
+            return new Rules(true, "[Subclaim]", TeamRole.CO_LEADER, TeamRole.MEMBER);
         }
     }
 

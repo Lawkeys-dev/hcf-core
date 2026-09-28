@@ -14,7 +14,7 @@ What each rule does, with the values it ships with. **Every number on these page
 
 ```mermaid
 flowchart LR
-    A(["🛡️ Team protected<br/>DTR above 0"]) -- "a member dies" --> B{"DTR at 0<br/>or below?"}
+    A(["🛡️ Team protected<br/>DTR 0 or above"]) -- "a member dies" --> B{"DTR below 0?"}
     B -- no --> A
     B -- yes --> C(["⚔️ Raidable<br/>land open to pillage"])
     C -- "DTR regenerates<br/>above 0" --> A
@@ -51,4 +51,4 @@ A few systems answer the same question — *may this player build here? may they
 
 - **Building**, from most to least specific: land claimed by a team follows that team's rules; on unclaimed land, a Mountain's region follows the Mountain's rules; the rest of the warzone follows the warzone's; beyond it is the wilderness, where anything goes.
 - **Hitting**: a hit is refused on a safe zone, during SOTW (unless both players typed `/sotw enable`), between teammates, and between allies outside an event area. **A refused hit tags nobody.** What a player may not hit, they may not affect either — no harmful splash potion, fishing rod pull or wind charge push.
-- **Raidable**: a team is raidable while its DTR is at 0 or below, **or** while EOTW or the Purge runs.
+- **Raidable**: a team is raidable while its DTR is below 0, **or** while EOTW runs. During the Purge, enemy blocks can be used but nothing is built or broken.

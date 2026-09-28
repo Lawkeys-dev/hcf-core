@@ -93,6 +93,15 @@ public final class SubclaimListener implements Listener {
             refuse(event, player, ClaimMessages.SUBCLAIM_NOT_OWN_LAND);
             return;
         }
+        // The team's own rank for writing one (/team settings), or the server's.
+        TeamRole required = module.getTeams().getManager().requiredRole(owner.get(), CREATE_SUBCLAIMS,
+                current.createRole());
+        if (!own.get().getRole(player.getUniqueId()).map(role -> role.isAtLeast(required)).orElse(false)) {
+            event.setCancelled(true);
+            module.getLang().send(player, ClaimMessages.SUBCLAIM_CREATE_RANK,
+                    "role", module.getTeams().roleName(required));
+            return;
+        }
         // Another subclaim already on it: only somebody it lets in may add a sign.
         if (!mayOpen(player, owner.get(), container)) {
             refuse(event, player, ClaimMessages.SUBCLAIM_DENIED);
@@ -194,6 +203,8 @@ public final class SubclaimListener implements Listener {
 
     /** The permission's key in {@code /team settings}. */
     public static final String OPEN_SUBCLAIMS = "open-subclaims";
+    /** The permission's key in {@code /team settings}: writing a subclaim sign. */
+    public static final String CREATE_SUBCLAIMS = "create-subclaims";
 
     // ------------------------------------------------------------------
     // Finding the signs

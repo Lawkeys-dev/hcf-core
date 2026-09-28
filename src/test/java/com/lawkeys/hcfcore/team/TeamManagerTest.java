@@ -1182,6 +1182,34 @@ class TeamManagerTest {
         }
 
         @Test
+        void theRaiderTakesWhatTheRaidedLoses() {
+            Team wizards = createTeam(alice, "Wizards");
+            Team knights = createTeam(bob, "Knights");
+            manager.recordKothCapture(wizards);
+            manager.recordKothCapture(wizards);
+            assertEquals(200L, wizards.getPoints());
+
+            manager.recordRaidable(wizards, knights);
+            assertEquals(100L, wizards.getPoints());
+            assertEquals(100L, knights.getPoints(), "exactly what the raided lost");
+        }
+
+        @Test
+        void nobodyTakesItWithoutARaiderNorFromAnAlly() {
+            Team wizards = createTeam(alice, "Wizards");
+            Team knights = createTeam(bob, "Knights");
+            manager.recordKothCapture(wizards);
+            manager.recordRaidable(wizards, null);
+            assertEquals(50L, wizards.getPoints());
+            assertEquals(0L, knights.getPoints());
+
+            manager.ally(wizards, null, knights);
+            manager.ally(knights, null, wizards);
+            manager.recordRaidable(wizards, knights);
+            assertEquals(0L, knights.getPoints(), "an ally takes nothing");
+        }
+
+        @Test
         void aFixedLossAppliesWhenNoShareIsSet() {
             TeamSettings.PointsRules fixed = new TeamSettings.PointsRules(0L, 0L, 0L, 0L, -40L, 0L, 0L, 0L, 0L,
                     0L, 0L, 0L, 0L, 0.0);

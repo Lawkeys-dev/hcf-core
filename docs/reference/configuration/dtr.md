@@ -45,9 +45,10 @@ Every example on this page is **taken from the shipped `dtr.yml`**. Changes appl
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `freeze-seconds` | `2700` | How long regeneration waits after a death (45 minutes) |
 | `amount` | `0.1` | DTR given per step; `0` stops regeneration |
-| `interval-seconds` | `180` | Length of a step. A partial step gives nothing |
+| `interval-seconds` | `90` | Length of a step, counted from the death. A partial step gives nothing |
+
+Regeneration starts at the death: a team is raidable while its DTR is below zero, so the raid lasts the climb back to zero — 15 minutes from -1 with the defaults. *`freeze-seconds`, the pause after a death, is gone: it is reported and ignored.*
 
 ## Announcements
 

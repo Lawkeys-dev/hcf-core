@@ -2,9 +2,9 @@
 # HCFCore - DTR (Deaths Till Raidable) configuration
 # ---------------------------------------------------------------------------
 # DTR is what decides whether a team's territory is currently open to raiding.
-# A team is raidable exactly while its DTR has run out
-# (0 or below), and regains its protection the moment DTR climbs back above
-# zero - nothing is re-claimed, and its land never changes hands.
+# A team is raidable exactly while its DTR is in the negative (below 0), and
+# regains its protection the moment DTR climbs back to zero - nothing is
+# re-claimed, and its land never changes hands.
 #
 # ⚠️ DTR is DERIVED FROM TIME, not ticked by a task. What is stored per team is
 # the value at its last death plus the instant regeneration resumes; the current
@@ -49,18 +49,20 @@ minimum: -5.0
 
 # --8<-- [start:regeneration]
 regeneration:
-  # How long regeneration is frozen after a death. The default is 45 minutes:
-  # long enough that a raid has time to happen.
-  freeze-seconds: 2700
+  # DTR comes back from the moment of a death - there is no pause after one. A
+  # team is raidable while its DTR is below zero, so the time a raid has is the
+  # time it takes to climb back to it: with the defaults, 15 minutes from -1, 30
+  # from -2.
+  #
   # DTR granted per interval. 0 disables regeneration entirely - a team would
   # then only recover through a staff override.
   amount: 0.1
-  # Length of one regeneration step. With the defaults, 0.1 every 3 minutes is
-  # a full DTR point every half hour.
+  # Length of one regeneration step. With the defaults, 0.1 every 90 seconds is
+  # a full DTR point every 15 minutes.
   #
   # Regeneration is stepwise, not continuous: a partial interval grants nothing,
   # so what players see matches what the server advertises.
-  interval-seconds: 180
+  interval-seconds: 90
 # --8<-- [end:regeneration]
 
 # --8<-- [start:announcements]

@@ -74,7 +74,7 @@ A dispenser may still fire arrows, snowballs and potions across a border, as a p
 
 ### Raidable land
 
-When a team is raidable — DTR at 0 or below, or during EOTW and the Purge — its land can be built in, broken and used by anyone but its allies (`allow-raid-building`), and explosions go through. Turning `allow-raid-building` off makes claims protected permanently, whatever the DTR.
+When a team is raidable — DTR below 0, or during EOTW — its land can be built in, broken and used by anyone but its allies (`allow-raid-building`), and explosions go through. During the Purge, its blocks can be used — doors, chests, buttons — but nothing is built or broken. Turning `allow-raid-building` off makes claims protected permanently, whatever the DTR.
 
 ## Subclaims
 
@@ -86,7 +86,7 @@ Steve
 Alex
 ```
 
-A sign with no name is yours alone. Other members cannot open the container, break it, break or rewrite its sign, or put a hopper under it; several signs on one container add up, and a double chest is guarded from either half. **The co-leaders and the leader open every subclaim** of their team (`subclaims.open-any`). It only concerns your own team: everybody else is kept out by the claim, and a raid opens subclaims with the rest.
+A sign with no name is yours alone. Other members cannot open the container, break it, break or rewrite its sign, or put a hopper under it; several signs on one container add up, and a double chest is guarded from either half. **The co-leaders and the leader open every subclaim** of their team (`subclaims.open-any`). Every member may make one (`subclaims.create-role`); a team may raise either rank in `/team settings`. It only concerns your own team: everybody else is kept out by the claim, and a raid opens subclaims with the rest.
 
 ## HQ and base
 

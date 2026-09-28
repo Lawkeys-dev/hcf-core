@@ -43,7 +43,7 @@ Leader, co-leader (**2 at most**, `max-co-leaders`), **officer** (no limit, `max
 
 - **Profile** — the team's name, its **description** and its **Discord invitation**, typed in the game's own window (a text field for each, Save or Cancel). `/team info` shows the description, and the Discord link, which a click opens. The link must be a Discord invitation (`discord.gg/...`); colour codes are not kept in a description.
 - **Joining** — **closed** (nobody joins; only staff put a player in), **on invitation** (as shipped) or **open** (anybody, with `/team join`). A click moves to the next.
-- **Permissions** — the lowest rank that may do each thing: every action above, and opening every subclaim. Left click raises it a rank, right click lowers it, shift-click gives it back to the server's setting. Whoever changes a permission must hold it, and cannot set it above their own rank; the leader changes everything. Some stay the server's for every team (`team-settings.locked`: disbanding and handing over leadership, as shipped).
+- **Permissions** — the lowest rank that may do each thing: every action above, making subclaims and opening every subclaim. Left click raises it a rank, right click lowers it, shift-click gives it back to the server's setting. Whoever changes a permission must hold it, and cannot set it above their own rank; the leader changes everything. Some stay the server's for every team (`team-settings.locked`: disbanding and handing over leadership, as shipped).
 - **Members** — left click promotes, right click demotes, shift + right click kicks, with the same rules as the commands.
 - **Invitations** — **invite a player** by typing their name, and the pending invitations (a click takes one back).
 - **Claim lock** (during SOTW) and **set the HQ here**. The second base stays a command, `/team setbase`.
@@ -94,6 +94,7 @@ Where points come from is entirely configurable. The shipped scale: **a kill +1,
 | `points.per-death` | `-2` | the victim's team | any death of a member |
 | `points.raidable-loss-percent` | `50` | the team | its DTR has just made it raidable: it **loses that share of its points** — half, as shipped |
 | `points.per-raidable` | `0` | the team | the same, as a fixed number (negative), when the share is `0` |
+| `points.raidable-steal` | `true` | the killer's team | whose kill made a team raidable: it **takes what that team lost** — never from an ally |
 | `koth.points-per-capture` | `100` | the capturing team | capturing a KOTH |
 | `points.per-citadel-capture` | `300` | the capturing team | capturing a Citadel |
 | `points.per-conquest-win` | `250` | the winning team | winning a Conquest |

@@ -6,10 +6,10 @@
 #   SOTW - no PvP anywhere, no deathbans, no DTR lost. A player may type
 #          /sotw enable to fight early: for the rest of that SOTW they can hit,
 #          and be hit by, only players who did the same. There is no going back.
-#   EOTW - every team is raidable whatever its DTR, players cannot claim new
-#          land (staff still can, for server land), and a death bans until the
-#          end of the map - staff lift those bans after the reset. Spawn stays
-#          a safe zone.
+#   EOTW - every team is raidable whatever its DTR - server land too, spawn
+#          aside -, players cannot claim new land (staff still can, for server
+#          land), and a death bans until the end of the map - staff lift those
+#          bans after the reset. Spawn stays a safe zone.
 #
 # SOTW's "no PvP" holds even if pvp.yml is turned off: it is the map's rule.
 # EOTW's deathban is still a deathban, though: with pvp.yml off, or its
@@ -61,13 +61,23 @@ eotw:
   # left from an earlier map and ignored, so a fresh map never opens straight
   # into EOTW. Start it with /eotw start instead.
   start-window-seconds: 3600
+
+  # During EOTW every claim is open to building and breaking, whatever its team's
+  # DTR. Server land too - roads, events, mountains - when open-server-land is on,
+  # except the safe zones (spawn) with keep-safe-zones, and the server teams named
+  # in protected-teams.
+  open-server-land: true
+  keep-safe-zones: true
+  protected-teams: []
 # --8<-- [end:eotw]
 
 # --8<-- [start:purge]
 purge:
-  # The Purge: a window during which EVERY team is raidable,
-  # whatever its DTR - a temporary EOTW, without EOTW's closed claims or its bans
-  # until the map ends. Deathbans and DTR work as usual. Spawn stays a safe zone.
+  # The Purge: a window during which anybody may USE the blocks of every other
+  # team's claims - doors, fence gates, chests, buttons, levers - whatever its DTR,
+  # but not build or break there: that stays for a team raidable by its DTR, and
+  # for EOTW. No bans until the map ends: deathbans and DTR work as usual. Spawn
+  # stays a safe zone, and server land stays shut.
   #
   # /purge start [duration] and /purge stop (hcfcore.phase.admin), or by itself
   # at the times below. Never during SOTW - a SOTW that begins ends a running
@@ -81,4 +91,7 @@ purge:
   # Empty on purpose: when a server purges is its own call.
   #   schedule: ["20:00"]
   schedule: []
+
+  # false: the Purge opens nothing - only its announcements and schedule remain.
+  use-enemy-blocks: true
 # --8<-- [end:purge]

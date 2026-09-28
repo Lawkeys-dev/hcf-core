@@ -170,6 +170,9 @@ subclaims:
   # officer, member (everybody - the signs then mean nothing), or none (only the
   # names). A team may choose its own in /team settings (open-subclaims).
   open-any: co-leader
+  # The lowest role that may write a subclaim sign. Each team may choose its own
+  # in /team settings (create-subclaims).
+  create-role: member
 # --8<-- [end:subclaims]
 
 # --8<-- [start:lock]

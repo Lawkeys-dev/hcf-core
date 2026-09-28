@@ -39,8 +39,11 @@ public final class PlayerDeathDtrListener implements Listener {
         if (ForgivenDeaths.spares(player.getUniqueId(), ForgivenDeaths.Cost.DTR)) {
             return;
         }
+        Player killer = player.getKiller();
+        java.util.UUID raider = killer == null ? null : module.getTeams().getManager().getTeamOf(killer.getUniqueId())
+                .map(com.lawkeys.hcfcore.team.Team::getId).orElse(null);
         module.getTeams().getManager().getTeamOf(player.getUniqueId())
-                .ifPresent(team -> module.applyDeath(team, player.getName()));
+                .ifPresent(team -> module.applyDeath(team, player.getName(), raider));
     }
 
     /** A disbanded team's DTR row would otherwise outlive it. */

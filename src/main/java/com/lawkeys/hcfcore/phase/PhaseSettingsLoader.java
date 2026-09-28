@@ -59,7 +59,23 @@ public final class PhaseSettingsLoader {
                 eotwWindow,
                 marks,
                 zone,
-                loadPurge(section, warn));
+                loadPurge(section, warn),
+                loadLand(section));
+    }
+
+    private static PhaseSettings.LandRules loadLand(ConfigurationSection section) {
+        PhaseSettings.LandRules defaults = PhaseSettings.LandRules.defaults();
+        java.util.Set<String> protectedTeams = new java.util.HashSet<>();
+        for (String name : section.getStringList("eotw.protected-teams")) {
+            if (name != null && !name.isBlank()) {
+                protectedTeams.add(name.trim().toLowerCase(java.util.Locale.ROOT));
+            }
+        }
+        return new PhaseSettings.LandRules(
+                section.getBoolean("purge.use-enemy-blocks", defaults.purgeUseEnemyBlocks()),
+                section.getBoolean("eotw.open-server-land", defaults.eotwOpenServerLand()),
+                section.getBoolean("eotw.keep-safe-zones", defaults.eotwKeepSafeZones()),
+                protectedTeams);
     }
 
     private static PhaseSettings.PurgeRules loadPurge(ConfigurationSection section, Consumer<String> warn) {

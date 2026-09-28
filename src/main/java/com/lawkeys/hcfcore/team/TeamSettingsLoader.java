@@ -286,7 +286,8 @@ public final class TeamSettingsLoader {
                 // own, keeps meaning what it said: the share only applies when set.
                 section.contains("raidable-loss-percent")
                         ? section.getDouble("raidable-loss-percent")
-                        : section.contains("per-raidable") ? 0.0 : defaults.raidableLossPercent());
+                        : section.contains("per-raidable") ? 0.0 : defaults.raidableLossPercent(),
+                section.getBoolean("raidable-steal", defaults.raidableSteal()));
     }
 
     private static TeamSettings.KothRules loadKoth(ConfigurationSection section,

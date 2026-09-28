@@ -27,10 +27,28 @@ public class TeamRaidableEvent extends TeamEvent {
     private static final HandlerList HANDLERS = new HandlerList();
 
     private final boolean raidable;
+    private final Team raider;
 
     public TeamRaidableEvent(Team team, boolean raidable) {
+        this(team, raidable, null);
+    }
+
+    /**
+     * @param raider the team whose member's kill made it raidable, or {@code null}
+     *               when no team did - a fall, a mob, a player with no team
+     */
+    public TeamRaidableEvent(Team team, boolean raidable, Team raider) {
         super(team);
         this.raidable = raidable;
+        this.raider = raider;
+    }
+
+    /**
+     * @return the team whose member's kill made this team raidable; empty when it
+     *         stops being raidable, or when no team caused it
+     */
+    public java.util.Optional<Team> getRaider() {
+        return java.util.Optional.ofNullable(raider);
     }
 
     /** @return {@code true} if the team just became raidable, {@code false} if it just stopped */

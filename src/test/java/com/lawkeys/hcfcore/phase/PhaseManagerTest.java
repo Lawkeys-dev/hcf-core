@@ -178,6 +178,32 @@ class PhaseManagerTest {
             assertEquals(Optional.of(PhaseMessages.EOTW_NO_CLAIMS), phases.claimingRefusal());
         }
 
+        private com.lawkeys.hcfcore.team.Team systemTeam(String name, com.lawkeys.hcfcore.team.SystemZone zone) {
+            return com.lawkeys.hcfcore.team.Team.fromSnapshot(new com.lawkeys.hcfcore.team.TeamSnapshot(
+                    UUID.randomUUID(), name, com.lawkeys.hcfcore.team.TeamType.SYSTEM, zone, null, 0L, 0.0, 0L, 0,
+                    null, 0L, java.util.Map.of(), java.util.Set.of()));
+        }
+
+        @Test
+        void everyClaimIsOpenToBuildingButSpawn() {
+            com.lawkeys.hcfcore.claim.PhaseAccess access = phases.access();
+            com.lawkeys.hcfcore.team.Team vikings = new com.lawkeys.hcfcore.team.Team(UUID.randomUUID(), "Vikings",
+                    com.lawkeys.hcfcore.team.TeamType.PLAYER, UUID.randomUUID(), 0L);
+            assertTrue(access.openToBuilding(vikings));
+            assertTrue(access.openToBuilding(systemTeam("Road", com.lawkeys.hcfcore.team.SystemZone.COMBAT)),
+                    "server land too");
+            assertFalse(access.openToBuilding(systemTeam("Spawn", com.lawkeys.hcfcore.team.SystemZone.SAFE)),
+                    "spawn stays shut");
+        }
+
+        @Test
+        void serverTeamsNamedInTheFileStayProtected() {
+            settings = new PhaseSettings(settings.sotwDurationSeconds(), 0L, 0L, settings.eotwStartWindowSeconds(),
+                    settings.sotwAnnounceAtSeconds(), settings.timeZone(), settings.purge(),
+                    new PhaseSettings.LandRules(true, true, true, java.util.Set.of("koth")));
+            assertFalse(phases.access().openToBuilding(systemTeam("KOTH", com.lawkeys.hcfcore.team.SystemZone.COMBAT)));
+        }
+
         @Test
         void aDeathBansUntilTheMapEnds() {
             assertEquals(Rule.UNTIL_MAP_END, phases.deathbanRule());
@@ -398,17 +424,25 @@ class PhaseManagerTest {
         private final UUID team = UUID.randomUUID();
 
         @Test
-        void everyTeamIsRaidableWhileItRunsAndOnlyThen() {
+        void enemyBlocksMayBeUsedWhileItRunsButNothingIsBuiltOrBroken() {
             RaidabilityPolicy raids = phases.raidability(RaidabilityPolicy.NEVER);
-            assertFalse(raids.isRaidable(team));
+            com.lawkeys.hcfcore.claim.PhaseAccess access = phases.access();
+            com.lawkeys.hcfcore.team.Team vikings = new com.lawkeys.hcfcore.team.Team(team, "Vikings",
+                    com.lawkeys.hcfcore.team.TeamType.PLAYER, UUID.randomUUID(), 0L);
+            com.lawkeys.hcfcore.team.Team road = new com.lawkeys.hcfcore.team.Team(UUID.randomUUID(), "Road",
+                    com.lawkeys.hcfcore.team.TeamType.SYSTEM, null, 0L);
+            assertFalse(access.openToUse(vikings));
 
             assertTrue(phases.startPurge(30 * 60).success());
-            assertTrue(raids.isRaidable(team));
+            assertFalse(raids.isRaidable(team), "the Purge raids nobody: it only opens the doors");
+            assertTrue(access.openToUse(vikings), "chests, doors and buttons of an enemy claim");
+            assertFalse(access.openToBuilding(vikings), "no building, no breaking");
+            assertFalse(access.openToUse(road), "server land stays shut");
             assertEquals(Rule.USUAL, phases.deathbanRule(), "deathbans as usual - it is not EOTW");
             assertTrue(phases.claimingRefusal().isEmpty(), "and claiming stays open");
 
             advance(30 * 60);
-            assertFalse(raids.isRaidable(team));
+            assertFalse(access.openToUse(vikings));
             assertEquals(List.of(Type.PURGE_ENDED), types(phases.tick()));
             assertTrue(phases.tick().isEmpty(), "its end is announced once");
         }

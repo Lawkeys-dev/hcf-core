@@ -252,6 +252,9 @@ public final class ClaimModule {
         teams.registerMenuButton(new com.lawkeys.hcfcore.claim.command.ClaimMenuButtons.Lock(this));
         teams.registerMenuButton(new com.lawkeys.hcfcore.claim.command.ClaimMenuButtons.SetHq(this));
         teams.registerPermission(new com.lawkeys.hcfcore.team.TeamPermission(
+                com.lawkeys.hcfcore.claim.subclaim.SubclaimListener.CREATE_SUBCLAIMS, "OAK_SIGN",
+                () -> subclaims.createRole()));
+        teams.registerPermission(new com.lawkeys.hcfcore.team.TeamPermission(
                 com.lawkeys.hcfcore.claim.subclaim.SubclaimListener.OPEN_SUBCLAIMS, "CHEST",
                 () -> subclaims.openAny() == null ? com.lawkeys.hcfcore.team.TeamRole.LEADER : subclaims.openAny()));
         teams.setSystemLandTool((player, team) -> wandSessions.give(player,
@@ -290,8 +293,14 @@ public final class ClaimModule {
                     return com.lawkeys.hcfcore.team.TeamRole.CO_LEADER;
                 });
         String header = section.getString("header", d.header());
+        String rawCreate = section.getString("create-role", "member");
+        com.lawkeys.hcfcore.team.TeamRole create = com.lawkeys.hcfcore.team.TeamRole.fromId(rawCreate).orElseGet(() -> {
+            plugin.getLogger().warning("claims.yml: subclaims.create-role '" + rawCreate
+                    + "' is not leader, co-leader, officer or member; member is used.");
+            return com.lawkeys.hcfcore.team.TeamRole.MEMBER;
+        });
         return new com.lawkeys.hcfcore.claim.subclaim.Subclaim.Rules(section.getBoolean("enabled", d.enabled()),
-                header == null || header.isBlank() ? d.header() : header.trim(), role);
+                header == null || header.isBlank() ? d.header() : header.trim(), role, create);
     }
 
     /** Stops the periodic save and writes what is still pending, synchronously. */

@@ -124,14 +124,14 @@ class DtrManagerTest {
     class Deaths {
 
         @Test
-        void aDeathCostsDtrAndFreezesRegeneration() {
+        void aDeathCostsDtrAndRegenerationGoesOn() {
             teamManager.join(UUID.randomUUID(), wizards, true);
             teamManager.join(UUID.randomUUID(), wizards, true);
             assertEquals(3.3, dtr.getDtr(wizards), 1e-9);
 
             assertEquals(2.3, dtr.applyDeath(wizards).orElseThrow(), 1e-9);
-            assertTrue(dtr.isFrozen(wizards));
-            assertEquals(45 * 60, dtr.getFreezeRemainingSeconds(wizards));
+            assertFalse(dtr.isFrozen(wizards), "no pause after a death any more");
+            assertEquals(0, dtr.getFreezeRemainingSeconds(wizards));
         }
 
         @Test
@@ -185,36 +185,34 @@ class DtrManagerTest {
     class Regeneration {
 
         @Test
-        void nothingRegeneratesDuringTheFreeze() {
+        void regenerationStartsAtTheDeathInSteps() {
             dtr.applyDeath(wizards);
             double afterDeath = dtr.getDtr(wizards);
 
-            advance(44 * MINUTE);
+            // Defaults: +0.1 every 90 seconds, from the moment of the death.
+            advance(90 * SECOND);
+            assertEquals(afterDeath + 0.1, dtr.getDtr(wizards), 1e-9);
 
-            assertEquals(afterDeath, dtr.getDtr(wizards), 1e-9);
+            advance(90 * SECOND);
+            assertEquals(afterDeath + 0.2, dtr.getDtr(wizards), 1e-9);
         }
 
         @Test
-        void regenerationResumesInStepsOnceTheFreezeExpires() {
-            dtr.applyDeath(wizards);
-            double afterDeath = dtr.getDtr(wizards);
-            advance(45 * MINUTE);
-
-            // Defaults: +0.1 every 3 minutes.
-            advance(3 * MINUTE);
-            assertEquals(afterDeath + 0.1, dtr.getDtr(wizards), 1e-9);
-
-            advance(3 * MINUTE);
-            assertEquals(afterDeath + 0.2, dtr.getDtr(wizards), 1e-9);
+        void aTeamAtMinusOneIsRaidableForFifteenMinutes() {
+            makeRaidable(wizards);
+            dtr.setDtr(wizards, -1.0);
+            advance(15 * MINUTE - SECOND);
+            assertTrue(dtr.isRaidable(wizards.getId()), "still at -0.10");
+            advance(SECOND);
+            assertFalse(dtr.isRaidable(wizards.getId()), "back to zero after fifteen minutes");
         }
 
         @Test
         void regenerationIsStepwiseNotContinuous() {
             dtr.applyDeath(wizards);
             double afterDeath = dtr.getDtr(wizards);
-            advance(45 * MINUTE);
 
-            advance(2 * MINUTE);
+            advance(80 * SECOND);
             assertEquals(afterDeath, dtr.getDtr(wizards), 1e-9,
                     "a partial interval grants nothing; the server advertises whole steps");
         }
@@ -222,7 +220,6 @@ class DtrManagerTest {
         @Test
         void regenerationStopsAtTheMaximum() {
             dtr.applyDeath(wizards);
-            advance(45 * MINUTE);
 
             advance(1000 * MINUTE);
 
@@ -236,14 +233,14 @@ class DtrManagerTest {
             makeRaidable(wizards);
             assertTrue(dtr.isRaidable(wizards.getId()));
 
-            advance(45 * MINUTE + 300 * MINUTE);
+            advance(300 * MINUTE);
 
             assertFalse(dtr.isRaidable(wizards.getId()));
         }
 
         @Test
         void regenerationCanBeTurnedOffWithAZeroAmount() {
-            reconfigure(withRegeneration(new DtrSettings.RegenerationRules(0L, 0.0, 180L)));
+            reconfigure(withRegeneration(new DtrSettings.RegenerationRules(0.0, 180L)));
             makeRaidable(wizards);
 
             advance(1000 * MINUTE);
@@ -266,25 +263,38 @@ class DtrManagerTest {
         }
 
         @Test
-        void protectionReturnsAsSoonAsDtrIsStrictlyAboveZero() {
+        void protectionReturnsAsSoonAsDtrIsBackToZero() {
             reconfigure(withMaximum(new DtrSettings.MaximumRules(1.0, 0.0, 0.0)));
             dtr.applyDeath(wizards);
             assertEquals(0.0, dtr.getDtr(wizards), 1e-9);
-            assertTrue(dtr.isRaidable(wizards.getId()), "exactly zero is still raidable");
+            assertFalse(dtr.isRaidable(wizards.getId()), "zero is not negative: protected");
 
-            advance(45 * MINUTE + 3 * MINUTE);
+            dtr.applyDeath(wizards);
+            assertEquals(-1.0, dtr.getDtr(wizards), 1e-9);
+            assertTrue(dtr.isRaidable(wizards.getId()));
 
-            assertEquals(0.1, dtr.getDtr(wizards), 1e-9);
-            assertFalse(dtr.isRaidable(wizards.getId()));
+            advance(15 * MINUTE);
+            assertEquals(0.0, dtr.getDtr(wizards), 1e-9);
+            assertFalse(dtr.isRaidable(wizards.getId()), "ten steps of 0.1 add up to zero, float or not");
         }
 
         @Test
-        void theEtaToProtectionAccountsForBothFreezeAndRegeneration() {
+        void theEtaToProtectionIsTheRegenerationItNeeds() {
             reconfigure(withMaximum(new DtrSettings.MaximumRules(1.0, 0.0, 0.0)));
             dtr.applyDeath(wizards);
+            dtr.applyDeath(wizards);
 
-            // At 0.00, one 0.1 step is enough, after the 2700s freeze.
-            assertEquals(2700L + 180L, dtr.getSecondsUntilProtected(wizards).orElseThrow());
+            // At -1.00, ten 0.1 steps back to zero.
+            assertEquals(900L, dtr.getSecondsUntilProtected(wizards).orElseThrow());
+        }
+
+        @Test
+        void theEtaAddsAPauseStaffSet() {
+            reconfigure(withMaximum(new DtrSettings.MaximumRules(1.0, 0.0, 0.0)));
+            dtr.applyDeath(wizards);
+            dtr.applyDeath(wizards);
+            dtr.setRegenSeconds(wizards, 600L);
+            assertEquals(600L + 900L, dtr.getSecondsUntilProtected(wizards).orElseThrow());
         }
 
         @Test
@@ -294,7 +304,7 @@ class DtrManagerTest {
 
         @Test
         void thereIsNoEtaWhenRegenerationIsOff() {
-            reconfigure(withRegeneration(new DtrSettings.RegenerationRules(0L, 0.0, 180L)));
+            reconfigure(withRegeneration(new DtrSettings.RegenerationRules(0.0, 180L)));
             dtr.applyDeath(wizards);
 
             assertTrue(dtr.getSecondsUntilProtected(wizards).isEmpty());
@@ -309,7 +319,7 @@ class DtrManagerTest {
             assertEquals(Map.of(wizards, true), dtr.pollRaidabilityChanges());
             assertTrue(dtr.pollRaidabilityChanges().isEmpty(), "a flip is reported once");
 
-            advance(45 * MINUTE + 300 * MINUTE);
+            advance(300 * MINUTE);
             assertEquals(Map.of(wizards, false), dtr.pollRaidabilityChanges());
         }
 
@@ -328,16 +338,23 @@ class DtrManagerTest {
     class StaffOverrides {
 
         @Test
-        void setDtrMovesTheValueWithoutRestartingTheFreeze() {
+        void setDtrMovesTheValueWithoutTouchingAPauseStaffSet() {
             teamManager.join(UUID.randomUUID(), wizards, true);
             dtr.applyDeath(wizards);
-            long freezeBefore = dtr.getFreezeRemainingSeconds(wizards);
+            dtr.setRegenSeconds(wizards, 600L);
+            long pauseBefore = dtr.getFreezeRemainingSeconds(wizards);
 
             assertTrue(dtr.setDtr(wizards, 2.0).isSuccess());
 
             assertEquals(2.0, dtr.getDtr(wizards), 1e-9);
-            assertEquals(freezeBefore, dtr.getFreezeRemainingSeconds(wizards),
-                    "raising DTR to end a raid must not restart a 45-minute timer");
+            assertEquals(pauseBefore, dtr.getFreezeRemainingSeconds(wizards));
+        }
+
+        @Test
+        void aDeathDoesNotCutShortAPauseStaffSet() {
+            dtr.setRegenSeconds(wizards, 600L);
+            dtr.applyDeath(wizards);
+            assertTrue(dtr.isFrozen(wizards));
         }
 
         /** Found in game (13/09/2026): /team setdtr Test 0.3 read back 1.10 at once. */
@@ -350,8 +367,8 @@ class DtrManagerTest {
             assertTrue(dtr.setDtr(wizards, 0.3).isSuccess());
             assertEquals(0.3, dtr.getDtr(wizards), 1e-9);
 
-            // Then it regenerates from there, one step at a time (+0.1 every 3 minutes).
-            advance(3 * MINUTE);
+            // Then it regenerates from there, one step at a time (+0.1 every 90 seconds).
+            advance(90 * SECOND);
             assertEquals(0.4, dtr.getDtr(wizards), 1e-9);
         }
 
@@ -366,16 +383,19 @@ class DtrManagerTest {
         }
 
         @Test
-        void setRegenShortensOrClearsTheFreeze() {
+        void setRegenShortensOrClearsAPause() {
             dtr.applyDeath(wizards);
+            dtr.setRegenSeconds(wizards, 600L);
             double frozenValue = dtr.getDtr(wizards);
+            advance(5 * MINUTE);
+            assertEquals(frozenValue, dtr.getDtr(wizards), 1e-9, "paused: nothing comes back");
 
             assertTrue(dtr.setRegenSeconds(wizards, 0L).isSuccess());
 
             assertFalse(dtr.isFrozen(wizards));
             assertEquals(frozenValue, dtr.getDtr(wizards), 1e-9, "the value itself is untouched");
 
-            advance(3 * MINUTE);
+            advance(90 * SECOND);
             assertEquals(frozenValue + 0.1, dtr.getDtr(wizards), 1e-9);
         }
 

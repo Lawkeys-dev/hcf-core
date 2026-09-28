@@ -251,6 +251,49 @@ class ClaimManagerTest {
         }
 
         @Test
+        void thePurgeOpensUsingButNotBuilding() {
+            give(wizards, chunk(0, 0));
+            claims.setPhaseAccess(new PhaseAccess() {
+                @Override
+                public boolean openToBuilding(Team owner) {
+                    return false;
+                }
+
+                @Override
+                public boolean openToUse(Team owner) {
+                    return true;
+                }
+            });
+            int x = chunk(0, 0).minBlockX() + 8;
+            int z = chunk(0, 0).minBlockZ() + 8;
+            assertEquals(ProtectionResult.ALLOWED_RAID, protectionAt(warlocks, chunk(0, 0)), "a chest, a door");
+            assertEquals(ProtectionResult.DENIED_CLAIMED, claims.checkBuild(warlocks, "world", x, 64, z),
+                    "no block placed or broken");
+            assertTrue(claims.isExplosionProtected("world", x, 64, z), "nor blown up");
+        }
+
+        @Test
+        void eotwOpensBuildingOnServerLandItNames() {
+            Team road = teamManager.createSystemTeam("Road").getTeam().orElseThrow();
+            give(road, chunk(3, 3));
+            int x = chunk(3, 3).minBlockX() + 8;
+            int z = chunk(3, 3).minBlockZ() + 8;
+            assertEquals(ProtectionResult.DENIED_SYSTEM, claims.checkBuild(warlocks, "world", x, 64, z));
+            claims.setPhaseAccess(new PhaseAccess() {
+                @Override
+                public boolean openToBuilding(Team owner) {
+                    return owner.getId().equals(road.getId());
+                }
+
+                @Override
+                public boolean openToUse(Team owner) {
+                    return openToBuilding(owner);
+                }
+            });
+            assertEquals(ProtectionResult.ALLOWED_RAID, claims.checkBuild(warlocks, "world", x, 64, z));
+        }
+
+        @Test
         void withoutADtrModuleNothingIsEverRaidable() {
             ClaimManager fresh = new ClaimManager(() -> settings, teamManager, ClaimStore.NO_OP, now::get);
             fresh.claim(wizards, null, "world", 80, 80, 95, 95);

@@ -100,6 +100,7 @@ Staff claims and server land follow none of these.
 | `enabled` | `true` | Subclaim signs at all |
 | `header` | `[Subclaim]` | The first line that makes a sign a subclaim, matched without case |
 | `open-any` | `co-leader` | The lowest role that opens every subclaim of its team: `leader`, `co-leader`, `officer`, `member`, or `none` for the names alone. Each team may choose its own in `/team settings` (`open-subclaims`) |
+| `create-role` | `member` | The lowest role that may write a subclaim sign. Each team may choose its own in `/team settings` (`create-subclaims`) |
 
 ## Lock wall
 

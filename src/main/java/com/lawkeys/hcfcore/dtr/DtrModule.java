@@ -20,6 +20,7 @@ import org.bukkit.scheduler.BukkitTask;
 import javax.sql.DataSource;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -186,12 +187,24 @@ public final class DtrModule {
         }
     }
 
+    /** The team whose kill each team's last death was, for the raidable event that death fires. */
+    private final Map<UUID, UUID> raiders = new java.util.HashMap<>();
+
     /**
      * Applies a member's death and tells the team what it cost.
      *
      * @param playerName the dead player, for the message
      */
     public void applyDeath(Team team, String playerName) {
+        applyDeath(team, playerName, null);
+    }
+
+    /**
+     * @param raider the killer's team, or {@code null}: should this death make the
+     *               team raidable, the raider takes what it loses (teams.yml,
+     *               {@code points.raidable-steal})
+     */
+    public void applyDeath(Team team, String playerName, UUID raider) {
         // Before anything: a death that costs nothing freezes no regeneration and
         // announces nothing either.
         if (!deathCost.deathsCostDtr()) {
@@ -206,7 +219,14 @@ public final class DtrModule {
             }
             // A death is the one raidability transition that happens instantly, so
             // it is announced here rather than waiting for the next poll.
-            pollAnnouncements();
+            if (raider != null && !raider.equals(team.getId())) {
+                raiders.put(team.getId(), raider);
+            }
+            try {
+                pollAnnouncements();
+            } finally {
+                raiders.remove(team.getId());
+            }
         });
     }
 
@@ -226,7 +246,9 @@ public final class DtrModule {
         for (Map.Entry<Team, Boolean> change : changes.entrySet()) {
             Team team = change.getKey();
             boolean raidable = change.getValue();
-            plugin.getServer().getPluginManager().callEvent(new TeamRaidableEvent(team, raidable));
+            Team raider = raidable && raiders.containsKey(team.getId())
+                    ? teams.getManager().getTeam(raiders.get(team.getId())).orElse(null) : null;
+            plugin.getServer().getPluginManager().callEvent(new TeamRaidableEvent(team, raidable, raider));
 
             // The event reports the DTR, as its contract says; the broadcast reports
             // the territory, which a map-wide raid keeps open whatever the DTR does -

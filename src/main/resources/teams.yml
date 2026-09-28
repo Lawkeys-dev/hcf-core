@@ -199,6 +199,9 @@ points:
   raidable-loss-percent: 50
   # ...or, with the share at 0, a fixed number (write a negative one).
   per-raidable: 0
+  # What it loses goes to the team whose kill made it raidable - the raid pays.
+  # Never to an ally; nobody takes it when no team caused it (a fall, a mob).
+  raidable-steal: true
   # To the team that captures a Citadel: three times a KOTH's hold.
   per-citadel-capture: 300
   # To the team that wins a Conquest: a long fight over several zones.

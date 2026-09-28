@@ -33,7 +33,7 @@ public final class TeamPointsListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRaidable(TeamRaidableEvent event) {
         if (event.isRaidable()) {
-            module.getManager().recordRaidable(event.getTeam());
+            module.getManager().recordRaidable(event.getTeam(), event.getRaider().orElse(null));
         }
     }
 }

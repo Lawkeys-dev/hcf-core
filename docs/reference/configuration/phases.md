@@ -36,6 +36,9 @@ The zone dates and times are read in. Write yours: `"Europe/Paris"`.
 |---|---|---|
 | `start-at` | empty | `"yyyy-MM-dd HH:mm"` at which EOTW starts by itself; it waits for a running SOTW to end |
 | `start-window-seconds` | `3600` | How late a scheduled EOTW may still start after the server was down |
+| `open-server-land` | `true` | Server land is open to building and breaking during EOTW, as every team's claims are |
+| `keep-safe-zones` | `true` | ...except the safe zones — spawn |
+| `protected-teams` | `[]` | ...and the server teams named here |
 
 ## The Purge
 
@@ -47,6 +50,7 @@ The zone dates and times are read in. Write yours: `"Europe/Paris"`.
 |---|---|---|
 | `duration-seconds` | `1800` | A Purge's length |
 | `schedule` | `[]` | Local times at which it starts by itself, e.g. `["20:00"]` |
+| `use-enemy-blocks` | `true` | During the Purge, anybody may use the blocks of other teams' claims — doors, chests, buttons — but not build or break there |
 
 ## The whole shipped file
 

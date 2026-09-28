@@ -35,13 +35,14 @@ All of these events are fired on the main server thread. Each extends `TeamEvent
 | `TeamMemberLeaveEvent` | After a player left, whatever the reason; once per member when a team is disbanded | no | `getPlayer()`, `getCause()` — `LEAVE`, `KICK`, `DISBAND`, `FORCED` |
 | `TeamRoleChangeEvent` | After a member's role changed, handovers included | no | `getPlayer()`, `getPreviousRole()`, `getNewRole()` |
 | `TeamAllianceChangeEvent` | After two teams allied or broke their alliance; once for the pair | no | `getOtherTeam()`, `isAllied()` |
-| `TeamRaidableEvent` | When a team's DTR makes it raidable, or no longer | no | `isRaidable()` |
+| `TeamRaidableEvent` | When a team's DTR makes it raidable, or no longer | no | `isRaidable()`, `getRaider()` — `Optional<Team>`, the team whose kill made it raidable |
 
 ### TeamRaidableEvent
 
 Two details about it:
 
-- **It reports the DTR, not the map.** EOTW and the Purge make every team raidable whatever its DTR, and fire nothing here.
+- **It reports the DTR, not the map.** EOTW makes every team raidable whatever its DTR, and fires nothing here; the Purge raids nobody.
+- **`getRaider()`** is the killer's team when a kill made the team raidable — empty for a fall, a mob, a player with no team, and when it stops being raidable.
 - **Becoming raidable fires at once** — a death causes it. Ceasing to be fires at the DTR module's next check (`dtr.yml`, `poll-seconds`), since the passing of time causes it and nothing observes time on its own.
 
 ### Reading a team

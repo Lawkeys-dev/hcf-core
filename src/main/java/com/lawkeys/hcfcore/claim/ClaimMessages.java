@@ -127,6 +127,7 @@ public final class ClaimMessages {
     public static final String SUBCLAIM_HEADER = "claim.subclaim.header";
     public static final String SUBCLAIM_CREATED = "claim.subclaim.created";
     public static final String SUBCLAIM_DENIED = "claim.subclaim.denied";
+    public static final String SUBCLAIM_CREATE_RANK = "claim.subclaim.create-rank";
     public static final String SUBCLAIM_NOT_CONTAINER = "claim.subclaim.not-container";
     public static final String SUBCLAIM_NOT_OWN_LAND = "claim.subclaim.not-own-land";
 }

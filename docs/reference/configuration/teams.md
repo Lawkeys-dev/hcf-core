@@ -52,7 +52,7 @@ The minimum role for each action: `leader`, `co-leader`, `officer` or `member`. 
 | `enabled` | `true` | `false`: every team follows `required-roles` and the default joining, and `/team settings` is refused |
 | `join-modes` | `[closed, invite, open]` | Among which a team chooses who may join: nobody, the invited, anybody |
 | `default-join-mode` | `invite` | A team's joining until it chooses |
-| `locked` | `[disband, transfer-leadership]` | Permissions no team may change. The keys are those of `required-roles` here and in `claims.yml`, and `open-subclaims` |
+| `locked` | `[disband, transfer-leadership]` | Permissions no team may change. The keys are those of `required-roles` here and in `claims.yml`, `create-subclaims` and `open-subclaims` |
 | `description.max-length` | `100` | The longest description, in characters |
 | `discord.pattern` | `discord.gg/...` or `discord.com/invite/...` | What a Discord invitation link must look like (a regular expression) |
 | `icons` | `{}` | The window's items, by permission key or button: `profile`, `join-mode-closed`, `join-mode-invite`, `join-mode-open`, `permissions`, `members`, `invites`, `invite`, `back`, `lock-claim`, `sethq` |
@@ -131,6 +131,7 @@ Both are read again by `/hcf reload`; the commands are made and removed then, wi
 | `per-death` | `-2` | To the victim's team, for any death of a member |
 | `raidable-loss-percent` | `50` | The share of its points a team loses when its DTR makes it raidable, 0 to 100 |
 | `per-raidable` | `0` | The same as a fixed number (negative), used when the share is `0` |
+| `raidable-steal` | `true` | What it loses goes to the team whose kill made it raidable — not an ally's, and nobody's when no team caused the death |
 | `per-citadel-capture` | `300` | To the team that captures a Citadel |
 | `per-conquest-win` | `250` | To the team that wins a Conquest |
 | `per-dtc-win` · `per-slide-win` | `200` | To the team that wins a DTC, a Slide |
