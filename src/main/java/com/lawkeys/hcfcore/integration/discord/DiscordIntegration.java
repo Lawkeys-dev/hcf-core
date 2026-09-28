@@ -63,7 +63,15 @@ public final class DiscordIntegration implements Listener {
         discord.reload();
         plugin.getServer().getPluginManager().registerEvents(discord, plugin);
         Announcements.listen(discord::onAnnouncement);
+        discord.sense("server", DiscordMessages.SERVER_STARTED);
         return discord;
+    }
+
+    /** Posts a sensor's message, when that sensor is switched on. */
+    private void sense(String sensor, String key, String... placeholders) {
+        if (rules.hears(sensor)) {
+            onAnnouncement(key, lang.get(key, placeholders));
+        }
     }
 
     /** Re-reads {@code discord.yml}. */
@@ -76,6 +84,7 @@ public final class DiscordIntegration implements Listener {
     }
 
     public void disable() {
+        sense("server", DiscordMessages.SERVER_STOPPING);
         Announcements.reset();
         sender.shutdown();
         try {
@@ -90,12 +99,56 @@ public final class DiscordIntegration implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRaidable(TeamRaidableEvent event) {
         String key = event.isRaidable() ? DiscordMessages.TEAM_RAIDABLE : DiscordMessages.TEAM_PROTECTED;
-        onAnnouncement(key, lang.get(key, "team", event.getTeam().getName()));
+        sense("raids", key, "team", event.getTeam().getName(),
+                "raider", event.getRaider().map(com.lawkeys.hcfcore.team.Team::getName).orElse(""));
+    }
+
+    // ------------------------------------------------------------------
+    // Sensors: what Discord hears besides the announcements (discord.yml, sensors)
+    // ------------------------------------------------------------------
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onKill(org.bukkit.event.entity.PlayerDeathEvent event) {
+        org.bukkit.entity.Player killer = event.getEntity().getKiller();
+        if (killer == null || killer.equals(event.getEntity())) {
+            return;
+        }
+        sense("kills", DiscordMessages.KILL, "killer", killer.getName(), "victim", event.getEntity().getName());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTeamCreated(com.lawkeys.hcfcore.api.event.TeamCreateEvent event) {
+        if (!event.getTeam().getType().isSystem()) {
+            sense("teams", DiscordMessages.TEAM_CREATED, "team", event.getTeam().getName());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTeamDisbanded(com.lawkeys.hcfcore.api.event.TeamDisbandEvent event) {
+        if (!event.getTeam().getType().isSystem()) {
+            sense("teams", DiscordMessages.TEAM_DISBANDED, "team", event.getTeam().getName());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onAlliance(com.lawkeys.hcfcore.api.event.TeamAllianceChangeEvent event) {
+        sense("alliances", event.isAllied() ? DiscordMessages.ALLIANCE_FORMED : DiscordMessages.ALLIANCE_BROKEN,
+                "team", event.getTeam().getName(), "other", event.getOtherTeam().getName());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onJoin(org.bukkit.event.player.PlayerJoinEvent event) {
+        sense("joins", DiscordMessages.PLAYER_JOINED, "player", event.getPlayer().getName());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
+        sense("joins", DiscordMessages.PLAYER_LEFT, "player", event.getPlayer().getName());
     }
 
     private void onAnnouncement(String key, String message) {
         DiscordRules current = rules;
-        current.urlFor(key).ifPresent(url -> {
+        current.routeFor(key).ifPresent(route -> {
             String text = ColorCodes.strip(message).trim();
             if (text.isEmpty() || queued.get() >= MAX_QUEUED) {
                 return;
@@ -103,7 +156,7 @@ public final class DiscordIntegration implements Listener {
             queued.incrementAndGet();
             sender.execute(() -> {
                 try {
-                    send(url, current.body(text), true);
+                    send(route.url(), current.body(text, route), true);
                 } finally {
                     queued.decrementAndGet();
                 }
@@ -173,9 +226,41 @@ public final class DiscordIntegration implements Listener {
                 continue;
             }
             Object to = raw.get("to");
-            forward.add(new DiscordRules.Rule(keys.toString(), to == null ? "" : to.toString()));
+            Object mention = raw.get("mention");
+            forward.add(new DiscordRules.Rule(keys.toString(), to == null ? "" : to.toString(),
+                    mention == null ? "" : mention.toString(), color(raw.get("color"))));
+        }
+        java.util.Set<String> sensors = new java.util.HashSet<>();
+        ConfigurationSection sensorSection = section.getConfigurationSection("sensors");
+        if (sensorSection != null) {
+            for (String sensor : sensorSection.getKeys(false)) {
+                if (sensorSection.getBoolean(sensor, false)) {
+                    sensors.add(sensor);
+                }
+            }
+        } else {
+            // A file written before the sensors: the raid news it always had.
+            sensors.add("raids");
         }
         return new DiscordRules(section.getBoolean("enabled", false), webhooks, forward,
-                section.getString("username", ""), section.getString("avatar-url", ""));
+                section.getString("username", ""), section.getString("avatar-url", ""),
+                "embed".equalsIgnoreCase(section.getString("style", "text")), sensors);
+    }
+
+    /** {@code "#ffaa00"} or {@code "ffaa00"} to its value; {@code -1} for none or nonsense. */
+    private int color(Object raw) {
+        if (raw == null) {
+            return -1;
+        }
+        String hex = raw.toString().trim();
+        if (hex.startsWith("#")) {
+            hex = hex.substring(1);
+        }
+        try {
+            return hex.isEmpty() ? -1 : Integer.parseInt(hex, 16) & 0xFFFFFF;
+        } catch (NumberFormatException e) {
+            plugin.getLogger().warning("discord.yml: color '" + raw + "' is not a hex colour like #ffaa00; ignored.");
+            return -1;
+        }
     }
 }

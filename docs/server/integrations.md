@@ -42,7 +42,9 @@ The server's announcements can be posted to a Discord channel through a **webhoo
 1. In Discord: the channel's settings › **Integrations** › **Webhooks** › **New Webhook** › **Copy Webhook URL**. Keep it private — anybody holding it can post in that channel.
 2. In `discord.yml`: paste it under `webhooks`, set `enabled: true`, `/hcf reload`.
 
-What goes where is a list of rules on the language keys (`forward`), read top to bottom: the shipped one posts every event start and result, the map phases, bounties and raids, and leaves out the chatty lines. Several webhooks can split them across channels. See [`discord.yml`](../reference/configuration/discord.md).
+What goes where is a list of rules on the language keys (`forward`), read top to bottom: the shipped one posts every event start and result, the map phases, bounties and raids, and leaves out the chatty lines. Several webhooks can split them across channels.
+
+**Beyond the announcements**, Discord hears what its `sensors` switch on: teams founded and disbanded, alliances, the server up and stopping (on as shipped), and every kill, join and leave (off — busy). Posts can be **embeds** coloured per rule (`style: embed`), and a rule can **ping a role** — for an event starting, say (`mention`). See [`discord.yml`](../reference/configuration/discord.md).
 
 ## The HCF tab list needs nothing
 

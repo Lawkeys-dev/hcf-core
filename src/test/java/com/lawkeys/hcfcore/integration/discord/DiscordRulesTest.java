@@ -46,4 +46,36 @@ class DiscordRulesTest {
                 + "\"allowed_mentions\":{\"parse\":[]}}", body);
         assertTrue(rules().body("x".repeat(3000)).contains("x".repeat(1997) + "..."));
     }
+
+    @Test
+    void onlyARulesOwnMentionMayPing() {
+        DiscordRules rules = new DiscordRules(true, java.util.Map.of("announcements", URL), java.util.List.of(
+                new DiscordRules.Rule("events.*.started", "announcements", "<@&42>", 0xFFAA00)), "", "");
+        DiscordRules.Route route = rules.routeFor("events.koth.started").orElseThrow();
+        String body = rules.body("@everyone KOTH started", route);
+        assertTrue(body.contains("\"allowed_mentions\":{\"parse\":[],\"roles\":[\"42\"]}"), body);
+        assertTrue(body.startsWith("{\"content\":\"<@&42> @everyone KOTH started\""),
+                "the ping goes with the text, and @everyone is text: nothing parses it");
+        assertTrue(rules.body("hello").contains("\"allowed_mentions\":{\"parse\":[]}"), "no rule, no ping");
+    }
+
+    @Test
+    void anEmbedCarriesTheTextAndItsColour() {
+        DiscordRules rules = new DiscordRules(true, java.util.Map.of("announcements", URL), java.util.List.of(
+                new DiscordRules.Rule("events.*", "announcements", "", 0x00FF00)), "HCF", "", true, java.util.Set.of());
+        String body = rules.body("KOTH won", rules.routeFor("events.koth.won").orElseThrow());
+        assertTrue(body.contains("\"embeds\":[{\"description\":\"KOTH won\",\"color\":65280}]"), body);
+        assertTrue(!body.contains("\"content\""), "nobody to ping, no content line");
+    }
+
+    @Test
+    void aSensorIsHeardOnlyWhenSwitchedOnAndDiscordToo() {
+        DiscordRules on = new DiscordRules(true, java.util.Map.of(), java.util.List.of(), "", "", false,
+                java.util.Set.of("teams"));
+        assertTrue(on.hears("teams"));
+        assertTrue(!on.hears("kills"));
+        DiscordRules off = new DiscordRules(false, java.util.Map.of(), java.util.List.of(), "", "", false,
+                java.util.Set.of("teams"));
+        assertTrue(!off.hears("teams"));
+    }
 }

@@ -27,10 +27,36 @@ webhooks:
 username: "HCF"
 avatar-url: ""
 
+# text: plain messages. embed: each in a box, coloured by its rule's "color".
+style: text
+
+# What Discord hears besides the announcements - each switch sends its own
+# messages (lang/en.yml, discord.*), routed by the rules below like any other:
+#   raids     - a team going raidable, or protected again
+#   teams     - a team founded or disbanded
+#   alliances - an alliance made or broken
+#   kills     - every player killed by another (busy)
+#   joins     - a player joining or leaving the server (busy)
+#   server    - the server up, and stopping
+sensors:
+  raids: true
+  teams: true
+  alliances: true
+  kills: false
+  joins: false
+  server: true
+
 # Which announcements go where. "keys" is a key of lang/en.yml, where * stands for
 # anything: "events.*" is every event announcement. The FIRST rule that matches
 # decides; "to" is a webhook above, or "" to send the announcement nowhere - which
 # is how the chatty ones are kept out before a rule that takes all the rest.
+#
+# A rule may also ping ("mention": a role <@&id> or a member <@id> - nothing else
+# ever pings) and colour its embeds ("color": "#ffaa00"). For instance, a role
+# pinged when an event starts, before the catch-all "events.*":
+#   - {keys: "events.*.started", to: announcements, mention: "<@&123456789012345678>", color: "#ffaa00"}
+# And the kills in a channel of their own, with a second webhook "kills":
+#   - {keys: "discord.kill", to: kills, color: "#aa0000"}
 forward:
   # Too chatty for a channel: progress lines, countdown marks, every capture of a
   # Conquest zone and every block of a Totem, the "starts in N minutes" marks.
@@ -51,6 +77,6 @@ forward:
   - {keys: "phase.*", to: announcements}
   # A bounty placed or collected.
   - {keys: "economy.bounty.*", to: announcements}
-  # A team going raidable, or protected again.
+  # What the sensors above hear: raids, teams, alliances, the server...
   - {keys: "discord.*", to: announcements}
 # --8<-- [end:discord]

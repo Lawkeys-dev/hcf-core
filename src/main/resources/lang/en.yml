@@ -972,8 +972,18 @@ events:
 # receives is the same text as in the game, colours removed.
 # ---------------------------------------------------------------------------
 discord:
+  # %raider% is the team whose kill made it raidable, or empty.
   team-raidable: "⚔ Team %team% is raidable!"
   team-protected: "🛡 Team %team% is protected again."
+  kill: "🗡 %killer% killed %victim%"
+  team-created: "🏳 Team %team% was founded."
+  team-disbanded: "💀 Team %team% was disbanded."
+  alliance-formed: "🤝 %team% and %other% are allies."
+  alliance-broken: "✂ %team% and %other% are allies no longer."
+  player-joined: "➕ %player% joined the server."
+  player-left: "➖ %player% left the server."
+  server-started: "✅ The server is up."
+  server-stopping: "⛔ The server is stopping."
 
 # ---------------------------------------------------------------------------
 # Resource nodes (Mountain / Glowstone Mountain / Ore Mountain)
