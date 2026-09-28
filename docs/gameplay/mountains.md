@@ -7,7 +7,10 @@ A Mountain is a region that **refills with blocks on a clock** — a Glowstone M
 ```text
 /resourcenode                 # when each Mountain refills
 /resourcenode refill <id>     # staff: refill one now (hcfcore.resourcenode.admin)
+/resourcenode claim <id>      # staff: draw its land with the claiming wand
 ```
+
+**A Mountain is server land**: the land of a server team (`claim` in `resourcenodes.yml`), drawn with the claiming wand like spawn or a road — `/resourcenode claim <id>` makes the team, a combat zone, and hands the wand. It shows on `/team map` and announces itself at its border. Between its heights (`y-min`, `y-max`) it is mined by the Mountain's own rules below; above and below, it is server land. A Mountain can still be given as two corners instead.
 
 Refills also appear in `/events`, next to the capture events.
 

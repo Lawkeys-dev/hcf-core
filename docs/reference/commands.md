@@ -107,6 +107,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `/events delete <id>` | | Delete any event, and release its territory | `hcfcore.events.admin` |
 | `/resourcenode` | `/node`, `/mountain` | When each Mountain refills | everyone |
 | `/resourcenode refill <id>` | | Refill one now | `hcfcore.resourcenode.admin` |
+| `/resourcenode claim <id>` | | Draw a Mountain's land with the claiming wand, making its server team | `hcfcore.resourcenode.admin` |
 | `/sotw` | | SOTW status | everyone |
 | `/sotw enable` | | Fight during SOTW, against others who did the same, for the rest of it | everyone |
 | `/sotw start [duration]` · `stop` | | Start or end SOTW | `hcfcore.phase.admin` |

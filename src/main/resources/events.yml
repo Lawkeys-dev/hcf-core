@@ -82,6 +82,10 @@ setup:
   claim-margin: 10
   # /events setblock looks this many blocks along where the player is looking.
   target-distance: 10
+  # A zone is part of its event's territory: drawn past its edge, the territory
+  # grows to hold it and claim-margin blocks around it (land another team holds
+  # stays theirs). false only warns, as /events claim is then yours to use.
+  zone-claims-land: true
   # /events setzone hands over the claiming wand: left-click one corner,
   # right-click the other, sneak + left-click to write the zone. It runs from the
   # lower of the two clicked blocks to this many blocks above the higher one.

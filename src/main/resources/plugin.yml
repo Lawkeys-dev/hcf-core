@@ -54,7 +54,7 @@ commands:
   resourcenode:
     aliases: [node, mountain]
     description: Shows when resource nodes refill; staff can refill them by hand.
-    usage: /<command> [refill <node>]
+    usage: /<command> [refill <node> | claim <node>]
   pay:
     description: Send money to another player.
     usage: /<command> <player> <amount>

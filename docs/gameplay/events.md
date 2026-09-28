@@ -249,7 +249,7 @@ Every kind of event — KOTH, Citadel, Kill the King, Conquest, DTC, Last Break,
 An event is set up in up to three parts, and `/events info` ticks off each:
 
 - its **territory** — server land around it, the claims of a *server team* (a combat zone) named in the event's `claim` key. Nobody builds there, `/team map` shows it, and it is drawn with the **claiming wand** like any other claim: left-click a corner, right-click the other, sneak + left-click to claim. `/events claim` makes the server team when there is none yet — named after the event, `last-break` becoming `LastBreak`;
-- its **zone** — what is held, stood in or broken inside, with heights: drawn with the same wand, from the lower of the two clicked blocks to `setup.zone-height` blocks above the higher. A zone reaching outside the territory is pointed out;
+- its **zone** — what is held, stood in or broken inside, with heights: drawn with the same wand, from the lower of the two clicked blocks to `setup.zone-height` blocks above the higher. **A zone is a part of its event's claim**: drawn past the territory's edge, the territory grows to hold it and `setup.claim-margin` blocks around it (`setup.zone-claims-land`) — land another team holds stays theirs, and what is left outside is pointed out;
 - its **block** — a DTC's or Last Break's core, a Totem's column (built at once, of bedrock), on the block you look at, up to `setup.target-distance` blocks away. It must be inside the zone.
 
 Kill the King has none of the three: it is fought in the warzone of its world, and `/events info` says whether that world has one.

@@ -78,7 +78,8 @@ What the setup commands do by default — see the [guide](../../gameplay/events.
 | Key | As shipped | What it does |
 |---|---|---|
 | `auto-claim` | `true` | `/events create` claims the new event's territory at once; `false` leaves it to `/events claim` |
-| `claim-margin` | `10` | Blocks of territory `/events create` claims around the new event's zones |
+| `claim-margin` | `10` | Blocks of territory `/events create` claims around the new event's zones, and `/events setzone` around a zone drawn past the territory's edge |
+| `zone-claims-land` | `true` | A zone drawn past its event's territory makes the territory grow to hold it; `false` only warns |
 | `target-distance` | `10` | How far `/events setblock` looks along where the player is looking |
 | `zone-height` | `10` | A zone drawn with the wand rises this many blocks above the higher clicked block |
 

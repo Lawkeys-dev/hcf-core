@@ -1,5 +1,7 @@
 package com.lawkeys.hcfcore.resourcenode;
 
+import com.lawkeys.hcfcore.claim.ClaimArea;
+
 import com.lawkeys.hcfcore.claim.ClaimManager;
 import com.lawkeys.hcfcore.claim.ClaimMessages;
 import com.lawkeys.hcfcore.claim.ClaimSettings;
@@ -467,6 +469,61 @@ class ResourceNodeTest {
      * The seam with {@code claim/}, wired to the real managers rather than to a
      * stub - the same way the {@code ReclaimLoop} group checks the DTR seam.
      */
+    @Nested
+    class ClaimedMountains {
+
+        private ResourceNodeDefinition claimed() {
+            return new ResourceNodeDefinition("ore", "&7Ore Mountain",
+                    Cuboid.between(ClaimedRegions.UNRESOLVED, 0, 60, 0, 0, 75, 0), glowstone(),
+                    RefillTargets.airOnly(), RefillSchedule.none(), List.of(), true, false, true,
+                    BreakPolicy.PALETTE_ONLY, true, true, "Ore");
+        }
+
+        @Test
+        void aClaimedMountainIsTheBoxAroundItsLandBetweenItsHeights() {
+            UUID team = UUID.randomUUID();
+            List<ClaimArea> land = List.of(
+                    ClaimArea.between(team, "world", 62, 60, 68, 73, 0.0, 0L),
+                    ClaimArea.between(team, "world", 69, 60, 75, 73, 0.0, 0L));
+
+            Cuboid region = ClaimedRegions.resolve(claimed(), land).orElseThrow();
+
+            assertEquals(Cuboid.between("world", 62, 60, 60, 75, 75, 73), region);
+        }
+
+        @Test
+        void aMountainWithNoLandIsLeftOutUntilItHasSome() {
+            List<ResourceNodeDefinition> missing = new ArrayList<>();
+            List<ResourceNodeDefinition> now = ClaimedRegions.resolveAll(
+                    List.of(claimed(), mountain(RefillSchedule.none())), name -> List.of(), missing::add);
+
+            assertEquals(List.of("mountain"), now.stream().map(ResourceNodeDefinition::id).toList());
+            assertEquals(List.of("ore"), missing.stream().map(ResourceNodeDefinition::id).toList());
+        }
+
+        @Test
+        void itsLandIsMinedByItsOwnRulesAndIsServerLandAboveThem() {
+            AtomicLong now = new AtomicLong(MONDAY_10H);
+            TeamManager teams = new TeamManager(TeamSettings::defaults, TeamStore.NO_OP,
+                    TeamEventDispatcher.NO_OP, now::get);
+            ClaimSettings claimSettings = ClaimSettings.defaults();
+            ClaimManager claims = new ClaimManager(() -> claimSettings, teams, ClaimStore.NO_OP, now::get);
+            Team wizards = teams.createTeam(UUID.randomUUID(), "Wizards").getTeam().orElseThrow();
+            teams.createSystemTeam("Ore", com.lawkeys.hcfcore.team.SystemZone.COMBAT);
+            Team ore = teams.getTeamByName("Ore").orElseThrow();
+            assertTrue(claims.claim(ore, null, "world", 62, 60, 75, 73).isSuccess());
+
+            settings = withNodes(ClaimedRegions.resolveAll(List.of(claimed()),
+                    name -> claims.getClaims(teams.getTeamByName(name).orElseThrow().getId()), node -> { })
+                    .toArray(ResourceNodeDefinition[]::new));
+            claims.setReservedRegionPolicy(nodes);
+
+            assertTrue(claims.checkBuild(wizards, "world", 65, 70, 65).isAllowed(), "inside the Mountain");
+            assertFalse(claims.checkBuild(wizards, "world", 65, 90, 65).isAllowed(), "above it: server land");
+            assertTrue(nodes.nodeAtBlock("world", 65, 70, 65).isPresent());
+        }
+    }
+
     @Nested
     class TheClaimSeam {
 

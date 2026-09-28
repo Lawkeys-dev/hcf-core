@@ -36,6 +36,12 @@ import java.util.Objects;
  *                      region. On by default, and for the same reason the break
  *                      policy exists: a structure players cannot mine but can
  *                      blow up is a structure that goes away
+ * @param claim         the server team whose land the mountain is, blank for a
+ *                      region given by its corners. A claimed node's region is
+ *                      the land of that team between the node's heights - its
+ *                      world and columns come from the claims, resolved while the
+ *                      server runs ({@link ClaimedRegions}); until then only its
+ *                      heights are meaningful
  */
 public record ResourceNodeDefinition(String id,
                                      String displayName,
@@ -49,7 +55,8 @@ public record ResourceNodeDefinition(String id,
                                      boolean preventBuild,
                                      BreakPolicy breakPolicy,
                                      boolean preventClaim,
-                                     boolean preventExplosions) {
+                                     boolean preventExplosions,
+                                     String claim) {
 
     public ResourceNodeDefinition {
         Objects.requireNonNull(id, "id");
@@ -59,11 +66,33 @@ public record ResourceNodeDefinition(String id,
         Objects.requireNonNull(targets, "targets");
         Objects.requireNonNull(schedule, "schedule");
         Objects.requireNonNull(breakPolicy, "breakPolicy");
+        claim = claim == null ? "" : claim.trim();
         announceBeforeSeconds =
                 List.copyOf(Objects.requireNonNull(announceBeforeSeconds, "announceBeforeSeconds"));
         if (palette.isEmpty()) {
             throw new IllegalArgumentException("node " + id + " has nothing to refill with");
         }
+    }
+
+    /** A node given by its corners, as before mountains could be claimed. */
+    public ResourceNodeDefinition(String id, String displayName, Cuboid region, BlockPalette palette,
+                                  RefillTargets targets, RefillSchedule schedule, List<Long> announceBeforeSeconds,
+                                  boolean announceRefill, boolean fillOnStart, boolean preventBuild,
+                                  BreakPolicy breakPolicy, boolean preventClaim, boolean preventExplosions) {
+        this(id, displayName, region, palette, targets, schedule, announceBeforeSeconds, announceRefill,
+                fillOnStart, preventBuild, breakPolicy, preventClaim, preventExplosions, "");
+    }
+
+    /** @return whether the region is a server team's land rather than two corners */
+    public boolean isClaimed() {
+        return !claim.isEmpty();
+    }
+
+    /** @return this node over another region: a claimed node once its land is known */
+    public ResourceNodeDefinition withRegion(Cuboid newRegion) {
+        return new ResourceNodeDefinition(id, displayName, newRegion, palette, targets, schedule,
+                announceBeforeSeconds, announceRefill, fillOnStart, preventBuild, breakPolicy, preventClaim,
+                preventExplosions, claim);
     }
 
     /** @return whether that block may be mined here */

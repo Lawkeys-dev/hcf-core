@@ -61,19 +61,22 @@ nodes:
     display-name: "{warning}Glowstone Mountain"
 
     # --8<-- [start:node-region]
-    # The region is the box between the two corners, bounds included. Write the
-    # corners in whichever order you walked them - they are normalised on load.
-    # Keep it to the mountain itself: every position inside is examined on each
-    # refill.
-    world: world_nether
-    corner-1:
-      x: 40
-      y: 40
-      z: 40
-    corner-2:
-      x: 70
-      y: 80
-      z: 70
+    # The Mountain is server land: the land of the server team named here, drawn
+    # with the claiming wand. /resourcenode claim glowstone-mountain makes the team
+    # (a combat zone) if it does not exist yet and hands you the wand. Its region
+    # is that land between y-min and y-max, bounds included: keep it to the
+    # mountain itself, every position inside is examined on each refill. Several
+    # claims make one region, the box around them - keep them side by side. The
+    # team's land above and below those heights is server land like any other.
+    # A Mountain whose team holds no land neither refills nor protects anything.
+    claim: Glowstone
+    y-min: 40
+    y-max: 80
+    #
+    # Or, with no claim, the box between two corners, bounds included, in any order:
+    #   world: world_nether
+    #   corner-1: {x: 40, y: 40, z: 40}
+    #   corner-2: {x: 70, y: 80, z: 70}
     # --8<-- [end:node-region]
 
     # --8<-- [start:node-blocks]
@@ -160,7 +163,8 @@ nodes:
       break-policy: PALETTE_ONLY
 
       # Whether teams are refused claims overlapping the region. Leave this on:
-      # a claimed mountain is a mountain one team owns.
+      # a claimed mountain is a mountain one team owns. (A Mountain that is a
+      # server team's land cannot be claimed over anyway.)
       prevent-claim: true
 
       # Whether explosions are stopped from breaking the region.
@@ -180,15 +184,9 @@ nodes:
   # --8<-- [start:ore-mountain]
   ore-mountain:
     display-name: "{secondary}Ore Mountain"
-    world: world
-    corner-1:
-      x: -80
-      y: 30
-      z: -80
-    corner-2:
-      x: -50
-      y: 60
-      z: -50
+    claim: OreMountain
+    y-min: 30
+    y-max: 60
     blocks:
       STONE: 12
       IRON_ORE: 4

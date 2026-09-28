@@ -18,6 +18,7 @@ public final class EventSetupMessages {
     public static final String CREATED = "events.setup.created";
     public static final String AUTO_CLAIMED = "events.setup.auto-claimed";
     public static final String AUTO_CLAIM_REFUSED = "events.setup.auto-claim-refused";
+    public static final String TERRITORY_EXTENDED = "events.setup.territory-extended";
     public static final String DELETED = "events.setup.deleted";
     public static final String DELETED_TERRITORY = "events.setup.deleted-territory";
 

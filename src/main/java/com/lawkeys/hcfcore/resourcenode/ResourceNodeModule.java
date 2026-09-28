@@ -62,7 +62,14 @@ public final class ResourceNodeModule implements AgendaContributor {
     private final ClaimModule claims;
     private final LangManager lang;
 
+    /** resourcenodes.yml as read: a claimed mountain's land still unknown. */
+    private volatile ResourceNodeSettings loaded = ResourceNodeSettings.defaults();
+    /** What is in force: every claimed mountain over its team's land ({@link ClaimedRegions}). */
     private volatile ResourceNodeSettings settings = ResourceNodeSettings.defaults();
+    /** Claimed mountains whose team holds no land, said once until it does. */
+    private final java.util.Set<String> landless = new java.util.HashSet<>();
+    /** fill-on-start waits for the first tick: the claims load after this module starts. */
+    private boolean startupFillsDone;
     private ResourceNodeManager manager;
     private BukkitTask tickTask;
 
@@ -131,15 +138,10 @@ public final class ResourceNodeModule implements AgendaContributor {
             events.addAgendaContributor(this);
         }
 
-        if (settings.nodes().isEmpty()) {
+        if (loaded.nodes().isEmpty()) {
             plugin.getLogger().info("No resource node is configured; see resourcenodes.yml.");
         } else {
-            plugin.getLogger().info("Loaded " + settings.nodes().size() + " resource node(s).");
-        }
-
-        // Announced when done, like every other refill.
-        for (ResourceNodeDefinition node : manager.getStartupFills()) {
-            refillNow(node);
+            plugin.getLogger().info("Loaded " + loaded.nodes().size() + " resource node(s).");
         }
 
         scheduleTick();
@@ -154,6 +156,14 @@ public final class ResourceNodeModule implements AgendaContributor {
 
     private void tick() {
         try {
+            resolveRegions(true);
+            if (!startupFillsDone) {
+                startupFillsDone = true;
+                // Announced when done, like every other refill.
+                for (ResourceNodeDefinition node : manager.getStartupFills()) {
+                    refillNow(node);
+                }
+            }
             for (NodeUpdate update : manager.tick()) {
                 handle(update);
             }
@@ -398,15 +408,79 @@ public final class ResourceNodeModule implements AgendaContributor {
     }
 
     public void reloadSettings() {
-        this.settings = ResourceNodeSettingsLoader.load(
+        this.loaded = ResourceNodeSettingsLoader.load(
                 ConfigManager.loadFile(plugin, "resourcenodes.yml"),
                 warning -> plugin.getLogger().warning("resourcenodes.yml: " + warning));
-        this.materials = resolveMaterials(settings);
+        this.materials = resolveMaterials(loaded);
+        landless.clear();
+        // Quiet while the module starts: the claims are not loaded yet.
+        resolveRegions(manager != null);
 
         if (manager != null) {
             // The times themselves may have changed; forget the window so a refill
             // whose hour just passed is not fired retroactively.
             manager.resetScheduleWindow();
+            if (tickTask != null) {
+                tickTask.cancel();
+                scheduleTick();
+            }
+        }
+    }
+
+    /**
+     * Lays every claimed mountain over its team's land as it is now. Nothing changes
+     * while the land does not; a mountain whose land moved stops any refill walking
+     * its old shape.
+     *
+     * @param speak whether to say which claimed mountains have no land
+     */
+    private void resolveRegions(boolean speak) {
+        ResourceNodeSettings raw = loaded;
+        List<ResourceNodeDefinition> nodes = ClaimedRegions.resolveAll(raw.nodes(), this::landOf, node -> {
+            if (speak && landless.add(node.id())) {
+                plugin.getLogger().warning("resourcenodes.yml: node '" + node.id() + "' is the land of server team '"
+                        + node.claim() + "', which holds none: it neither refills nor protects anything. "
+                        + "Claim it with /resourcenode claim " + node.id() + ".");
+            }
+        });
+        nodes.forEach(node -> landless.remove(node.id()));
+        ResourceNodeSettings next = new ResourceNodeSettings(raw.enabled(), raw.tickSeconds(), raw.timeZone(),
+                raw.blocksPerTick(), raw.applyPhysics(), raw.skipOccupiedBlocks(), nodes);
+        if (next.equals(settings)) {
+            return;
+        }
+        this.settings = next;
+        dropChangedRefills();
+    }
+
+    /** @return the land of the server team of that name; none for no such team, or a player team */
+    private java.util.Collection<com.lawkeys.hcfcore.claim.ClaimArea> landOf(String teamName) {
+        var claimManager = claims.getManager();
+        var teamModule = claims.getTeams();
+        if (claimManager == null || teamModule == null || teamModule.getManager() == null) {
+            return List.of();
+        }
+        return teamModule.getManager().getTeamByName(teamName)
+                .filter(team -> team.getType().isSystem())
+                .map(team -> (java.util.Collection<com.lawkeys.hcfcore.claim.ClaimArea>) claimManager.getClaims(team.getId()))
+                .orElse(List.of());
+    }
+
+    /** The configured nodes, a claimed one as written: for a command naming a mountain that has no land yet. */
+    public Optional<ResourceNodeDefinition> findConfigured(String id) {
+        return loaded.find(id);
+    }
+
+    public List<ResourceNodeDefinition> configuredNodes() {
+        return loaded.nodes();
+    }
+
+    public ClaimModule getClaims() {
+        return claims;
+    }
+
+    private void dropChangedRefills() {
+        if (manager != null) {
             // A refill walking a region that no longer exists - or that no longer
             // looks like what it was started from - would keep placing blocks nobody
             // configured. Definitions are records, so "still the same node" is an
@@ -420,13 +494,9 @@ public final class ResourceNodeModule implements AgendaContributor {
                 }
                 release(job);
                 plugin.getLogger().info("Stopped refilling '" + entry.getKey()
-                        + "': it changed or was removed in resourcenodes.yml.");
+                        + "': it changed or was removed in resourcenodes.yml, or its land changed.");
                 return true;
             });
-            if (tickTask != null) {
-                tickTask.cancel();
-                scheduleTick();
-            }
         }
     }
 

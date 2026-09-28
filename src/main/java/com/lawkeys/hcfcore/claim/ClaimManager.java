@@ -109,10 +109,6 @@ public final class ClaimManager {
         return config().enabled();
     }
 
-    /**
-     * Installs the raid policy. Called by the {@code dtr/} module at startup;
-     * until then {@link RaidabilityPolicy#NEVER} keeps every claim protected.
-     */
     /** What EOTW and the Purge open, from {@code phase/}; {@link PhaseAccess#NONE} until then. */
     private volatile PhaseAccess phaseAccess = PhaseAccess.NONE;
 
@@ -120,6 +116,10 @@ public final class ClaimManager {
         this.phaseAccess = Objects.requireNonNull(access, "access");
     }
 
+    /**
+     * Installs the raid policy. Called by the {@code dtr/} module at startup;
+     * until then {@link RaidabilityPolicy#NEVER} keeps every claim protected.
+     */
     public void setRaidabilityPolicy(RaidabilityPolicy policy) {
         this.raidability = Objects.requireNonNull(policy, "policy");
     }
@@ -369,6 +369,10 @@ public final class ClaimManager {
             return ProtectionResult.ALLOWED;
         }
         UUID owner = ownerAt(world, x, z);
+        if (owner != null && isGovernedServerLand(owner, world, x, y, z)) {
+            // A Mountain that is server land: its own rules, not the server's "no building".
+            return ProtectionResult.ALLOWED;
+        }
         if (owner != null) {
             ProtectionResult owned = protectionOf(actorTeam, owner, true);
             // protectionOf drops an owner whose team no longer exists; what is left
@@ -440,7 +444,21 @@ public final class ClaimManager {
             return !warzone.allowBuilding() && warzone.covers(world, x, z)
                     && !reservedRegions.isInReservedRegion(world, x, y, z);
         }
+        if (isGovernedServerLand(owner, world, x, y, z)) {
+            return false;
+        }
         return !protectionOf(null, owner, true).isAllowed();
+    }
+
+    /**
+     * Whether that block is server land another system governs: a Mountain claimed for
+     * a server team (resourcenodes.yml, {@code claim}) is mined by its own rules, as a
+     * Mountain on the warzone is. Above and below the Mountain's heights the team's
+     * land is server land like any other.
+     */
+    private boolean isGovernedServerLand(UUID owner, String world, int x, int y, int z) {
+        return reservedRegions.isInReservedRegion(world, x, y, z)
+                && teams.getTeam(owner).map(team -> team.getType().isSystem()).orElse(false);
     }
 
     /**
@@ -593,7 +611,8 @@ public final class ClaimManager {
         }
         // Asked before ownership, because reserved land is not land anybody can hold:
         // an event region is out of the claim system entirely.
-        Optional<String> reserved = reservedRegions.reservedRegionIn(
+        // Server land is staff's to draw, a Mountain's own land included.
+        Optional<String> reserved = team.getType().isSystem() ? Optional.empty() : reservedRegions.reservedRegionIn(
                 area.world(), area.minX(), area.minZ(), area.maxX(), area.maxZ());
         if (reserved.isPresent()) {
             return Optional.of(TeamResult.fail(ClaimMessages.CLAIM_RESERVED_REGION,

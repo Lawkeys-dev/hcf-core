@@ -42,6 +42,9 @@ public final class ResourceNodeCommand implements TabExecutor {
         if (args.length > 0 && args[0].toLowerCase(Locale.ROOT).equals("refill")) {
             return refill(sender, args);
         }
+        if (args.length > 0 && args[0].toLowerCase(Locale.ROOT).equals("claim")) {
+            return claim(sender, args);
+        }
         list(sender);
         return true;
     }
@@ -90,6 +93,63 @@ public final class ResourceNodeCommand implements TabExecutor {
         return true;
     }
 
+    /**
+     * {@code /resourcenode claim <id>} - a claimed Mountain's land, drawn with the
+     * claiming wand for its server team, which is made (a combat zone) when missing.
+     */
+    private boolean claim(CommandSender sender, String[] args) {
+        if (!sender.hasPermission(ResourceNodeModule.ADMIN_PERMISSION)) {
+            module.getLang().send(sender, "general.no-permission");
+            return true;
+        }
+        if (args.length < 2) {
+            return false;
+        }
+        if (!(sender instanceof org.bukkit.entity.Player player)) {
+            module.getLang().send(sender, ResourceNodeMessages.CLAIM_IN_GAME);
+            return true;
+        }
+        Optional<ResourceNodeDefinition> node = module.findConfigured(args[1]);
+        if (node.isEmpty()) {
+            module.getLang().send(sender, ResourceNodeMessages.UNKNOWN_NODE, "node", args[1]);
+            return true;
+        }
+        if (!node.get().isClaimed()) {
+            module.getLang().send(sender, ResourceNodeMessages.CLAIM_NOT_CLAIMED, "node", node.get().id());
+            return true;
+        }
+        var claims = module.getClaims();
+        if (claims.getManager() == null || claims.getWandSessions() == null || claims.getTeams() == null) {
+            module.getLang().send(sender, ResourceNodeMessages.CLAIM_NO_WAND);
+            return true;
+        }
+        var teams = claims.getTeams().getManager();
+        String name = node.get().claim();
+        var team = teams.getTeamByName(name);
+        if (team.isPresent() && !team.get().getType().isSystem()) {
+            module.getLang().send(sender, ResourceNodeMessages.CLAIM_TEAM_TAKEN, "node", node.get().displayName(),
+                    "team", team.get().getName());
+            return true;
+        }
+        if (team.isEmpty()) {
+            var result = teams.createSystemTeam(name, com.lawkeys.hcfcore.team.SystemZone.COMBAT);
+            if (!result.isSuccess()) {
+                module.getLang().send(sender, ResourceNodeMessages.CLAIM_TEAM_FAILED, "team", name,
+                        "reason", module.getLang().get(result.getMessageKey(), result.getPlaceholders()));
+                return true;
+            }
+            module.getLang().send(sender, ResourceNodeMessages.CLAIM_TEAM_CREATED, "node", node.get().displayName(),
+                    "team", name);
+            team = teams.getTeamByName(name);
+            if (team.isEmpty()) {
+                return true;
+            }
+        }
+        claims.getWandSessions().give(player,
+                new com.lawkeys.hcfcore.claim.wand.TeamClaimTask(claims, team.get().getId(), true));
+        return true;
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label,
                                       String[] args) {
@@ -97,12 +157,19 @@ public final class ResourceNodeCommand implements TabExecutor {
             return List.of();
         }
         if (args.length == 1) {
-            return prefixed(List.of("refill"), args[0]);
+            return prefixed(List.of("refill", "claim"), args[0]);
         }
         if (args.length == 2) {
             List<String> ids = new ArrayList<>();
+            boolean claiming = args[0].equalsIgnoreCase("claim");
             for (ResourceNodeDefinition node : module.getSettings().nodes()) {
-                ids.add(node.id());
+                if (!claiming) {
+                    ids.add(node.id());
+                }
+            }
+            if (claiming) {
+                module.configuredNodes().stream().filter(ResourceNodeDefinition::isClaimed)
+                        .forEach(node -> ids.add(node.id()));
             }
             return prefixed(ids, args[1]);
         }

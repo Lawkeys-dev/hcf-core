@@ -33,4 +33,11 @@ public final class ResourceNodeMessages {
     public static final String DISABLED = "resourcenode.error.disabled";
     public static final String WORLD_MISSING = "resourcenode.error.world-missing";
     public static final String OUTSIDE_WORLD = "resourcenode.error.outside-world";
+    // /resourcenode claim: a Mountain that is a server team's land
+    public static final String CLAIM_NOT_CLAIMED = "resourcenode.claim.not-claimed";
+    public static final String CLAIM_TEAM_CREATED = "resourcenode.claim.team-created";
+    public static final String CLAIM_TEAM_TAKEN = "resourcenode.claim.team-taken";
+    public static final String CLAIM_TEAM_FAILED = "resourcenode.claim.team-failed";
+    public static final String CLAIM_NO_WAND = "resourcenode.claim.no-wand";
+    public static final String CLAIM_IN_GAME = "resourcenode.claim.in-game";
 }

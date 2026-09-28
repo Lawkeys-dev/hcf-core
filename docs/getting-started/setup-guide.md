@@ -124,7 +124,7 @@ Reward commands run from the console. KOTH, Citadel, Conquest, DTC, Last Break, 
 
 ## 7. Mountains
 
-`resourcenodes.yml` defines regions that refill with a weighted palette of blocks on a timer anchored to midnight. The region cannot be built in, can be mined only for its palette by default, cannot be claimed, and resists explosions. By default a refill only fills air, so a region placed under water or inside stone refills nothing. Try one with `/resourcenode refill <id>`. See [Mountains](../gameplay/mountains.md).
+`resourcenodes.yml` defines regions that refill with a weighted palette of blocks on a timer anchored to midnight. A Mountain is the land of a server team: stand at it and draw it with `/resourcenode claim <id>`. The region cannot be built in, can be mined only for its palette by default, cannot be claimed, and resists explosions. By default a refill only fills air, so a region placed under water or inside stone refills nothing. Try one with `/resourcenode refill <id>`. See [Mountains](../gameplay/mountains.md).
 
 ## 8. Map phases
 

@@ -877,6 +877,7 @@ events:
     created: "{success}Created the %type% {secondary}%event% {success}where you stand."
     auto-claimed: "{success}Its territory is claimed {muted}- {secondary}%size% {muted}for the server team {secondary}%team%{muted}. Redraw it with {secondary}/events claim %event%{muted}."
     auto-claim-refused: "{warning}Its territory could not be claimed here: {muted}%reason% {warning}Draw it with {secondary}/events claim %event%{warning}."
+    territory-extended: "{success}The territory of %event% {success}grew to hold the zone {muted}- {secondary}%blocks% {muted}columns claimed for {secondary}%team%{muted}."
     deleted: "{success}Deleted {secondary}%event%{success}."
     deleted-territory: "{success}Its territory is released {muted}(server team {secondary}%team% {muted}disbanded)."
     # --- territory: /events claim|unclaim
@@ -1022,6 +1023,14 @@ resourcenode:
     disabled: "{error}The resource node module is disabled on this server."
     world-missing: "{error}Cannot refill %node%{error}: the world '%world%' is not loaded."
     outside-world: "{error}Cannot refill %node%{error}: its region is outside the height range of '%world%'."
+  # /resourcenode claim <node>: a Mountain that is a server team's land (claim: in resourcenodes.yml).
+  claim:
+    not-claimed: "{error}%node% is given by its corners in resourcenodes.yml: give it a {secondary}claim{error} (a server team's name) to draw it with the wand."
+    team-created: "{success}Server team {secondary}%team% {success}created for %node%{success}, a combat zone."
+    team-taken: "{error}%team% is a player team: %node% {error}needs a server team's name."
+    team-failed: "{error}Could not create the server team %team%: %reason%"
+    no-wand: "{error}The claim module is off: there is no wand to draw with."
+    in-game: "{error}Draw a Mountain's land in game."
 
 # ---------------------------------------------------------------------------
 # SOTW / EOTW - the start and the end of the map

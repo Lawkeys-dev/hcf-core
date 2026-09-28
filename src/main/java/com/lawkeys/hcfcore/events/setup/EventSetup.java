@@ -175,6 +175,75 @@ public final class EventSetup {
         return true;
     }
 
+    /**
+     * Claims for the event's server team what a zone - and the setup margin around it -
+     * reaches of land it does not hold yet: the zone becomes part of the territory.
+     * Land another team holds stays theirs, and is said.
+     */
+    private void extendTerritory(Player player, Found event, String world, int minX, int minZ, int maxX, int maxZ) {
+        Optional<Team> team = ensureTerritoryTeam(player, event);
+        if (team.isEmpty()) {
+            return;
+        }
+        ClaimManager claims = module.getClaims().getManager();
+        int margin = module.getSetupClaimMargin();
+        long claimed = 0;
+        String refusal = null;
+        for (int[] part : com.lawkeys.hcfcore.claim.Uncovered.of(world, minX - margin, minZ - margin,
+                maxX + margin, maxZ + margin, claims.getAllClaims())) {
+            // Land somebody else holds is left out: the parts are cut around every claim.
+            TeamResult result = claims.claim(team.get(), null, world, part[0], part[1], part[2], part[3]);
+            if (result.isSuccess()) {
+                claimed += (long) (part[2] - part[0] + 1) * (part[3] - part[1] + 1);
+            } else if (refusal == null) {
+                refusal = render(result);
+            }
+        }
+        // What the margin could not have - another team's land - is fine; the zone's own is not.
+        for (int[] part : com.lawkeys.hcfcore.claim.Uncovered.of(world, minX, minZ, maxX, maxZ,
+                claims.getAllClaims())) {
+            TeamResult result = claims.claim(team.get(), null, world, part[0], part[1], part[2], part[3]);
+            if (result.isSuccess()) {
+                claimed += (long) (part[2] - part[0] + 1) * (part[3] - part[1] + 1);
+            } else if (refusal == null) {
+                refusal = render(result);
+            }
+        }
+        if (claimed > 0) {
+            lang().send(player, EventSetupMessages.TERRITORY_EXTENDED, "event", event.key(),
+                    "team", team.get().getName(), "blocks", String.valueOf(claimed));
+        } else if (refusal != null) {
+            lang().send(player, EventSetupMessages.AUTO_CLAIM_REFUSED, "event", event.key(), "reason", refusal);
+        }
+    }
+
+    /**
+     * The event's server team, made - and named in its {@code claim} key - when it has
+     * none yet, as {@code /events claim} does.
+     */
+    private Optional<Team> ensureTerritoryTeam(Player player, Found found) {
+        String id = found.key();
+        String named = found.entry().getString("claim", "");
+        Optional<Team> team = territoryTeam(player, id, named, true);
+        if (team.isEmpty() || team.get().getName().equals(named)) {
+            return team;
+        }
+        // The team was just made, or the key named none: the event must name it.
+        if (!EventYamlStore.edit(module.getPlugin(), root -> {
+            ConfigurationSection entry = entryOf(root, found.section(), found.key());
+            if (entry == null) {
+                return false;
+            }
+            entry.set("claim", team.get().getName());
+            return true;
+        })) {
+            lang().send(player, EventSetupMessages.WRITE_FAILED);
+            return Optional.empty();
+        }
+        module.reloadSettings();
+        return team;
+    }
+
     /** Claims the land under the new event's zones, and a margin around them. */
     private void autoClaim(Player player, String id, Team team, String world, int[] bounds) {
         int margin = module.getSetupClaimMargin();
@@ -212,26 +281,9 @@ public final class EventSetup {
             lang().send(player, EventSetupMessages.NO_WAND);
             return true;
         }
-        String named = found.get().entry().getString("claim", "");
-        Optional<Team> team = territoryTeam(player, id, named, true);
+        Optional<Team> team = ensureTerritoryTeam(player, found.get());
         if (team.isEmpty()) {
             return true;
-        }
-        if (!team.get().getName().equals(named)) {
-            // The team was just made, or the key named none: the event must name it.
-            Found event = found.get();
-            if (!EventYamlStore.edit(module.getPlugin(), root -> {
-                ConfigurationSection entry = entryOf(root, event.section(), event.key());
-                if (entry == null) {
-                    return false;
-                }
-                entry.set("claim", team.get().getName());
-                return true;
-            })) {
-                lang().send(player, EventSetupMessages.WRITE_FAILED);
-                return true;
-            }
-            module.reloadSettings();
         }
         module.getClaims().getWandSessions().give(player, new TeamClaimTask(module.getClaims(), team.get().getId(), true));
         return true;
@@ -496,7 +548,15 @@ public final class EventSetup {
                     "size", selection.width() + "x" + selection.length());
             if (!insideTerritory(id, selection.world(), selection.minX(), selection.minZ(),
                     selection.maxX(), selection.maxZ())) {
-                lang().send(player, EventSetupMessages.ZONE_OUTSIDE_TERRITORY, "event", id);
+                // The zone is a part of the event's territory: the territory grows to hold it.
+                if (module.isSetupZoneClaimsLand() && claimsRunning() && event.kind().hasTerritory()) {
+                    extendTerritory(player, event, selection.world(), selection.minX(), selection.minZ(),
+                            selection.maxX(), selection.maxZ());
+                }
+                if (!insideTerritory(id, selection.world(), selection.minX(), selection.minZ(),
+                        selection.maxX(), selection.maxZ())) {
+                    lang().send(player, EventSetupMessages.ZONE_OUTSIDE_TERRITORY, "event", id);
+                }
             }
             return true;
         }

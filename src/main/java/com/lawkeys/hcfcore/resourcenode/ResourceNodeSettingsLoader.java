@@ -113,16 +113,19 @@ public final class ResourceNodeSettingsLoader {
     /** @return the definition, or {@code null} when the entry is unusable */
     private static ResourceNodeDefinition loadNode(String id, ConfigurationSection entry,
                                                    Consumer<String> warn) {
+        String claim = entry.getString("claim", "").trim();
         String world = entry.getString("world");
-        if (world == null || world.isBlank()) {
-            warn.accept("node '" + id + "' has no world; skipped.");
-            return null;
-        }
         ConfigurationSection first = entry.getConfigurationSection("corner-1");
         ConfigurationSection second = entry.getConfigurationSection("corner-2");
-        if (first == null || second == null) {
-            warn.accept("node '" + id + "' needs both corner-1 and corner-2; skipped.");
-            return null;
+        if (claim.isEmpty()) {
+            if (world == null || world.isBlank()) {
+                warn.accept("node '" + id + "' has neither a claim nor a world; skipped.");
+                return null;
+            }
+            if (first == null || second == null) {
+                warn.accept("node '" + id + "' needs a claim, or both corner-1 and corner-2; skipped.");
+                return null;
+            }
         }
 
         BlockPalette palette = loadPalette(entry, id, warn);
@@ -133,9 +136,18 @@ public final class ResourceNodeSettingsLoader {
             return null;
         }
 
-        Cuboid region = Cuboid.between(world,
-                first.getInt("x"), first.getInt("y"), first.getInt("z"),
-                second.getInt("x"), second.getInt("y"), second.getInt("z"));
+        Cuboid region;
+        if (!claim.isEmpty()) {
+            // The land is the claim's, known once the claims are loaded; the heights
+            // are the node's own. Until then the region is a placeholder of no world.
+            int bottom = entry.getInt("y-min", 0);
+            int top = entry.getInt("y-max", 128);
+            region = Cuboid.between(ClaimedRegions.UNRESOLVED, 0, bottom, 0, 0, top, 0);
+        } else {
+            region = Cuboid.between(world,
+                    first.getInt("x"), first.getInt("y"), first.getInt("z"),
+                    second.getInt("x"), second.getInt("y"), second.getInt("z"));
+        }
         if (region.blockCount() > LARGE_REGION_BLOCKS) {
             warn.accept("node '" + id + "' covers " + region.blockCount() + " blocks ("
                     + region + "). That is allowed, but check the corners: a refill that "
@@ -164,7 +176,8 @@ public final class ResourceNodeSettingsLoader {
                 loadBreakPolicy(protection == null ? null : protection.getString("break-policy"),
                         id, warn),
                 protection == null || protection.getBoolean("prevent-claim", true),
-                protection == null || protection.getBoolean("prevent-explosions", true));
+                protection == null || protection.getBoolean("prevent-explosions", true),
+                claim);
     }
 
     /**

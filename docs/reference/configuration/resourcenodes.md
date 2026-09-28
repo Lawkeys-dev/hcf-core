@@ -7,7 +7,7 @@ Mountains: regions, weighted block palettes, refill times anchored to midnight, 
 Every example on this page is **taken from the shipped `resourcenodes.yml`**. Changes apply with `/hcf reload`.
 
 !!! warning "The shipped Mountains are examples"
-    Their regions sit at made-up coordinates, and they refill only when staff ask (`/resourcenode refill <id>`) until you give them `interval-seconds` or `times`.
+    They are the land of server teams that do not exist yet — `Glowstone` and `OreMountain` — so they do nothing until you draw them (`/resourcenode claim <id>`), and they refill only when staff ask (`/resourcenode refill <id>`) until you give them `interval-seconds` or `times`.
 
 ## General settings
 
@@ -65,7 +65,9 @@ Under `nodes:`, one entry per Mountain. The Glowstone Mountain as shipped:
 | Key | As shipped | What it does |
 |---|---|---|
 | `display-name` | an example | Its name in messages |
-| `world`, `corner-1`, `corner-2` | an example | The region |
+| `claim` | `Glowstone`, `OreMountain` | The server team whose land the Mountain is, drawn with the claiming wand (`/resourcenode claim <id>`). Several claims make one region, the box around them |
+| `y-min`, `y-max` | `40`–`80`, `30`–`60` | The Mountain's heights within that land; above and below is server land like any other |
+| `world`, `corner-1`, `corner-2` | — | Instead of `claim`: the box between two corners |
 | `blocks` | glowstone 1, netherrack 4 | Block name to weight; relative, not percentages |
 | `replace.air` | `true` | Refill what was mined out |
 | `replace.blocks` | `[]` | Extra blocks a refill may replace |

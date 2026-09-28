@@ -101,6 +101,7 @@ public final class EventModule {
     private volatile double zoneHologramHeight = 3.0;
     /** {@code setup:} in events.yml - what the {@code /events} setup commands do by default. */
     private volatile boolean setupAutoClaim = true;
+    private volatile boolean setupZoneClaimsLand = true;
     private volatile int setupClaimMargin = 10;
     private volatile int setupZoneHeight = 10;
     private volatile int setupTargetDistance = 10;
@@ -214,6 +215,14 @@ public final class EventModule {
     /** @return whether {@code /events create} claims the new event's territory at once */
     public boolean isSetupAutoClaim() {
         return setupAutoClaim;
+    }
+
+    /**
+     * @return whether a zone drawn past the edge of its event's territory makes the
+     *         territory grow to take it in, a margin around it
+     */
+    public boolean isSetupZoneClaimsLand() {
+        return setupZoneClaimsLand;
     }
 
     /** @return how many blocks of territory {@code /events create} claims around the new event's zones */
@@ -702,6 +711,7 @@ public final class EventModule {
         this.captureSigns = CaptureSigns.Rules.load(file == null ? null : file.getConfigurationSection("capture-signs"), warn);
         ConfigurationSection setup = file == null ? null : file.getConfigurationSection("setup");
         this.setupAutoClaim = setup == null || setup.getBoolean("auto-claim", true);
+        this.setupZoneClaimsLand = setup == null || setup.getBoolean("zone-claims-land", true);
         this.setupClaimMargin = Math.max(0, setup == null ? 10 : setup.getInt("claim-margin", 10));
         this.setupZoneHeight = Math.max(0, setup == null ? 10 : setup.getInt("zone-height", 10));
         this.setupTargetDistance = Math.max(1, setup == null ? 10 : setup.getInt("target-distance", 10));

@@ -24,7 +24,7 @@ Commands that need no node — `/team` and its player subcommands, `/pay`, `/bal
 | `hcfcore.economy.shop.admin` | op | Write `[Buy]` and `[Sell]` shop signs | ✓ |
 | `hcfcore.economy.bounty.admin` | op | `/bounty clear <player>` | ✓ |
 | `hcfcore.events.admin` | op | `/events start`/`stop`, and the setup commands for every event: `create`/`info`/`claim`/`unclaim`/`setzone`/`delzone`/`setblock`/`delete`, and `/schedule add`/`remove` | ✓ |
-| `hcfcore.resourcenode.admin` | op | `/resourcenode refill` | ✓ |
+| `hcfcore.resourcenode.admin` | op | `/resourcenode refill` and `claim` | ✓ |
 | `hcfcore.resourcenode.bypass` | op | Build and mine freely inside a Mountain's region | ✓ |
 | `hcfcore.phase.admin` | op | `start` and `stop` of `/sotw`, `/eotw` and `/purge` | ✓ |
 | `hcfcore.schedule.admin` | op | `/timer start` and `/timer stop`, `/keyall` | ✓ |
