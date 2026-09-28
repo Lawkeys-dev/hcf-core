@@ -93,6 +93,9 @@ public final class EventModule {
     private final StartupGate startup;
 
     private volatile EventSettings settings = EventSettings.defaults();
+    /** {@code capture-signs} in events.yml. */
+    private volatile CaptureSigns.Rules captureSigns = CaptureSigns.Rules.defaults();
+
     /** {@code zone-holograms} in events.yml. */
     private volatile boolean zoneHolograms = true;
     private volatile double zoneHologramHeight = 3.0;
@@ -377,6 +380,7 @@ public final class EventModule {
         plugin.getServer().getPluginManager()
                 .registerEvents(new com.lawkeys.hcfcore.events.planning.ScheduleMenu.Clicks(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new CitadelListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new CaptureSigns(lang, () -> captureSigns), plugin);
 
         if (settings.definitions().isEmpty()) {
             plugin.getLogger().info("No capture events are configured; see events.yml.");
@@ -643,6 +647,9 @@ public final class EventModule {
         teams.broadcast(winner, null, result.getMessageKey(), flatten(result.getPlaceholders()));
 
         String eventName = placeholders.getOrDefault("event", update.eventId());
+        settings.find(update.eventId()).ifPresent(definition -> com.lawkeys.hcfcore.api.event.EventWonEvent.fire(definition.id(),
+                definition.displayName(), settings.citadel(definition.id()).isPresent() ? "citadel" : "koth",
+                winner, null));
         settings.find(update.eventId()).ifPresent(definition -> RewardCommands.run(
                 definition.rewardCommands(),
                 Map.of("team", winner.getName(), "event", eventName),
@@ -692,6 +699,7 @@ public final class EventModule {
         ConfigurationSection holograms = file == null ? null : file.getConfigurationSection("zone-holograms");
         this.zoneHolograms = holograms == null || holograms.getBoolean("enabled", true);
         this.zoneHologramHeight = holograms == null ? 3.0 : holograms.getDouble("height", 3.0);
+        this.captureSigns = CaptureSigns.Rules.load(file == null ? null : file.getConfigurationSection("capture-signs"), warn);
         ConfigurationSection setup = file == null ? null : file.getConfigurationSection("setup");
         this.setupAutoClaim = setup == null || setup.getBoolean("auto-claim", true);
         this.setupClaimMargin = Math.max(0, setup == null ? 10 : setup.getInt("claim-margin", 10));

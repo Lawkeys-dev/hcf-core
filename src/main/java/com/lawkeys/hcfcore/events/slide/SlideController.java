@@ -166,6 +166,8 @@ public final class SlideController implements Listener {
                 }
                 teams.getManager().recordSlideWin(winner);
                 reward(winner, placeholders.getOrDefault("id", ""));
+                settings.find(placeholders.getOrDefault("id", "")).ifPresent(definition ->
+                        com.lawkeys.hcfcore.api.event.EventWonEvent.fire(definition.id(), definition.displayName(), "slide", winner, null));
             });
         }
     }

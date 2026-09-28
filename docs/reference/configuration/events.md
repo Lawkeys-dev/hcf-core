@@ -44,6 +44,18 @@ Which event starts at what time on which day, every week — see the [guide](../
 | `menu.today-material` · `day-material` · `empty-material` | `CLOCK` · `PAPER` · `GRAY_DYE` | The item standing for today, for a day with events, and for a day with none |
 | `menu.colors` | one per kind | The colour each event is written in, window and chat alike: by kind (`koth`, `citadel`, `ktk`, `conquest`, `dtc`, `lastbreak`, `slide`, `totem`, `minitotem`) or by an event's id, which wins |
 
+## Event signs
+
+```yaml title="events.yml"
+--8<-- "src/main/resources/events.yml:capture-signs"
+```
+
+| Key | As shipped | What it does |
+|---|---|---|
+| `enabled` | `true` | A won event leaves a sign to its winner — the King's killer or King, or every online member of the winning team |
+| `material` | `OAK_SIGN` | Any standing or hanging sign |
+| `date-format` | `dd/MM/yyyy HH:mm` | How `%date%` is written |
+
 ## Zone holograms
 
 ```yaml title="events.yml"

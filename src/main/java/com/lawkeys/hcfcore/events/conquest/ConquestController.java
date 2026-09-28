@@ -157,6 +157,8 @@ public final class ConquestController implements Listener {
             team.ifPresent(winner -> {
                 teams.getManager().recordConquestWin(winner);
                 reward(winner, placeholders.getOrDefault("id", ""));
+                settings.find(placeholders.getOrDefault("id", "")).ifPresent(definition ->
+                        com.lawkeys.hcfcore.api.event.EventWonEvent.fire(definition.id(), definition.displayName(), "conquest", winner, null));
             });
         }
     }

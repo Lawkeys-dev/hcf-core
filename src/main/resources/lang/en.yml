@@ -922,6 +922,15 @@ events:
       idle: "{muted}• Not running {dark}{bullet} {secondary}/events start %event%"
 
   # /schedule and the weekly schedule (events.yml, weekly-schedule).
+  # The sign a won event leaves (events.yml, capture-signs). %event% is the event,
+  # %winner% the team - or the player, for Kill the King - and %date% the day.
+  capture-sign:
+    name: "{primary}%event% {muted}won"
+    line-1: "{primary}%event%"
+    line-2: "{muted}won by"
+    line-3: "{secondary}%winner%"
+    line-4: "{dark}%date%"
+
   planning:
     header: "{muted}&m------&r {primary}Event schedule {muted}&m------"
     # %day% is today, tomorrow or a day's name below; %date% is written with

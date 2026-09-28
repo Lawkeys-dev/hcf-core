@@ -70,7 +70,7 @@ Where a player may not hit another — a safe zone, SOTW, a teammate, an ally ou
 
 ## Death signs
 
-A kill by a player leaves a **death sign**: the dead player's name, "slain by", the killer's name and the date. It falls with the loot (or goes straight to the killer, `death-signs.to-killer`), and keeps its text when placed — waxed, so nobody rewrites it. A trophy wall of them is a classic of HCF bases.
+A kill by a player leaves a **death sign**: the dead player's name, "slain by", the killer's name and the date. It falls with the loot (or goes straight to the killer, `death-signs.to-killer`), and keeps its text when placed — **by anybody, operator or not**: the plugin writes it on the sign and waxes it, and no editor ever opens, so nobody rewrites it. A trophy wall of them is a classic of HCF bases. A won event leaves one too ([Events](events.md#event-signs)).
 
 ## Loot protection
 

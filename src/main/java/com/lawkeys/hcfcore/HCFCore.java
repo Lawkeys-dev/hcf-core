@@ -122,6 +122,8 @@ public final class HCFCore extends JavaPlugin {
         // has landed - for good if one fails (package startup).
         this.startupGate = new StartupGate(this, this.langManager);
         getServer().getPluginManager().registerEvents(this.startupGate, this);
+        // Death signs and event-won signs: written on the sign by the plugin, never editable.
+        getServer().getPluginManager().registerEvents(new com.lawkeys.hcfcore.util.RecordSigns(this), this);
 
         // Everything after the gate is itself a load. A crash anywhere in it - a
         // dependency that will not link, a module that throws - would otherwise

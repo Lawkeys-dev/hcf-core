@@ -657,6 +657,9 @@ public final class KingEventController {
                         .ifPresent(winner -> teams.getManager().recordKingWin(winner));
             }
             reward(update);
+            settings.find(update.eventId()).ifPresent(definition -> com.lawkeys.hcfcore.api.event.EventWonEvent.fire(definition.id(),
+                    definition.displayName(), "ktk", teams.getManager().getTeamOf(update.winnerId()).orElse(null),
+                    update.winnerId()));
         }
         if (king == null) {
             return; // offline: their items wait for their next login

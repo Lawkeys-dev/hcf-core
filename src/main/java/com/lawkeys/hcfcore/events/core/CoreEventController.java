@@ -304,6 +304,8 @@ public final class CoreEventController implements Listener {
                         teams.getManager().recordLastBreakWin(winner);
                     }
                     reward(winner, definition);
+                    com.lawkeys.hcfcore.api.event.EventWonEvent.fire(definition.id(), definition.displayName(),
+                            definition.kind() == CoreEventKind.DTC ? "dtc" : "lastbreak", winner, null);
                 });
             });
         }

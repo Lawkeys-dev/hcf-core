@@ -292,6 +292,9 @@ public final class TotemController implements Listener {
         if (update.type() == TotemUpdate.Type.WON) {
             team.filter(winner -> !winner.getType().isSystem()).ifPresent(winner -> definition.ifPresent(found -> {
                 teams.getManager().recordTotemWin(winner, found.height());
+                com.lawkeys.hcfcore.api.event.EventWonEvent.fire(found.id(), found.displayName(),
+                        found.height() <= com.lawkeys.hcfcore.team.TeamSettings.PointsRules.MINI_TOTEM_HEIGHT
+                                ? "minitotem" : "totem", winner, null);
                 RewardCommands.run(found.rewardCommands(),
                         Map.of("team", winner.getName(), "event", found.displayName()),
                         command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command),

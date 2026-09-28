@@ -2,17 +2,13 @@ package com.lawkeys.hcfcore.pvp.deathsign;
 
 import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.pvp.PvpMessages;
-import com.lawkeys.hcfcore.util.ItemText;
 import org.bukkit.Material;
-import org.bukkit.block.Sign;
-import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -69,19 +65,9 @@ public final class DeathSignListener implements Listener {
                 lang.get(PvpMessages.DEATH_SIGN_LINE_2, placeholders),
                 lang.get(PvpMessages.DEATH_SIGN_LINE_3, placeholders),
                 lang.get(PvpMessages.DEATH_SIGN_LINE_4, placeholders));
-        ItemStack item = ItemStack.of(material);
-        item.editMeta(meta -> {
-            if (meta instanceof BlockStateMeta stateMeta && stateMeta.getBlockState() instanceof Sign state) {
-                for (int line = 0; line < 4; line++) {
-                    state.getSide(Side.FRONT).line(line, ItemText.line(lines.get(line)));
-                }
-                // Placed, it cannot be edited: a death sign is a record, not a note.
-                state.setWaxed(true);
-                stateMeta.setBlockState(state);
-            }
-            meta.customName(ItemText.line(lang.get(PvpMessages.DEATH_SIGN_NAME, placeholders)));
-            meta.lore(lines.stream().map(ItemText::line).toList());
-        });
-        return item;
+        // A record: written on the sign by the plugin when placed, for everybody, and
+        // never editable (util/RecordSigns).
+        return com.lawkeys.hcfcore.util.RecordSigns.item(material, lines,
+                lang.get(PvpMessages.DEATH_SIGN_NAME, placeholders), lines);
     }
 }

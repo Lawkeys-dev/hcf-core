@@ -36,6 +36,7 @@ All of these events are fired on the main server thread. Each extends `TeamEvent
 | `TeamRoleChangeEvent` | After a member's role changed, handovers included | no | `getPlayer()`, `getPreviousRole()`, `getNewRole()` |
 | `TeamAllianceChangeEvent` | After two teams allied or broke their alliance; once for the pair | no | `getOtherTeam()`, `isAllied()` |
 | `TeamRaidableEvent` | When a team's DTR makes it raidable, or no longer | no | `isRaidable()`, `getRaider()` — `Optional<Team>`, the team whose kill made it raidable |
+| `EventWonEvent` | When an event is won — a KOTH or Citadel captured, a Conquest, DTC, Last Break, Slide, Totem or Kill the King won | no | `getEventId()`, `getDisplayName()`, `getKind()` (`koth`, `citadel`, `conquest`, `dtc`, `lastbreak`, `slide`, `totem`, `minitotem`, `ktk`), `getTeam()`, `getPlayer()` (Kill the King's winner) |
 
 ### TeamRaidableEvent
 

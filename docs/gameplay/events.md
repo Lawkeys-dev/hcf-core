@@ -265,6 +265,10 @@ An `<id>` must be **2 to 32 characters of lowercase letters, digits, `_` and `-`
 
 If a DTC's core or a Totem's column is not on server land, the console warns when the event loads — territory protection otherwise does not apply to it between runs. `/events claim <id>` fixes it.
 
+## Event signs
+
+A won event leaves a **sign**, as a kill does: the event, who won it and the date — to the winner of Kill the King, or to every online member of the winning team (`capture-signs` in `events.yml`, lines in `events.capture-sign` of `lang/en.yml`). Placed, it keeps its text — written by the plugin, waxed, never editable.
+
 ## Zone holograms
 
 A hologram floats above every capture zone — KOTH, Citadel, each Conquest zone, a DTC or Last Break's core, a Slide's zone, and a Totem's column — for as long as it is configured (`zone-holograms`): while its event runs, its status; otherwise, when it runs next (or "not scheduled"). A DTC or Last Break shows its health (or, under `PER_TEAM`, the leader's breaks); a Slide shows its live top 3. Its texts are under `events.hologram` in `lang/en.yml`. Kill the King has no zone of its own, so no hologram. The hologram module (`holograms.yml`) must be enabled.

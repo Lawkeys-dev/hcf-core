@@ -14,6 +14,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **Pause or continue while contested** (`events.yml`, `when-contested`, for a KOTH, a Citadel and each Conquest zone): `pause`, as before, freezes the countdown; `continue` lets the holder keep counting down while it is still in the zone.
 - **A raid pays**: what a team loses at becoming raidable goes to the team whose kill made it so (`teams.yml`, `points.raidable-steal`) — never to an ally, to nobody when no team caused the death. `TeamRaidableEvent#getRaider()` names that team.
 - **Making subclaims is a permission** like the others (`claims.yml`, `subclaims.create-role`, every member as shipped), which each team may raise in `/team settings` (`create-subclaims`).
+- **A won event leaves a sign**, as a kill does: the event, who won it and the date, to the King's winner or every online member of the winning team (`events.yml`, `capture-signs`; lines in `events.capture-sign`). *Existing servers: copy the `capture-signs` section and the `events.capture-sign` lines from the jar.*
+- **`EventWonEvent`** in the API: fired when any event is won, with its kind, the winning team and, for Kill the King, the player.
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
 ### Changed
@@ -25,6 +27,9 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **The King cannot leave the warzone**: walking, a pearl, a teleport out are refused, and they see its edge as a wall within 15 blocks, as spawn's is shown in combat (`reign.wall`). **The Wither for a King outside is off** (`outside-penalty.enabled: false`). *To keep the Wither on an existing server, add `enabled: true` under `outside-penalty`.*
 - **A King who logs out is banned for 2 hours** (`reign.quit-ban-seconds`), the event ending with no winner as before.
 - **Only active players are drawn as King**: idle for 5 minutes — no move, look, chat, command or click — and a player is left out (`reign.afk-seconds`).
+
+### Fixed
+- **A death sign placed by a player who is not an operator was blank**, and opened the sign editor: the game copies a block's data from its item for operators only. The plugin now writes the sign and waxes it when placed, for everybody, and refuses the editor and any rewriting.
 
 ## [0.9.0] - 2026-09-27
 
