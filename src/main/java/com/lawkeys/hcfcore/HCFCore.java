@@ -410,6 +410,7 @@ public final class HCFCore extends JavaPlugin {
             // deathban, never shorter than one already running.
             if (this.eventModule.getKing() != null) {
                 PvpModule pvp = this.pvpModule;
+                pvp.getCombatLoggers().setDropRule(this.eventModule.getKing()::loggerDrop);
                 this.eventModule.getKing().setQuitBan((player, seconds) -> {
                     var bans = pvp.getDeathbans();
                     long left = bans.getActiveBan(player)

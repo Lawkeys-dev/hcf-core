@@ -739,6 +739,25 @@ public final class KingEventController {
         return true;
     }
 
+    /**
+     * What of a combat logger's items falls when their stand-in is killed: the kit
+     * of a King who logged out goes the way their death would send it - loot, or
+     * nowhere (reign.drop-kit) - and everything else falls.
+     *
+     * @return the item to drop, or {@code null} for none
+     */
+    public ItemStack loggerDrop(UUID playerId, ItemStack item) {
+        if (!kits.isKit(item)) {
+            return item;
+        }
+        if (!reignOf(playerId).dropKit()) {
+            return null;
+        }
+        ItemStack loot = item.clone();
+        kits.unmark(loot);
+        return loot;
+    }
+
     /** Whether this player is owed items, for the listener's quick checks. */
     boolean isOwed(UUID playerId) {
         return stashes != null && stashes.has(playerId);

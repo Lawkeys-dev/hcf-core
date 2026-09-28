@@ -80,12 +80,34 @@ public final class PvpSettingsLoader {
         if (section == null) {
             return defaults;
         }
+        boolean kill = section.getBoolean("kill-on-logout", defaults.killOnLogout());
+        String rawLogout = section.getString("logout");
+        PvpSettings.LogoutAction logout;
+        if (rawLogout == null || rawLogout.isBlank()) {
+            // A file written before the stand-in: kill-on-logout false kept meaning nothing.
+            logout = kill ? defaults.logout() : PvpSettings.LogoutAction.NONE;
+        } else {
+            try {
+                logout = PvpSettings.LogoutAction.valueOf(rawLogout.trim().toUpperCase(java.util.Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                warn.accept("combat-tag.logout '" + rawLogout + "' is not npc, kill or none; npc is used.");
+                logout = PvpSettings.LogoutAction.NPC;
+            }
+        }
+        String entity = section.getString("logger.entity", defaults.loggerEntity());
+        org.bukkit.entity.EntityType type = entity == null ? null
+                : org.bukkit.Registry.ENTITY_TYPE.get(org.bukkit.NamespacedKey.minecraft(entity.trim().toLowerCase(java.util.Locale.ROOT)));
+        if (type == null || !type.isAlive() || type == org.bukkit.entity.EntityType.PLAYER) {
+            warn.accept("combat-tag.logger.entity '" + entity + "' is not a living entity; VILLAGER is used.");
+            entity = "VILLAGER";
+        }
         return new PvpSettings.CombatTagRules(
                 section.getBoolean("enabled", defaults.enabled()),
                 Math.max(0L, Durations.capSeconds(section.getLong("duration-seconds", defaults.durationSeconds()), "duration-seconds", warn)),
                 section.getBoolean("tag-attacker", defaults.tagAttacker()),
-                section.getBoolean("kill-on-logout", defaults.killOnLogout()),
-                section.getBoolean("block-teleport", defaults.blockTeleport()));
+                kill,
+                section.getBoolean("block-teleport", defaults.blockTeleport()),
+                logout, entity, section.getDouble("logger.health", defaults.loggerHealth()));
     }
 
     private static PvpSettings.EnderPearlRules loadEnderPearl(ConfigurationSection section,

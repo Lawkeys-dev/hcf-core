@@ -24,6 +24,12 @@ public final class PvpMessages {
     public static final String TAG_STATUS_ACTIVE = "pvp.tag.status-active";
     public static final String TAG_STATUS_CLEAR = "pvp.tag.status-clear";
 
+    // Combat logger: the stand-in a tagged player leaves (pvp.yml, combat-tag.logout: npc)
+    public static final String LOGGER_NAME = "pvp.combat-logger.name";
+    public static final String LOGGER_KILLED = "pvp.combat-logger.killed";
+    public static final String LOGGER_DIED = "pvp.combat-logger.died";
+    public static final String LOGGER_DIED_AWAY = "pvp.combat-logger.died-away";
+
     // Deathban
     public static final String DEATHBAN_APPLIED = "pvp.deathban.applied";
     public static final String DEATHBAN_LOGIN_DENIED = "pvp.deathban.login-denied";

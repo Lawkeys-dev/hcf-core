@@ -39,7 +39,13 @@ Eaten meanwhile, the item is refused and stays; a totem on cooldown saves nobody
 
 ## Combat logging
 
-**Logging out while tagged kills the player** (`kill-on-logout`). That death counts like any other: deathban, DTR lost, drops on the ground.
+**Logging out while tagged leaves a stand-in** (`logout: npc`): a villager (`logger.entity`) appears where the player stood, named after them, with their health — at most 20, ten hearts (`logger.health`). It cannot move or trade, and only a player hurts it, by the same rules as a blow at the player it stands for: no hit in a safe zone, during SOTW, or on a teammate. **Every hit starts both combat tags over** — the stand-in's player's and the attacker's.
+
+- **Killed:** the player's items fall where it stood, and the death counts like any other — deathban, DTR and team points lost, kill and money for the killer, a death sign. The player comes back to spawn with an empty inventory.
+- **Still standing when the tag runs out:** it goes. The player lost nothing.
+- **The player back first:** it goes and they take its place, with its health, still tagged.
+
+A restart removes every stand-in: its player keeps their things. `logout: kill` is the old rule — death at once — and `logout: none` lets them go.
 
 `/logout` is the way to leave that is visibly not an escape: a **30-second countdown** that damage or moving cancels. It is refused while tagged, when it is typed and again when its countdown ends — striking a blow during the countdown tags the attacker, and the kick would then be a combat log.
 

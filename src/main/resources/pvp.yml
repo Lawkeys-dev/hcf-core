@@ -40,11 +40,21 @@ combat-tag:
   duration-seconds: 30
   # Tag the attacker as well as the victim, so hitting someone commits you too.
   tag-attacker: true
-  # Kill a tagged player who disconnects. This is the classic HCF answer to
-  # combat logging, and the reason the tag exists at all: without it, a losing
-  # fight is escaped by pulling the plug. The death runs the normal path, so the
-  # deathban applies and the team loses DTR.
-  kill-on-logout: true
+  # What a tagged player who disconnects leaves behind - the reason the tag exists
+  # at all: without it, a losing fight is escaped by pulling the plug.
+  #   npc  - a stand-in where they stood, with their health (logger below). Killed,
+  #          their items fall and they die - deathban, DTR, points, as for a kill -
+  #          and find an empty inventory when they come back. Hit, both combat tags
+  #          start over. Still standing when the tag runs out, it goes and they keep
+  #          everything; back before that, they take its place, its health included.
+  #   kill - their death, at once.
+  #   none - nothing.
+  logout: npc
+  logger:
+    # Any living entity; it cannot move, trade or be hurt by anything but a player.
+    entity: VILLAGER
+    # In half hearts: 20 is ten hearts.
+    health: 20
   # Refuse plugin teleports (such as /team hq) while tagged.
   block-teleport: true
 # --8<-- [end:combat-tag]

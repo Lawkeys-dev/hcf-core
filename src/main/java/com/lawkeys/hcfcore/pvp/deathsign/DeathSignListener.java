@@ -53,6 +53,27 @@ public final class DeathSignListener implements Listener {
         }
     }
 
+    /** A combat logger's stand-in killed: its sign falls with its items, or goes to the killer. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerDeath(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        DeathSignRules current = rules.get();
+        Player killer = event.getKiller().orElse(null);
+        if (!current.enabled() || killer == null) {
+            return;
+        }
+        ItemStack sign = sign(current, event.getVictimName(), killer.getName());
+        if (sign == null) {
+            return;
+        }
+        if (!current.toKiller()) {
+            event.getLocation().getWorld().dropItemNaturally(event.getLocation(), sign);
+            return;
+        }
+        for (ItemStack left : killer.getInventory().addItem(sign).values()) {
+            killer.getWorld().dropItemNaturally(killer.getLocation(), left);
+        }
+    }
+
     private ItemStack sign(DeathSignRules current, String victim, String killer) {
         Material material = Material.matchMaterial(current.material());
         if (material == null) {

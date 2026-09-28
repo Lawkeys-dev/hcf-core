@@ -538,9 +538,17 @@ pvp:
     tagged: "{error}You are now in combat for {secondary}%seconds%s{error}. You cannot teleport or log out safely."
     expired: "{success}You are no longer in combat."
     blocks-teleport: "{error}You cannot teleport while in combat ({secondary}%time% {error}left)."
-    blocks-logout: "{error}You cannot log out while in combat ({secondary}%time% {error}left): leaving now would kill you."
+    blocks-logout: "{error}You cannot log out while in combat ({secondary}%time% {error}left): leaving now could cost you your life."
     status-active: "{muted}Combat tag: {error}%time% {muted}remaining."
     status-clear: "{muted}Combat tag: {success}none{muted}."
+
+  # pvp.yml, combat-tag.logout: npc - the stand-in a tagged player leaves when they
+  # disconnect. %player% is who logged out, %killer% who killed the stand-in.
+  combat-logger:
+    name: "{error}%player% {muted}(combat logger)"
+    killed: "{error}%player% {muted}logged out in combat and was slain by {success}%killer%{muted}."
+    died: "{error}%player% {muted}logged out in combat and died."
+    died-away: "{error}You logged out in combat and were killed while away: your items were dropped."
 
   deathban:
     applied: "{error}You died. You cannot rejoin for {secondary}%time%{error}."

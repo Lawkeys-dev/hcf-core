@@ -147,6 +147,16 @@ public final class ConquestController implements Listener {
         manager.recordDeath(teamId).ifPresent(this::announce);
     }
 
+    /** A combat logger's stand-in killed costs its team as the death it is. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerDeath(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        if (manager.getCurrent().isEmpty() || teams.getManager() == null) {
+            return;
+        }
+        UUID teamId = teams.getManager().getTeamOf(event.getVictimId()).map(Team::getId).orElse(null);
+        manager.recordDeath(teamId).ifPresent(this::announce);
+    }
+
     /** Says it to everybody, and pays the reward when somebody won. */
     public void announce(ConquestUpdate update) {
         Map<String, String> placeholders = new LinkedHashMap<>(update.placeholders());

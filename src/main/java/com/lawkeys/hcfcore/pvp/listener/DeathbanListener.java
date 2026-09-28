@@ -129,22 +129,25 @@ public final class DeathbanListener implements Listener {
     }
 
     /**
-     * Combat logging: a player who disconnects while tagged dies anyway.
+     * Combat logging: a player who disconnects while tagged does not escape the fight.
      *
-     * <p>The classic HCF answer, and the reason the tag exists at all - without it
-     * a losing fight is escaped by pulling the plug.
+     * <p>Without it a losing fight is escaped by pulling the plug. {@code pvp.yml},
+     * {@code combat-tag.logout}, decides the answer: a stand-in left where they stood,
+     * which can be killed until the tag runs out, or death on the spot.
      */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        if (!module.getSettings().combatTag().killOnLogout()) {
-            return;
-        }
         if (!module.getCombatTags().isTagged(player.getUniqueId())) {
             return;
         }
-        // Killing the player fires PlayerDeathEvent, which applies the deathban and
-        // clears the tag through the handler above - so the DTR cost lands too.
-        player.setHealth(0.0);
+        switch (module.getSettings().combatTag().logout()) {
+            case NPC -> module.getCombatLoggers().spawn(player);
+            // Killing the player fires PlayerDeathEvent, which applies the deathban and
+            // clears the tag through the handler above - so the DTR cost lands too.
+            case KILL -> player.setHealth(0.0);
+            case NONE -> {
+            }
+        }
     }
 }

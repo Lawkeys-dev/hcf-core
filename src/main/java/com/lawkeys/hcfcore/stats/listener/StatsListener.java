@@ -55,4 +55,12 @@ public final class StatsListener implements Listener {
             module.recordKill(killer);
         }
     }
+
+    /** A combat logger's stand-in killed: the player died, though away. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerDeath(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        module.getManager().recordDeath(event.getVictimId(), event.getVictimName());
+        event.getKiller().filter(killer -> !killer.getUniqueId().equals(event.getVictimId()))
+                .ifPresent(module::recordKill);
+    }
 }

@@ -39,11 +39,22 @@ public final class PlayerDeathDtrListener implements Listener {
         if (ForgivenDeaths.spares(player.getUniqueId(), ForgivenDeaths.Cost.DTR)) {
             return;
         }
-        Player killer = player.getKiller();
+        charge(player.getUniqueId(), player.getName(), player.getKiller());
+    }
+
+    /** A combat logger's stand-in killed: the player died, though away. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerDeath(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        if (module.getManager() != null) {
+            charge(event.getVictimId(), event.getVictimName(), event.getKiller().orElse(null));
+        }
+    }
+
+    private void charge(java.util.UUID victim, String name, Player killer) {
         java.util.UUID raider = killer == null ? null : module.getTeams().getManager().getTeamOf(killer.getUniqueId())
                 .map(com.lawkeys.hcfcore.team.Team::getId).orElse(null);
-        module.getTeams().getManager().getTeamOf(player.getUniqueId())
-                .ifPresent(team -> module.applyDeath(team, player.getName(), raider));
+        module.getTeams().getManager().getTeamOf(victim)
+                .ifPresent(team -> module.applyDeath(team, name, raider));
     }
 
     /** A disbanded team's DTR row would otherwise outlive it. */

@@ -120,6 +120,33 @@ class PvpTest {
         }
 
         @Test
+        void aStandInIsWhatALogoutLeavesAsShipped() {
+            var rules = PvpSettings.defaults().combatTag();
+            assertEquals(PvpSettings.LogoutAction.NPC, rules.logout());
+            assertEquals("VILLAGER", rules.loggerEntity());
+            assertEquals(20.0, rules.loggerHealth());
+        }
+
+        @Test
+        void theOldKillOnLogoutRulesKeepTheirMeaning() {
+            assertEquals(PvpSettings.LogoutAction.KILL,
+                    new PvpSettings.CombatTagRules(true, 30L, true, true, true).logout());
+            assertEquals(PvpSettings.LogoutAction.NONE,
+                    new PvpSettings.CombatTagRules(true, 30L, true, false, true).logout());
+        }
+
+        @Test
+        void aStandInsHealthStaysWithinReason() {
+            var low = new PvpSettings.CombatTagRules(true, 30L, true, true, true,
+                    PvpSettings.LogoutAction.NPC, " ", 0.0);
+            assertEquals("VILLAGER", low.loggerEntity());
+            assertEquals(1.0, low.loggerHealth());
+            var high = new PvpSettings.CombatTagRules(true, 30L, true, true, true,
+                    PvpSettings.LogoutAction.NPC, "ZOMBIE", 5000.0);
+            assertEquals(1024.0, high.loggerHealth());
+        }
+
+        @Test
         void anUnknownPlayerIsNeverTagged() {
             assertFalse(tags.isTagged(null));
             assertFalse(tags.isTagged(UUID.randomUUID()));

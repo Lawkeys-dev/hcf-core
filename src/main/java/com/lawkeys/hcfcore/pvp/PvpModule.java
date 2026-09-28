@@ -82,6 +82,7 @@ public final class PvpModule {
 
     private DeathbanManager deathbans;
     private CombatTagManager combatTags;
+    private com.lawkeys.hcfcore.pvp.logger.CombatLoggers combatLoggers;
     private BukkitTask saveTask;
     private BukkitTask tagExpiryTask;
 
@@ -126,6 +127,11 @@ public final class PvpModule {
 
     public CombatTagManager getCombatTags() {
         return combatTags;
+    }
+
+    /** @return the stand-ins combat-tagged players leave when they disconnect */
+    public com.lawkeys.hcfcore.pvp.logger.CombatLoggers getCombatLoggers() {
+        return combatLoggers;
     }
 
     public Cooldowns getPearlCooldowns() {
@@ -278,6 +284,39 @@ public final class PvpModule {
                 && teams.getTeam(attackerTeam).map(team -> team.isAlliedWith(victimTeam)).orElse(false);
         return FriendlyFire.judge(attackerTeam, victimTeam, allied,
                 () -> covers(attacker) || covers(victim), settings.friendlyFire());
+    }
+
+    /**
+     * Whether a player may harm somebody who is not there - the stand-in a combat
+     * logger leaves: the same rules as a blow at the player, judged where it stands.
+     */
+    public Optional<Refusal> judgeHarm(Player attacker, UUID victim, org.bukkit.Location victimAt, String victimName) {
+        Optional<String> protectedBy = protection.refusal(attacker.getUniqueId(), victim);
+        if (protectedBy.isPresent()) {
+            return Optional.of(new Refusal(protectedBy.get()));
+        }
+        if (!settings.enabled()) {
+            return Optional.empty();
+        }
+        if (settings.safeZones().enabled() && (isSafeZoneAt(victimAt) || isInSafeZone(attacker))) {
+            return Optional.of(new Refusal(PvpMessages.SAFE_ZONE_ATTACKER));
+        }
+        if (claims != null && !openTarget.isOpen(attacker.getUniqueId()) && !openTarget.isOpen(victim)) {
+            var teams = claims.getTeams().getManager();
+            UUID attackerTeam = teams.getTeamOf(attacker.getUniqueId()).map(Team::getId).orElse(null);
+            UUID victimTeam = teams.getTeamOf(victim).map(Team::getId).orElse(null);
+            boolean allied = attackerTeam != null && victimTeam != null
+                    && teams.getTeam(attackerTeam).map(team -> team.isAlliedWith(victimTeam)).orElse(false);
+            FriendlyFire sameSide = FriendlyFire.judge(attackerTeam, victimTeam, allied,
+                    () -> covers(attacker) || allyCombatZone.covers(victim, victimAt.getWorld().getName(),
+                            victimAt.getX(), victimAt.getY(), victimAt.getZ()), settings.friendlyFire());
+            if (sameSide != FriendlyFire.ALLOW) {
+                return Optional.of(new Refusal(sameSide == FriendlyFire.TEAMMATE
+                        ? PvpMessages.FRIENDLY_FIRE_TEAMMATE : PvpMessages.FRIENDLY_FIRE_ALLY,
+                        "player", victimName));
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -438,6 +477,9 @@ public final class PvpModule {
             });
         }
         plugin.getServer().getPluginManager().registerEvents(new DeathbanListener(this), plugin);
+        this.combatLoggers = new com.lawkeys.hcfcore.pvp.logger.CombatLoggers(this);
+        plugin.getServer().getPluginManager().registerEvents(combatLoggers, plugin);
+        combatLoggers.start();
         plugin.getServer().getPluginManager().registerEvents(new AttackSpeedListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new LootProtectionListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PearlListener(this), plugin);
@@ -536,6 +578,9 @@ public final class PvpModule {
     }
 
     public void disable() {
+        if (combatLoggers != null) {
+            combatLoggers.stop();
+        }
         if (legacyTask != null) {
             legacyTask.cancel();
             legacyTask = null;
@@ -632,20 +677,33 @@ public final class PvpModule {
      * It was not before: the holder simply logged back in.
      */
     public void applyDeathban(Player player) {
-        if (player.hasPermission(BYPASS_PERMISSION)) {
+        applyDeathban(player.getUniqueId(), heldTierPermissions(player), player.hasPermission(BYPASS_PERMISSION));
+    }
+
+    /**
+     * The deathban of a player who may be offline - the combat logger's stand-in
+     * killed after they left: with the tier nodes and the bypass they held when they
+     * left, since an offline player's permissions cannot be read.
+     */
+    public void applyDeathban(UUID playerId, List<String> heldTiers, boolean bypass) {
+        if (bypass) {
             return;
         }
         switch (deathbanPolicy.rule()) {
             case NONE -> {
             }
-            case UNTIL_MAP_END -> deathbans.applyUntilMapEnd(player.getUniqueId(), "eotw").ifPresent(ban ->
-                    kickDeathbanned(player.getUniqueId(), true));
+            case UNTIL_MAP_END -> deathbans.applyUntilMapEnd(playerId, "eotw").ifPresent(ban ->
+                    kickDeathbanned(playerId, true));
             case USUAL -> {
-                long seconds = settings.deathbanSecondsFor(heldTierPermissions(player));
-                deathbans.apply(player.getUniqueId(), seconds, "death").ifPresent(ban ->
-                        kickDeathbanned(player.getUniqueId(), true));
+                long seconds = settings.deathbanSecondsFor(heldTiers);
+                deathbans.apply(playerId, seconds, "death").ifPresent(ban -> kickDeathbanned(playerId, true));
             }
         }
+    }
+
+    /** @return the deathban tier nodes this player holds, to judge them once they have left */
+    public List<String> tierPermissionsOf(Player player) {
+        return heldTierPermissions(player);
     }
 
     /**
@@ -734,14 +792,16 @@ public final class PvpModule {
 
     /**
      * The answer to {@code general/}'s logout guard: a tagged player's safe logout
-     * would be a combat log, which {@code DeathbanListener#onQuit} punishes by death -
+     * would be a combat log, which {@code DeathbanListener#onQuit} answers with a
+     * stand-in or a death -
      * so it is refused, on the same condition that punishment uses.
      *
      * @return {@code true} if the player may not log out through {@code /logout} now,
      *         having been told why
      */
     public boolean refuseLogout(Player player) {
-        if (!settings.combatTag().killOnLogout() || !combatTags.isTagged(player.getUniqueId())) {
+        if (settings.combatTag().logout() == PvpSettings.LogoutAction.NONE
+                || !combatTags.isTagged(player.getUniqueId())) {
             return false;
         }
         lang.send(player, PvpMessages.TAG_BLOCKS_LOGOUT,

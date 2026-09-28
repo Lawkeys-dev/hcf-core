@@ -29,6 +29,12 @@ public final class TeamPointsListener implements Listener {
         module.getManager().recordDeath(killer == null ? null : killer.getUniqueId(), event.getEntity().getUniqueId());
     }
 
+    /** A combat logger's stand-in killed: the player died, though away. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerDeath(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        module.getManager().recordDeath(event.getKiller().map(Player::getUniqueId).orElse(null), event.getVictimId());
+    }
+
     /** Fired by {@code dtr/} on the transition only, never for a team already raidable at start. */
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRaidable(TeamRaidableEvent event) {

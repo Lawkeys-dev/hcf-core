@@ -38,34 +38,44 @@ public final class KillRewardListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
-        Player killer = victim.getKiller();
+        pay(victim.getUniqueId(), victim.getName(), victim.getKiller());
+    }
+
+    /** A combat logger's stand-in killed: the player died, though away. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerDeath(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        pay(event.getVictimId(), event.getVictimName(), event.getKiller().orElse(null));
+    }
+
+    private void pay(java.util.UUID victimId, String victimName, Player killer) {
         EconomyManager money = economy.get();
         KillReward.Rules current = rules.get();
         if (killer == null || money == null || !current.enabled()
-                || Sides.same(teams.get(), killer.getUniqueId(), victim.getUniqueId())) {
+                || Sides.same(teams.get(), killer.getUniqueId(), victimId)) {
             return;
         }
         long now = System.currentTimeMillis();
-        KillReward.Payout payout = reward.payout(current, killer.getUniqueId(), victim.getUniqueId(),
-                money.getBalance(victim.getUniqueId()), now);
+        KillReward.Payout payout = reward.payout(current, killer.getUniqueId(), victimId,
+                money.getBalance(victimId), now);
         reward.forgetOlderThan(now - current.sameVictimCooldownSeconds() * 1000L);
         if (payout.isEmpty()) {
             return;
         }
         double stolen = 0.0;
-        if (payout.stolen() > 0 && money.withdraw(victim.getUniqueId(), payout.stolen()).isOk()) {
+        if (payout.stolen() > 0 && money.withdraw(victimId, payout.stolen()).isOk()) {
             stolen = payout.stolen();
         }
         double total = payout.flat() + stolen;
         if (total <= 0 || !money.deposit(killer.getUniqueId(), total).isOk()) {
             // The killer's balance is at its ceiling: nothing is lost on the way.
             if (stolen > 0) {
-                money.restore(victim.getUniqueId(), stolen);
+                money.restore(victimId, stolen);
             }
             return;
         }
-        lang.send(killer, EconomyMessages.KILL_REWARD, "amount", money.format(total), "victim", victim.getName());
-        if (stolen > 0) {
+        lang.send(killer, EconomyMessages.KILL_REWARD, "amount", money.format(total), "victim", victimName);
+        Player victim = org.bukkit.Bukkit.getPlayer(victimId);
+        if (stolen > 0 && victim != null) {
             lang.send(victim, EconomyMessages.KILL_REWARD_STOLEN, "amount", money.format(stolen),
                     "killer", killer.getName());
         }

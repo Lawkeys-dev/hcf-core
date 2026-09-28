@@ -52,12 +52,40 @@ public record PvpSettings(
 
     /**
      * @param tagAttacker    tag the attacker as well as the victim
-     * @param killOnLogout   kill a tagged player who disconnects - the classic HCF
-     *                       answer to combat logging
+     * @param killOnLogout   kept for files written before {@code logout}: false meant
+     *                       nothing happens to a tagged player who disconnects
      * @param blockTeleport  refuse plugin teleports (such as {@code /team hq}) while tagged
+     * @param logout         what a tagged player leaving leaves behind: a stand-in to
+     *                       kill ({@code NPC}, the owner's choice of 28/09/2026), their
+     *                       death at once ({@code KILL}), or nothing ({@code NONE})
+     * @param loggerEntity   the stand-in's kind, as the server spells it
+     * @param loggerHealth   its health, in half hearts
      */
     public record CombatTagRules(boolean enabled, long durationSeconds, boolean tagAttacker,
-                                 boolean killOnLogout, boolean blockTeleport) {
+                                 boolean killOnLogout, boolean blockTeleport, LogoutAction logout,
+                                 String loggerEntity, double loggerHealth) {
+
+        public CombatTagRules {
+            Objects.requireNonNull(logout, "logout");
+            loggerEntity = loggerEntity == null || loggerEntity.isBlank() ? "VILLAGER" : loggerEntity.trim();
+            loggerHealth = Math.max(1.0, Math.min(1024.0, loggerHealth));
+        }
+
+        public CombatTagRules(boolean enabled, long durationSeconds, boolean tagAttacker, boolean killOnLogout,
+                              boolean blockTeleport) {
+            this(enabled, durationSeconds, tagAttacker, killOnLogout, blockTeleport,
+                    killOnLogout ? LogoutAction.KILL : LogoutAction.NONE, "VILLAGER", 20.0);
+        }
+    }
+
+    /** What a combat-tagged player who disconnects leaves behind. */
+    public enum LogoutAction {
+        /** A stand-in, with their health: killed, they die; it outlives the tag, they are safe. */
+        NPC,
+        /** Their death, at once. */
+        KILL,
+        /** Nothing. */
+        NONE
     }
 
     /**
@@ -209,7 +237,7 @@ public record PvpSettings(
         return new PvpSettings(
                 true,
                 new DeathbanRules(true, 3600L, tiers),
-                new CombatTagRules(true, 30L, true, true, true),
+                new CombatTagRules(true, 30L, true, true, true, LogoutAction.NPC, "VILLAGER", 20.0),
                 new StrengthRules(true, 3.0, 1.5),
                 new KnockbackRules(false, 1.0, 1.0),
                 new AttackSpeedRules(false, 4.0),

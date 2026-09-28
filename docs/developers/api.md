@@ -36,6 +36,7 @@ All of these events are fired on the main server thread. Each extends `TeamEvent
 | `TeamRoleChangeEvent` | After a member's role changed, handovers included | no | `getPlayer()`, `getPreviousRole()`, `getNewRole()` |
 | `TeamAllianceChangeEvent` | After two teams allied or broke their alliance; once for the pair | no | `getOtherTeam()`, `isAllied()` |
 | `TeamRaidableEvent` | When a team's DTR makes it raidable, or no longer | no | `isRaidable()`, `getRaider()` — `Optional<Team>`, the team whose kill made it raidable |
+| `CombatLoggerDeathEvent` | When the stand-in a combat-tagged player left at logout is killed: the player's death, though away. Their items have fallen and their deathban is set; DTR, points and statistics are counted by listeners of this event, as for a `PlayerDeathEvent` | no | `getVictimId()`, `getVictimName()`, `getKiller()` — `Optional<Player>`, `getLocation()` |
 | `EventWonEvent` | When an event is won — a KOTH or Citadel captured, a Conquest, DTC, Last Break, Slide, Totem or Kill the King won | no | `getEventId()`, `getDisplayName()`, `getKind()` (`koth`, `citadel`, `conquest`, `dtc`, `lastbreak`, `slide`, `totem`, `minitotem`, `ktk`), `getTeam()`, `getPlayer()` (Kill the King's winner) |
 
 ### TeamRaidableEvent

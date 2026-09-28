@@ -41,21 +41,30 @@ public final class BountyListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
-        Player killer = victim.getKiller();
+        claim(victim.getUniqueId(), victim.getName(), victim.getKiller());
+    }
+
+    /** A combat logger's stand-in killed: the player died, though away. */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerDeath(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        claim(event.getVictimId(), event.getVictimName(), event.getKiller().orElse(null));
+    }
+
+    private void claim(java.util.UUID victimId, String victimName, Player killer) {
         Bounties all = bounties.get();
         EconomyManager money = economy.get();
-        if (killer == null || killer.equals(victim) || all == null || money == null || !rules.get().enabled()
-                || all.get(victim.getUniqueId()) <= 0
-                || Sides.same(teams.get(), killer.getUniqueId(), victim.getUniqueId())) {
+        if (killer == null || killer.getUniqueId().equals(victimId) || all == null || money == null || !rules.get().enabled()
+                || all.get(victimId) <= 0
+                || Sides.same(teams.get(), killer.getUniqueId(), victimId)) {
             return;
         }
-        double amount = all.claim(victim.getUniqueId());
+        double amount = all.claim(victimId);
         if (!money.deposit(killer.getUniqueId(), amount).isOk()) {
-            all.restore(victim.getUniqueId(), amount);
+            all.restore(victimId, amount);
             return;
         }
         String line = lang.get(EconomyMessages.BOUNTY_CLAIMED, "killer", killer.getName(),
-                "player", victim.getName(), "amount", money.format(amount));
+                "player", victimName, "amount", money.format(amount));
         Bukkit.getOnlinePlayers().forEach(online -> online.sendMessage(line));
         Bukkit.getConsoleSender().sendMessage(line);
         com.lawkeys.hcfcore.util.Announcements.publish(EconomyMessages.BOUNTY_CLAIMED, line);

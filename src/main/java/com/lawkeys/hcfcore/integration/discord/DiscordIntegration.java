@@ -116,6 +116,12 @@ public final class DiscordIntegration implements Listener {
         sense("kills", DiscordMessages.KILL, "killer", killer.getName(), "victim", event.getEntity().getName());
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLoggerKill(com.lawkeys.hcfcore.api.event.CombatLoggerDeathEvent event) {
+        event.getKiller().ifPresent(killer ->
+                sense("kills", DiscordMessages.KILL, "killer", killer.getName(), "victim", event.getVictimName()));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeamCreated(com.lawkeys.hcfcore.api.event.TeamCreateEvent event) {
         if (!event.getTeam().getType().isSystem()) {
