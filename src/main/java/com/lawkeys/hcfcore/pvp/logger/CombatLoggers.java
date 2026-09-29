@@ -47,13 +47,15 @@ import java.util.logging.Level;
  * The stand-in a combat-tagged player leaves when they disconnect ({@code pvp.yml},
  * {@code combat-tag.logout: npc}, the owner's request of 28/09/2026).
  *
- * <p>Where they stood, with their health and their name: it cannot move, trade, or be
+ * <p>Where they stood, at full health, with their name: it never walks or trades - a
+ * blow pushes it back, as it would them ({@code logger.knockback}) - and cannot be
  * hurt by anything but a player - and a player only by the rules of a blow at the
  * one it stands for. A hit starts both combat tags over. Killed, the player's items
  * fall there, they are deathbanned, and {@link CombatLoggerDeathEvent} lets the rest of
  * the plugin count the death (DTR, points, statistics); they come back to an empty
  * inventory. Still standing when the tag runs out, it goes and they keep everything;
- * back before that, they take its place, with its health.
+ * back before that, they take its place, with the health they left with less the
+ * damage it took.
  *
  * <p>Nothing of a stand-in survives a restart: the entities are never saved, and a
  * player whose stand-in outlived the server keeps their things. Only "died while away"
@@ -63,7 +65,7 @@ public final class CombatLoggers implements Listener {
 
     /** What a stand-in stands for, the player's own state when they left. */
     private record Logger(UUID playerId, String name, UUID entityId, ItemStack[] items, Location at,
-                          List<String> tiers, boolean bypass) {
+                          List<String> tiers, boolean bypass, double healthLeftWith) {
     }
 
     private final PvpModule module;
@@ -116,7 +118,6 @@ public final class CombatLoggers implements Listener {
             type = EntityType.VILLAGER;
         }
         Location at = player.getLocation();
-        double health = Math.min(player.getHealth(), rules.loggerHealth());
         ItemStack[] items = player.getInventory().getContents().clone();
         for (int i = 0; i < items.length; i++) {
             items[i] = items[i] == null ? null : items[i].clone();
@@ -129,7 +130,13 @@ public final class CombatLoggers implements Listener {
             spawned.setSilent(true);
             spawned.getPersistentDataContainer().set(marker, PersistentDataType.STRING, player.getUniqueId().toString());
             if (spawned instanceof Mob mob) {
-                mob.setAI(false);
+                if (rules.loggerKnockback()) {
+                    // Unaware: no goal, no brain - it never walks - but still physics,
+                    // so a blow knocks it back and it falls.
+                    mob.setAware(false);
+                } else {
+                    mob.setAI(false);
+                }
             }
             if (spawned instanceof LivingEntity living) {
                 living.setRemoveWhenFarAway(false);
@@ -137,12 +144,13 @@ public final class CombatLoggers implements Listener {
                 if (max != null) {
                     max.setBaseValue(rules.loggerHealth());
                 }
-                living.setHealth(Math.max(1.0, health));
+                living.setHealth(rules.loggerHealth());
             }
         });
         at.getChunk().addPluginChunkTicket(module.getPlugin());
         Logger logger = new Logger(player.getUniqueId(), player.getName(), entity.getUniqueId(), items, at.clone(),
-                module.tierPermissionsOf(player), player.hasPermission(PvpModule.BYPASS_PERMISSION));
+                module.tierPermissionsOf(player), player.hasPermission(PvpModule.BYPASS_PERMISSION),
+                player.getHealth());
         byPlayer.put(player.getUniqueId(), logger);
         byEntity.put(entity.getUniqueId(), player.getUniqueId());
     }
@@ -274,7 +282,8 @@ public final class CombatLoggers implements Listener {
     }
 
     /**
-     * Back while the stand-in stands: it goes, and they take its place and health.
+     * Back while the stand-in stands: it goes, and they take its place - with the
+     * health they left with, less what it lost, never below half a heart.
      * Back after it died: an empty inventory, full health, the spawn, and a word why.
      */
     @EventHandler(priority = EventPriority.LOWEST)
@@ -285,11 +294,13 @@ public final class CombatLoggers implements Listener {
         if (logger != null) {
             Entity entity = Bukkit.getEntity(logger.entityId());
             if (entity instanceof LivingEntity living && living.isValid()) {
-                double health = living.getHealth();
+                var standInMax = living.getAttribute(Attribute.MAX_HEALTH);
+                double lost = (standInMax == null ? living.getHealth() : standInMax.getValue()) - living.getHealth();
                 Location at = living.getLocation();
                 player.teleport(at);
                 var max = player.getAttribute(Attribute.MAX_HEALTH);
-                player.setHealth(Math.max(1.0, Math.min(health, max == null ? 20.0 : max.getValue())));
+                double top = max == null ? 20.0 : max.getValue();
+                player.setHealth(Math.max(1.0, Math.min(top, logger.healthLeftWith() - Math.max(0.0, lost))));
             }
             remove(logger);
         }

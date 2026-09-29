@@ -125,6 +125,7 @@ class PvpTest {
             assertEquals(PvpSettings.LogoutAction.NPC, rules.logout());
             assertEquals("VILLAGER", rules.loggerEntity());
             assertEquals(20.0, rules.loggerHealth());
+            assertTrue(rules.loggerKnockback());
         }
 
         @Test
@@ -138,11 +139,11 @@ class PvpTest {
         @Test
         void aStandInsHealthStaysWithinReason() {
             var low = new PvpSettings.CombatTagRules(true, 30L, true, true, true,
-                    PvpSettings.LogoutAction.NPC, " ", 0.0);
+                    PvpSettings.LogoutAction.NPC, " ", 0.0, true);
             assertEquals("VILLAGER", low.loggerEntity());
             assertEquals(1.0, low.loggerHealth());
             var high = new PvpSettings.CombatTagRules(true, 30L, true, true, true,
-                    PvpSettings.LogoutAction.NPC, "ZOMBIE", 5000.0);
+                    PvpSettings.LogoutAction.NPC, "ZOMBIE", 5000.0, true);
             assertEquals(1024.0, high.loggerHealth());
         }
 

@@ -39,11 +39,11 @@ Eaten meanwhile, the item is refused and stays; a totem on cooldown saves nobody
 
 ## Combat logging
 
-**Logging out while tagged leaves a stand-in** (`logout: npc`): a villager (`logger.entity`) appears where the player stood, named after them, with their health — at most 20, ten hearts (`logger.health`). It cannot move or trade, and only a player hurts it, by the same rules as a blow at the player it stands for: no hit in a safe zone, during SOTW, or on a teammate. **Every hit starts both combat tags over** — the stand-in's player's and the attacker's.
+**Logging out while tagged leaves a stand-in** (`logout: npc`): a villager (`logger.entity`) appears where the player stood, named after them, **at full health** — 20, ten hearts (`logger.health`), whatever the player had. It never walks or trades, but **a blow knocks it back** as it would the player (`logger.knockback`), and only a player hurts it, by the same rules as a blow at the player it stands for: no hit in a safe zone, during SOTW, or on a teammate. **Every hit starts both combat tags over** — the stand-in's player's and the attacker's.
 
 - **Killed:** the player's items fall where it stood, and the death counts like any other — deathban, DTR and team points lost, kill and money for the killer, a death sign. The player comes back to spawn with an empty inventory.
 - **Still standing when the tag runs out:** it goes. The player lost nothing.
-- **The player back first:** it goes and they take its place, with its health, still tagged.
+- **The player back first:** it goes and they take its place, still tagged, with the health they left with less the damage it took — never below half a heart.
 
 A restart removes every stand-in: its player keeps their things. `logout: kill` is the old rule — death at once — and `logout: none` lets them go.
 

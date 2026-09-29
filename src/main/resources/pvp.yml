@@ -42,19 +42,23 @@ combat-tag:
   tag-attacker: true
   # What a tagged player who disconnects leaves behind - the reason the tag exists
   # at all: without it, a losing fight is escaped by pulling the plug.
-  #   npc  - a stand-in where they stood, with their health (logger below). Killed,
+  #   npc  - a stand-in where they stood, at full health (logger below). Killed,
   #          their items fall and they die - deathban, DTR, points, as for a kill -
   #          and find an empty inventory when they come back. Hit, both combat tags
   #          start over. Still standing when the tag runs out, it goes and they keep
-  #          everything; back before that, they take its place, its health included.
+  #          everything; back before that, they take its place, with the health
+  #          they left with less the damage it took.
   #   kill - their death, at once.
   #   none - nothing.
   logout: npc
   logger:
-    # Any living entity; it cannot move, trade or be hurt by anything but a player.
+    # Any living entity; it never walks or trades, and nothing but a player hurts it.
     entity: VILLAGER
-    # In half hearts: 20 is ten hearts.
+    # Its health when it appears, whatever the player had - in half hearts: 20 is
+    # ten hearts.
     health: 20
+    # A blow pushes it back, as it would the player. false: it does not budge.
+    knockback: true
   # Refuse plugin teleports (such as /team hq) while tagged.
   block-teleport: true
 # --8<-- [end:combat-tag]

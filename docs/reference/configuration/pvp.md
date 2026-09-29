@@ -39,7 +39,8 @@ Every example on this page is **taken from the shipped `pvp.yml`**. Changes appl
 | `tag-attacker` | `true` | Tag the attacker as well as the victim |
 | `logout` | `npc` | What a tagged player who logs out leaves: `npc` a stand-in that can be killed until the tag runs out, `kill` their death at once, `none` nothing. The old `kill-on-logout: true` reads as `npc`, `false` as `none` |
 | `logger.entity` | `VILLAGER` | The stand-in: any living entity but a player |
-| `logger.health` | `20` | Its health at most, in half hearts; it starts with the player's own when lower |
+| `logger.health` | `20` | Its health when it appears, whatever the player had, in half hearts |
+| `logger.knockback` | `true` | A blow pushes it back as it would the player; `false`, it does not budge. It never walks either way |
 | `block-teleport` | `true` | Refuse plugin teleports (`/team hq`, `/spawn`...) while tagged |
 
 ## Ender pearl cooldown

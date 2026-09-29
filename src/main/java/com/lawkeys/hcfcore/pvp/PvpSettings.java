@@ -59,11 +59,14 @@ public record PvpSettings(
      *                       kill ({@code NPC}, the owner's choice of 28/09/2026), their
      *                       death at once ({@code KILL}), or nothing ({@code NONE})
      * @param loggerEntity   the stand-in's kind, as the server spells it
-     * @param loggerHealth   its health, in half hearts
+     * @param loggerHealth   its health when it appears - full, whatever the player had -
+     *                       in half hearts
+     * @param loggerKnockback whether a blow pushes it back, as it would the player; it
+     *                       never walks either way
      */
     public record CombatTagRules(boolean enabled, long durationSeconds, boolean tagAttacker,
                                  boolean killOnLogout, boolean blockTeleport, LogoutAction logout,
-                                 String loggerEntity, double loggerHealth) {
+                                 String loggerEntity, double loggerHealth, boolean loggerKnockback) {
 
         public CombatTagRules {
             Objects.requireNonNull(logout, "logout");
@@ -74,7 +77,7 @@ public record PvpSettings(
         public CombatTagRules(boolean enabled, long durationSeconds, boolean tagAttacker, boolean killOnLogout,
                               boolean blockTeleport) {
             this(enabled, durationSeconds, tagAttacker, killOnLogout, blockTeleport,
-                    killOnLogout ? LogoutAction.KILL : LogoutAction.NONE, "VILLAGER", 20.0);
+                    killOnLogout ? LogoutAction.KILL : LogoutAction.NONE, "VILLAGER", 20.0, true);
         }
     }
 
@@ -237,7 +240,7 @@ public record PvpSettings(
         return new PvpSettings(
                 true,
                 new DeathbanRules(true, 3600L, tiers),
-                new CombatTagRules(true, 30L, true, true, true, LogoutAction.NPC, "VILLAGER", 20.0),
+                new CombatTagRules(true, 30L, true, true, true, LogoutAction.NPC, "VILLAGER", 20.0, true),
                 new StrengthRules(true, 3.0, 1.5),
                 new KnockbackRules(false, 1.0, 1.0),
                 new AttackSpeedRules(false, 4.0),

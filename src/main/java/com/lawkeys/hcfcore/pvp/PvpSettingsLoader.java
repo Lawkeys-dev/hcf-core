@@ -107,7 +107,8 @@ public final class PvpSettingsLoader {
                 section.getBoolean("tag-attacker", defaults.tagAttacker()),
                 kill,
                 section.getBoolean("block-teleport", defaults.blockTeleport()),
-                logout, entity, section.getDouble("logger.health", defaults.loggerHealth()));
+                logout, entity, section.getDouble("logger.health", defaults.loggerHealth()),
+                section.getBoolean("logger.knockback", defaults.loggerKnockback()));
     }
 
     private static PvpSettings.EnderPearlRules loadEnderPearl(ConfigurationSection section,
