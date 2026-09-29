@@ -195,7 +195,7 @@ A new id for `/events create` (or an id typed to any setup command) must be **2 
 | `/staff end` · `nether` | | Who is in The End; in the Nether | `hcfcore.staff` |
 | `/vanish` | `/v` | Hide from players | `hcfcore.staff` |
 | `/staffchat [message]` | `/sc` | Toggle the staff channel, or send one line to it | `hcfcore.staff` |
-| `/staffbuild` | `/sb` | Build through territory protection until toggled off — with `hcfcore.claim.bypass` | `hcfcore.staff` |
+| `/staffbuild` | `/sb`, `/buildmode`, `/editmode` | Build through territory protection until toggled off — with `hcfcore.claim.bypass` | `hcfcore.staff` |
 | `/freeze <player>` · `list` · `unban <player>` | `/ss` | Hold a player for a check; who is frozen; lift a ban for leaving while frozen | `hcfcore.staff` |
 | `/invsee <player>` | `/inv` | A player's inventory | `hcfcore.staff`; changing it: `hcfcore.staff.invsee.edit` |
 | `/lastinv <player> [number]` | `/li` | What they carried at one of their last deaths | `hcfcore.staff` |

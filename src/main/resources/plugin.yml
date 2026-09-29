@@ -92,7 +92,7 @@ commands:
     usage: /<command> [message]
     permission: hcfcore.staff
   staffbuild:
-    aliases: [sb]
+    aliases: [sb, buildmode, editmode]
     description: Build through territory protection until you toggle it back off - with hcfcore.claim.bypass.
     usage: /<command>
     permission: hcfcore.staff
