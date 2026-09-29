@@ -37,6 +37,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ### Fixed
 - **`/pvp help` did not exist**, though every mistake pointed to it, and a staff command typed short answered "Unknown command": `help` now lists what you may use under the name you typed (`/db help`, `/ct help`), and a short command shows its usage. `/db help` no longer looks for a player named "help". **`ban` takes an optional length**: with none, as long as a death would ban that player. *Copy the `pvp.help` lines of `lang/en.yml` from the jar.*
+- **Blocking with a sword took no knockback** in classic combat: the game handles the sword as a shield, whose hits push nobody. A blocked hit now pushes as in 1.7, and the attacker is no longer bounced back.
+- **The Fake Pearl stayed greyed out after `/cooldown reset`**: the game's own cooldown on it was left running. A reset of the abilities, or of the Fake Pearl, now ends it too.
 - **`/pvp lift` completed the online players**, who are never the ones banned: Tab now offers the deathbanned, as `/revive` does — a ban until the map ends included, which staff can lift. `/pvp check` offers both.
 - **A death sign placed by a player who is not an operator was blank**, and opened the sign editor: the game copies a block's data from its item for operators only. The plugin now writes the sign and waxes it when placed, for everybody, and refuses the editor and any rewriting.
 

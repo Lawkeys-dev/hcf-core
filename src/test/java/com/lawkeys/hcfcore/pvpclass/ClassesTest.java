@@ -449,6 +449,12 @@ class ClassesTest {
         }
 
         @Test
+        void behindButBackToBackIsNot() {
+            // Behind the victim, but turned away from them: hitting backwards is no backstab.
+            assertFalse(backstab.isBehind(0, 0, 0f, 0, -1.5, 180f));
+        }
+
+        @Test
         void facingTheSameWayButInFrontIsNot() {
             // Walking backwards into somebody's face.
             assertFalse(backstab.isBehind(0, 0, 0f, 0, 1.5, 0f));

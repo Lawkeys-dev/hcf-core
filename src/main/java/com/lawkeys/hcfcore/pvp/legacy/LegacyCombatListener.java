@@ -211,6 +211,11 @@ public final class LegacyCombatListener implements Listener {
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onHitLanded(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player attacker && event.getEntity() instanceof Player blocker
+                && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK && isSwordBlocking(blocker)) {
+            pushBlocked(attacker, blocker);
+            return;
+        }
         if (event.getDamager() instanceof Player && event.getEntity() instanceof LivingEntity victim
                 && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK
                 && classic().map(c -> c.knockback().enabled()).orElse(false)) {
@@ -252,6 +257,48 @@ public final class LegacyCombatListener implements Listener {
             int level = attacker.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.KNOCKBACK)
                     + (attacker.isSprinting() ? 1 : 0);
             event.setKnockback(vector(LegacyMath.extraKnockback(attacker.getLocation().getYaw(), level, rules.get())));
+        }
+    }
+
+    /** @return whether this player is blocking with a sword, as classic combat lets them */
+    private boolean isSwordBlocking(Player player) {
+        return classic().map(c -> c.swordBlocking().enabled()).orElse(false) && player.isBlocking()
+                && player.getActiveItem().getType().name().endsWith("_SWORD");
+    }
+
+    /**
+     * A hit on a sword that blocks still pushes, as in 1.7 - where blocking only took
+     * half the damage. The game treats the sword as a shield (its
+     * {@code blocks_attacks} component), and a hit a shield takes pushes nobody back:
+     * its push is dealt here instead, the 1.7 one when classic knockback is on.
+     */
+    private void pushBlocked(Player attacker, Player victim) {
+        double towardsX = attacker.getLocation().getX() - victim.getLocation().getX();
+        double towardsZ = attacker.getLocation().getZ() - victim.getLocation().getZ();
+        Optional<LegacyCombatSettings.Knockback> rules = classic().map(LegacyCombatSettings::knockback)
+                .filter(LegacyCombatSettings.Knockback::enabled);
+        if (rules.isPresent()) {
+            victim.setVelocity(vector(LegacyMath.knockback(velocity(victim.getVelocity()), towardsX, towardsZ,
+                    knockbackResistance(victim), rules.get())));
+        } else {
+            // The game's own push of a hit.
+            victim.knockback(0.4, towardsX, towardsZ);
+        }
+    }
+
+    /**
+     * A shield bounces its attacker back; a sword did not. The push the game gives
+     * whoever hits a sword that blocks is refused.
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onBlockedBounce(EntityKnockbackEvent event) {
+        if (event.getCause() != EntityKnockbackEvent.Cause.SHIELD_BLOCK) {
+            return;
+        }
+        boolean fromSword = event instanceof EntityPushedByEntityAttackEvent pushed
+                && pushed.getPushedBy() instanceof Player blocker && isSwordBlocking(blocker);
+        if (fromSword || (event.getEntity() instanceof Player self && isSwordBlocking(self))) {
+            event.setCancelled(true);
         }
     }
 

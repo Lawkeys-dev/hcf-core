@@ -83,7 +83,7 @@ In 1.7, a hit while falling was critical — **sprinting included**. The modern 
 --8<-- "src/main/resources/pvp.yml:legacy-blocking"
 ```
 
-**Right-click with a sword to block**, as in 1.7: the hit is reduced to `(damage + 1) / 2`, from every direction, at once, with no sound and no wear on the sword. Swords gain the ability while held — whatever brought them there, a kit, a chest, a pickup — and lose it when classic combat or blocking is switched off.
+**Right-click with a sword to block**, as in 1.7: the hit is reduced to `(damage + 1) / 2`, from every direction, at once, with no sound and no wear on the sword. **The hit still pushes** — the 1.7 knockback when classic knockback is on — and the attacker is not bounced back as by a shield. Swords gain the ability while held — whatever brought them there, a kit, a chest, a pickup — and lose it when classic combat or blocking is switched off.
 
 It uses the item ability the game gives shields, set on the sword.
 

@@ -433,6 +433,7 @@ public final class AbilityModule {
     /** Every cooldown of a player's ends at once: each ability's, each Pocket Bard set's, the shared one. */
     public void resetCooldowns(UUID playerId) {
         cooldowns.forget(playerId);
+        clearFakePearlGreying(playerId);
     }
 
     /** The shared cooldown of a player's ends at once; each ability's own runs on. */
@@ -443,6 +444,25 @@ public final class AbilityModule {
     /** One ability's cooldown of a player's ends at once. */
     public void resetCooldown(UUID playerId, Ability ability) {
         cooldowns.clear(playerId, ability.id());
+        if (ability.type() == AbilityType.FAKE_PEARL) {
+            clearFakePearlGreying(playerId);
+        }
+    }
+
+    /**
+     * The Fake Pearl's cooldown is also the game's, on its own cooldown group (see the
+     * item): a reset that ended only ours left it greyed out, and the game refused
+     * the throw.
+     */
+    private void clearFakePearlGreying(UUID playerId) {
+        Player player = Bukkit.getPlayer(playerId);
+        if (player == null) {
+            return;
+        }
+        ItemStack probe = ItemStack.of(org.bukkit.Material.ENDER_PEARL);
+        probe.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(1.0f)
+                .cooldownGroup(new NamespacedKey(plugin, "fake_pearl")).build());
+        player.setCooldown(probe, 0);
     }
 
     /**
