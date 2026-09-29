@@ -23,7 +23,7 @@ public final class KitCommand implements TabExecutor {
     public static final String ADMIN_PERMISSION = "hcfcore.kit.admin";
 
     private static final List<String> ADMIN_SUBCOMMANDS =
-            List.of("create", "delete", "give", "resetcooldown");
+            List.of("create", "fromchest", "delete", "give", "resetcooldown");
 
     private final KitModule module;
 
@@ -57,6 +57,7 @@ public final class KitCommand implements TabExecutor {
             }
             switch (first) {
                 case "create" -> create(sender, args, label);
+                case "fromchest" -> fromChest(sender, args, label);
                 case "delete" -> delete(sender, args, label);
                 case "give" -> give(sender, args, label);
                 case "resetcooldown" -> resetCooldown(sender, args, label);
@@ -187,6 +188,65 @@ public final class KitCommand implements TabExecutor {
         module.getManager().save(kit);
         module.flushSoon();
         module.getLang().send(sender, KitMessages.CREATED, "kit", kit.id());
+    }
+
+    /**
+     * {@code /kit fromchest <id> [x y z [world]]} - a kit from a chest's contents, its
+     * armour put on ({@link com.lawkeys.hcfcore.kit.ChestKits}): the chest looked at,
+     * or the one at those coordinates - from the console too. No cooldown and no
+     * permission: {@code /kit create} is there for those.
+     */
+    private void fromChest(CommandSender sender, String[] args, String label) {
+        String usage = "/" + label + " fromchest <id> [<x> <y> <z> [world]]";
+        if (args.length != 2 && args.length != 5 && args.length != 6) {
+            module.getLang().send(sender, KitMessages.USAGE, "usage", usage);
+            return;
+        }
+        org.bukkit.block.Block block;
+        if (args.length == 2) {
+            if (!(sender instanceof Player player)) {
+                module.getLang().send(sender, KitMessages.USAGE, "usage", usage);
+                return;
+            }
+            block = player.getTargetBlockExact(6);
+        } else {
+            org.bukkit.World world = args.length == 6 ? Bukkit.getWorld(args[5])
+                    : sender instanceof Player player ? player.getWorld() : Bukkit.getWorlds().getFirst();
+            if (world == null) {
+                module.getLang().send(sender, KitMessages.NO_CHEST);
+                return;
+            }
+            int[] at = new int[3];
+            for (int i = 0; i < 3; i++) {
+                try {
+                    at[i] = Integer.parseInt(args[2 + i]);
+                } catch (NumberFormatException e) {
+                    module.getLang().send(sender, KitMessages.INVALID_NUMBER, "input", args[2 + i]);
+                    return;
+                }
+            }
+            block = world.getBlockAt(at[0], at[1], at[2]);
+        }
+        if (block == null || !(block.getState(false) instanceof org.bukkit.block.Container container)) {
+            module.getLang().send(sender, KitMessages.NO_CHEST);
+            return;
+        }
+        ItemStack[] chest = container.getInventory().getContents();
+        List<String> materials = new ArrayList<>(chest.length);
+        for (ItemStack item : chest) {
+            materials.add(item == null || item.isEmpty() ? null : item.getType().name());
+        }
+        int[] slots = com.lawkeys.hcfcore.kit.ChestKits.slots(materials);
+        ItemStack[] contents = new ItemStack[com.lawkeys.hcfcore.kit.ChestKits.SIZE];
+        for (int i = 0; i < chest.length; i++) {
+            if (slots[i] >= 0) {
+                contents[slots[i]] = chest[i].clone();
+            }
+        }
+        Kit kit = new Kit(args[1], args[1], null, 0L, ItemStack.serializeItemsAsBytes(contents));
+        module.getManager().save(kit);
+        module.flushSoon();
+        module.getLang().send(sender, KitMessages.CREATED_FROM_CHEST, "kit", kit.id());
     }
 
     private void delete(CommandSender sender, String[] args, String label) {

@@ -16,6 +16,8 @@ public final class KitMessages {
     public static final String LIST_EMPTY = "kit.list.empty";
 
     public static final String CREATED = "kit.admin.created";
+    public static final String CREATED_FROM_CHEST = "kit.admin.created-from-chest";
+    public static final String NO_CHEST = "kit.admin.no-chest";
     public static final String DELETED = "kit.admin.deleted";
     public static final String GIVEN = "kit.admin.given";
     public static final String COOLDOWN_CLEARED = "kit.admin.cooldown-cleared";

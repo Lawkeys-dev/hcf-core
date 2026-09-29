@@ -300,8 +300,8 @@ commands:
     usage: /<command>
   kit:
     aliases: [kits]
-    description: Take a kit; staff create them from their own inventory.
-    usage: /<command> [kit|layout <kit> [reset]|create|delete|give|resetcooldown]
+    description: Take a kit; staff create them from their own inventory or a chest.
+    usage: /<command> [kit|layout <kit> [reset]|create|fromchest|delete|give|resetcooldown]
   ability:
     aliases: [partneritems]
     description: The partner items and your cooldowns; staff hand them out with /ability give.

@@ -1485,6 +1485,8 @@ kit:
 
   admin:
     created: "{success}Saved your inventory as the {secondary}%kit% {success}kit."
+    created-from-chest: "{success}Saved the chest as the {secondary}%kit% {success}kit{muted}, its armour worn."
+    no-chest: "{error}No chest there: look at one, or give its coordinates (and world)."
     deleted: "{muted}Deleted the {secondary}%kit% {muted}kit."
     given: "{muted}Gave {secondary}%kit% {muted}to {secondary}%player%{muted}."
     cooldown-cleared: "{muted}Cleared kit cooldowns for {secondary}%player%{muted}."

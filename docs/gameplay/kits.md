@@ -12,12 +12,15 @@
 
 `/kit create <id> [cooldown-seconds] [permission]` stores your inventory as it is. A permission, if given, is then needed to take the kit; any node works.
 
+`/kit fromchest <id>` stores the chest you look at instead — or, from the console too, `/kit fromchest <id> <x> <y> <z> [world]`. The armour in it is put on (the first helmet, chestplate, leggings and boots), everything else fills the inventory in the chest's order. Such a kit has no cooldown and no permission: re-create it with `/kit create` for those.
+
 | Command | Does |
 |---|---|
 | `/kit` | List the kits you can take |
 | `/kit <id>` | Take one |
 | `/kit layout <id> [reset]` | Arrange a kit's items (see below) |
 | `/kit create <id> [cooldown] [permission]` | Save your inventory as a kit — staff |
+| `/kit fromchest <id> [<x> <y> <z> [world]]` | Save a chest as a kit, its armour worn — staff, console too |
 | `/kit delete <id>` | Delete a kit and its cooldowns — staff |
 | `/kit give <player> <kit>` | Give a kit, starting no cooldown — staff |
 | `/kit resetcooldown <player> [kit]` | Clear cooldowns — staff |

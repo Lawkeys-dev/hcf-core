@@ -127,6 +127,7 @@ A new id for `/events create` (or an id typed to any setup command) must be **2 
 | `/kit` · `/kit <kit>` | `/kits` | List the kits you can take; take one | everyone (a kit may need its own permission) |
 | `/kit layout <kit> [reset]` | | Arrange a kit's items; close the window to save | everyone |
 | `/kit create <id> [cooldown-seconds] [permission]` | | Save your inventory as a kit | `hcfcore.kit.admin` |
+| `/kit fromchest <id> [<x> <y> <z> [world]]` | | Save the chest looked at, or at those coordinates, as a kit — its armour worn; from the console too | `hcfcore.kit.admin` |
 | `/kit delete <id>` · `give <player> <kit>` · `resetcooldown <player> [kit]` | | Manage kits | `hcfcore.kit.admin` |
 | `/ability` · `/ability list` | `/partneritems` | The partner items, with your cooldowns | everyone |
 | `/ability give <player> <ability> [amount]` | | Hand out a partner item — from the console too | `hcfcore.ability.admin` |

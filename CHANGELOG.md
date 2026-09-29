@@ -22,6 +22,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **A Mountain is claimed land** (`resourcenodes.yml`, `claim`, `y-min`, `y-max`): the land of a server team, drawn with the claiming wand — `/resourcenode claim <id>` makes the team, a combat zone, and hands the wand — and shown on `/team map` and at its border. Between its heights it is mined by its own rules; the region follows the land as it changes. Two corners still work. *The shipped Mountains now name server teams (`Glowstone`, `OreMountain`); a server's own `resourcenodes.yml` with corners is read as before.*
 - **A capture zone is part of its event's claim**: drawn with `/events setzone` past the edge of the event's territory, the territory grows to hold it, `claim-margin` blocks around (`events.yml`, `setup.zone-claims-land`), where it used to only warn. *Add `zone-claims-land: false` under `setup` to keep the warning alone.*
 - **`/buildmode` and `/editmode`** for `/staffbuild`: staff build through protection — spawn, roads, events — until they type it again.
+- **`/kit fromchest <id>`**: a kit from a chest — the one looked at, or at coordinates from the console — its armour put on, the rest in the chest's order. *Copy the `kit.admin.created-from-chest` and `no-chest` lines of `lang/en.yml` from the jar.*
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
 ### Changed
