@@ -45,7 +45,7 @@ When a module needs an answer only a later module holds — *is this team raidab
 
 ```mermaid
 flowchart LR
-    claim["claim/<br/>declares RaidabilityPolicy<br/>default: NEVER"] -. filled by .- dtr["dtr/<br/>raidable when DTR ≤ 0"]
+    claim["claim/<br/>declares RaidabilityPolicy<br/>default: NEVER"] -. filled by .- dtr["dtr/<br/>raidable when DTR < 0"]
     dtr -. wrapped by .- phase["phase/<br/>or EOTW, or the Purge"]
 ```
 

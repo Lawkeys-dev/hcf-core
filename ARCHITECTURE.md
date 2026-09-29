@@ -29,19 +29,19 @@ hcf-core/
 │   ├── team/                           # teams, roles, alliances, focus, rally, bank, points
 │   ├── claim/                          # territory (ClaimArea: block claims), protection, HQ/base, server land, warzone, lockclaim; wand/ (the claiming wand)
 │   ├── dtr/                            # DTR, regeneration, raid announcements
-│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire, ender pearl and item cooldowns
+│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire, ender pearl and item cooldowns; logger/ (a combat logger's stand-in)
 │   ├── pvpclass/                       # classes: Diamond, Bard, Archer, Rogue, Miner and those classes.yml defines
 │   ├── effectcommand/                  # /speed and the like: an effect until death (effect-commands.yml)
 │   ├── economy/                        # balances, /pay, /eco, /team deposit|withdraw
 │   ├── events/                         # family A: KOTH/Citadel; conquest/; king/ (Kill the King); core/ (DTC, Last Break); slide/ (Slide); totem/ (Totem, Mini Totem); setup/ (/events create..delete, every kind); planning/ (weekly schedule, /schedule)
-│   ├── resourcenode/                   # family B: Mountains
+│   ├── resourcenode/                   # family B: Mountains, given by corners or as a server team's land (ClaimedRegions)
 │   ├── phase/                          # SOTW, EOTW, the Purge
 │   ├── stats/                          # kills, deaths, killstreaks, playtime, leaderboards
 │   ├── chat/                           # public chat format, team/ally routing, local chat
 │   ├── theme/                          # theme.yml: colour tokens, prefix, small caps (Theme), menu frame and pages (MenuLayout, MenuStyle)
 │   ├── ui/                             # scoreboard (rows tagged by section: ScoreboardRow), tab list (TabList; tab/: the HCF grid, sent as the server's own packets)
 │   ├── staff/                          # staff mode, vanish, freeze, invsee, lastinv; ticket/; strike/
-│   ├── kit/                            # kits, layouts, refill signs
+│   ├── kit/                            # kits (from an inventory or a chest), layouts, kit signs and [Refill] windows
 │   ├── ability/                        # partner items: 38 built-in types, abilities.yml
 │   ├── killstreak/                     # rewards, plugged into stats/
 │   ├── enchant/                        # custom enchants (effect, Hellforged, Implanted, Recover, Autosmelt), books
@@ -58,7 +58,7 @@ hcf-core/
 │   └── util/                           # Cuboid, ChunkPosition, WorldPosition, Durations, ColorCodes (hex too), LegacyText, TextWrap, ItemText...
 ├── src/main/resources/
 │   ├── plugin.yml
-│   ├── config.yml + 24 module files (teams.yml, claims.yml, dtr.yml...)
+│   ├── config.yml + 29 module files (teams.yml, claims.yml, dtr.yml...)
 │   └── lang/en.yml
 └── src/test/java/...                   # unit tests (pure logic, SQLite round trips)
 ```
@@ -266,7 +266,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `RaidabilityPolicy` | `claim/` | `NEVER` (claims always protected) | `dtr/`, **wrapped** by `phase/` (EOTW) |
 | `PhaseAccess` | `claim/` | `NONE` (no phase opens anything) | `phase/` (EOTW opens building everywhere, server land but safe zones too; the Purge opens using enemy blocks, never building) |
 | `TeleportGuard` | `claim/` | `ALLOW` (no teleport blocked) | `pvp/` (a combat tag, an ender pearl cooldown) |
-| `ReservedRegionPolicy` | `claim/` | `NONE` (no reserved land) | `resourcenode/` |
+| `ReservedRegionPolicy` | `claim/` | `NONE` (no reserved land) | `resourcenode/` (a Mountain's blocks follow its rules, on the warzone or on its own server land) |
 | `ClaimingPolicy` | `claim/` | `OPEN` (player claims open) | `phase/` (EOTW) |
 | `LockWindow` | `claim/` | `CLOSED` (no claim can be locked) | `phase/` (open during SOTW) |
 | `AgendaContributor` | `events/` | no line contributed | `resourcenode/`, `phase/` |
@@ -280,6 +280,7 @@ The same principle serves in `team/` (`TeamStore` for persistence, `TeamEventDis
 | `TeamBoards` | `stats/` | `NONE` (no team board) | the plugin, from `team/` (`/leaderboard`'s team kills and points) |
 | `HologramSource` | `hologram/` | no source (only stored holograms) | `events/` (one hologram per capture zone) |
 | `SpawnGuard` | `general/` | `ALLOW` (nobody refused) | `events/` (the King of Kill the King never enters spawn, `/spawn` included) |
+| Combat logger drops (`CombatLoggers#setDropRule`) | `pvp/` | every item falls where the stand-in died | `events/` (a King's kit goes as their death would send it) |
 | `LogoutGuard` | `general/` | `ALLOW` (nobody refused) | `pvp/` (a tagged player cannot leave through `/logout`: that would be a combat log) |
 | Partner items | `events/` | none recognised (nothing refused as a partner item in a Citadel) | `ability/` (`abilities.yml`) |
 | Partner items | `pvp/` | none recognised (every pearl and listed item counted) | `ability/` (a Fake Pearl, a Golden Head: their own cooldowns) |

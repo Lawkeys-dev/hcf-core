@@ -23,15 +23,15 @@ A solo team holds 1.1, so its first death leaves it at 0.1 — still protected �
 flowchart LR
     P(["🛡️ Protected<br/>DTR above 0"])
     R(["⚔️ Raidable<br/>DTR below 0"])
-    P -- "a member dies and<br/>DTR reaches 0" --> R
+    P -- "a member's death<br/>takes DTR below 0" --> R
     R -- "DTR regenerates<br/>back to 0" --> P
 ```
 
 - **While raidable**, anyone but the team's allies can build, break and open things in its land, and explosions go through: the *pillage window*.
 - **The land never changes hands.** No team can claim a raidable team's land; the raid gives access to what is inside, never to the ground.
-- **Protection comes back by itself** the moment the DTR climbs back above zero, with the claim intact.
+- **Protection comes back by itself** the moment the DTR climbs back to zero, with the claim intact.
 
-EOTW and the Purge make every team raidable whatever its DTR — see [Map phases](map-phases.md).
+EOTW makes every team raidable whatever its DTR; the Purge only lets anybody use the blocks of enemy claims, without building or breaking — see [Map phases](map-phases.md).
 
 ## Regeneration
 
@@ -75,4 +75,4 @@ A team whose DTR makes it raidable **loses half its [points](teams.md#points-and
 
 ## For developers
 
-`TeamRaidableEvent` fires when a team's DTR makes it raidable, or no longer. It reports the DTR, not the map: EOTW and the Purge fire nothing. See the [Developer API](../developers/api.md#teamraidableevent).
+`TeamRaidableEvent` fires when a team's DTR makes it raidable, or no longer. It reports the DTR, not the map: EOTW fires nothing. See the [Developer API](../developers/api.md#teamraidableevent).

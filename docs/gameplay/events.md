@@ -12,7 +12,7 @@ Events pull teams into the open. HCFCore ships nine kinds — **KOTH**, **Citade
 
 Starting and stopping needs `hcfcore.events.admin`. Ids are shared by every kind, so they must be unique across the file.
 
-**Scheduling**: each event has an optional `schedule` — local times of day, read in the file's `time-zone` — at which it opens by itself. The shipped examples have none: they wait for staff until you move them onto your map and give them times.
+**Scheduling**: each event has an optional `schedule` — local times of day, read in the file's `time-zone` — at which it opens by itself, Kill the King aside: its times are shown and announced, and staff start it. The shipped examples have none: they wait for staff until you move them onto your map and give them times.
 
 !!! note "A restart ends a running event"
     Nothing about a running KOTH, Citadel, Conquest, Kill the King, DTC, Last Break, Slide or Totem is kept across a restart — except the King's items, which are always given back. A DTC or Last Break's core itself is not run state: it is a permanent block, placed and kept in the world, and a restart leaves it as its idle block (bedrock).

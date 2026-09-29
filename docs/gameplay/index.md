@@ -8,7 +8,7 @@ What each rule does, with the values it ships with. **Every number on these page
 
 1. Players form **teams** and **claim** land around a base. Inside it, nobody else can build, break or open anything.
 2. Every team has a **DTR** — *Deaths Till Raidable* — that each member's death lowers. When it runs out, the team is **raidable**: its land is open to **pillage** until its DTR regenerates. The land itself never changes hands.
-3. A death **bans** the player for a while (a *deathban*), so every fight matters. Logging out in combat kills you.
+3. A death **bans** the player for a while (a *deathban*), so every fight matters. Logging out in combat leaves a villager in your place, which anybody can kill.
 4. **Events** — KOTH, Conquest, Kill the King, Mountains — pull teams into the open to fight for rewards and points.
 5. The map opens with **SOTW** (no PvP while everyone settles) and ends with **EOTW** (everyone raidable, a death bans until the reset).
 

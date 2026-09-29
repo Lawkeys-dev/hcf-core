@@ -132,7 +132,7 @@ Reward commands run from the console. KOTH, Citadel, Conquest, DTC, Last Break, 
 
 - **SOTW** opens the map: `/sotw start 2h`, or a `sotw.start-at: "2026-10-01 18:00"` date.
 - **EOTW** closes it: `/eotw start`, or `eotw.start-at`.
-- **The Purge** — every team raidable for a while — is optional: `/purge start 30m`, or daily times in `purge.schedule`.
+- **The Purge** — anybody may use the blocks of enemy claims for a while — is optional: `/purge start 30m`, or daily times in `purge.schedule`.
 
 Durations are typed `90` (seconds), `45s`, `30m`, `2h`, `1d` or combined like `1h30m`. See [SOTW, EOTW and the Purge](../gameplay/map-phases.md).
 

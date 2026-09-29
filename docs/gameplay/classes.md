@@ -61,7 +61,7 @@ Full **gold** armour. The Bard is the team's support.
 | Ghast Tear | Regeneration I |
 | Feather | Jump Boost II |
 | Magma Cream | Fire Resistance I |
-| Gunpowder | Invisibility I |
+| Ink Sac | Invisibility I |
 
 **Right-clicking the item** spends **energy** for a stronger burst, and uses up the item:
 
@@ -73,7 +73,7 @@ Full **gold** armour. The Bard is the team's support.
 | Ghast Tear | Regeneration III, 5 s | teammates | 40 |
 | Feather | Jump Boost VII, 5 s | teammates | 25 |
 
-Magma Cream and Gunpowder have no burst.
+Magma Cream and the Ink Sac have no burst.
 
 **Energy** fills by **1 per second** up to **100** while the class is on, and starts at 0 each time it turns on. The scoreboard shows it (`%class_energy_line%`), and a burst says what it cost and what is left: *Used Speed III (-20 energy, 45/100 left)*.
 
