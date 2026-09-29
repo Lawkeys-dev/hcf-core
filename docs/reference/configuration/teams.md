@@ -14,7 +14,7 @@ Every example on this page is **taken from the shipped `teams.yml`**. Changes ap
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `min-length`, `max-length` | `3`, `16` | Length of a team name |
+| `min-length`, `max-length` | `3`, `16` | Length of a player's team name. Server teams staff create go up to 32 characters (hard-coded) |
 | `pattern` | letters, digits, `_` | A regular expression the whole name must match. An invalid one is reported and the built-in one is used |
 | `blacklist` | `spawn`, `warzone`, `wilderness`, `staff`, `admin` | Names players may not use, without case. Server teams are exempt |
 

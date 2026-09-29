@@ -72,6 +72,7 @@ Every example on this page is **taken from the shipped `apollo.yml`**. Changes a
 | `enabled` | `true` | Nametags |
 | `team-line` | `%color%%team% &7\| &e%dtr%` | The line above the name; left out for a player with no team |
 | `name-line` | `%color%%player%` | The name line |
+| `show-self` | `true` | Your own nametag too — your team and its DTR — for Lunar to show in third person; Lunar draws it only with its "show own nametag" setting on |
 | `colors` | `self`, `ally`, `enemy`, `focus`, `neutral` | `%color%` for each relation |
 
 ## The whole shipped file

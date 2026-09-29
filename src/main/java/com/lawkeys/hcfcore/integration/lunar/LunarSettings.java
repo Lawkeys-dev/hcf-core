@@ -38,7 +38,15 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
                             String enderPearlIcon, boolean itemCooldowns, boolean classes, boolean crowbar) {
     }
 
-    public record Nametags(boolean enabled, NametagStyle style) {
+    /**
+     * @param showSelf whether a player's own nametag - their team and its DTR - is sent
+     *                 to them too, for Lunar to show in third person
+     */
+    public record Nametags(boolean enabled, NametagStyle style, boolean showSelf) {
+
+        public Nametags(boolean enabled, NametagStyle style) {
+            this(enabled, style, true);
+        }
     }
 
     /** Built-in fallback, mirroring {@code resources/apollo.yml}. */
@@ -54,7 +62,7 @@ public record LunarSettings(boolean enabled, int updateTicks, Waypoints waypoint
                         NametagStyle.Relation.ALLY, "&9",
                         NametagStyle.Relation.ENEMY, "&c",
                         NametagStyle.Relation.FOCUS, "&d",
-                        NametagStyle.Relation.NEUTRAL, "&f"))));
+                        NametagStyle.Relation.NEUTRAL, "&f")), true));
     }
 
     /** @return {@code 0xRRGGBB} from {@code "#RRGGBB"} or {@code "RRGGBB"}; empty when it is not one */

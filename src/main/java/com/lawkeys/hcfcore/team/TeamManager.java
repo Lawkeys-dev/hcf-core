@@ -149,6 +149,13 @@ public final class TeamManager {
     // Name validation
     // ------------------------------------------------------------------
 
+    /**
+     * How long a name staff give a server team may be, whatever {@code max-length}
+     * says of players' teams. Hard-coded: a scoreboard line and a territory
+     * message still have to hold it.
+     */
+    public static final int SYSTEM_NAME_MAX_LENGTH = 32;
+
     private static String normalizeName(String name) {
         return name.toLowerCase(Locale.ROOT);
     }
@@ -159,6 +166,10 @@ public final class TeamManager {
      *
      * @param currentTeam team being renamed, so it does not collide with itself;
      *                    {@code null} when creating
+     * @param applyBlacklist a name a player chooses: the blacklist and
+     *                    {@code max-length} apply. Staff naming server land - a
+     *                    road, an event's territory, {@code GlowstoneMountain} - go
+     *                    up to {@link #SYSTEM_NAME_MAX_LENGTH} instead
      * @return a failing {@link TeamResult}, or empty when the name is acceptable
      */
     public Optional<TeamResult> validateName(String name, Team currentTeam, boolean applyBlacklist) {
@@ -169,9 +180,10 @@ public final class TeamManager {
             return Optional.of(TeamResult.fail(TeamMessages.NAME_TOO_SHORT,
                     "min", String.valueOf(rules.minLength()), "name", trimmed));
         }
-        if (trimmed.length() > rules.maxLength()) {
+        int max = applyBlacklist ? rules.maxLength() : Math.max(rules.maxLength(), SYSTEM_NAME_MAX_LENGTH);
+        if (trimmed.length() > max) {
             return Optional.of(TeamResult.fail(TeamMessages.NAME_TOO_LONG,
-                    "max", String.valueOf(rules.maxLength()), "name", trimmed));
+                    "max", String.valueOf(max), "name", trimmed));
         }
         if (!rules.pattern().matcher(trimmed).matches()) {
             return Optional.of(TeamResult.fail(TeamMessages.NAME_INVALID_CHARACTERS, "name", trimmed));

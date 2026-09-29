@@ -106,6 +106,15 @@ class TeamManagerTest {
         }
 
         @Test
+        void aPlayersTeamNameIsHeldToSixteenAServerTeamsIsNot() {
+            assertEquals(TeamMessages.NAME_TOO_LONG, manager.createTeam(alice, "abcdefghijklmnopq").getMessageKey());
+            assertTrue(manager.createTeam(alice, "abcdefghijklmnop").isSuccess(), "16 is allowed");
+            assertTrue(manager.createSystemTeam("GlowstoneMountain").isSuccess(), "staff name server land");
+            assertEquals(TeamMessages.NAME_TOO_LONG,
+                    manager.createSystemTeam("x".repeat(TeamManager.SYSTEM_NAME_MAX_LENGTH + 1)).getMessageKey());
+        }
+
+        @Test
         void startingPointsComeFromConfig() {
             reconfigure(withPoints(new TeamSettings.PointsRules(250L, 0L)));
 

@@ -92,4 +92,7 @@ nametags:
     enemy: "&c"
     focus: "&d"
     neutral: "&f"
+  # Your own nametag too - your team and its DTR - shown by Lunar in third person
+  # (F5). Lunar draws it only if "show own nametag" is on in its settings.
+  show-self: true
 # --8<-- [end:nametags]

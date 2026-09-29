@@ -183,7 +183,7 @@ final class ApolloBridge implements LunarBridge, Listener {
                     cooldowns(viewer, apollo, state, current.cooldowns(), now);
                 }
                 if (current.nametags().enabled() && isOn(NametagModule.class)) {
-                    nametags(viewer, apollo, team, state, current.nametags().style());
+                    nametags(viewer, apollo, team, state, current.nametags().style(), current.nametags().showSelf());
                 }
             } catch (RuntimeException e) {
                 // One player's failure must not stop the others; said once, not every update.
@@ -436,12 +436,15 @@ final class ApolloBridge implements LunarBridge, Listener {
     // ------------------------------------------------------------------
 
     /** Every player this viewer can see in their world, coloured by how their teams relate. */
-    private void nametags(Player viewer, ApolloPlayer apollo, Team team, Viewer state, NametagStyle style) {
+    private void nametags(Player viewer, ApolloPlayer apollo, Team team, Viewer state, NametagStyle style,
+                          boolean showSelf) {
         TeamManager teams = sources.teams().getManager();
         DtrManager dtr = sources.dtr().getManager();
         Map<String, List<String>> wanted = new HashMap<>();
         for (Player target : Bukkit.getOnlinePlayers()) {
-            if (target.equals(viewer) || !viewer.canSee(target) || !target.getWorld().equals(viewer.getWorld())) {
+            boolean self = target.equals(viewer);
+            // Their own, for Lunar to show in third person (apollo.yml, nametags.show-self).
+            if ((self && !showSelf) || (!self && (!viewer.canSee(target) || !target.getWorld().equals(viewer.getWorld())))) {
                 continue;
             }
             Team theirs = teams.getTeamOf(target.getUniqueId()).orElse(null);

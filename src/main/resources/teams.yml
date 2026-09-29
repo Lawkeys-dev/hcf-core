@@ -22,7 +22,9 @@ names:
   # the built-in default is used instead, rather than failing every command later.
   pattern: "^[A-Za-z0-9_]+$"
   # Names players may not use, compared case-insensitively. Staff-created system
-  # teams are exempt from this list (but not from the length/pattern rules).
+  # teams are exempt from this list and from max-length - a server team's name may
+  # be 32 characters, GlowstoneMountain say (hard-coded) - but not from min-length
+  # or the pattern.
   blacklist:
     - "spawn"
     - "warzone"

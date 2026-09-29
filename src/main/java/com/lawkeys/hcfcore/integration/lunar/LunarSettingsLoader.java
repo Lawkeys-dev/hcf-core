@@ -97,7 +97,8 @@ public final class LunarSettingsLoader {
         }
         return new LunarSettings.Nametags(section.getBoolean("enabled", d.enabled()),
                 new NametagStyle(section.getString("team-line", d.style().teamLine()),
-                        section.getString("name-line", d.style().nameLine()), colors));
+                        section.getString("name-line", d.style().nameLine()), colors),
+                section.getBoolean("show-self", d.showSelf()));
     }
 
     private static int color(ConfigurationSection section, String key, int fallback, Consumer<String> warn) {
