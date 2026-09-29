@@ -73,6 +73,7 @@ final class TeamSubCommands {
                 new ForceKick(),
                 new ForcePromote(),
                 new ForceDemote(),
+                new ForceLeader(),
                 new CreateSystem(),
                 new SetZone());
     }
@@ -237,8 +238,17 @@ final class TeamSubCommands {
                     .invite(team.get(), player.getUniqueId(), target.get().getUniqueId());
             report(module, sender, result);
             if (result.isSuccess()) {
-                module.getLang().send(target.get(), TeamMessages.INVITE_RECEIVED,
+                // Clicked, it joins: the command the message names.
+                String received = module.getLang().get(TeamMessages.INVITE_RECEIVED,
                         "player", player.getName(), "team", team.get().getName());
+                if (!received.isEmpty()) {
+                    target.get().sendMessage(com.lawkeys.hcfcore.util.LegacyText.of(received)
+                            .clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand(
+                                    "/team join " + team.get().getName()))
+                            .hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
+                                    com.lawkeys.hcfcore.util.LegacyText.of(module.getLang().get(
+                                            TeamMessages.INVITE_CLICK, "team", team.get().getName())))));
+                }
                 module.broadcast(team.get(), player.getUniqueId(), TeamMessages.INVITE_BROADCAST,
                         "player", player.getName(), "target", target.get().getName());
             }
@@ -467,7 +477,7 @@ final class TeamSubCommands {
 
     private static final class Transfer extends MemberTargeting {
         Transfer() {
-            super("transfer", Set.of("setleader"), "<player>", "Hand over leadership");
+            super("transfer", Set.of("setleader", "leader"), "<player>", "Hand over leadership");
         }
 
         @Override
@@ -1003,7 +1013,11 @@ final class TeamSubCommands {
      */
     private abstract static class ForcedMemberAction extends TeamSubCommand {
         ForcedMemberAction(String name, String description) {
-            super(name, Set.of(), ADMIN_PERMISSION, "<player>", description, false, 1);
+            this(name, Set.of(), description);
+        }
+
+        ForcedMemberAction(String name, Set<String> aliases, String description) {
+            super(name, aliases, ADMIN_PERMISSION, "<player>", description, false, 1);
         }
 
         @Override
@@ -1027,11 +1041,16 @@ final class TeamSubCommands {
             if (result.isSuccess() && leaderAfter.isPresent() && !leaderAfter.equals(leaderBefore)) {
                 String leader = module.nameOf(leaderAfter.get());
                 module.broadcast(team.get(), null, TeamMessages.TRANSFER_BROADCAST, "target", leader);
-                module.getLang().send(sender, TeamMessages.TRANSFER_FORCED, "player", leader, "team", team.get().getName());
+                module.getLang().send(sender, leaderChangedMessage(), "player", leader, "team", team.get().getName());
             }
         }
 
         abstract TeamResult apply(TeamModule module, Team team, UUID target);
+
+        /** What staff are told when the team now has another leader. */
+        String leaderChangedMessage() {
+            return TeamMessages.TRANSFER_FORCED;
+        }
 
         @Override
         public List<String> tabComplete(TeamModule module, CommandSender sender, String[] args) {
@@ -1058,6 +1077,23 @@ final class TeamSubCommands {
         @Override
         TeamResult apply(TeamModule module, Team team, UUID target) {
             return module.getManager().promote(team, null, target);
+        }
+    }
+
+    /** {@code /team forceleader <player>} - makes a player the leader of their team, whoever leads now. */
+    private static final class ForceLeader extends ForcedMemberAction {
+        ForceLeader() {
+            super("forceleader", Set.of("forcetransfer"), "Make a player the leader of their team");
+        }
+
+        @Override
+        TeamResult apply(TeamModule module, Team team, UUID target) {
+            return module.getManager().transferLeadership(team, null, target);
+        }
+
+        @Override
+        String leaderChangedMessage() {
+            return TeamMessages.LEADER_FORCED;
         }
     }
 

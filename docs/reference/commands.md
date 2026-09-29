@@ -24,7 +24,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `kick <player>` | | Remove a member | co-leader |
 | `promote <player>` | | Member → officer → co-leader, never to your own rank | leader |
 | `demote <player>` | | Co-leader → officer → member | leader |
-| `transfer <player>` | `setleader` | Hand over leadership | leader |
+| `transfer <player>` | `setleader`, `leader` | Hand over leadership | leader |
 | `settings` | `options` | The team's window, set up with no command: name, description, Discord link, who may join (closed, invitation, open), each rank's permissions, members, invitations, claim lock, HQ and base | every member; each button its own rank |
 | `info [team]` | `who`, `show` | A team's details | — |
 | `list [limit]` | `top` | Teams ranked by points (up to 100 lines) | — |
@@ -59,6 +59,7 @@ The **role** column is the default minimum role in the player's team, set under 
 | `forceunclaim <team> [all]` | Release that team's claim you stand in, or all its land; no refund | `hcfcore.claim.admin` |
 | `forcedisband <team>` | Disband any team | `hcfcore.team.admin` |
 | `forcejoin <player> <team>` | Put a player in a team without an invite (the member cap still applies) | `hcfcore.team.admin` |
+| `forceleader <player>` | Make a player the leader of their team, whoever leads now (alias `forcetransfer`) | `hcfcore.team.admin` |
 | `forcekick <player>` / `forcepromote <player>` / `forcedemote <player>` | Change a player's membership or role, online or not. A kicked leader is succeeded by a co-leader, otherwise by a member; kicking the last member disbands the team | `hcfcore.team.admin` |
 | `setpoints <team> <points>` / `addpoints <team> <points>` | Set or add to (negative: take from) a team's points | `hcfcore.team.admin` |
 | `resetkoth` | Reset every team's counted KOTH captures | `hcfcore.team.admin` |

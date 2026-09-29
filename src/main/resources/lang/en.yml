@@ -107,7 +107,9 @@ team:
   # --- Invitations -------------------------------------------------------
   invite:
     sent: "{success}Invitation sent."
-    received: "{warning}%player% invited you to join {secondary}%team%{warning}. Use {secondary}/team join %team% {warning}to accept."
+    # Clickable: a click joins, as /team join %team% does.
+    received: "{warning}%player% invited you to join {secondary}%team%{warning}. {secondary}Click here {warning}or use {secondary}/team join %team% {warning}to accept."
+    click: "{success}Click to join {secondary}%team%"
     already-sent: "{error}That player already has a pending invitation."
     target-in-team: "{error}That player is already in a team."
     revoked: "{success}Invitation revoked."
@@ -151,6 +153,8 @@ team:
     broadcast: "{prefix}{warning}%target% is now the leader of the team."
     # /team forcekick removed the leader: to the staff member, who took over.
     forced: "{muted}%player% {muted}now leads {secondary}%team%{muted}, in place of the player you removed."
+    # /team forceleader
+    leader-forced: "{success}%player% {success}now leads {secondary}%team%{success}."
 
   # --- Alliances ---------------------------------------------------------
   ally:

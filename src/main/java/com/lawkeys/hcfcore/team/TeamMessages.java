@@ -162,6 +162,7 @@ public final class TeamMessages {
     public static final String DISBAND_BROADCAST = "team.disband.broadcast";
     public static final String RENAME_BROADCAST = "team.rename.broadcast";
     public static final String INVITE_RECEIVED = "team.invite.received";
+    public static final String INVITE_CLICK = "team.invite.click";
     public static final String INVITE_BROADCAST = "team.invite.broadcast";
     public static final String JOIN_BROADCAST = "team.join.broadcast";
     public static final String LEAVE_BROADCAST = "team.leave.broadcast";
@@ -172,6 +173,7 @@ public final class TeamMessages {
     public static final String TRANSFER_BROADCAST = "team.transfer.broadcast";
     /** To the staff member whose /team forcekick removed a leader: who took over. */
     public static final String TRANSFER_FORCED = "team.transfer.forced";
+    public static final String LEADER_FORCED = "team.transfer.leader-forced";
     public static final String ALLY_RECEIVED = "team.ally.received";
     public static final String ALLY_BROADCAST = "team.ally.broadcast";
     public static final String UNALLY_BROADCAST = "team.unally.broadcast";

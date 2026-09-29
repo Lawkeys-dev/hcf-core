@@ -25,12 +25,12 @@ Leader, co-leader (**2 at most**, `max-co-leaders`), **officer** (no limit, `max
 | disband, rename, promote, demote, hand over leadership, ally, unally, withdraw from the bank, unclaim, open the settings | kick, claim, set HQ and base, lock the claim | invite, revoke an invite, focus, rally | deposit in the bank |
 
 - `/team promote <player>` and `/team demote <player>` move a member one rank: member → officer → co-leader. **Nobody makes somebody their equal**: a co-leader a team lets promote raises members to officer, never to co-leader.
-- `/team transfer <player>` (alias `setleader`) hands leadership over; the old leader becomes a **co-leader** (`role-after-leadership-transfer`).
+- `/team transfer <player>` (aliases `setleader`, `leader`) hands leadership over; the old leader becomes a **co-leader** (`role-after-leadership-transfer`).
 
 ## Joining and leaving
 
 - `/team invite <player>` invites; the invitation lasts **5 minutes** (`invite-expiry-seconds`, `0` = never expires). `/team uninvite <player>` withdraws it.
-- The invited player types `/team join <team>`. **An open team** takes anybody, invited or not; **a closed one** nobody (`/team settings`).
+- The invited player clicks the invitation in the chat, or types `/team join <team>`. **An open team** takes anybody, invited or not; **a closed one** nobody (`/team settings`).
 - A team holds **20 members** (`max-members`).
 - `/team leave` leaves; `/team kick <player>` removes a member.
 - **When the last member leaves, the team is disbanded** (`disband-on-last-member-leave`) and its land released.
@@ -135,6 +135,7 @@ Staff with `hcfcore.team.admin` can act on any team:
 | `/team forcejoin <player> <team>` | Put a player in a team without an invite (the member cap still applies) |
 | `/team forcekick <player>` | Remove a player, online or not. A kicked leader is succeeded by a co-leader, otherwise by a member; kicking the last member disbands the team |
 | `/team forcepromote <player>` · `forcedemote <player>` | Change a player's role, online or not |
+| `/team forceleader <player>` (`forcetransfer`) | Make a player the leader of their team, online or not |
 | `/team setpoints` · `addpoints` · `resetkoth` | Points and KOTH captures |
 | `/team setdtr` · `setregen` | DTR overrides — see [DTR and raids](dtr-and-raids.md#staff-overrides) |
 

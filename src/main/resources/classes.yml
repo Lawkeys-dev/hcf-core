@@ -207,7 +207,7 @@ classes:
         seconds: 8
         radius: 20
         targets: team
-      GUNPOWDER:
+      INK_SAC:
         effect: invisibility
         level: 1
         seconds: 8

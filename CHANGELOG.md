@@ -26,6 +26,8 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **`[Refill]` signs** (`kits.yml`, `refill-signs.refill-line`): a kit's items in a self-service window — potions, pearls, golden swords for a player back at spawn — taken freely, never used up, nothing cleared; nothing can be put in or thrown out. The window is a double chest (`refill-rows`), and `/kit fromchest` on a double chest keeps its 54 slots as laid out. *Copy `refill-line` and `refill-rows` from the jar's `kits.yml` and the `kit.sign.refill-title` line of `lang/en.yml`.*
 - **Your own Lunar nametag** (`apollo.yml`, `nametags.show-self`): your team and its DTR above your own head, in third person — Lunar draws it with its "show own nametag" setting on.
 - **Server teams may have longer names**: staff name server land up to 32 characters (`GlowstoneMountain`); a player's team stays within `max-length`, 16 as shipped.
+- **The Bard's invisibility is an ink sac**, as on most HCF servers, where it was gunpowder (`classes.yml`). *A server's own `classes.yml` keeps its item: rename `GUNPOWDER` to `INK_SAC` under the Bard's `held-effects` to follow.*
+- **An invitation is clickable**: a click on it joins the team. **`/team leader`** for `/team transfer`, and **`/team forceleader`** (`forcetransfer`) for staff, who make anybody the leader of their team. *Copy the `team.invite` and `team.transfer.leader-forced` lines of `lang/en.yml` from the jar.*
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
 ### Changed
