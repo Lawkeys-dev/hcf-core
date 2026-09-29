@@ -6,6 +6,12 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-29
+
+A combat logger leaves a villager behind, a raid pays the raiders, and DTR stays negative for as long as a team is raidable — no more freeze. Mountains and capture zones are claimed land; Kill the King is held in the warzone by a wall, and a King who logs out is banned. `[Refill]` signs, `/kit fromchest`, `/leaderboard` in a window, `/alleffect`, `/db` and `/ct`, clickable invitations, your own Lunar nametag, more for Discord. And the classic 1.7.10 combat is gone: it will come back as a plugin of its own after 1.0.
+
+*Tried in game on Paper 26.2 with two players, the combat logger first. Several settings changed or went away: the notes under each change say what to do — your configuration files are never rewritten, and a missing key takes its default.*
+
 ### Added
 - **`/alleffect`** (`/alleffects`, `/effects`): Speed II, Fire Resistance, Invisibility, Haste II and Night Vision in one command, typed again to take them off. Any effect command may now give several effects at once (`effects:` in `effect-commands.yml`). *Existing servers: copy the `alleffect` entry from the jar's `effect-commands.yml`, and the `effect-commands.given-several` line of `lang/en.yml`.*
 - **`/deathban` (`/db`)**: how long dying now would ban you — `/pvp`, and now **`/ct`** (`/combattag`), stay your combat tag. For staff, `/db <player>` checks someone, and `/db lift`, `/db ban` work as under `/pvp`; Tab offers the deathbanned. *Copy the `pvp.deathban.own` lines of `lang/en.yml` from the jar.*
@@ -30,9 +36,6 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **An invitation is clickable**: a click on it joins the team. **`/team leader`** for `/team transfer`, and **`/team forceleader`** (`forcetransfer`) for staff, who make anybody the leader of their team. *Copy the `team.invite` and `team.transfer.leader-forced` lines of `lang/en.yml` from the jar.*
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
-### Removed
-- **Classic combat (1.7.10) is gone**: the server plays the game's own combat. A plugin of its own, for 1.7.10 and 1.8 combat, will follow 1.0. What it left behind is taken back as it is seen — a sword that blocks, a weapon at its 1.7 damage, when a player joins, picks the item or opens a chest; a player's held-off regeneration when they join. *`combat` in `config.yml` and `legacy-combat` in `pvp.yml` are no longer read and can be deleted; the console says so.*
-
 ### Changed
 - **The wall around spawn is a ball around the player**: the safe zone's border within 15 blocks of a player in combat, all round (`safe-zones.wall.radius-blocks`), instead of 15 blocks each way up to layer 128 — far fewer blocks read and sent. *`width-blocks`, `top-y` and `minimum-height` are no longer read.*
 - **No pause in DTR regeneration after a death**: a team is raidable while its DTR is **below zero** — back at 0.00 it is protected — and regenerates from the moment of the death, **+0.1 every 90 seconds** (`regeneration.interval-seconds`): the raid lasts the climb back to zero, 15 minutes from -1. `/team setregen` is the one way left to pause it. *`regeneration.freeze-seconds` is no longer read; take `interval-seconds: 90` from the jar to have the new pace.*
@@ -42,6 +45,9 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **The King cannot leave the warzone**: walking, a pearl, a teleport out are refused, and they see its edge as a wall within 15 blocks, as spawn's is shown in combat (`reign.wall`). **The Wither for a King outside is off** (`outside-penalty.enabled: false`). *To keep the Wither on an existing server, add `enabled: true` under `outside-penalty`.*
 - **A King who logs out is banned for 2 hours** (`reign.quit-ban-seconds`), the event ending with no winner as before.
 - **Only active players are drawn as King**: idle for 5 minutes — no move, look, chat, command or click — and a player is left out (`reign.afk-seconds`).
+
+### Removed
+- **Classic combat (1.7.10) is gone**: the server plays the game's own combat. A plugin of its own, for 1.7.10 and 1.8 combat, will follow 1.0. What it left behind is taken back as it is seen — a sword that blocks, a weapon at its 1.7 damage, when a player joins, picks the item or opens a chest; a player's held-off regeneration when they join. *`combat` in `config.yml` and `legacy-combat` in `pvp.yml` are no longer read and can be deleted; the console says so.*
 
 ### Fixed
 - **`/pvp help` did not exist**, though every mistake pointed to it, and a staff command typed short answered "Unknown command": `help` now lists what you may use under the name you typed (`/db help`, `/ct help`), and a short command shows its usage. `/db help` no longer looks for a player named "help". **`ban` takes an optional length**: with none, as long as a death would ban that player. *Copy the `pvp.help` lines of `lang/en.yml` from the jar.*
@@ -247,7 +253,8 @@ Classes and events.
 ### Added
 - First public version: teams, territory and DTR, combat and deathbans, lives, capture events (KOTH, Citadel, Conquest, Kill the King), Mountains, SOTW/EOTW/Purge, economy with Vault, kits and abilities, custom enchants and limiters, moderation tools, scoreboard and chat, holograms, redeem codes, the Lunar Client integration, and this documentation.
 
-[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/Lawkeys-dev/hcf-core/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.10.0
 [0.9.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.9.0
 [0.8.1]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.8.1
 [0.8.0]: https://github.com/Lawkeys-dev/hcf-core/releases/tag/v0.8.0
