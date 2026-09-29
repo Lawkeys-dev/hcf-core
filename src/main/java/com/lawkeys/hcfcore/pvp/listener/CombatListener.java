@@ -1,8 +1,6 @@
 package com.lawkeys.hcfcore.pvp.listener;
 
 import com.lawkeys.hcfcore.pvp.CombatMath;
-import com.lawkeys.hcfcore.pvp.legacy.LegacyCombatListener;
-import com.lawkeys.hcfcore.pvp.PvpMessages;
 import com.lawkeys.hcfcore.pvp.PvpModule;
 import com.lawkeys.hcfcore.pvp.PvpModule.Refusal;
 import com.lawkeys.hcfcore.pvp.PvpSettings;
@@ -81,14 +79,7 @@ public final class CombatListener implements Listener {
             return;
         }
         int strengthLevel = strengthLevel(attacker);
-        var classic = module.classicCombat();
-        if (classic.isPresent()) {
-            // Classic combat rebuilds the blow the 1.7 way - weapon, Strength,
-            // critical, Sharpness - here, before the classes multiply the whole
-            // (HIGHEST): an archer tag adds to the 1.7 hit.
-            event.setDamage(LegacyCombatListener.rebuildMelee(event, attacker, strengthLevel, classic.get(),
-                    settings.strength()));
-        } else if (strengthLevel > 0 && settings.strength().enabled()) {
+        if (strengthLevel > 0 && settings.strength().enabled()) {
             event.setDamage(CombatMath.nerfStrength(event.getDamage(), strengthLevel,
                     settings.strength()));
         }

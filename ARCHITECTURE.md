@@ -29,7 +29,7 @@ hcf-core/
 │   ├── team/                           # teams, roles, alliances, focus, rally, bank, points
 │   ├── claim/                          # territory (ClaimArea: block claims), protection, HQ/base, server land, warzone, lockclaim; wand/ (the claiming wand)
 │   ├── dtr/                            # DTR, regeneration, raid announcements
-│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire, ender pearl and item cooldowns; legacy/ (classic 1.7.10 combat)
+│   ├── pvp/                            # deathban, combat tag, safe zones, strength nerf, knockback, attack speed, loot, friendly fire, ender pearl and item cooldowns
 │   ├── pvpclass/                       # classes: Diamond, Bard, Archer, Rogue, Miner and those classes.yml defines
 │   ├── effectcommand/                  # /speed and the like: an effect until death (effect-commands.yml)
 │   ├── economy/                        # balances, /pay, /eco, /team deposit|withdraw

@@ -73,23 +73,6 @@ All four pieces must be leather, dyed, and read as the same colour: `/class` sho
 **A Bard's items do nothing.**
 Held and click effects need the class on, and do not work on a safe zone (`abilities-in-safe-zones`). A click costs energy: the scoreboard (`%class_energy_line%`) and `/class` show how much is left.
 
-## Classic combat
-
-**Classic combat does nothing.**
-`config.yml` must say `combat: classic`, and `pvp.yml` must be enabled; the console says `Combat: classic.` after `/hcf reload`. Each part has its own switch under `legacy-combat`.
-
-**A sword does not block.**
-Swords gain blocking while held, within half a second; switch items once. `sword-blocking.enabled` must be on.
-
-**A weapon keeps its modern damage.**
-It must be listed under `weapon-damage.damage`, by its item name. A weapon whose attributes a kit or another plugin set is left alone on purpose: give the kit a plain weapon.
-
-**Players regenerate too slowly, or not at all.**
-Classic regeneration heals half a heart every 4 seconds with 18 food or more, as 1.7 did, and only where the natural health regeneration gamerule is on.
-
-**Players regenerate a point of health every second.**
-The world is on Peaceful: the game heals everybody there, whatever the plugin does. `/difficulty easy` (or above) — a world's difficulty can differ from `server.properties` once changed in game.
-
 ## Events
 
 **The KOTH is never captured.**

@@ -524,10 +524,6 @@ dtr:
 # PvP / combat module
 # ---------------------------------------------------------------------------
 pvp:
-  # Classic combat (config.yml, combat: classic; pvp.yml, legacy-combat).
-  legacy:
-    no-offhand: "{error}There is no off-hand in classic combat."
-    no-shield: "{error}Shields do not work in classic combat - block with your sword."
 
   # The ender pearl cooldown (pvp.yml, ender-pearl-cooldown).
   pearl:

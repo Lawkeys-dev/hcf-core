@@ -57,7 +57,7 @@ public final class PearlListener implements Listener {
         }
         module.getPearlCooldowns().start(player.getUniqueId(), KEY, rules.seconds(), now);
         if (rules.showOnItem()) {
-            // After the game's own one-second cooldown, and the classic combat's clearing of it.
+            // After the game's own one-second cooldown.
             long ticks = rules.seconds() * 20L;
             Bukkit.getScheduler().runTaskLater(module.getPlugin(), () -> {
                 if (player.isOnline()) {

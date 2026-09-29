@@ -23,11 +23,8 @@ import java.util.Optional;
 /**
  * Item cooldowns ({@code pvp.yml}, {@code item-cooldowns}): an item eaten - a golden
  * apple, a chorus fruit - or a totem that saves its holder starts its cooldown; used
- * again meanwhile, it is refused. An item eaten is refused at {@code LOW}: before the
- * classic combat eats a golden apple its own way, at {@code HIGH}, cancelling the
- * game's eating - which is why it starts the cooldown itself
- * ({@link PvpModule#itemUsed}). Otherwise the cooldown starts at {@code MONITOR},
- * once the use has really happened.
+ * again meanwhile, it is refused, at {@code LOW}. The cooldown starts at
+ * {@code MONITOR}, once the use has really happened ({@link PvpModule#itemUsed}).
  */
 public final class ItemCooldownListener implements Listener {
 

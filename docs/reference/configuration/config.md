@@ -27,16 +27,6 @@ Every example on this page is **taken from the shipped `config.yml`**, the file 
 |---|---|---|
 | `kitmap-mode` | `false` | `false` is HCF, `true` is Kitmap — the lives module does not start. See [Game modes](../../getting-started/game-modes.md) |
 
-## Combat
-
-```yaml title="config.yml"
---8<-- "src/main/resources/config.yml:combat"
-```
-
-| Key | As shipped | What it does |
-|---|---|---|
-| `combat` | `modern` | `modern` is the game's own combat; `classic` the 1.7.10 feel, tuned in [`pvp.yml`](pvp.md#classic-combat). Applies with `/hcf reload`. See [Classic combat](../../gameplay/classic-combat.md) |
-
 ## Storage
 
 ```yaml title="config.yml"

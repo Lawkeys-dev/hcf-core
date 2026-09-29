@@ -2,8 +2,8 @@
 
 *Configured in [`pvp.yml`](../reference/configuration/pvp.md). Command: `/pvp`.*
 
-!!! tip "The 1.7.10 feel"
-    `combat: classic` in `config.yml` switches the server to the 1.7.10 combat HCF grew up on — no attack cooldown, sword blocking, 1.7 knockback and regeneration, fast pots. See [Classic combat](classic-combat.md).
+!!! note "The 1.7.10 feel"
+    HCFCore plays the game's own combat. The 1.7 combat it once offered (no attack cooldown, sword blocking, 1.7 knockback) was removed on 29/09/2026: a plugin of its own, for 1.7.10 and 1.8, will follow 1.0.
 
 ## Combat tag
 

@@ -30,6 +30,9 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **An invitation is clickable**: a click on it joins the team. **`/team leader`** for `/team transfer`, and **`/team forceleader`** (`forcetransfer`) for staff, who make anybody the leader of their team. *Copy the `team.invite` and `team.transfer.leader-forced` lines of `lang/en.yml` from the jar.*
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
+### Removed
+- **Classic combat (1.7.10) is gone**: the server plays the game's own combat. A plugin of its own, for 1.7.10 and 1.8 combat, will follow 1.0. What it left behind is taken back as it is seen — a sword that blocks, a weapon at its 1.7 damage, when a player joins, picks the item or opens a chest; a player's held-off regeneration when they join. *`combat` in `config.yml` and `legacy-combat` in `pvp.yml` are no longer read and can be deleted; the console says so.*
+
 ### Changed
 - **The wall around spawn is a ball around the player**: the safe zone's border within 15 blocks of a player in combat, all round (`safe-zones.wall.radius-blocks`), instead of 15 blocks each way up to layer 128 — far fewer blocks read and sent. *`width-blocks`, `top-y` and `minimum-height` are no longer read.*
 - **No pause in DTR regeneration after a death**: a team is raidable while its DTR is **below zero** — back at 0.00 it is protected — and regenerates from the moment of the death, **+0.1 every 90 seconds** (`regeneration.interval-seconds`): the raid lasts the climb back to zero, 15 minutes from -1. `/team setregen` is the one way left to pause it. *`regeneration.freeze-seconds` is no longer read; take `interval-seconds: 90` from the jar to have the new pace.*
@@ -42,7 +45,6 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ### Fixed
 - **`/pvp help` did not exist**, though every mistake pointed to it, and a staff command typed short answered "Unknown command": `help` now lists what you may use under the name you typed (`/db help`, `/ct help`), and a short command shows its usage. `/db help` no longer looks for a player named "help". **`ban` takes an optional length**: with none, as long as a death would ban that player. *Copy the `pvp.help` lines of `lang/en.yml` from the jar.*
-- **Blocking with a sword took no knockback** in classic combat: the game handles the sword as a shield, whose hits push nobody. A blocked hit now pushes as in 1.7, and the attacker is no longer bounced back.
 - **The Fake Pearl stayed greyed out after `/cooldown reset`**: the game's own cooldown on it was left running. A reset of the abilities, or of the Fake Pearl, now ends it too.
 - **`/pvp lift` completed the online players**, who are never the ones banned: Tab now offers the deathbanned, as `/revive` does — a ban until the map ends included, which staff can lift. `/pvp check` offers both.
 - **A death sign placed by a player who is not an operator was blank**, and opened the sign editor: the game copies a block's data from its item for operators only. The plugin now writes the sign and waxes it when placed, for everybody, and refuses the editor and any rewriting.

@@ -83,7 +83,7 @@ An item is used when it is eaten, or — a totem — when it saves its holder. T
 
 | Key | As shipped | What it does |
 |---|---|---|
-| `enabled` | `true` | The nerf at all. In classic combat, 1.7 Strength has its own nerf, a percentage: see below |
+| `enabled` | `true` | The nerf at all |
 | `vanilla-bonus-per-level` | `3.0` | The damage vanilla adds per Strength level, subtracted. **Check it for your version** |
 | `nerfed-bonus-per-level` | `1.5` | The damage added per level instead |
 
@@ -158,48 +158,6 @@ The four lines are `pvp.death-sign.line-1` to `line-4` in the [language file](..
 |---|---|---|
 | `teammates` | `false` | Whether teammates can hurt each other |
 | `allies` | `EVENT_AREAS` | Where allies can hurt each other: `ALWAYS`, `EVENT_AREAS` (a running KOTH, Citadel or Conquest zone, and the King) or `NEVER` |
-
-## Classic combat
-
-Used only while `config.yml` says `combat: classic`. Every value ships at what 1.7.10 did. See [Classic combat](../../gameplay/classic-combat.md) for how each part plays.
-
-```yaml title="pvp.yml"
---8<-- "src/main/resources/pvp.yml:legacy-combat"
-```
-
-| Key | As shipped | What it does |
-|---|---|---|
-| `attack-cooldown.remove` | `true` | No attack cooldown: every click is a full hit. Replaces `attack-speed` |
-| `attack-cooldown.attack-speed` | `1024.0` | The attack speed that gives it |
-| `no-sweep-attacks` | `true` | Refuse the sweep attack's damage and push |
-| `weapon-damage.enabled` | `true` | Weapons deal their 1.7 damage |
-| `weapon-damage.damage` | 1.7 values | Item → damage, the player's own point included (`diamond_sword: 8`, `diamond_axe: 7`). An item not listed keeps its modern damage |
-| `enchantments.enabled` | `true` | 1.7 Sharpness |
-| `enchantments.sharpness-per-level` | `1.25` | Sharpness's bonus per level, added after a critical hit and Strength |
-| `critical-hits.enabled` | `true` | A critical while falling, sprinting included |
-| `critical-hits.multiplier` | `1.5` | What a critical multiplies the hit by |
-| `sword-blocking.enabled` | `true` | Right-click with a sword to block |
-| `sword-blocking.base`, `factor` | `-0.5`, `0.5` | What is blocked: `base + factor × damage` — 1.7 took `(damage + 1) / 2` |
-| `knockback.enabled` | `true` | The 1.7.10 knockback for a melee hit |
-| `knockback.friction` | `2.0` | What the victim's velocity is divided by |
-| `knockback.horizontal`, `vertical` | `0.4`, `0.4` | The push away, and up — in the air as on the ground |
-| `knockback.vertical-limit` | `0.4` | The most a hit lifts |
-| `knockback.extra-horizontal`, `extra-vertical` | `0.5`, `0.1` | A sprint hit's or a Knockback level's extra push |
-| `disable-offhand` | `true` | No off-hand |
-| `disable-shields` | `true` | No shields |
-| `thrown-potions.enabled` | `true` | Potions thrown the 1.7 way, without the thrower's movement |
-| `thrown-potions.speed`, `pitch-offset`, `inaccuracy` | `0.5`, `-20.0`, `1.0` | How fast, how high above the aim, how spread |
-| `ender-pearls.no-cooldown` | `true` | No one-second pearl cooldown |
-| `ender-pearls.enabled`, `speed`, `pitch-offset`, `inaccuracy` | `true`, `1.5`, `0.0`, `1.0` | Pearls thrown the 1.7 way |
-| `natural-regeneration.enabled` | `true` | 1.7 regeneration instead of the modern fast one |
-| `natural-regeneration.interval-seconds`, `amount` | `4.0`, `1.0` | Half a heart every 4 seconds |
-| `natural-regeneration.minimum-food`, `exhaustion` | `18`, `3.0` | The food it needs, and the hunger each heal costs |
-| `golden-apples.enabled` | `true` | Golden apples with their 1.7 effects |
-| `golden-apples.<apple>.food`, `saturation`, `effects` | 1.7 values | Per apple; each effect is an `effect`, a `level` and `seconds` |
-| `strength.enabled`, `per-level` | `true`, `1.3` | 1.7 Strength, a percentage of the weapon's damage: +130% per level; replaces `strength-nerf` while on |
-| `strength.nerf.enabled`, `per-level` | `true`, `0.65` | The HCF nerf of 1.7 Strength, a percentage too: +65% per level instead. Off gives 1.7.10's own |
-| `fishing-rod.enabled` | `true` | A rod's hook knocks a player back and tags both |
-| `fishing-rod.remove-hook` | `true` | The bobber comes back at once after the hit, instead of staying on the player until reeled in |
 
 ## The whole shipped file
 
