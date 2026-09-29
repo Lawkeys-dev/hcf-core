@@ -1499,6 +1499,8 @@ kit:
     too-fast: "{error}Slow down."
     # A kit that replaces the whole inventory, clicked while holding items.
     confirm: "{warning}%kit% replaces your whole inventory. {muted}Click the sign again within {secondary}%seconds%s {muted}to confirm."
+    # A [Refill] sign's self-service window.
+    refill-title: "Refill - %kit%"
 
 
   # The kit layout editor, /kit layout <kit>.

@@ -52,6 +52,12 @@ refill-signs:
   # holds anything is asked to click the sign a second time, within this many
   # seconds, before it is wiped. 0 never asks.
   confirm-seconds: 5
+  # A sign whose first line is [Refill] and whose second is a kit id opens that
+  # kit's items in a self-service window - potions, pearls, a Rogue's golden
+  # swords: take what you need, the window never runs dry. Nothing is cleared and
+  # nothing asked; nothing can be put into the window or thrown out of it. The
+  # word inside the brackets; "" switches refill signs off.
+  refill-line: "Refill"
 # --8<-- [end:refill-signs]
 
 # ---------------------------------------------------------------------------

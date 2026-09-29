@@ -52,6 +52,8 @@ diamond
 
 A sign whose first line is `[Kit]` and second line the kit id hands it out on right-click. Creating one needs `hcfcore.kit.sign`. Signs work anywhere, spawn and other server land included.
 
+A sign whose first line is **`[Refill]`** opens its kit's items in a **self-service window** instead — potions, pearls, a Rogue's golden swords for a player back at spawn. Take what you need: the window never runs dry, and nothing is cleared. Nothing can be put into it, and nothing thrown out of it. Make a kit of the refill items (`/kit fromchest refill`, say) and write `[Refill]` / `refill`.
+
 The sign has its own anti-spam wait (`refill-signs.cooldown-seconds`, 3), **separate from the kit's cooldown** — a kitmap kit usually has none, and the sign still must not be clickable sixty times a second. The word in brackets is `refill-signs.line`, so it can be translated.
 
 **A sign asks before it wipes your inventory.** When a kit replaces the whole inventory (`clear-before-giving`, as shipped) and you hold anything, the first click only warns you; click the same sign again within 5 seconds to take the kit (`refill-signs.confirm-seconds`, `0` never asks). An empty inventory gets the kit at the first click.

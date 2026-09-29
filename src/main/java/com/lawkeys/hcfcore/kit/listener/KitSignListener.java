@@ -60,7 +60,8 @@ public final class KitSignListener implements Listener {
             return;
         }
         String first = plain(event.line(0));
-        if (!first.equalsIgnoreCase("[" + module.getSettings().signLine() + "]")) {
+        boolean refill = isRefillHeader(first);
+        if (!refill && !first.equalsIgnoreCase("[" + module.getSettings().signLine() + "]")) {
             return;
         }
         Player player = event.getPlayer();
@@ -76,8 +77,9 @@ public final class KitSignListener implements Listener {
             return;
         }
         // Colour the header so a finished sign is visibly different from a typo.
+        String word = refill ? module.getSettings().refillLine() : module.getSettings().signLine();
         event.line(0, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-                .legacySection().deserialize(LangManager.colorize("&1[" + module.getSettings().signLine() + "]")));
+                .legacySection().deserialize(LangManager.colorize("&1[" + word + "]")));
         module.getLang().send(player, KitMessages.SIGN_CREATED, "kit", kitId);
     }
 
@@ -98,7 +100,8 @@ public final class KitSignListener implements Listener {
             return;
         }
         String header = plain(sign.getSide(org.bukkit.block.sign.Side.FRONT).line(0));
-        if (!header.equalsIgnoreCase("[" + module.getSettings().signLine() + "]")) {
+        boolean refill = isRefillHeader(header);
+        if (!refill && !header.equalsIgnoreCase("[" + module.getSettings().signLine() + "]")) {
             return;
         }
         Player player = event.getPlayer();
@@ -127,6 +130,15 @@ public final class KitSignListener implements Listener {
                     "time", com.lawkeys.hcfcore.util.Durations.format(kitWait));
             return;
         }
+        if (refill) {
+            // A window to take from, never a wiped inventory: nothing to confirm.
+            signCooldowns.start(player.getUniqueId(), COOLDOWN_KEY, module.getSettings().signCooldownSeconds(), now);
+            if (module.openRefill(player, kit)) {
+                module.getManager().markUsed(player.getUniqueId(), kit);
+                module.flushSoon();
+            }
+            return;
+        }
         // A kit that replaces the whole inventory asks before it wipes anything held.
         if (module.getSettings().clearBeforeGiving() && !isEmpty(player.getInventory())) {
             String signKey = clicked.getWorld().getName() + ":" + clicked.getX() + ":" + clicked.getY() + ":"
@@ -148,6 +160,12 @@ public final class KitSignListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         signCooldowns.forget(event.getPlayer().getUniqueId());
         confirmations.forget(event.getPlayer().getUniqueId());
+    }
+
+    /** @return whether a sign's first line is a {@code [Refill]} sign's, when those are on */
+    private boolean isRefillHeader(String line) {
+        return module.getSettings().refillSigns()
+                && line.equalsIgnoreCase("[" + module.getSettings().refillLine() + "]");
     }
 
     /** Nothing held anywhere: main inventory, armour, off hand. */

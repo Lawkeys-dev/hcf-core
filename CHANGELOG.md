@@ -23,6 +23,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 - **A capture zone is part of its event's claim**: drawn with `/events setzone` past the edge of the event's territory, the territory grows to hold it, `claim-margin` blocks around (`events.yml`, `setup.zone-claims-land`), where it used to only warn. *Add `zone-claims-land: false` under `setup` to keep the warning alone.*
 - **`/buildmode` and `/editmode`** for `/staffbuild`: staff build through protection — spawn, roads, events — until they type it again.
 - **`/kit fromchest <id>`**: a kit from a chest — the one looked at, or at coordinates from the console — its armour put on, the rest in the chest's order. *Copy the `kit.admin.created-from-chest` and `no-chest` lines of `lang/en.yml` from the jar.*
+- **`[Refill]` signs** (`kits.yml`, `refill-signs.refill-line`): a kit's items in a self-service window — potions, pearls, golden swords for a player back at spawn — taken freely, never used up, nothing cleared; nothing can be put in or thrown out. *Copy `refill-line` from the jar's `kits.yml` and the `kit.sign.refill-title` line of `lang/en.yml`.*
 - **Overlapping starts** (`weekly-schedule.overlap`): an event still running when a planned one starts is stopped for it (`replace`, as shipped), keeps running while the planned one is skipped (`skip`), or runs alongside it (`both`).
 
 ### Changed

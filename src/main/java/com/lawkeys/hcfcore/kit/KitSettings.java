@@ -23,10 +23,11 @@ import java.util.Optional;
  */
 public record KitSettings(boolean enabled, boolean signsEnabled, String signLine,
                           long signCooldownSeconds, boolean clearBeforeGiving,
-                          boolean layoutEditor, long signConfirmSeconds) {
+                          boolean layoutEditor, long signConfirmSeconds, String refillLine) {
 
     public KitSettings {
         Objects.requireNonNull(signLine, "signLine");
+        refillLine = refillLine == null ? "" : refillLine.trim();
         signConfirmSeconds = Math.max(0L, signConfirmSeconds);
     }
 
@@ -35,8 +36,19 @@ public record KitSettings(boolean enabled, boolean signsEnabled, String signLine
         this(enabled, signsEnabled, signLine, signCooldownSeconds, clearBeforeGiving, layoutEditor, 5L);
     }
 
+    public KitSettings(boolean enabled, boolean signsEnabled, String signLine, long signCooldownSeconds,
+                       boolean clearBeforeGiving, boolean layoutEditor, long signConfirmSeconds) {
+        this(enabled, signsEnabled, signLine, signCooldownSeconds, clearBeforeGiving, layoutEditor,
+                signConfirmSeconds, "Refill");
+    }
+
+    /** @return whether {@code [Refill]} signs top up an inventory; a blank word switches them off */
+    public boolean refillSigns() {
+        return !refillLine.isEmpty();
+    }
+
     /** Built-in fallback, mirroring {@code resources/kits.yml}. */
     public static KitSettings defaults() {
-        return new KitSettings(true, true, "Kit", 3L, true, true, 5L);
+        return new KitSettings(true, true, "Kit", 3L, true, true, 5L, "Refill");
     }
 }

@@ -33,6 +33,8 @@ public final class KitSettingsLoader {
                 section.getBoolean("layout-editor", defaults.layoutEditor()),
                 signs == null ? defaults.signConfirmSeconds()
                         : Durations.capSeconds(signs.getLong("confirm-seconds", defaults.signConfirmSeconds()),
-                                "confirm-seconds", warn));
+                                "confirm-seconds", warn),
+                signs == null ? defaults.refillLine()
+                        : Objects.requireNonNullElse(signs.getString("refill-line"), defaults.refillLine()));
     }
 }

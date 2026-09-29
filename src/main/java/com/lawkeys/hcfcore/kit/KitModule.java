@@ -102,6 +102,8 @@ public final class KitModule {
 
         plugin.getServer().getPluginManager().registerEvents(new KitSignListener(this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new KitLayoutListener(this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new com.lawkeys.hcfcore.kit.listener.RefillMenuListener(this), plugin);
 
         PluginCommand command = plugin.getServer().getPluginCommand("kit");
         if (command == null) {
@@ -166,6 +168,22 @@ public final class KitModule {
                 player.getWorld().dropItemNaturally(player.getLocation(), leftover);
             }
         }
+    }
+
+    /**
+     * A {@code [Refill]} sign: the kit's items in a self-service window
+     * ({@link RefillMenu}), taken freely and never used up.
+     *
+     * @return whether the window opened; {@code false} when the kit cannot be read
+     */
+    public boolean openRefill(Player player, Kit kit) {
+        ItemStack[] items = read(kit);
+        if (items == null) {
+            lang.send(player, KitMessages.DISABLED);
+            return false;
+        }
+        RefillMenu.open(player, lang.get(KitMessages.REFILL_TITLE, "kit", kit.displayName()), items);
+        return true;
     }
 
     /** @return a kit's items, or {@code null} (logged) when they cannot be read */
