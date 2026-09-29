@@ -66,10 +66,23 @@ public final class ScheduleMenu implements InventoryHolder {
         new ScheduleMenu(module, viewer, module.getPlanning().weekAhead(System.currentTimeMillis()));
     }
 
-    /** The event's colour in this menu: the file's, by id or by kind. */
+    /**
+     * The event's colour in this menu. An event's own colour first - the theme's, then
+     * events.yml's - and only then its kind's, the theme's before events.yml's.
+     */
     static String color(EventModule module, PlanningController.MenuRules rules, String eventId) {
         String kind = module.getLauncher().kindOf(eventId).map(k -> k.typeName()).orElse(null);
-        return rules.colorOf(eventId, kind);
+        java.util.Map<String, String> themed = LangManager.theme().overrides().scheduleColors();
+        String id = eventId == null ? null : eventId.toLowerCase(java.util.Locale.ROOT);
+        if (id != null && themed.containsKey(id)) {
+            return themed.get(id);
+        }
+        // events.yml lists kinds and ids together: an id named as its kind (koth) is the kind's.
+        if (id != null && !id.equals(kind) && rules.colors().containsKey(id)) {
+            return rules.colors().get(id);
+        }
+        String byKind = kind == null ? null : themed.get(kind.toLowerCase(java.util.Locale.ROOT));
+        return byKind != null ? byKind : rules.colorOf(eventId, kind);
     }
 
     /** The event's name without its own colours: the menu gives it one per event. */

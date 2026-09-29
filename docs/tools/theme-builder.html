@@ -87,6 +87,16 @@ textarea { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12
 .panes button { width: 24px; height: 24px; border-radius: 3px; border: 1px solid rgba(0,0,0,.4); cursor: pointer; padding: 0; }
 .panes button[aria-pressed="true"] { outline: 2px solid var(--chosen); outline-offset: 2px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.msg-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.msg-list { display: grid; gap: 4px; }
+.msg { display: grid; gap: 5px; padding-block: 8px; border-top: 1px dashed var(--line); }
+.msg-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.msg-top code { font-size: 11px; color: var(--muted); word-break: break-all; }
+.msg.changed .msg-top code { color: var(--chosen); }
+.msg-top button { font: inherit; font-size: 11px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; cursor: pointer; }
+.msg-preview { background: rgba(0,0,0,.6); border-radius: 4px; padding: 3px 6px; font-size: 14px; min-height: 1.6em; }
+.color-row { display: grid; grid-template-columns: 92px 1fr; gap: 8px; align-items: center; }
+.color-row .msg-preview { font-size: 15px; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, .slot:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 .previews { display: grid; gap: 18px; min-width: 0; }
@@ -317,6 +327,40 @@ pre.code { margin: 0; background: #0d0f13; border: 1px solid var(--line); border
           <div class="field"><label for="hTime">Time left</label><input type="text" id="hTime" class="mono"></div>
         </div>
       </details>
+      <details id="msgSection">
+        <summary>Every message <small>set in theme.yml</small></summary>
+        <div class="body">
+          <p class="hint">Any text of the plugin - replies, announcements, scoreboard rows, menu lines, signs - worded and coloured your way. What you change goes under <code>messages:</code> in theme.yml; the rest stays <code>lang/en.yml</code>'s.</p>
+          <div class="msg-tools">
+            <div class="field"><label for="msgSearch">Search</label><input type="text" id="msgSearch" placeholder="a key or a word: raidable, kit.sign…" autocomplete="off" spellcheck="false"></div>
+            <div class="field"><label for="msgGroup">Part of the plugin</label><select id="msgGroup"></select></div>
+          </div>
+          <label class="check"><input type="checkbox" id="msgChanged"> Only what I changed</label>
+          <p class="hint" id="msgCount" aria-live="polite"></p>
+          <div class="msg-list" id="msgList"></div>
+          <button type="button" class="btn" id="msgMore" hidden>Show more</button>
+        </div>
+      </details>
+
+      <details>
+        <summary>Leaderboard window <small>ui.yml</small></summary>
+        <div class="body">
+          <div class="two">
+            <label class="check"><input type="checkbox" id="lbEnabled"> /leaderboard opens a window</label>
+            <div class="field"><label for="lbRows">Places per board</label><input type="text" id="lbRows" class="mono" inputmode="numeric"></div>
+          </div>
+          <div class="field"><span>Each board's item</span><div class="two" id="lbIcons"></div>
+            <p class="hint">Item names as the server writes them: DIAMOND_SWORD, CLOCK… Its title and lines are messages: <code>stats.top.menu-…</code>.</p></div>
+        </div>
+      </details>
+
+      <details>
+        <summary>/schedule colours <small>set in theme.yml</small></summary>
+        <div class="body">
+          <p class="hint">The colour each kind of event is written in, in the /schedule window and chat. A colour code (<code>&amp;6</code>) or a hex one (<code>&amp;#ffaa00</code>). In place of events.yml's <code>weekly-schedule.menu.colors</code>.</p>
+          <div id="schedColors" style="display:grid;gap:6px"></div>
+        </div>
+      </details>
     </form>
 
     <div class="previews">
@@ -421,6 +465,11 @@ const MESSAGE_KEYS = { // theme field -> lang key, written under messages: when 
   "team.chat.format-team": ["chat", "team"], "team.chat.format-ally": ["chat", "ally"],
   "events.hologram.title": ["holo", "title"], "events.hologram.held-by": ["holo", "held"], "events.hologram.time-left": ["holo", "time"],
 };
+SHIPPED.lb = { enabled: true, rows: "10", icons: { kills: "DIAMOND_SWORD", deaths: "SKELETON_SKULL", kdr: "IRON_SWORD",
+  killstreak: "BLAZE_POWDER", playtime: "CLOCK", "team-kills": "RED_BANNER", "team-points": "GOLD_INGOT" } };
+SHIPPED.schedule = { koth: "&6", citadel: "&5", ktk: "&c", conquest: "&b", dtc: "&9", lastbreak: "&4", slide: "&a", totem: "&e", minitotem: "&3" };
+const SCHEDULE_NAMES = { koth: "KOTH", citadel: "Citadel", ktk: "Kill the King", conquest: "Conquest", dtc: "DTC",
+  lastbreak: "Last Break", slide: "Slide", totem: "Totem", minitotem: "Mini Totem" };
 const ROLES = [
   ["primary", "Primary", "prefix, titles, names, labels"], ["secondary", "Secondary", "values: players, teams, numbers"],
   ["text", "Text", "the body of a message, chat"], ["muted", "Muted", "secondary info, descriptions"],
@@ -579,6 +628,7 @@ function base() {
     menus: { ...SHIPPED.menus }, chat: { ...SHIPPED.chat }, nametags: structuredClone(SHIPPED.nametags), holo: { ...SHIPPED.holo },
     sb: { enabled: true, ticks: "20", title: SHIPPED.sb.title, sep: "blocks", ip: "play.yourserver.net", rows: [...SHIPPED.sb.rows] },
     tab: structuredClone(SHIPPED.tab),
+    messages: {}, lb: structuredClone(SHIPPED.lb), schedule: { ...SHIPPED.schedule },
   };
 }
 function withPrefix(s) { s.prefixRaw = prefixFor(s); return s; }
@@ -745,12 +795,12 @@ function chat() {
   const box = document.getElementById("chat");
   box.textContent = "";
   const lines = [
-    ["{success}Team {secondary}%team% {success}created. Invite members with {secondary}/team invite <player>{success}.", { team: "Wizards" }],
-    ["{prefix}{success}%player% joined the team.", { player: "ownedbynoname" }],
-    ["{prefix}{secondary}%team% {warning}is capturing {secondary}%event%{warning}. {muted}%time% {muted}remaining.", { team: "Wizards", event: "Citadel", time: "4m 12s" }],
-    ["{prefix}{success}%team% {primary}captured {warning}%event%{primary}!", { team: "Wizards", event: "Citadel" }],
-    ["{error}You cannot throw an ender pearl for {secondary}%time%{error}.", { time: "12s" }],
-    ["{prefix}{error}&l%team% {error}is now RAIDABLE!", { team: "Raiders" }],
+    [msg("team.create.success", "{success}Team {secondary}%team% {success}created. Invite members with {secondary}/team invite <player>{success}."), { team: "Wizards" }],
+    [msg("team.join.broadcast", "{prefix}{success}%player% joined the team."), { player: "ownedbynoname" }],
+    [msg("events.broadcast.capture-began", "{prefix}{secondary}%team% {warning}is capturing {secondary}%event%{warning}. {muted}%time% {muted}remaining."), { team: "Wizards", event: "Citadel", time: "4m 12s" }],
+    [msg("events.broadcast.captured", "{prefix}{success}%team% {primary}captured {warning}%event%{primary}!"), { team: "Wizards", event: "Citadel" }],
+    [msg("pvp.pearl.cooldown", "{error}You cannot throw an ender pearl for {secondary}%time%{error}."), { time: "12s" }],
+    [msg("dtr.announce.became-raidable", "{prefix}{error}&l%team% {error}is now RAIDABLE!"), { team: "Raiders" }],
     [state.chat.format, { kills: fill(state.chat.killsFormat, { value: "12" }), prefix: "&7[VIP] ", player: "Lawkeys", suffix: "", message: "on push the koth, go go" }],
     [state.chat.team, { player: "ownedbynoname", message: "rally at the gate" }],
     [state.chat.ally, { player: "Notch", message: "we hold the left side" }],
@@ -803,6 +853,32 @@ const MENUS = {
       tip: [n, state.menus.separator, "&7" + l1, "&7" + l2, "", "{dark}Type {bullet} " + ColorStrip(n).toLowerCase().replace(/ /g, "-"),
         ready ? "{success}Ready" : "{error}Cooldown: {secondary}1m 12s"] })) };
   } },
+  leaderboard: { label: "/leaderboard", title: () => msg("stats.top.menu-title", "Leaderboards"), build: () => {
+    const boards = Object.keys(SHIPPED.lb.icons), sample = { kills: ["Lawkeys", "48"], deaths: ["Notch", "31"], kdr: ["jeb_", "3.20"],
+      killstreak: ["Lawkeys", "12"], playtime: ["Dinnerbone", "41h 5m"], "team-kills": ["Wizards", "96"], "team-points": ["Wizards", "1,250"] };
+    const places = Math.max(1, Math.min(10, parseInt(state.lb.rows, 10) || 10));
+    return { l: layout(boards.length, state.frame, 0), items: boards.map(b => {
+      const lines = [];
+      for (let r = 1; r <= Math.min(places, 5); r++) {
+        lines.push(fill(msg("stats.top.menu-line", "{muted}%rank%. {secondary}%name% {dark}- {primary}%value%"),
+          { rank: String(r), name: r === 1 ? sample[b][0] : SAMPLE_MEMBERS[r % SAMPLE_MEMBERS.length], value: r === 1 ? sample[b][1] : String(10 - r) }));
+      }
+      if (places > 5) lines.push("{dark}…");
+      return { tex: itemTexture(state.lb.icons[b] || SHIPPED.lb.icons[b]),
+        tip: [fill(msg("stats.top.menu-board", "{primary}%board%"), { board: msg("stats.top.board." + b, b) }), state.menus.separator, ...lines] };
+    }) };
+  } },
+  schedule: { label: "/schedule", title: () => msg("events.planning.menu-title", "Event schedule"), build: () => {
+    const days = [["Today", "29/09", [["18:00", "koth", "KOTH"], ["21:00", "citadel", "Citadel"]]], ["Tomorrow", "30/09", [["20:00", "conquest", "Conquest"]]],
+      ["Thursday", "01/10", [["19:00", "dtc", "DTC"], ["22:00", "ktk", "Kill the King"]]], ["Friday", "02/10", [["20:00", "totem", "Totem"]]],
+      ["Saturday", "03/10", [["18:00", "slide", "Slide"], ["21:00", "lastbreak", "Last Break"]]], ["Sunday", "04/10", []], ["Monday", "05/10", [["20:00", "minitotem", "Mini Totem"]]]];
+    return { l: layout(days.length, state.frame, 0), items: days.map(([day, date, list], i) => ({
+      tex: i === 0 ? "item/clock_00" : list.length ? "item/paper" : "item/gray_dye",
+      tip: [fill(msg("events.planning.menu-day", "%day% {muted}%date% {dark}(%count%)"), { day: "{primary}" + day, date, count: String(list.length) }),
+        state.menus.separator,
+        ...(list.length ? list.map(([time, kind, name]) => fill(msg("events.planning.menu-entry", "{muted}%time% {dark}{bullet} %color%%event%"),
+          { time, color: state.schedule[kind] || "", event: name })) : [msg("events.planning.menu-day-empty", "{dark}Nothing planned")])] })) };
+  } },
   pocket: { label: "Pocket Bard", title: () => "{primary}&lPocket Bard", build: () => {
     const framed = layout(7, state.frame, 0);
     const l = { rows: 3, slots: [10, 12, 14, 16], frameSlots: framed.rows === 3 ? framed.frameSlots : new Set(),
@@ -825,7 +901,9 @@ function menu() {
     slot.dataset.index = String(s);
     const it = bySlot.get(s);
     if (it) {
-      slot.append(el("img", { src: texture(it.tex), alt: "", loading: "lazy" })); slot.classList.add("hoverable"); slot.tabIndex = 0;
+      const img = el("img", { src: texture(it.tex), alt: "", loading: "lazy" });
+      img.addEventListener("error", () => { if (!img.src.endsWith("barrier.png")) img.src = texture("item/barrier"); }, { once: true });
+      slot.append(img); slot.classList.add("hoverable"); slot.tabIndex = 0;
       slot.dataset.tip = it.tip.filter((x, k) => !(k === 1 && !x)).join("\n");
     } else if (s === l.previous || s === l.next) {
       slot.append(el("img", { src: texture("item/arrow"), alt: s === l.previous ? "Previous page" : "Next page" }));
@@ -1000,9 +1078,15 @@ function themeYml() {
   for (const [key, [group, field]] of Object.entries(MESSAGE_KEYS)) {
     if (state[group][field] !== SHIPPED[group][field]) messages[key] = state[group][field];
   }
+  for (const [key, value] of Object.entries(state.messages)) messages[key] = value;
   if (Object.keys(messages).length) {
     out.push("", "# Texts of lang/en.yml this theme words its own way.", "messages:");
-    for (const [k, v] of Object.entries(messages)) out.push(`  ${k}: ${q(v)}`);
+    for (const k of Object.keys(messages).sort()) out.push(`  ${k}: ${q(messages[k])}`);
+  }
+  const schedule = Object.entries(state.schedule).filter(([k, v]) => v !== SHIPPED.schedule[k]);
+  if (schedule.length) {
+    out.push("", "# In place of events.yml's weekly-schedule.menu.colors: each kind of event's colour in /schedule.", "schedule-colors:");
+    for (const [k, v] of Object.entries(state.schedule)) out.push(`  ${k}: ${q(v)}`);
   }
   if (state.chat.format !== SHIPPED.chat.format || state.chat.killsFormat !== SHIPPED.chat.killsFormat) {
     out.push("", "# In place of chat.yml's.", "chat:", "  format: " + q(state.chat.format), "  kills-format: " + q(state.chat.killsFormat));
@@ -1026,7 +1110,10 @@ function uiYml() {
     "# ---------------------------------------------------------------------------", "",
     "scoreboard:", "  enabled: " + state.sb.enabled, "  update-ticks: " + (/^\d+$/.test(String(state.sb.ticks).trim()) ? String(state.sb.ticks).trim() : "20"), "  title: " + q(state.sb.title), "  lines:",
     ...sbLines().map(r => "    - " + q(r)), "",
-    ...tabYml(), ""].join("\n");
+    ...tabYml(), "",
+    "# /leaderboard with no argument opens a window, one item per board.", "leaderboard-menu:",
+    "  enabled: " + state.lb.enabled, "  rows: " + ticks(state.lb.rows, "10"), "  icons:",
+    ...Object.keys(SHIPPED.lb.icons).map(b => `    ${b}: ${(state.lb.icons[b] || SHIPPED.lb.icons[b]).trim().toUpperCase()}`), ""].join("\n");
 }
 function ticks(v, fallback) { return /^\d+$/.test(String(v).trim()) ? String(v).trim() : fallback; }
 function tabYml() {
@@ -1045,13 +1132,14 @@ function tabYml() {
 function importTheme(text) {
   const next = deepMerge(withPrefix(base()), JSON.parse(JSON.stringify(state)));
   let section = null, sub = null, found = 0;
+  const path = []; // the nested keys above a messages line: [indent, key]
   const unq = (raw) => raw.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
   for (const line of text.split(/\r?\n/)) {
     if (/^\s*(#|$)/.test(line)) continue;
     const m = line.match(/^(\s*)([A-Za-z0-9._-]+):\s*(.*?)\s*$/);
     if (!m) continue;
     const indent = m[1].length, key = m[2], raw = m[3].replace(/\s+#[^"']*$/, ""), value = unq(raw);
-    if (indent === 0) { section = raw === "" ? key : null; sub = null; }
+    if (indent === 0) { section = raw === "" ? key : null; sub = null; path.length = 0; }
     if (indent === 2 && raw === "") sub = key;
     if (section === "colors" && indent === 2 && /^#?[0-9a-f]{6}(\s*>\s*#?[0-9a-f]{6})*$/i.test(value)) {
       next.colors[key] = value.split(">").map(s => { s = s.trim(); return (s.startsWith("#") ? s : "#" + s).toUpperCase(); }).join(">"); found++;
@@ -1060,8 +1148,15 @@ function importTheme(text) {
       if (key === "pane") { next.pane = value.replace(/_STAINED_GLASS_PANE$/, ""); found++; }
       if (key === "corner-pane") { next.cornerPane = value.replace(/_STAINED_GLASS_PANE$/, ""); found++; }
       if (key === "action") { next.action = value; found++; }
-    } else if (section === "messages" && indent === 2 && MESSAGE_KEYS[key]) {
-      const [g, f] = MESSAGE_KEYS[key]; next[g][f] = value; found++;
+    } else if (section === "messages" && indent >= 2) {
+      while (path.length && path[path.length - 1][0] >= indent) path.pop();
+      if (raw === "") { path.push([indent, key]); continue; }
+      const full = [...path.map(p => p[1]), key].join(".");
+      if (MESSAGE_KEYS[full]) { const [g, f] = MESSAGE_KEYS[full]; next[g][f] = value; }
+      else next.messages[full] = value;
+      found++;
+    } else if (section === "schedule-colors" && indent === 2) {
+      next.schedule[key.toLowerCase()] = value; found++;
     } else if (section === "chat" && indent === 2) {
       if (key === "format") { next.chat.format = value; found++; }
       if (key === "kills-format") { next.chat.killsFormat = value; found++; }
@@ -1229,6 +1324,8 @@ function sync() {
   seg("tabPick", () => tabShown, v => { tabShown = v; }, "tabPick");
   headsEditor();
   panes("pane", "pane"); panes("cornerPane", "cornerPane");
+  if (!document.activeElement || !document.activeElement.closest("#lbIcons")) lbEditor();
+  if (!document.activeElement || !document.activeElement.closest("#schedColors")) scheduleEditor();
   const colours = document.getElementById("ntColors");
   colours.textContent = "";
   for (const rel of Object.keys(state.nametags.colors)) {
@@ -1335,6 +1432,148 @@ document.getElementById("toHeads").addEventListener("click", () => { document.ge
 function renderAll() { chat(); menu(); sidebar(); tab(); scene(); tokens(); drawPalettes(); files(); }
 function changed() { save(); renderAll(); }
 
+// ---------------------------------------------------------------------------
+// Every message: lang/en.yml as the plugin ships it (tools/lang-en.json, written
+// when the documentation is built), and what this theme words its own way.
+// ---------------------------------------------------------------------------
+let LANG = {};
+function msg(key, fallback) {
+  const bound = MESSAGE_KEYS[key];
+  if (bound) return state[bound[0]][bound[1]];
+  if (key in state.messages) return state.messages[key];
+  return key in LANG ? LANG[key] : (fallback !== undefined ? fallback : key);
+}
+function shippedMsg(key) {
+  const bound = MESSAGE_KEYS[key];
+  return bound ? SHIPPED[bound[0]][bound[1]] : LANG[key];
+}
+function isChanged(key) {
+  const bound = MESSAGE_KEYS[key];
+  return bound ? state[bound[0]][bound[1]] !== SHIPPED[bound[0]][bound[1]] : key in state.messages;
+}
+function setMsg(key, value) {
+  const bound = MESSAGE_KEYS[key];
+  if (bound) { state[bound[0]][bound[1]] = value; return; }
+  if (value === LANG[key]) delete state.messages[key]; else state.messages[key] = value;
+}
+// What a message's placeholders read as in its preview.
+const MSG_SAMPLE = { player: "Lawkeys", target: "ownedbynoname", killer: "Notch", victim: "jeb_", team: "Wizards", event: "KOTH",
+  time: "4m 12s", seconds: "30", amount: "$250", balance: "$1,250", kit: "Diamond", ability: "Switcher", dtr: "1.10", points: "120",
+  count: "3", max: "5", value: "12", world: "world", x: "120", y: "-60", z: "-340", zone: "Red", word: "Kit", name: "Lawkeys", rank: "1" };
+const MSG_STEP = 40;
+let msgShown = MSG_STEP;
+function msgKeys() {
+  const group = document.getElementById("msgGroup").value, only = document.getElementById("msgChanged").checked;
+  const words = document.getElementById("msgSearch").value.trim().toLowerCase();
+  const keys = new Set([...Object.keys(LANG), ...Object.keys(state.messages), ...Object.keys(MESSAGE_KEYS)]);
+  return [...keys].filter(k => (!group || k.split(".")[0] === group) && (!only || isChanged(k))
+    && (!words || k.toLowerCase().includes(words) || String(msg(k, "")).toLowerCase().includes(words))).sort();
+}
+function messageGroups() {
+  const select = document.getElementById("msgGroup"), was = select.value, counts = {};
+  for (const k of Object.keys(LANG)) { const g = k.split(".")[0]; counts[g] = (counts[g] || 0) + 1; }
+  select.textContent = "";
+  select.append(el("option", { value: "" }, "Everything (" + Object.keys(LANG).length + ")"));
+  for (const g of Object.keys(counts).sort()) select.append(el("option", { value: g }, g + " (" + counts[g] + ")"));
+  select.value = counts[was] ? was : "";
+}
+function renderMessages() {
+  const list = document.getElementById("msgList"), count = document.getElementById("msgCount"), more = document.getElementById("msgMore");
+  list.textContent = "";
+  if (!Object.keys(LANG).length) {
+    count.textContent = "The list of messages comes with the documentation site: open this page from lawkeys-dev.github.io/hcf-core. "
+      + Object.keys(state.messages).length + " message(s) of this theme are kept all the same.";
+    more.hidden = true;
+    return;
+  }
+  const keys = msgKeys(), changedCount = Object.keys(LANG).filter(isChanged).length;
+  count.textContent = keys.length + " message(s)" + (changedCount ? " · " + changedCount + " changed" : "");
+  for (const key of keys.slice(0, msgShown)) {
+    const row = el("div", { class: "msg" + (isChanged(key) ? " changed" : "") });
+    const top = el("div", { class: "msg-top" });
+    const reset = el("button", { type: "button", title: "Back to the plugin's text" }, "Reset");
+    reset.hidden = !isChanged(key);
+    top.append(el("code", {}, key), reset);
+    const input = el("input", { type: "text", class: "mono", "aria-label": key, spellcheck: "false" });
+    input.value = msg(key, "");
+    const preview = el("div", { class: "msg-preview mc" });
+    const draw = () => render(preview, input.value, MSG_SAMPLE);
+    input.addEventListener("input", () => {
+      setMsg(key, input.value); draw();
+      row.classList.toggle("changed", isChanged(key)); reset.hidden = !isChanged(key);
+      quietChange();
+    });
+    reset.addEventListener("click", () => {
+      setMsg(key, shippedMsg(key)); input.value = msg(key, ""); draw();
+      row.classList.remove("changed"); reset.hidden = true; quietChange();
+    });
+    draw();
+    row.append(top, input, preview);
+    list.append(row);
+  }
+  more.hidden = keys.length <= msgShown;
+}
+// A change typed in the messages list: everything but the list itself is redrawn, so the field keeps its focus.
+let quietTimer = 0;
+function quietChange() {
+  save();
+  clearTimeout(quietTimer);
+  quietTimer = setTimeout(() => { sync(); chat(); menu(); sidebar(); tab(); scene(); files(); }, 120);
+}
+for (const id of ["msgSearch", "msgGroup", "msgChanged"]) {
+  document.getElementById(id).addEventListener(id === "msgSearch" ? "input" : "change", () => { msgShown = MSG_STEP; renderMessages(); });
+}
+document.getElementById("msgMore").addEventListener("click", () => { msgShown += MSG_STEP; renderMessages(); });
+fetch("lang-en.json").then(r => r.ok ? r.json() : {}).catch(() => ({})).then(texts => {
+  LANG = texts || {};
+  // A theme saved before a message's text changed in the plugin keeps only real differences.
+  for (const [k, v] of Object.entries(state.messages)) if (LANG[k] === v) delete state.messages[k];
+  messageGroups(); renderMessages(); renderAll();
+});
+
+// Items a menu shows, by the name the server gives them.
+function itemTexture(material) {
+  const name = String(material || "").trim().toLowerCase();
+  const special = { clock: "item/clock_00", compass: "item/compass_00", skeleton_skull: "item/bone", wither_skeleton_skull: "item/coal",
+    red_banner: "item/red_dye", player_head: "item/name_tag", recovery_compass: "item/recovery_compass_00" };
+  return special[name] || "item/" + (name || "barrier");
+}
+function lbEditor() {
+  document.getElementById("lbEnabled").checked = !!state.lb.enabled;
+  document.getElementById("lbRows").value = state.lb.rows;
+  const box = document.getElementById("lbIcons");
+  box.textContent = "";
+  for (const b of Object.keys(SHIPPED.lb.icons)) {
+    const f = el("div", { class: "field" });
+    const input = el("input", { type: "text", id: "lb-" + b, class: "mono", value: state.lb.icons[b] || SHIPPED.lb.icons[b], autocomplete: "off", spellcheck: "false" });
+    input.addEventListener("input", () => { state.lb.icons[b] = input.value; showMenu("leaderboard"); changed(); });
+    f.append(el("label", { for: "lb-" + b }, msg("stats.top.board." + b, b)), input);
+    box.append(f);
+  }
+}
+document.getElementById("lbEnabled").addEventListener("change", e => { state.lb.enabled = e.target.checked; changed(); });
+document.getElementById("lbRows").addEventListener("input", e => { state.lb.rows = e.target.value; showMenu("leaderboard"); changed(); });
+// Shows that menu in the preview, its button pressed.
+function showMenu(id) {
+  if (menuShown !== id) { menuShown = id; menuPage = 0; shownSlot = -1; }
+  const radio = document.getElementById("menu-" + id);
+  if (radio) radio.checked = true;
+}
+function scheduleEditor() {
+  const box = document.getElementById("schedColors");
+  box.textContent = "";
+  for (const kind of Object.keys(SHIPPED.schedule)) {
+    const row = el("div", { class: "color-row" });
+    const input = el("input", { type: "text", class: "mono", value: state.schedule[kind], "aria-label": SCHEDULE_NAMES[kind], autocomplete: "off", spellcheck: "false" });
+    const preview = el("div", { class: "msg-preview mc" });
+    const draw = () => render(preview, input.value + SCHEDULE_NAMES[kind]);
+    input.addEventListener("input", () => { state.schedule[kind] = input.value; draw(); showMenu("schedule"); changed(); });
+    draw();
+    row.append(input, preview);
+    box.append(row);
+  }
+}
+
 // Files panel
 let fileShown = "theme";
 function files() {
@@ -1380,7 +1619,7 @@ document.getElementById("zip").addEventListener("click", async () => {
 document.getElementById("load").addEventListener("click", () => {
   const next = importTheme(document.getElementById("importText").value);
   if (!next) { setStatus("Nothing recognised: paste a whole theme.yml."); return; }
-  state = next; sync(); changed(); setStatus("Loaded: tweak it, then download it again.");
+  state = next; sync(); changed(); messageGroups(); renderMessages(); setStatus("Loaded: tweak it, then download it again.");
 });
 
 // Tooltips, shown beside the menu, and page arrows

@@ -6,6 +6,13 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ## [Unreleased]
 
+### Added
+- **The Theme Builder rewords any message**: every text of `lang/en.yml` — about 1,300 — searchable by key or word, filtered by part of the plugin, rendered as it is typed, written into `theme.yml`'s `messages`. It also sets the `/leaderboard` window's items (`ui.yml`, `leaderboard-menu`) and each kind of event's colour in `/schedule`, and previews both windows.
+- **`theme.yml` carries the `/schedule` colours** (`schedule-colors`, by kind or event id), in place of `events.yml`'s `weekly-schedule.menu.colors` — one theme file holds the whole look.
+
+### Changed
+- **A kit or `[Refill]` sign's first line is a message** (`kit.sign.header`, `&1[%word%]` as shipped), where its dark blue was fixed: a theme recolours it. Its text must stay `[%word%]` for the sign to be recognised.
+
 ## [0.10.0] - 2026-09-29
 
 A combat logger leaves a villager behind, a raid pays the raiders, and DTR stays negative for as long as a team is raidable — no more freeze. Mountains and capture zones are claimed land; Kill the King is held in the warzone by a wall, and a King who logs out is banned. `[Refill]` signs, `/kit fromchest`, `/leaderboard` in a window, `/alleffect`, `/db` and `/ct`, clickable invitations, your own Lunar nametag, more for Discord. And the classic 1.7.10 combat is gone: it will come back as a plugin of its own after 1.0.

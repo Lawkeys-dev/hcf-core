@@ -26,3 +26,6 @@ run/
 # Documentation site (mkdocs build) and its virtual environment
 site/
 .venv/
+
+# Python caches (the documentation hooks)
+__pycache__/

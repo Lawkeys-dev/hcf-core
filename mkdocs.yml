@@ -6,6 +6,10 @@ repo_name: Lawkeys-dev/hcf-core
 edit_uri: edit/main/docs/
 copyright: HCFCore is released under the MIT License.
 
+# tools/lang-en.json, the messages the Theme Builder offers to change.
+hooks:
+  - docs-hooks/lang_json.py
+
 validation:
   omitted_files: warn
   absolute_links: warn

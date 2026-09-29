@@ -75,14 +75,23 @@ public record Theme(Map<String, String> colors, String prefix, String bullet, bo
      * @param nametagTeam    over {@code apollo.yml}'s {@code nametags.team-line}
      * @param nametagName    over {@code apollo.yml}'s {@code nametags.name-line}
      * @param nametagColors  relation ({@code self}, {@code ally}...) to its colour, over {@code nametags.colors}
+     * @param scheduleColors the colour each event is written in by {@code /schedule}, by
+     *                       kind or event id, over {@code events.yml}'s {@code weekly-schedule.menu.colors}
      */
     public record Overrides(Map<String, String> messages, String chatFormat, String killsFormat,
-                            String nametagTeam, String nametagName, Map<String, String> nametagColors) {
-        public static final Overrides NONE = new Overrides(Map.of(), null, null, null, null, Map.of());
+                            String nametagTeam, String nametagName, Map<String, String> nametagColors,
+                            Map<String, String> scheduleColors) {
+        public static final Overrides NONE = new Overrides(Map.of(), null, null, null, null, Map.of(), Map.of());
 
         public Overrides {
             messages = Map.copyOf(Objects.requireNonNullElse(messages, Map.of()));
             nametagColors = Map.copyOf(Objects.requireNonNullElse(nametagColors, Map.of()));
+            scheduleColors = Map.copyOf(Objects.requireNonNullElse(scheduleColors, Map.of()));
+        }
+
+        public Overrides(Map<String, String> messages, String chatFormat, String killsFormat,
+                         String nametagTeam, String nametagName, Map<String, String> nametagColors) {
+            this(messages, chatFormat, killsFormat, nametagTeam, nametagName, nametagColors, Map.of());
         }
     }
 

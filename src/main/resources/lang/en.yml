@@ -1495,6 +1495,9 @@ kit:
 
   sign:
     created: "{success}Refill sign created for the {secondary}%kit% {success}kit."
+    # The first line of a finished [Kit] or [Refill] sign; %word% is kits.yml's. Its
+    # text must stay [%word%] - colours are free - or the sign is not recognised.
+    header: "&1[%word%]"
     unknown-kit: "{error}There is no kit called '%kit%'."
     too-fast: "{error}Slow down."
     # A kit that replaces the whole inventory, clicked while holding items.

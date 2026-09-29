@@ -84,4 +84,8 @@ menus:
 #     enemy: "&c"
 #     focus: "&d"
 #     neutral: "&f"
+#
+# schedule-colors:   events.yml's weekly-schedule.menu.colors - each event's colour
+#   koth: "&6"       in /schedule, by kind or by an event's id (an id wins)
+#   citadel: "&5"
 # --8<-- [end:overrides]

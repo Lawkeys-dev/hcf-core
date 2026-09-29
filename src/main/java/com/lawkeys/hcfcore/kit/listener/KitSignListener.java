@@ -3,7 +3,6 @@ package com.lawkeys.hcfcore.kit.listener;
 import com.lawkeys.hcfcore.kit.Kit;
 import com.lawkeys.hcfcore.kit.KitMessages;
 import com.lawkeys.hcfcore.kit.KitModule;
-import com.lawkeys.hcfcore.lang.LangManager;
 import com.lawkeys.hcfcore.util.Cooldowns;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Tag;
@@ -79,7 +78,7 @@ public final class KitSignListener implements Listener {
         // Colour the header so a finished sign is visibly different from a typo.
         String word = refill ? module.getSettings().refillLine() : module.getSettings().signLine();
         event.line(0, net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-                .legacySection().deserialize(LangManager.colorize("&1[" + word + "]")));
+                .legacySection().deserialize(module.getLang().get(KitMessages.SIGN_HEADER, "word", word)));
         module.getLang().send(player, KitMessages.SIGN_CREATED, "kit", kitId);
     }
 

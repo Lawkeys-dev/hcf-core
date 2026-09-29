@@ -71,11 +71,18 @@ public final class ThemeLoader {
                 relations.put(relation.toLowerCase(java.util.Locale.ROOT), colours.getString(relation, ""));
             }
         }
+        Map<String, String> schedule = new LinkedHashMap<>();
+        ConfigurationSection scheduleColors = section.getConfigurationSection("schedule-colors");
+        if (scheduleColors != null) {
+            for (String kind : scheduleColors.getKeys(false)) {
+                schedule.put(kind.toLowerCase(java.util.Locale.ROOT), scheduleColors.getString(kind, ""));
+            }
+        }
         return new Theme.Overrides(messages,
                 chat == null ? null : chat.getString("format"),
                 chat == null ? null : chat.getString("kills-format"),
                 nametags == null ? null : nametags.getString("team-line"),
                 nametags == null ? null : nametags.getString("name-line"),
-                relations);
+                relations, schedule);
     }
 }
