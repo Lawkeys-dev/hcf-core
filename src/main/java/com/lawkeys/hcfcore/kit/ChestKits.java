@@ -10,9 +10,21 @@ import java.util.Locale;
  * leggings and boots found - and everything else fills the inventory in the chest's
  * order. What does not fit the 36 slots of an inventory is left out.
  *
+ * <p>A container larger than an inventory - a double chest - is taken as it is,
+ * slot for slot and no armour worn: no inventory could hold it, so it is a kit for a
+ * {@code [Refill]} sign's window, which shows it in that very order.
+ *
  * <p>Pure Java: item names in, the player-inventory slot of each out.
  */
 public final class ChestKits {
+
+    /**
+     * @return how many slots a kit from a chest of that size holds: an inventory's, or
+     *         the whole chest when it is larger
+     */
+    public static int size(int chestSize) {
+        return Math.max(SIZE, chestSize);
+    }
 
     /** A player inventory's contents: 36 slots, four armour slots, the off hand. */
     public static final int SIZE = 41;
@@ -31,6 +43,12 @@ public final class ChestKits {
      */
     public static int[] slots(List<String> materials) {
         int[] slots = new int[materials.size()];
+        if (materials.size() > SIZE) {
+            for (int i = 0; i < slots.length; i++) {
+                slots[i] = materials.get(i) == null ? -1 : i;
+            }
+            return slots;
+        }
         Arrays.fill(slots, -1);
         boolean[] worn = new boolean[SIZE];
         int next = 0;

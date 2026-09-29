@@ -182,7 +182,8 @@ public final class KitModule {
             lang.send(player, KitMessages.DISABLED);
             return false;
         }
-        RefillMenu.open(player, lang.get(KitMessages.REFILL_TITLE, "kit", kit.displayName()), items);
+        RefillMenu.open(player, lang.get(KitMessages.REFILL_TITLE, "kit", kit.displayName()), items,
+                settings.refillRows());
         return true;
     }
 

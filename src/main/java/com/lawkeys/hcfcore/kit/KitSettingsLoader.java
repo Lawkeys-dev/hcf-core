@@ -35,6 +35,7 @@ public final class KitSettingsLoader {
                         : Durations.capSeconds(signs.getLong("confirm-seconds", defaults.signConfirmSeconds()),
                                 "confirm-seconds", warn),
                 signs == null ? defaults.refillLine()
-                        : Objects.requireNonNullElse(signs.getString("refill-line"), defaults.refillLine()));
+                        : Objects.requireNonNullElse(signs.getString("refill-line"), defaults.refillLine()),
+                signs == null ? defaults.refillRows() : signs.getInt("refill-rows", defaults.refillRows()));
     }
 }

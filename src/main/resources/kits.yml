@@ -58,6 +58,9 @@ refill-signs:
   # nothing asked; nothing can be put into the window or thrown out of it. The
   # word inside the brackets; "" switches refill signs off.
   refill-line: "Refill"
+  # How many rows the refill window has, 1 to 6: 6 is a double chest. A kit made
+  # from a double chest (/kit fromchest) is shown slot for slot, as it was laid out.
+  refill-rows: 6
 # --8<-- [end:refill-signs]
 
 # ---------------------------------------------------------------------------

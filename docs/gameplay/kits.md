@@ -12,7 +12,7 @@
 
 `/kit create <id> [cooldown-seconds] [permission]` stores your inventory as it is. A permission, if given, is then needed to take the kit; any node works.
 
-`/kit fromchest <id>` stores the chest you look at instead — or, from the console too, `/kit fromchest <id> <x> <y> <z> [world]`. The armour in it is put on (the first helmet, chestplate, leggings and boots), everything else fills the inventory in the chest's order. Such a kit has no cooldown and no permission: re-create it with `/kit create` for those.
+`/kit fromchest <id>` stores the chest you look at instead — or, from the console too, `/kit fromchest <id> <x> <y> <z> [world]`. The armour in it is put on (the first helmet, chestplate, leggings and boots), everything else fills the inventory in the chest's order. A double chest is taken as it is, all 54 slots and no armour worn — a kit for a refill window. Such a kit has no cooldown and no permission: re-create it with `/kit create` for those.
 
 | Command | Does |
 |---|---|
@@ -52,7 +52,7 @@ diamond
 
 A sign whose first line is `[Kit]` and second line the kit id hands it out on right-click. Creating one needs `hcfcore.kit.sign`. Signs work anywhere, spawn and other server land included.
 
-A sign whose first line is **`[Refill]`** opens its kit's items in a **self-service window** instead — potions, pearls, a Rogue's golden swords for a player back at spawn. Take what you need: the window never runs dry, and nothing is cleared. Nothing can be put into it, and nothing thrown out of it. Make a kit of the refill items (`/kit fromchest refill`, say) and write `[Refill]` / `refill`.
+A sign whose first line is **`[Refill]`** opens its kit's items in a **self-service window** instead — potions, pearls, a Rogue's golden swords for a player back at spawn. Take what you need: the window never runs dry, and nothing is cleared. Nothing can be put into it, and nothing thrown out of it. Make a kit of the refill items (`/kit fromchest refill`, say) and write `[Refill]` / `refill`. The window is a double chest (`refill-rows: 6`); a kit made from a double chest is shown slot for slot, as it was laid out.
 
 The sign has its own anti-spam wait (`refill-signs.cooldown-seconds`, 3), **separate from the kit's cooldown** — a kitmap kit usually has none, and the sign still must not be clickable sixty times a second. The word in brackets is `refill-signs.line`, so it can be translated.
 

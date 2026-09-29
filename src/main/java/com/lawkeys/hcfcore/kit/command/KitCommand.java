@@ -237,7 +237,7 @@ public final class KitCommand implements TabExecutor {
             materials.add(item == null || item.isEmpty() ? null : item.getType().name());
         }
         int[] slots = com.lawkeys.hcfcore.kit.ChestKits.slots(materials);
-        ItemStack[] contents = new ItemStack[com.lawkeys.hcfcore.kit.ChestKits.SIZE];
+        ItemStack[] contents = new ItemStack[com.lawkeys.hcfcore.kit.ChestKits.size(chest.length)];
         for (int i = 0; i < chest.length; i++) {
             if (slots[i] >= 0) {
                 contents[slots[i]] = chest[i].clone();
