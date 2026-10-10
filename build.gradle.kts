@@ -41,6 +41,7 @@ dependencies {
     // Version target: latest stable Paper 26.2 build. Update this string as new Paper stable
     // releases ship — see CONTRIBUTING.md section 6 (always verify against docs.papermc.io before bumping).
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+    testImplementation("io.papermc.paper:paper-api:26.2.build.+")
 
     // --- Persistence: HikariCP connection pool + drivers (MySQL prod / SQLite dev) ---
     // Shaded into the plugin jar since these are NOT provided by the server.
