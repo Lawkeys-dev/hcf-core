@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Tests for LimiterModule settings, limits, and helper formatting methods without server dependency. */
+/** Tests for LimiterModule settings, limits, and helper formatting methods without Bukkit dependency. */
 class LimiterModuleTest {
 
     @Test
@@ -19,6 +19,7 @@ class LimiterModuleTest {
         assertNotNull(settings);
         assertTrue(settings.enabled());
         assertTrue(settings.fixExistingItems());
+        assertEquals(2, settings.allowedLevel("minecraft:speed", 2, false));
     }
 
     @Test
