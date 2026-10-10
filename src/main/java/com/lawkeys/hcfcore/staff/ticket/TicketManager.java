@@ -168,8 +168,15 @@ public final class TicketManager {
      * closing has actually been written.
      */
     public int flush() throws Exception {
-        int written = 0;
-        for (Long id : Set.copyOf(dirty)) {
+        Set<Long> snapshot = Set.copyOf(dirty);
+        if (snapshot.isEmpty()) {
+            return 0;
+        }
+
+        List<Ticket> toSave = new ArrayList<>(snapshot.size());
+        List<Long> idsToSave = new ArrayList<>(snapshot.size());
+
+        for (Long id : snapshot) {
             dirty.remove(id);
             Ticket ticket = open.get(id);
             if (ticket == null) {
@@ -178,17 +185,27 @@ public final class TicketManager {
             if (ticket == null) {
                 continue;
             }
-            try {
-                store.save(ticket);
-            } catch (Exception e) {
-                dirty.add(id);
-                throw e;
-            }
-            if (ticket.status() == TicketStatus.CLOSED) {
-                closedPending.remove(id, ticket);
-            }
-            written++;
+            toSave.add(ticket);
+            idsToSave.add(id);
         }
-        return written;
+
+        if (toSave.isEmpty()) {
+            return 0;
+        }
+
+        try {
+            store.saveAll(toSave);
+        } catch (Exception e) {
+            dirty.addAll(idsToSave);
+            throw e;
+        }
+
+        for (Ticket ticket : toSave) {
+            if (ticket.status() == TicketStatus.CLOSED) {
+                closedPending.remove(ticket.id(), ticket);
+            }
+        }
+
+        return toSave.size();
     }
 }

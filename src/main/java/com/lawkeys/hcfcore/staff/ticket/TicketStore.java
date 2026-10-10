@@ -20,6 +20,12 @@ public interface TicketStore {
 
     void save(Ticket ticket) throws Exception;
 
+    default void saveAll(Collection<Ticket> tickets) throws Exception {
+        for (Ticket ticket : tickets) {
+            save(ticket);
+        }
+    }
+
     TicketStore NO_OP = new TicketStore() {
         @Override
         public void initSchema() {

@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -94,6 +95,47 @@ public final class JdbcTicketStore implements TicketStore {
                 insert.executeUpdate();
             }
         }
+    }
+
+    @Override
+    public void saveAll(Collection<Ticket> tickets) throws SQLException {
+        if (tickets == null || tickets.isEmpty()) {
+            return;
+        }
+        Transactions.run(dataSource, connection -> {
+            List<Ticket> toInsert = new ArrayList<>();
+            try (PreparedStatement update = connection.prepareStatement(
+                    "UPDATE hcf_staff_tickets SET type = ?, opened_by = ?, opened_name = ?, "
+                            + "target_uuid = ?, target_name = ?, message = ?, opened_at = ?, "
+                            + "status = ?, handled_by = ? WHERE id = ?")) {
+                for (Ticket ticket : tickets) {
+                    bind(update, ticket);
+                    update.setLong(10, ticket.id());
+                    update.addBatch();
+                }
+                int[] results = update.executeBatch();
+                int idx = 0;
+                for (Ticket ticket : tickets) {
+                    if (results[idx] == 0) {
+                        toInsert.add(ticket);
+                    }
+                    idx++;
+                }
+            }
+            if (!toInsert.isEmpty()) {
+                try (PreparedStatement insert = connection.prepareStatement(
+                        "INSERT INTO hcf_staff_tickets (type, opened_by, opened_name, target_uuid, "
+                                + "target_name, message, opened_at, status, handled_by, id) "
+                                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                    for (Ticket ticket : toInsert) {
+                        bind(insert, ticket);
+                        insert.setLong(10, ticket.id());
+                        insert.addBatch();
+                    }
+                    insert.executeBatch();
+                }
+            }
+        });
     }
 
     private static void bind(PreparedStatement statement, Ticket ticket) throws SQLException {
