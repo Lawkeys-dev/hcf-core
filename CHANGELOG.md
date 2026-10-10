@@ -12,6 +12,7 @@ A release gathers several changes: they collect under **Unreleased** as they rea
 
 ### Changed
 - **A kit or `[Refill]` sign's first line is a message** (`kit.sign.header`, `&1[%word%]` as shipped), where its dark blue was fixed: a theme recolours it. Its text must stay `[%word%]` for the sign to be recognised.
+- **Discord's rate-limit retry no longer blocks a thread**: after a 429 the message is sent again by a delayed async task instead of sleeping. Small clean-ups: `isEmpty()` on the stashes, a quicker `/pvp check` Tab list.
 
 ## [0.10.0] - 2026-09-29
 

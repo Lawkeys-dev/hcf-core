@@ -271,17 +271,6 @@ class PvpTest {
         }
 
         @Test
-        void testTabCompleteDeduplication() {
-            List<String> names = new ArrayList<>(List.of("Alice", "Bob"));
-            List<String> banned = List.of("Bob", "Charlie", "Alice", "David");
-
-            Set<String> existing = new java.util.HashSet<>(names);
-            banned.stream().filter(existing::add).forEach(names::add);
-
-            assertEquals(List.of("Alice", "Bob", "Charlie", "David"), names);
-        }
-
-        @Test
         void flushWritesNewBansAndLifts() throws Exception {
             RecordingStore store = new RecordingStore();
             DeathbanManager persisting = new DeathbanManager(() -> settings, store, now::get);

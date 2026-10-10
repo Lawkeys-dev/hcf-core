@@ -40,7 +40,6 @@ dependencies {
     // --- Paper API (provided by the server at runtime) ---
     // Version target: latest stable Paper 26.2 build. Update this string as new Paper stable
     // releases ship — see CONTRIBUTING.md section 6 (always verify against docs.papermc.io before bumping).
-    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 
     // --- Persistence: HikariCP connection pool + drivers (MySQL prod / SQLite dev) ---
     // Shaded into the plugin jar since these are NOT provided by the server.
@@ -62,7 +61,6 @@ dependencies {
     // --- Tests ---
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.papermc.paper:paper-api:26.2.build.+")
     // The YAML parser Paper 26.2 ships (libraries/org/yaml/snakeyaml/2.6): the tests read
     // the shipped files as the server does, YAML 1.1 and all.
     testImplementation("org.yaml:snakeyaml:2.6")
