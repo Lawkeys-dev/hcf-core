@@ -357,7 +357,7 @@ class LimiterModuleTest {
         @Override public java.util.Iterator<org.bukkit.inventory.Recipe> recipeIterator() { return List.of().iterator(); }
         @Override public void clearRecipes() {}
         @Override public void resetRecipes() {}
-        @Override public java.util.Map<String, String me.clip.placeholderapi.PlaceholderHook> getPlaceholders() { return java.util.Map.of(); }
+        @Override public java.util.Map<String, me.clip.placeholderapi.PlaceholderHook> getPlaceholders() { return java.util.Map.of(); }
         @Override public java.util.Map<String, String> getCommandAliases() { return java.util.Map.of(); }
         @Override public int getSpawnRadius() { return 0; }
         @Override public void setSpawnRadius(int value) {}
