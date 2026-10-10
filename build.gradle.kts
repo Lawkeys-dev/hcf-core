@@ -62,6 +62,7 @@ dependencies {
     // --- Tests ---
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.papermc.paper:paper-api:26.2.build.+")
     // The YAML parser Paper 26.2 ships (libraries/org/yaml/snakeyaml/2.6): the tests read
     // the shipped files as the server does, YAML 1.1 and all.
     testImplementation("org.yaml:snakeyaml:2.6")

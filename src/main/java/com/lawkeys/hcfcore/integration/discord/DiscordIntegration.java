@@ -181,8 +181,8 @@ public final class DiscordIntegration implements Listener {
             if (response.statusCode() == 429 && mayRetry) {
                 long wait = response.headers().firstValue("Retry-After")
                         .map(DiscordIntegration::seconds).orElse(2.0).longValue();
-                Thread.sleep(Math.min(30L, Math.max(1L, wait)) * 1000L);
-                send(url, body, false);
+                long ticks = Math.min(30L, Math.max(1L, wait)) * 20L;
+                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> send(url, body, false), ticks);
             } else if (response.statusCode() >= 300) {
                 warnOnce("Discord answered " + response.statusCode() + " - check the webhook URL in discord.yml.", null);
             }
