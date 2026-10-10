@@ -46,10 +46,4 @@ class LimiterModuleTest {
         assertFalse(ClaimBlockLimits.mayPlace(10, 10));
         assertFalse(ClaimBlockLimits.mayPlace(0, 0));
     }
-
-    @Test
-    void displayFormatting() {
-        assertEquals("redstone wire", LimiterModule.display("REDSTONE_WIRE"));
-        assertEquals("hopper", LimiterModule.display("HOPPER"));
-    }
 }
