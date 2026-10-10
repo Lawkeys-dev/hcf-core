@@ -198,7 +198,7 @@ public final class StaffModule {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 stashes.loadAll();
-                if (stashes.size() > 0) {
+                if (!stashes.isEmpty()) {
                     plugin.getLogger().info("Holding " + stashes.size()
                             + " staff inventories from a previous session; each is given back on login.");
                 }

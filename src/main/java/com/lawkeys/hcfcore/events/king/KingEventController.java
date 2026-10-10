@@ -139,7 +139,7 @@ public final class KingEventController {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 stashes.loadAll();
-                if (stashes.size() > 0) {
+                if (!stashes.isEmpty()) {
                     plugin.getLogger().info(stashes.size() + " former King(s) are owed their items; "
                             + "they get them back at their next login.");
                 }
