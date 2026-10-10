@@ -60,6 +60,7 @@ dependencies {
     compileOnly("com.lunarclient:apollo-api:1.2.7")
 
     // --- Tests ---
+    testImplementation("io.papermc.paper:paper-api:26.2.build.+")
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     // The YAML parser Paper 26.2 ships (libraries/org/yaml/snakeyaml/2.6): the tests read
