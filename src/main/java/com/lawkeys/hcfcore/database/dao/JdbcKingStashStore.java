@@ -52,20 +52,36 @@ public final class JdbcKingStashStore implements KingStashStore {
     @Override
     public void save(UUID playerId, byte[] contents) throws SQLException {
         try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement update = connection.prepareStatement(
-                    "UPDATE hcf_king_stashes SET contents = ? WHERE player_uuid = ?")) {
-                update.setBytes(1, contents);
-                update.setString(2, playerId.toString());
-                if (update.executeUpdate() > 0) {
-                    return;
-                }
+            saveOne(connection, playerId, contents);
+        }
+    }
+
+    @Override
+    public void saveAll(Map<UUID, byte[]> stashes) throws SQLException {
+        if (stashes.isEmpty()) {
+            return;
+        }
+        Transactions.run(dataSource, connection -> {
+            for (Map.Entry<UUID, byte[]> entry : stashes.entrySet()) {
+                saveOne(connection, entry.getKey(), entry.getValue());
             }
-            try (PreparedStatement insert = connection.prepareStatement(
-                    "INSERT INTO hcf_king_stashes (contents, player_uuid) VALUES (?, ?)")) {
-                insert.setBytes(1, contents);
-                insert.setString(2, playerId.toString());
-                insert.executeUpdate();
+        });
+    }
+
+    private void saveOne(Connection connection, UUID playerId, byte[] contents) throws SQLException {
+        try (PreparedStatement update = connection.prepareStatement(
+                "UPDATE hcf_king_stashes SET contents = ? WHERE player_uuid = ?")) {
+            update.setBytes(1, contents);
+            update.setString(2, playerId.toString());
+            if (update.executeUpdate() > 0) {
+                return;
             }
+        }
+        try (PreparedStatement insert = connection.prepareStatement(
+                "INSERT INTO hcf_king_stashes (contents, player_uuid) VALUES (?, ?)")) {
+            insert.setBytes(1, contents);
+            insert.setString(2, playerId.toString());
+            insert.executeUpdate();
         }
     }
 
@@ -77,5 +93,22 @@ public final class JdbcKingStashStore implements KingStashStore {
             statement.setString(1, playerId.toString());
             statement.executeUpdate();
         }
+    }
+
+    @Override
+    public void deleteAll(java.util.Collection<UUID> playerIds) throws SQLException {
+        if (playerIds.isEmpty()) {
+            return;
+        }
+        Transactions.run(dataSource, connection -> {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "DELETE FROM hcf_king_stashes WHERE player_uuid = ?")) {
+                for (UUID playerId : playerIds) {
+                    statement.setString(1, playerId.toString());
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+            }
+        });
     }
 }

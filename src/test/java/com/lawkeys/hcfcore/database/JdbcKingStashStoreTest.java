@@ -85,4 +85,19 @@ class JdbcKingStashStoreTest {
         store.initSchema();
         assertTrue(store.loadAll().isEmpty());
     }
+
+    @Test
+    void batchSaveAndBatchDeleteWorkCorrectly() throws Exception {
+        UUID alice = UUID.randomUUID();
+        UUID bob = UUID.randomUUID();
+        UUID charlie = UUID.randomUUID();
+
+        store.saveAll(Map.of(alice, new byte[]{1}, bob, new byte[]{2}, charlie, new byte[]{3}));
+        assertEquals(3, store.loadAll().size());
+
+        store.deleteAll(List.of(alice, charlie));
+        Map<UUID, byte[]> remaining = store.loadAll();
+        assertEquals(1, remaining.size());
+        assertTrue(remaining.containsKey(bob));
+    }
 }

@@ -98,33 +98,44 @@ public final class KingStashes {
         // Each mark is taken off before its row is read, and put back if the write
         // fails: a change made on the main thread during the write marks the row
         // again, and the next flush writes it.
-        for (UUID playerId : Set.copyOf(deleted)) {
+        Set<UUID> pendingDeletes = Set.copyOf(deleted);
+        java.util.List<UUID> toDelete = new java.util.ArrayList<>(pendingDeletes.size());
+        for (UUID playerId : pendingDeletes) {
             deleted.remove(playerId);
             // Stashed again since it was handed back: the save below replaces the row.
-            if (stashes.containsKey(playerId)) {
-                continue;
+            if (!stashes.containsKey(playerId)) {
+                toDelete.add(playerId);
             }
+        }
+        if (!toDelete.isEmpty()) {
             try {
-                store.delete(playerId);
+                store.deleteAll(toDelete);
+                written += toDelete.size();
             } catch (Exception e) {
-                deleted.add(playerId);
+                deleted.addAll(toDelete);
                 throw e;
             }
-            written++;
         }
-        for (UUID playerId : Set.copyOf(dirty)) {
+
+        Set<UUID> pendingDirty = Set.copyOf(dirty);
+        Map<UUID, byte[]> toSave = new java.util.LinkedHashMap<>();
+        java.util.List<UUID> dirtyProcessed = new java.util.ArrayList<>();
+        for (UUID playerId : pendingDirty) {
             dirty.remove(playerId);
             byte[] contents = stashes.get(playerId);
-            if (contents == null) {
-                continue;
+            if (contents != null) {
+                toSave.put(playerId, contents);
+                dirtyProcessed.add(playerId);
             }
+        }
+        if (!toSave.isEmpty()) {
             try {
-                store.save(playerId, contents);
+                store.saveAll(toSave);
+                written += toSave.size();
             } catch (Exception e) {
-                dirty.add(playerId);
+                dirty.addAll(dirtyProcessed);
                 throw e;
             }
-            written++;
         }
         return written;
     }

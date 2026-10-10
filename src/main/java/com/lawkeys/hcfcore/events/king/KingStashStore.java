@@ -20,7 +20,19 @@ public interface KingStashStore {
 
     void save(UUID playerId, byte[] contents) throws Exception;
 
+    default void saveAll(Map<UUID, byte[]> stashes) throws Exception {
+        for (Map.Entry<UUID, byte[]> entry : stashes.entrySet()) {
+            save(entry.getKey(), entry.getValue());
+        }
+    }
+
     void delete(UUID playerId) throws Exception;
+
+    default void deleteAll(java.util.Collection<UUID> playerIds) throws Exception {
+        for (UUID playerId : playerIds) {
+            delete(playerId);
+        }
+    }
 
     KingStashStore NO_OP = new KingStashStore() {
         @Override
