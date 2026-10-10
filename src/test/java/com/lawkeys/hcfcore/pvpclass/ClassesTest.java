@@ -548,4 +548,114 @@ class ClassesTest {
             assertNull(settings.find("mage").orElse(null));
         }
     }
+
+    @Nested
+    class ModuleLifecycle {
+
+        private org.bukkit.plugin.Plugin createMockPlugin() {
+            org.bukkit.plugin.Plugin plugin = org.mockito.Mockito.mock(org.bukkit.plugin.Plugin.class, org.mockito.Mockito.RETURNS_DEEP_STUBS);
+            org.mockito.Mockito.when(plugin.getName()).thenReturn("hcfcore");
+            org.mockito.Mockito.when(plugin.namespace()).thenReturn("hcfcore");
+            org.mockito.Mockito.when(plugin.getPluginMeta().getName()).thenReturn("hcfcore");
+            org.mockito.Mockito.when(plugin.getLogger()).thenReturn(java.util.logging.Logger.getLogger("ClassesTest"));
+            org.mockito.Mockito.when(plugin.getDataFolder()).thenReturn(new java.io.File("non_existent_folder"));
+            return plugin;
+        }
+
+        private static void ensureMockServer() {
+            if (org.bukkit.Bukkit.getServer() == null) {
+                org.bukkit.Server server = org.mockito.Mockito.mock(org.bukkit.Server.class, org.mockito.Mockito.RETURNS_DEEP_STUBS);
+                org.mockito.Mockito.doReturn(java.util.Collections.emptyList()).when(server).getOnlinePlayers();
+                org.mockito.Mockito.when(server.getUpdateFolder()).thenReturn("update");
+                try {
+                    java.lang.reflect.Field field = org.bukkit.Bukkit.class.getDeclaredField("server");
+                    field.setAccessible(true);
+                    field.set(null, server);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        @Test
+        void gettersAndEffectCapsCanBeAccessed() {
+            org.bukkit.plugin.Plugin plugin = createMockPlugin();
+            com.lawkeys.hcfcore.lang.LangManager lang = org.mockito.Mockito.mock(com.lawkeys.hcfcore.lang.LangManager.class);
+            ClassModule module = new ClassModule(plugin, lang, null, null);
+
+            assertEquals(lang, module.getLang());
+            assertNotNull(module.getSettings());
+            assertNotNull(module.getManager());
+            assertNotNull(module.getArcherTags());
+            assertNotNull(module.getCooldowns());
+
+            module.setEffectCaps(com.lawkeys.hcfcore.util.EffectCaps.NONE);
+        }
+
+        @Test
+        void reloadSettingsWhenConfigFileMissingDefaultsToFallback() {
+            org.bukkit.plugin.Plugin plugin = createMockPlugin();
+            com.lawkeys.hcfcore.lang.LangManager lang = org.mockito.Mockito.mock(com.lawkeys.hcfcore.lang.LangManager.class);
+            ClassModule module = new ClassModule(plugin, lang, null, null);
+
+            module.reloadSettings();
+
+            assertNotNull(module.getSettings());
+            assertTrue(module.getSettings().classes().isEmpty());
+        }
+
+        @Test
+        void enableRegistersEventsCommandsAndSchedulers() {
+            ensureMockServer();
+            org.bukkit.Server server = org.bukkit.Bukkit.getServer();
+
+            org.bukkit.plugin.Plugin plugin = createMockPlugin();
+            org.mockito.Mockito.when(plugin.getServer()).thenReturn(server);
+
+            org.bukkit.plugin.PluginManager pluginManager = org.mockito.Mockito.mock(org.bukkit.plugin.PluginManager.class);
+            org.mockito.Mockito.when(server.getPluginManager()).thenReturn(pluginManager);
+
+            org.bukkit.command.PluginCommand classCmd = org.mockito.Mockito.mock(org.bukkit.command.PluginCommand.class);
+            org.bukkit.command.PluginCommand dyesCmd = org.mockito.Mockito.mock(org.bukkit.command.PluginCommand.class);
+            org.mockito.Mockito.when(server.getPluginCommand("class")).thenReturn(classCmd);
+            org.mockito.Mockito.when(server.getPluginCommand("dyes")).thenReturn(dyesCmd);
+
+            org.bukkit.scheduler.BukkitScheduler scheduler = org.mockito.Mockito.mock(org.bukkit.scheduler.BukkitScheduler.class);
+            org.bukkit.scheduler.BukkitTask task = org.mockito.Mockito.mock(org.bukkit.scheduler.BukkitTask.class);
+            org.mockito.Mockito.when(scheduler.runTaskTimer(org.mockito.Mockito.eq(plugin), org.mockito.Mockito.any(Runnable.class), org.mockito.Mockito.anyLong(), org.mockito.Mockito.anyLong()))
+                    .thenReturn(task);
+            org.mockito.Mockito.when(server.getScheduler()).thenReturn(scheduler);
+
+            com.lawkeys.hcfcore.lang.LangManager lang = org.mockito.Mockito.mock(com.lawkeys.hcfcore.lang.LangManager.class);
+            ClassModule module = new ClassModule(plugin, lang, null, null);
+
+            module.enable();
+
+            org.mockito.Mockito.verify(pluginManager).registerEvents(org.mockito.Mockito.any(com.lawkeys.hcfcore.pvpclass.listener.ClassListener.class), org.mockito.Mockito.eq(plugin));
+            org.mockito.Mockito.verify(classCmd).setExecutor(org.mockito.Mockito.any(com.lawkeys.hcfcore.pvpclass.command.ClassCommand.class));
+            org.mockito.Mockito.verify(dyesCmd).setExecutor(org.mockito.Mockito.any(com.lawkeys.hcfcore.pvpclass.command.DyesCommand.class));
+            org.mockito.Mockito.verify(scheduler).runTaskTimer(org.mockito.Mockito.eq(plugin), org.mockito.Mockito.any(Runnable.class), org.mockito.Mockito.eq(10L), org.mockito.Mockito.eq(10L));
+            org.mockito.Mockito.verify(scheduler).runTaskTimer(org.mockito.Mockito.eq(plugin), org.mockito.Mockito.any(Runnable.class), org.mockito.Mockito.eq(5L), org.mockito.Mockito.eq(5L));
+        }
+
+        @Test
+        void disableClearsManagerStateAndCooldownsAndTags() {
+            ensureMockServer();
+            org.bukkit.plugin.Plugin plugin = createMockPlugin();
+            com.lawkeys.hcfcore.lang.LangManager lang = org.mockito.Mockito.mock(com.lawkeys.hcfcore.lang.LangManager.class);
+            ClassModule module = new ClassModule(plugin, lang, null, null);
+
+            UUID playerId = UUID.randomUUID();
+            module.getArcherTags().tag(playerId, new ArcherTag(10, 1.15), System.currentTimeMillis());
+            module.getCooldowns().start(playerId, "test-cd", 30, System.currentTimeMillis());
+
+            assertTrue(module.getArcherTags().remaining(playerId, System.currentTimeMillis()) > 0);
+            assertTrue(module.getCooldowns().remaining(playerId, "test-cd", System.currentTimeMillis()) > 0);
+
+            module.disable();
+
+            assertEquals(0, module.getArcherTags().remaining(playerId, System.currentTimeMillis()));
+            assertEquals(0, module.getCooldowns().remaining(playerId, "test-cd", System.currentTimeMillis()));
+        }
+    }
 }
