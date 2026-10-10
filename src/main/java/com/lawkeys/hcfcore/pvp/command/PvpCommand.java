@@ -12,10 +12,12 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -289,7 +291,8 @@ public final class PvpCommand implements TabExecutor {
                 }
                 // Check also looks up the banned, who are offline.
                 if (args[0].equalsIgnoreCase("check")) {
-                    bannedNames().stream().filter(name -> !names.contains(name)).forEach(names::add);
+                    Set<String> existing = new HashSet<>(names);
+                    bannedNames().stream().filter(existing::add).forEach(names::add);
                 }
             }
             return names.stream().filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix)).toList();
