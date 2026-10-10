@@ -98,33 +98,45 @@ public final class StaffStashes {
         // Each mark is taken off before its row is read, and put back if the write
         // fails: a change made on the main thread during the write marks the row
         // again, and the next flush writes it.
-        for (UUID playerId : Set.copyOf(deleted)) {
-            deleted.remove(playerId);
-            // Stashed again since it was handed back: the save below replaces the row.
-            if (stashes.containsKey(playerId)) {
-                continue;
+        Set<UUID> toDelete = Set.copyOf(deleted);
+        if (!toDelete.isEmpty()) {
+            Set<UUID> actuallyDelete = ConcurrentHashMap.newKeySet();
+            for (UUID playerId : toDelete) {
+                deleted.remove(playerId);
+                if (!stashes.containsKey(playerId)) {
+                    actuallyDelete.add(playerId);
+                }
             }
-            try {
-                store.delete(playerId);
-            } catch (Exception e) {
-                deleted.add(playerId);
-                throw e;
+            if (!actuallyDelete.isEmpty()) {
+                try {
+                    store.deleteAll(actuallyDelete);
+                } catch (Exception e) {
+                    deleted.addAll(actuallyDelete);
+                    throw e;
+                }
+                written += actuallyDelete.size();
             }
-            written++;
         }
-        for (UUID playerId : Set.copyOf(dirty)) {
-            dirty.remove(playerId);
-            byte[] contents = stashes.get(playerId);
-            if (contents == null) {
-                continue;
+
+        Set<UUID> toSave = Set.copyOf(dirty);
+        if (!toSave.isEmpty()) {
+            Map<UUID, byte[]> batch = new java.util.LinkedHashMap<>();
+            for (UUID playerId : toSave) {
+                dirty.remove(playerId);
+                byte[] contents = stashes.get(playerId);
+                if (contents != null) {
+                    batch.put(playerId, contents);
+                }
             }
-            try {
-                store.save(playerId, contents);
-            } catch (Exception e) {
-                dirty.add(playerId);
-                throw e;
+            if (!batch.isEmpty()) {
+                try {
+                    store.saveAll(batch);
+                } catch (Exception e) {
+                    dirty.addAll(batch.keySet());
+                    throw e;
+                }
+                written += batch.size();
             }
-            written++;
         }
         return written;
     }

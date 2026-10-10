@@ -78,4 +78,59 @@ public final class JdbcStaffStashStore implements StaffStashStore {
             statement.executeUpdate();
         }
     }
+
+    @Override
+    public void deleteAll(Iterable<UUID> playerIds) throws SQLException {
+        if (!playerIds.iterator().hasNext()) {
+            return;
+        }
+        Transactions.run(dataSource, connection -> {
+            try (PreparedStatement delete = connection.prepareStatement(
+                    "DELETE FROM hcf_staff_stashes WHERE player_uuid = ?")) {
+                for (UUID playerId : playerIds) {
+                    delete.setString(1, playerId.toString());
+                    delete.addBatch();
+                }
+                delete.executeBatch();
+            }
+        });
+    }
+
+    @Override
+    public void saveAll(Map<UUID, byte[]> stashes) throws SQLException {
+        if (stashes.isEmpty()) {
+            return;
+        }
+        Transactions.run(dataSource, connection -> {
+            Map<UUID, byte[]> toInsert = new LinkedHashMap<>();
+            try (PreparedStatement update = connection.prepareStatement(
+                    "UPDATE hcf_staff_stashes SET contents = ? WHERE player_uuid = ?")) {
+                for (Map.Entry<UUID, byte[]> entry : stashes.entrySet()) {
+                    update.setBytes(1, entry.getValue());
+                    update.setString(2, entry.getKey().toString());
+                    update.addBatch();
+                }
+                int[] counts = update.executeBatch();
+                int idx = 0;
+                for (Map.Entry<UUID, byte[]> entry : stashes.entrySet()) {
+                    // PreparedStatement.SUCCESS_NO_INFO is -2, >= 0 is row count. 0 means updated 0 rows.
+                    if (idx < counts.length && counts[idx] == 0) {
+                        toInsert.put(entry.getKey(), entry.getValue());
+                    }
+                    idx++;
+                }
+            }
+            if (!toInsert.isEmpty()) {
+                try (PreparedStatement insert = connection.prepareStatement(
+                        "INSERT INTO hcf_staff_stashes (contents, player_uuid) VALUES (?, ?)")) {
+                    for (Map.Entry<UUID, byte[]> entry : toInsert.entrySet()) {
+                        insert.setBytes(1, entry.getValue());
+                        insert.setString(2, entry.getKey().toString());
+                        insert.addBatch();
+                    }
+                    insert.executeBatch();
+                }
+            }
+        });
+    }
 }

@@ -23,6 +23,18 @@ public interface StaffStashStore {
 
     void delete(UUID playerId) throws Exception;
 
+    default void saveAll(Map<UUID, byte[]> stashes) throws Exception {
+        for (Map.Entry<UUID, byte[]> entry : stashes.entrySet()) {
+            save(entry.getKey(), entry.getValue());
+        }
+    }
+
+    default void deleteAll(Iterable<UUID> playerIds) throws Exception {
+        for (UUID playerId : playerIds) {
+            delete(playerId);
+        }
+    }
+
     StaffStashStore NO_OP = new StaffStashStore() {
         @Override
         public void initSchema() {
@@ -39,6 +51,14 @@ public interface StaffStashStore {
 
         @Override
         public void delete(UUID playerId) {
+        }
+
+        @Override
+        public void saveAll(Map<UUID, byte[]> stashes) {
+        }
+
+        @Override
+        public void deleteAll(Iterable<UUID> playerIds) {
         }
     };
 }
