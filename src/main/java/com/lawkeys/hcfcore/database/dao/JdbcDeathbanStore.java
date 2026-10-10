@@ -56,34 +56,68 @@ public final class JdbcDeathbanStore implements DeathbanStore {
 
     @Override
     public void save(Deathban deathban) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
+        saveAll(List.of(deathban));
+    }
+
+    @Override
+    public void saveAll(Collection<Deathban> deathbans) throws SQLException {
+        if (deathbans.isEmpty()) {
+            return;
+        }
+        List<Deathban> list = deathbans instanceof List<Deathban> l ? l : new ArrayList<>(deathbans);
+        Transactions.run(dataSource, connection -> {
+            int[] updateCounts;
             try (PreparedStatement update = connection.prepareStatement(
                     "UPDATE hcf_deathbans SET expires_at = ?, reason = ? WHERE player_uuid = ?")) {
-                update.setLong(1, deathban.expiresAt());
-                update.setString(2, deathban.reason());
-                update.setString(3, deathban.playerId().toString());
-                if (update.executeUpdate() > 0) {
-                    return;
+                for (Deathban ban : list) {
+                    update.setLong(1, ban.expiresAt());
+                    update.setString(2, ban.reason());
+                    update.setString(3, ban.playerId().toString());
+                    update.addBatch();
                 }
+                updateCounts = update.executeBatch();
             }
+
             try (PreparedStatement insert = connection.prepareStatement(
                     "INSERT INTO hcf_deathbans (expires_at, reason, player_uuid) VALUES (?, ?, ?)")) {
-                insert.setLong(1, deathban.expiresAt());
-                insert.setString(2, deathban.reason());
-                insert.setString(3, deathban.playerId().toString());
-                insert.executeUpdate();
+                boolean hasInserts = false;
+                for (int i = 0; i < list.size(); i++) {
+                    if (updateCounts[i] == 0) {
+                        Deathban ban = list.get(i);
+                        insert.setLong(1, ban.expiresAt());
+                        insert.setString(2, ban.reason());
+                        insert.setString(3, ban.playerId().toString());
+                        insert.addBatch();
+                        hasInserts = true;
+                    }
+                }
+                if (hasInserts) {
+                    insert.executeBatch();
+                }
             }
-        }
+        });
     }
 
     @Override
     public void delete(UUID playerId) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "DELETE FROM hcf_deathbans WHERE player_uuid = ?")) {
-            statement.setString(1, playerId.toString());
-            statement.executeUpdate();
+        deleteAll(List.of(playerId));
+    }
+
+    @Override
+    public void deleteAll(Collection<UUID> playerIds) throws SQLException {
+        if (playerIds.isEmpty()) {
+            return;
         }
+        Transactions.run(dataSource, connection -> {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "DELETE FROM hcf_deathbans WHERE player_uuid = ?")) {
+                for (UUID playerId : playerIds) {
+                    statement.setString(1, playerId.toString());
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+            }
+        });
     }
 
     @Override

@@ -173,18 +173,21 @@ public final class DeathbanManager {
      */
     public int flush() throws Exception {
         int written = 0;
-        for (UUID lifted : java.util.Set.copyOf(pendingDeletions)) {
-            store.delete(lifted);
-            pendingDeletions.remove(lifted);
-            written++;
+        java.util.List<UUID> toDelete = java.util.List.copyOf(pendingDeletions);
+        if (!toDelete.isEmpty()) {
+            store.deleteAll(toDelete);
+            pendingDeletions.removeAll(toDelete);
+            written += toDelete.size();
         }
-        for (Map.Entry<UUID, Deathban> entry : Map.copyOf(dirty).entrySet()) {
-            dirty.remove(entry.getKey());
+
+        Map<UUID, Deathban> toSave = Map.copyOf(dirty);
+        if (!toSave.isEmpty()) {
+            toSave.keySet().forEach(dirty::remove);
             try {
-                store.save(entry.getValue());
-                written++;
+                store.saveAll(toSave.values());
+                written += toSave.size();
             } catch (Exception e) {
-                dirty.put(entry.getKey(), entry.getValue());
+                toSave.forEach(dirty::putIfAbsent);
                 throw e;
             }
         }

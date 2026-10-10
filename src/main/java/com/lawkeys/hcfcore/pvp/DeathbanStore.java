@@ -18,7 +18,19 @@ public interface DeathbanStore {
 
     void save(Deathban deathban) throws Exception;
 
+    default void saveAll(Collection<Deathban> deathbans) throws Exception {
+        for (Deathban deathban : deathbans) {
+            save(deathban);
+        }
+    }
+
     void delete(UUID playerId) throws Exception;
+
+    default void deleteAll(Collection<UUID> playerIds) throws Exception {
+        for (UUID playerId : playerIds) {
+            delete(playerId);
+        }
+    }
 
     /** Drops rows that expired before {@code now}, so the table does not grow forever. */
     int purgeExpired(long now) throws Exception;
