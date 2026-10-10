@@ -426,7 +426,7 @@ public final class PvpModule {
         this.tagExpiryTask = Bukkit.getScheduler()
                 .runTaskTimer(plugin, this::announceExpiredTags, 20L, 20L);
 
-        // This is what closes the TODO the claim module left: /team hq now refuses
+        // Connects the teleport guard for the claim module: /team hq now refuses
         // to teleport a player who is in combat, without claim/ knowing what
         // combat is (ARCHITECTURE.md section 14).
         if (claims != null) {
