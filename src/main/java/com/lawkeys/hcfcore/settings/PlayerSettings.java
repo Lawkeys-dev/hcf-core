@@ -1,6 +1,7 @@
 package com.lawkeys.hcfcore.settings;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -74,18 +75,22 @@ public final class PlayerSettings {
     }
 
     public int flush() throws Exception {
-        int written = 0;
-        for (UUID playerId : Set.copyOf(dirty)) {
-            dirty.remove(playerId);
-            try {
-                store.save(playerId, disabled(playerId));
-            } catch (Exception e) {
-                dirty.add(playerId);
-                throw e;
-            }
-            written++;
+        Set<UUID> toSave = Set.copyOf(dirty);
+        if (toSave.isEmpty()) {
+            return 0;
         }
-        return written;
+        Map<UUID, Set<PlayerSetting>> batch = new HashMap<>();
+        for (UUID playerId : toSave) {
+            dirty.remove(playerId);
+            batch.put(playerId, disabled(playerId));
+        }
+        try {
+            store.saveAll(batch);
+        } catch (Exception e) {
+            dirty.addAll(toSave);
+            throw e;
+        }
+        return toSave.size();
     }
 
     public int size() {

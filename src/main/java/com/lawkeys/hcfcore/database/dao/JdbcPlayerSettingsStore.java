@@ -73,30 +73,66 @@ public final class JdbcPlayerSettingsStore implements PlayerSettingsStore {
 
     @Override
     public void save(UUID playerId, Set<PlayerSetting> disabled) throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
-            if (disabled.isEmpty()) {
-                try (PreparedStatement delete = connection.prepareStatement(
-                        "DELETE FROM hcf_player_settings WHERE player_uuid = ?")) {
-                    delete.setString(1, playerId.toString());
-                    delete.executeUpdate();
-                }
-                return;
-            }
-            String keys = disabled.stream().map(PlayerSetting::key).sorted().collect(Collectors.joining(","));
-            try (PreparedStatement update = connection.prepareStatement(
-                    "UPDATE hcf_player_settings SET disabled = ? WHERE player_uuid = ?")) {
-                update.setString(1, keys);
-                update.setString(2, playerId.toString());
-                if (update.executeUpdate() > 0) {
-                    return;
-                }
-            }
-            try (PreparedStatement insert = connection.prepareStatement(
-                    "INSERT INTO hcf_player_settings (player_uuid, disabled) VALUES (?, ?)")) {
-                insert.setString(1, playerId.toString());
-                insert.setString(2, keys);
-                insert.executeUpdate();
-            }
+        saveAll(Map.of(playerId, disabled));
+    }
+
+    @Override
+    public void saveAll(Map<UUID, Set<PlayerSetting>> entries) throws SQLException {
+        if (entries.isEmpty()) {
+            return;
         }
+        Transactions.run(dataSource, connection -> {
+            try (PreparedStatement delete = connection.prepareStatement(
+                    "DELETE FROM hcf_player_settings WHERE player_uuid = ?");
+                 PreparedStatement update = connection.prepareStatement(
+                    "UPDATE hcf_player_settings SET disabled = ? WHERE player_uuid = ?");
+                 PreparedStatement insert = connection.prepareStatement(
+                    "INSERT INTO hcf_player_settings (player_uuid, disabled) VALUES (?, ?)")) {
+
+                boolean hasDelete = false;
+                Map<UUID, String> toUpsert = new HashMap<>();
+
+                for (Map.Entry<UUID, Set<PlayerSetting>> entry : entries.entrySet()) {
+                    UUID id = entry.getKey();
+                    Set<PlayerSetting> disabled = entry.getValue();
+                    if (disabled.isEmpty()) {
+                        delete.setString(1, id.toString());
+                        delete.addBatch();
+                        hasDelete = true;
+                    } else {
+                        String keys = disabled.stream().map(PlayerSetting::key).sorted().collect(Collectors.joining(","));
+                        toUpsert.put(id, keys);
+                    }
+                }
+
+                if (hasDelete) {
+                    delete.executeBatch();
+                }
+
+                if (!toUpsert.isEmpty()) {
+                    for (Map.Entry<UUID, String> entry : toUpsert.entrySet()) {
+                        update.setString(1, entry.getValue());
+                        update.setString(2, entry.getKey().toString());
+                        update.addBatch();
+                    }
+                    int[] results = update.executeBatch();
+
+                    boolean hasInsert = false;
+                    int idx = 0;
+                    for (Map.Entry<UUID, String> entry : toUpsert.entrySet()) {
+                        if (results[idx] == 0) {
+                            insert.setString(1, entry.getKey().toString());
+                            insert.setString(2, entry.getValue());
+                            insert.addBatch();
+                            hasInsert = true;
+                        }
+                        idx++;
+                    }
+                    if (hasInsert) {
+                        insert.executeBatch();
+                    }
+                }
+            }
+        });
     }
 }

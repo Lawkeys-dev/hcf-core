@@ -22,6 +22,13 @@ public interface PlayerSettingsStore {
     /** Replaces what this player has switched off; an empty set removes their row. */
     void save(UUID playerId, Set<PlayerSetting> disabled) throws Exception;
 
+    /** Replaces what multiple players have switched off in batch. */
+    default void saveAll(Map<UUID, Set<PlayerSetting>> entries) throws Exception {
+        for (Map.Entry<UUID, Set<PlayerSetting>> entry : entries.entrySet()) {
+            save(entry.getKey(), entry.getValue());
+        }
+    }
+
     PlayerSettingsStore NO_OP = new PlayerSettingsStore() {
         @Override
         public void initSchema() {
@@ -34,6 +41,10 @@ public interface PlayerSettingsStore {
 
         @Override
         public void save(UUID playerId, Set<PlayerSetting> disabled) {
+        }
+
+        @Override
+        public void saveAll(Map<UUID, Set<PlayerSetting>> entries) {
         }
     };
 }
