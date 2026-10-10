@@ -48,6 +48,10 @@ public final class KingStashes {
         return stashes.size();
     }
 
+    public boolean isEmpty() {
+        return stashes.isEmpty();
+    }
+
     /**
      * Keeps a player's items until they are handed back.
      *

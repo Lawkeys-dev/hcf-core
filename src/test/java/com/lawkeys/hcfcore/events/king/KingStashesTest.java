@@ -36,12 +36,19 @@ class KingStashesTest {
 
         @Test
         void aStashIsKeptUntilRemoved() {
+            assertTrue(stashes.isEmpty());
+            assertEquals(0, stashes.size());
+
             assertTrue(stashes.put(alice, new byte[] {1, 2, 3}));
             assertTrue(stashes.has(alice));
+            assertFalse(stashes.isEmpty());
+            assertEquals(1, stashes.size());
             assertArrayEquals(new byte[] {1, 2, 3}, stashes.get(alice).orElseThrow());
 
             stashes.remove(alice);
             assertFalse(stashes.has(alice));
+            assertTrue(stashes.isEmpty());
+            assertEquals(0, stashes.size());
         }
 
         @Test

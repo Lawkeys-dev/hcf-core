@@ -509,14 +509,21 @@ class StaffTest {
 
         @Test
         void anInventoryIsHeldAndHandedBack() {
+            assertTrue(stashes.isEmpty());
+            assertEquals(0, stashes.size());
+
             byte[] items = {1, 2, 3};
             assertTrue(stashes.put(alice, items));
             assertTrue(stashes.has(alice));
+            assertFalse(stashes.isEmpty());
+            assertEquals(1, stashes.size());
             assertArrayEqualsBytes(items, stashes.get(alice).orElseThrow());
 
             stashes.remove(alice);
             assertFalse(stashes.has(alice));
             assertTrue(stashes.get(alice).isEmpty());
+            assertTrue(stashes.isEmpty());
+            assertEquals(0, stashes.size());
         }
 
         /** Overwriting would destroy the first inventory, so it is refused instead. */
