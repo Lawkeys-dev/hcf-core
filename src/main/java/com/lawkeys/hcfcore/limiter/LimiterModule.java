@@ -457,6 +457,8 @@ public final class LimiterModule {
             }
             counts.flush();
         } catch (Exception e) {
+            // Intentionally catch all exceptions so background periodic save failures do not
+            // terminate the scheduled task timer, allowing changes to stay queued for the next flush.
             plugin.getLogger().log(Level.WARNING, "Saving the block counts of claims failed; they stay queued.", e);
         }
     }
